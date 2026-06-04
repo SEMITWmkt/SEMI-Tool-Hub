@@ -1,0 +1,2017 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ST26 論壇 HTML 產生器 v9.11</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --brand:#673BB8;--brand-lt:#ede8f8;--brand-dk:#5a2ea8;
+  --bg:#f5f3fb;--card:#fff;--border:#d4c8f0;
+  --text:#1d1d1f;--muted:#86868b;
+  --ok:#55A51C;--err:#c00;
+  --r:10px;--shadow:0 2px 20px rgba(103,59,184,.10);
+}
+body{font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue","Noto Sans TC",Arial,sans-serif;background:var(--bg);color:var(--text);padding:20px 16px 60px;min-height:100vh;line-height:1.5}
+.wrap{max-width:920px;margin:0 auto;background:var(--card);border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
+
+/* Header */
+.hdr{background:#1d1d1f;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.hdr-eye{font-size:10px;font-weight:700;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px}
+.hdr-name{font-size:18px;font-weight:800;color:#fff}
+.hdr-ver{font-size:11px;color:rgba(255,255,255,.35);margin-top:2px}
+.hdr-badge{background:linear-gradient(135deg,#673BB8,#9b59b6);color:#fff;font-size:11px;font-weight:700;padding:4px 12px;border-radius:100px;letter-spacing:.05em;flex-shrink:0}
+
+/* Step bar */
+.stepbar{display:flex;background:#faf8ff;border-bottom:1px solid var(--border)}
+.stepbar-item{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:14px 6px;font-size:12px;font-weight:600;color:var(--muted);border-bottom:3px solid transparent;cursor:default;white-space:nowrap;transition:all .2s}
+.stepbar-item.active{color:var(--brand);border-bottom-color:var(--brand);background:#fff;font-weight:700}
+.stepbar-item.done{color:var(--ok)}
+.snum{width:22px;height:22px;border-radius:50%;background:#e5e5ea;color:var(--muted);font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.stepbar-item.active .snum{background:var(--brand);color:#fff}
+.stepbar-item.done .snum{background:var(--ok);color:#fff}
+
+/* Panels */
+.panel{padding:28px 24px;display:none}
+.panel.active{display:block}
+
+/* Cards */
+.card{background:#faf8ff;border:1px solid var(--border);border-radius:var(--r);padding:18px 20px;margin-bottom:14px}
+.card-title{font-size:11px;font-weight:700;color:var(--brand);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px;display:flex;align-items:center;gap:6px}
+.workflow-note{background:#f5f5f7;border:1px solid #e5e5ea;border-radius:8px;padding:10px 12px;font-size:12px;color:#555;line-height:1.6;margin-bottom:14px}
+
+/* Forms */
+.lbl{font-size:12px;font-weight:700;color:#555;display:block;margin-bottom:5px}
+.inp{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:7px;font-size:13px;font-family:inherit;background:#fff;color:var(--text);transition:border .15s;outline:none;line-height:1.5}
+.inp:focus{border-color:var(--brand)}
+textarea.inp{resize:vertical}
+.field{margin-bottom:12px}
+.field:last-child{margin-bottom:0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 20px;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;border:none;transition:all .15s;white-space:nowrap}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn-primary{background:var(--brand);color:#fff}
+.btn-primary:hover:not(:disabled){background:var(--brand-dk)}
+.btn-secondary{background:#fff;color:var(--text);border:1.5px solid var(--border)}
+.btn-secondary:hover{background:#f5f5f7}
+.btn-ghost{background:transparent;color:var(--brand);border:1.5px dashed var(--brand)}
+.btn-ghost:hover{background:var(--brand-lt)}
+.btn-danger{background:#fff0f0;color:var(--err);border:1px solid #fcc}
+.btn-danger:hover{background:#ffe0e0}
+.btn-ok{background:var(--ok);color:#fff}
+.btn-ok:hover{background:#478f17}
+.btn-dark{background:#1d1d1f;color:#fff}
+.btn-dark:hover{background:#000}
+.btn-sm{padding:7px 13px;font-size:12px}
+
+/* Mode toggle */
+.mode-toggle{display:flex;background:var(--brand-lt);border-radius:8px;padding:4px;gap:4px;margin-bottom:16px}
+.mode-btn{padding:8px 20px;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;background:transparent;color:var(--brand);transition:all .2s;flex:1;text-align:center}
+.mode-btn.active{background:var(--brand);color:#fff}
+
+/* Hint / info boxes */
+.hint-box{background:var(--brand-lt);border-left:4px solid var(--brand);border-radius:4px;padding:11px 14px;font-size:13px;color:#333;margin-bottom:14px;line-height:1.6}
+.warn-box{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:11px 14px;font-size:13px;color:#92400e;margin-bottom:12px}
+.ok-box{background:#edf7e3;border:1px solid #bbf7d0;border-radius:8px;padding:11px 14px;font-size:13px;color:#166534;font-weight:600;margin-bottom:12px}
+.err-box{background:#fff0f0;border:1px solid #fcc;border-radius:8px;padding:11px 14px;font-size:13px;color:var(--err);font-weight:600;display:none}
+
+/* API settings */
+.api-details{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:11px 14px;margin-bottom:14px}
+.api-details summary{cursor:pointer;font-size:12px;font-weight:700;color:#92400e;list-style:none;display:flex;align-items:center;gap:6px}
+.api-details summary::-webkit-details-marker{display:none}
+.api-body{margin-top:10px;display:flex;gap:8px;align-items:flex-end}
+.api-body .inp{font-family:monospace;font-size:12px;letter-spacing:.03em}
+
+/* Draft banner */
+.draft-banner{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:12px 16px;margin-bottom:14px;display:none;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.draft-banner.show{display:flex}
+
+/* Price preview */
+.price-tbl{width:100%;font-size:12px;border-collapse:collapse;margin-top:8px}
+.price-tbl th{background:var(--brand-lt);padding:6px 10px;color:var(--brand);font-weight:700;font-size:11px;border-bottom:2px solid var(--brand);text-align:right}
+.price-tbl th:first-child{text-align:left}
+.price-tbl td{padding:7px 10px;border-bottom:1px solid #f0edf9;text-align:right}
+.price-tbl td:first-child{text-align:left;font-weight:600}
+
+/* People rows */
+.person-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.person-row input{flex:1;min-width:0}
+
+/* AI highlight */
+.ai-filled .inp{border-color:var(--ok);background:#f0fff4}
+
+/* Logo grid */
+.logo-grid{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:10px}
+.logo-card{border:1.5px solid var(--border);border-radius:8px;overflow:hidden;background:#fff;position:relative;transition:border-color .2s;width:184px}
+.logo-card.co-brand{width:368px}
+.logo-card:hover{border-color:var(--brand)}
+.logo-card.drag-over{border-color:var(--brand);background:var(--brand-lt)}
+.logo-preview{height:92px;display:flex;align-items:center;justify-content:center;background:#f7f7f9;cursor:pointer;position:relative;border-bottom:1px solid var(--border);overflow:hidden}
+.logo-preview canvas{display:block}
+.logo-drop-hint{font-size:11px;color:#bbb;text-align:center;line-height:1.5;padding:8px;pointer-events:none}
+.logo-ord{position:absolute;top:4px;left:4px;background:var(--brand);color:#fff;font-size:9px;font-weight:700;border-radius:3px;padding:2px 5px;line-height:1;z-index:2}
+.logo-norm-overlay{position:absolute;inset:0;background:rgba(255,255,255,.85);display:none;align-items:center;justify-content:center;font-size:11px;color:var(--brand);font-weight:700;z-index:3}
+.logo-controls{padding:8px;display:flex;flex-direction:column;gap:7px}
+.logo-slider-row{display:flex;align-items:center;gap:7px}
+.logo-slider-row label{font-size:10px;font-weight:700;color:var(--muted);white-space:nowrap;min-width:28px}
+.logo-slider{flex:1;-webkit-appearance:none;height:4px;border-radius:2px;background:var(--border);outline:none;cursor:pointer}
+.logo-slider::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--brand);cursor:pointer;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.logo-slider-val{font-size:10px;font-weight:700;color:var(--brand);min-width:28px;text-align:right}
+.logo-cobrand-row{display:flex;align-items:center;gap:6px}
+.logo-cobrand-row label{font-size:11px;font-weight:600;color:#555;cursor:pointer;display:flex;align-items:center;gap:5px}
+.logo-url{font-size:11px;padding:5px 8px;border:1px solid var(--border);border-radius:5px;outline:none;background:#fff;width:100%}
+.logo-url:focus{border-color:var(--brand)}
+.logo-acts{display:flex;gap:3px}
+.logo-acts button{flex:1;padding:5px 3px;font-size:11px;font-weight:700;border:none;border-radius:4px;cursor:pointer;transition:all .15s}
+.btn-mv{background:#f5f5f7;color:#555}
+.btn-mv:hover{background:var(--brand-lt);color:var(--brand)}
+.btn-dl{background:#fff0f0;color:var(--err)}
+.btn-dl:hover{background:#ffe0e0}
+
+/* Loading overlay */
+.loading-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center}
+.loading-ov.show{display:flex}
+.loading-card{background:#fff;border-radius:14px;padding:36px 48px;text-align:center;box-shadow:0 8px 48px rgba(0,0,0,.2)}
+.loading-spin{width:40px;height:40px;border:3px solid var(--brand-lt);border-top-color:var(--brand);border-radius:50%;animation:spin .75s linear infinite;margin:0 auto 16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-txt{font-size:14px;font-weight:700;color:var(--brand)}
+.loading-sub{font-size:12px;color:var(--muted);margin-top:4px}
+
+/* Output */
+.preview-wrap{border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:20px}
+.preview-bar{background:#fff;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:8px}
+.preview-lbl{font-size:13px;font-weight:700}
+.preview-tools{display:flex;gap:8px;align-items:center}
+.tgl-grp{display:flex;border:1px solid var(--border);border-radius:6px;overflow:hidden}
+.tgl-btn{padding:6px 14px;border:none;background:#fff;color:#555;font-size:12px;font-weight:700;cursor:pointer;border-right:1px solid var(--border);transition:all .15s}
+.tgl-btn:last-child{border-right:none}
+.tgl-btn.active{background:#555;color:#fff}
+.preview-cont{padding:20px;display:flex;justify-content:center;background:#f5f3fb;min-height:400px}
+.preview-iframe{width:100%;border:1px solid #e5e5ea;border-radius:4px;background:#fff;display:block;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.preview-iframe.mobile{max-width:375px;height:667px;border-radius:24px;border:8px solid #1d1d1f;box-shadow:0 12px 32px rgba(0,0,0,.2)}
+
+.copy-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.copy-big{padding:18px;border-radius:10px;border:none;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:3px}
+.copy-big .main{font-size:14px;font-weight:800}
+.copy-big .sub{font-size:11px;opacity:.75}
+.copy-zh{background:var(--brand);color:#fff}
+.copy-zh:hover{background:var(--brand-dk)}
+.copy-en{background:#1d1d1f;color:#fff}
+.copy-en:hover{background:#000}
+.copy-big.copied{background:var(--ok)!important}
+
+.code-details{margin-bottom:10px}
+.code-details summary{cursor:pointer;font-size:12px;font-weight:700;color:var(--muted);padding:8px 0;list-style:none;display:flex;align-items:center;gap:6px}
+.code-details summary::-webkit-details-marker{display:none}
+.code-ta{width:100%;padding:14px;border:1px solid var(--border);border-radius:6px;font-size:11px;font-family:monospace;background:#2d2d2d;color:#f8f8f2;resize:vertical;line-height:1.55;outline:none;margin-top:6px}
+
+/* Nav */
+.nav{display:flex;justify-content:space-between;align-items:center;margin-top:24px;padding-top:20px;border-top:1px solid var(--border);flex-wrap:wrap;gap:8px}
+.nav-right{display:flex;gap:8px;margin-left:auto}
+.divider{height:1px;background:var(--border);margin:20px 0}
+
+@media(max-width:640px){
+  .grid2{grid-template-columns:1fr}
+  .copy-row{grid-template-columns:1fr}
+  .panel{padding:20px 16px}
+  .stepbar{overflow-x:auto}
+  .stepbar-item{min-width:80px;font-size:11px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- Header -->
+<div class="hdr">
+  <div>
+    <div class="hdr-eye">SEMI Taiwan · ST26</div>
+    <div class="hdr-name">論壇 HTML 產生器</div>
+    <div class="hdr-ver">v9.11 · 三步驟流程 · AI 輔助 · CMS 版面修正</div>
+  </div>
+  <div class="hdr-badge">✦ AI 輔助版</div>
+</div>
+
+<!-- Step bar -->
+<div class="stepbar">
+  <div class="stepbar-item active" id="step-tab-1">
+    <span class="snum">1</span>輸入資料
+  </div>
+  <div class="stepbar-item" id="step-tab-2">
+    <span class="snum">2</span>確認 &amp; 編輯
+  </div>
+  <div class="stepbar-item" id="step-tab-3">
+    <span class="snum">3</span>輸出預覽
+  </div>
+</div>
+
+<!-- ═══════════════════════════ STEP 1 ═══════════════════════════ -->
+<div class="panel active" id="panel-1">
+
+  <div class="hint-box">
+    選擇輸入方式，貼上資料後按「解析」，系統會自動填入所有能辨識的欄位。
+  </div>
+
+  <div class="mode-toggle">
+    <button class="mode-btn active" onclick="setMode('excel',this)">
+      📊 有 Excel 資料
+    </button>
+    <button class="mode-btn" onclick="setMode('partner',this)">
+      📝 沒有 Excel / Word 內容
+    </button>
+  </div>
+
+  <div id="mode-hint-excel" class="warn-box" style="font-size:12px">
+    請直接從 Excel 複製「ST26_官網連結」資料表的內容（含標題列），貼入下方。
+  </div>
+  <div id="mode-hint-partner" class="warn-box" style="font-size:12px;display:none">
+    適合沒有 Excel 的外部單位或合作論壇。請貼上 Word 內容、email 內文或活動說明；解析後會自動進入合作論壇流程，文字中的連結會保留為可點擊內容。
+  </div>
+
+  <div class="field">
+    <label class="lbl">貼上資料 <span style="color:var(--err)">*</span></label>
+    <textarea class="inp" id="raw-input" rows="9" placeholder="在此貼入資料..."></textarea>
+  </div>
+
+  <!-- API settings (only shown for text mode) -->
+  <div id="api-section" style="display:none;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:14px 16px;margin-bottom:14px">
+    <div style="font-size:12px;font-weight:700;color:#92400e;margin-bottom:10px">⚙️ AI 服務設定（文字 / 合作論壇模式必填）</div>
+
+    <!-- Provider selector -->
+    <div class="field">
+      <label class="lbl">選擇 AI 服務商</label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap" id="provider-btns">
+        <button class="btn btn-sm active" id="prov-claude"  onclick="setProvider('claude',this)"  style="background:var(--brand);color:#fff;border:none">Claude (Anthropic)</button>
+        <button class="btn btn-sm" id="prov-openai"  onclick="setProvider('openai',this)"  style="background:#fff;color:#333;border:1.5px solid #d1d5db">GPT-4o (OpenAI)</button>
+        <button class="btn btn-sm" id="prov-gemini"  onclick="setProvider('gemini',this)"  style="background:#fff;color:#333;border:1.5px solid #d1d5db">Gemini (Google)</button>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:8px;align-items:flex-end;margin-top:10px">
+      <div style="flex:1">
+        <label class="lbl">API Key <span style="font-weight:400;color:var(--muted)">（頁面關閉即清除）</span></label>
+        <input class="inp" id="api-key-inp" type="password" placeholder="sk-ant-...">
+      </div>
+      <button class="btn btn-secondary btn-sm" onclick="saveApiKey()">儲存</button>
+    </div>
+    <div style="margin-top:8px;font-size:11px;color:#78350f;line-height:1.7" id="api-provider-hint">
+      申請 API Key：<a href="https://console.anthropic.com" target="_blank" style="color:var(--brand);font-weight:700">console.anthropic.com</a>
+      （免費額度可用，無需綁定信用卡即可開始）
+    </div>
+  </div>
+
+  <div class="err-box" id="parse-err"></div>
+
+  <!-- Excel forum select (shown after parse) -->
+  <div id="forum-select-wrap" style="display:none">
+    <div class="card">
+      <div class="card-title">選擇場次</div>
+      <div class="field">
+        <label class="lbl">找到 <span id="forum-count">0</span> 個場次，請選擇：</label>
+        <select class="inp" id="forum-select" onchange="onForumSelect()">
+          <option value="">── 請選擇 ──</option>
+        </select>
+      </div>
+      <div id="forum-preview" style="display:none;margin-top:12px">
+        <div class="grid2">
+          <div>
+            <div class="lbl" style="color:var(--brand)">場地</div>
+            <div id="prev-venue" style="font-size:14px;font-weight:700"></div>
+            <div id="prev-venue-zh" style="font-size:12px;color:var(--muted);margin-top:2px"></div>
+          </div>
+        </div>
+        <div style="margin-top:12px">
+          <div class="lbl" style="color:var(--brand)">票價預覽</div>
+          <div id="prev-price"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Draft banner -->
+  <div class="draft-banner" id="draft-banner">
+    <div>
+      <div style="font-weight:700;color:#92400e">偵測到此場次有未完成的草稿</div>
+      <div style="font-size:12px;color:#78350f;margin-top:2px">點擊載入可還原上次填寫的內容（Logo 需重新上傳）</div>
+    </div>
+    <button class="btn btn-sm" style="background:#92400e;color:#fff;border:none;cursor:pointer;padding:8px 16px;border-radius:6px;font-weight:700" onclick="loadDraft()">載入上次進度</button>
+  </div>
+
+  <div class="nav">
+    <div style="display:flex;gap:8px;align-items:center">
+      <button class="btn btn-secondary btn-sm" onclick="clearDrafts()">🧹 清除所有草稿</button>
+    </div>
+    <div class="nav-right">
+      <button class="btn btn-primary" id="parse-btn" onclick="handleParse()">解析資料 →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ STEP 2 ═══════════════════════════ -->
+<div class="panel" id="panel-2">
+
+  <div class="workflow-note" id="workflow-note">
+    目前為一般論壇流程，只保留 CP Team 上架常用欄位；合作論壇欄位已收起，避免一般論壇編輯時被不相關內容干擾。
+  </div>
+
+  <!-- 基本資訊 -->
+  <div class="card">
+    <div class="card-title">📋 基本場次資訊</div>
+    <div class="grid2">
+      <div class="field" id="field-name-en">
+        <label class="lbl">場次英文名稱</label>
+        <input class="inp" id="name-en" placeholder="Forum name in English">
+      </div>
+      <div class="field" id="field-name-zh">
+        <label class="lbl">場次中文名稱</label>
+        <input class="inp" id="name-zh" placeholder="論壇中文名稱">
+      </div>
+      <div class="field" id="field-venue-en">
+        <label class="lbl">場地（英文）</label>
+        <input class="inp" id="venue-en" placeholder="e.g. TICC 201A">
+      </div>
+      <div class="field" id="field-venue-zh">
+        <label class="lbl">場地（中文）</label>
+        <input class="inp" id="venue-zh" placeholder="例：台北國際會議中心 201A">
+      </div>
+    </div>
+  </div>
+
+  <!-- 論壇類型 -->
+  <div class="card" id="forum-type-card">
+    <div class="card-title">⚙️ 論壇類型</div>
+    <div class="hint-box" style="margin-bottom:12px;font-size:12px">
+      合作論壇可保留外部單位提供的完整說明與連結，但仍使用統一版型輸出；Logo 尚未收到時，可先用文字連結呈現合作單位。
+    </div>
+    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:700;color:#333">
+      <input type="checkbox" id="opt-partner" onchange="onPartnerModeChange(this.checked)" style="width:15px;height:15px;accent-color:var(--brand);cursor:pointer">
+      合作論壇模式（主題與大綱直接展開，關閉 SEMI 自辦票價附加資訊）
+    </label>
+  </div>
+
+  <!-- 主題與大綱 -->
+  <div class="card" id="theme-card">
+    <div class="card-title">💡 主題與大綱</div>
+    <div class="grid2" style="margin-bottom:12px">
+      <div class="field" id="field-theme-zh">
+        <label class="lbl">中文主題</label>
+        <input class="inp" id="theme-zh" placeholder="論壇主題（中文）">
+      </div>
+      <div class="field" id="field-theme-en">
+        <label class="lbl">英文主題</label>
+        <input class="inp" id="theme-en" placeholder="Forum theme (English)">
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="field" id="field-outline-zh">
+        <label class="lbl">中文大綱 / 簡介 <span style="font-weight:400;color:var(--muted)">（可空行分段）</span></label>
+        <textarea class="inp" id="outline-zh" rows="5"></textarea>
+      </div>
+      <div class="field" id="field-outline-en">
+        <label class="lbl">英文大綱 / 簡介</label>
+        <textarea class="inp" id="outline-en" rows="5"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- 合作單位文字連結 -->
+  <div class="card" id="partner-orgs-card">
+    <div class="card-title">🤝 合作單位文字連結</div>
+    <div class="hint-box" style="margin-bottom:12px;font-size:12px">
+      適合 Logo 尚未收到的合作論壇。每行格式：角色 ｜ 單位名稱 ｜ URL；相同角色會自動合併成同一區，例如多個「協辦單位」會列在同一個標題下。
+    </div>
+    <div class="grid2">
+      <div class="field">
+        <label class="lbl">中文合作單位（選填）</label>
+        <textarea class="inp" id="partner-orgs-zh" rows="4" placeholder="主辦單位 ｜ 台灣高科技廠房設施協會 ｜ https://...&#10;協辦單位 ｜ 臺大土木系高科技廠房設施研究中心 ｜ https://...&#10;協辦單位 ｜ 臺大氣候天氣災害研究中心 ｜ https://..."></textarea>
+      </div>
+      <div class="field">
+        <label class="lbl">英文合作單位（選填）</label>
+        <textarea class="inp" id="partner-orgs-en" rows="4" placeholder="Organizer | Taiwan High-Tech Facility Association | https://...&#10;Co-Organizer | High-Tech Facility Research Center, NTU | https://...&#10;Co-Organizer | Center for Weather and Climate Disaster Research, NTU | https://..."></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- 人員 -->
+  <div class="card" id="people-card">
+    <div class="card-title">👥 人員資訊</div>
+    <div class="grid2" style="margin-bottom:16px">
+      <div class="field">
+        <label class="lbl">指導單位名稱</label>
+        <input class="inp" id="advised-name">
+      </div>
+      <div class="field">
+        <label class="lbl">指導單位連結（選填）</label>
+        <input class="inp" id="advised-url" placeholder="https://...">
+      </div>
+    </div>
+    <div style="margin-bottom:14px">
+      <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">論壇主席 Forum Chair(s)</div>
+      <div style="display:grid;grid-template-columns:1.5fr 1fr 44px;gap:6px;margin-bottom:4px">
+        <span class="lbl" style="margin:0;font-size:10px">姓名 ｜ 職稱 ｜ 公司</span>
+        <span class="lbl" style="margin:0;font-size:10px">個人介紹頁 URL（選填）</span>
+        <span></span>
+      </div>
+      <div id="chairs-wrap"></div>
+      <button class="btn btn-ghost btn-sm" style="margin-top:6px" onclick="addPerson('chairs-wrap')">＋ 新增主席</button>
+    </div>
+    <div>
+      <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">論壇主持人 Forum Moderator(s)</div>
+      <div style="display:grid;grid-template-columns:1.5fr 1fr 44px;gap:6px;margin-bottom:4px">
+        <span class="lbl" style="margin:0;font-size:10px">姓名 ｜ 職稱 ｜ 公司</span>
+        <span class="lbl" style="margin:0;font-size:10px">個人介紹頁 URL（選填）</span>
+        <span></span>
+      </div>
+      <div id="mods-wrap"></div>
+      <button class="btn btn-ghost btn-sm" style="margin-top:6px" onclick="addPerson('mods-wrap')">＋ 新增主持人</button>
+    </div>
+  </div>
+
+  <!-- Logo -->
+  <div class="card" id="logo-card">
+    <div class="card-title">🖼 Logo 管理</div>
+    <div class="hint-box" style="margin-bottom:14px;font-size:12px">
+      上傳或貼入圖片 URL 後，系統自動去除多餘白邊並置中。用<strong>拉桿</strong>微調 Logo 在格子內的大小比例。輸出後電腦版一排五個、手機版一排四個；標題與 Logo 採緊湊扁平排版，勾選「聯名 Logo」會佔用兩格寬。
+    </div>
+    <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">主辦單位 Organizer</div>
+    <div class="logo-grid" id="logo-org"></div>
+    <button class="btn btn-ghost btn-sm" onclick="addLogoCard('logo-org')">＋ 新增 Logo</button>
+
+    <div class="divider"></div>
+    <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">共同主辦單位 Co-organizer</div>
+    <div class="logo-grid" id="logo-coorg"></div>
+    <button class="btn btn-ghost btn-sm" onclick="addLogoCard('logo-coorg')">＋ 新增 Logo</button>
+
+    <div class="divider"></div>
+    <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">贊助單位 Sponsored by</div>
+    <div class="logo-grid" id="logo-sponsor"></div>
+    <button class="btn btn-ghost btn-sm" onclick="addLogoCard('logo-sponsor')">＋ 新增 Logo</button>
+  </div>
+
+  <!-- 報名與地點 -->
+  <div class="card" id="registration-card">
+    <div class="card-title">🔗 報名與地點</div>
+    <div class="grid2">
+      <div class="field" id="field-reg-zh">
+        <label class="lbl">報名連結（中文版）</label>
+        <input class="inp" id="reg-url-zh" placeholder="https://...">
+      </div>
+      <div class="field" id="field-reg-en">
+        <label class="lbl">報名連結（英文版）</label>
+        <input class="inp" id="reg-url-en" placeholder="https://...">
+      </div>
+    </div>
+    <div class="grid2" id="related-links-wrap" style="margin-top:12px">
+      <div class="field">
+        <label class="lbl">中文備註（選填）</label>
+        <textarea class="inp" id="remark-zh" rows="2" placeholder="例：委員會成員享會員價..."></textarea>
+      </div>
+      <div class="field">
+        <label class="lbl">英文備註（選填）</label>
+        <textarea class="inp" id="remark-en" rows="2"></textarea>
+      </div>
+    </div>
+    <div class="field" style="margin-top:12px">
+      <label class="lbl">地點導航連結（Google Maps）</label>
+      <input class="inp" id="map-url" placeholder="https://maps.google.com/...">
+    </div>
+    <div class="grid2" style="margin-top:12px">
+      <div class="field">
+        <label class="lbl">中文相關連結（選填）</label>
+        <textarea class="inp" id="related-links-zh" rows="3" placeholder="晚宴報名 ｜ https://...&#10;協會官方網站 ｜ https://..."></textarea>
+      </div>
+      <div class="field">
+        <label class="lbl">英文相關連結（選填）</label>
+        <textarea class="inp" id="related-links-en" rows="3" placeholder="VIP Banquet Registration | https://...&#10;Association Website | https://..."></textarea>
+      </div>
+    </div>
+
+    <div id="output-options-wrap">
+    <div style="height:1px;background:var(--border);margin:16px 0"></div>
+    <div style="font-size:11px;font-weight:700;color:var(--brand);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">輸出內容選項</div>
+    <div style="display:flex;flex-wrap:wrap;gap:12px">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:600;color:#333;white-space:nowrap">
+        <input type="checkbox" id="opt-theme" checked style="width:15px;height:15px;accent-color:var(--brand);cursor:pointer">
+        顯示主題
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:600;color:#333;white-space:nowrap">
+        <input type="checkbox" id="opt-outline" checked style="width:15px;height:15px;accent-color:var(--brand);cursor:pointer">
+        顯示大綱
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:600;color:#333;white-space:nowrap">
+        <input type="checkbox" id="opt-daypass" checked style="width:15px;height:15px;accent-color:var(--brand);cursor:pointer">
+        顯示單日通行證
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:600;color:#333;white-space:nowrap">
+        <input type="checkbox" id="opt-discount" checked style="width:15px;height:15px;accent-color:var(--brand);cursor:pointer">
+        顯示團報優惠
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:600;color:#333;white-space:nowrap">
+        <input type="checkbox" id="opt-footnote" checked style="width:15px;height:15px;accent-color:var(--brand);cursor:pointer">
+        顯示免責聲明
+      </label>
+    </div>
+    </div>
+  </div>
+
+  <div class="nav">
+    <button class="btn btn-secondary" onclick="goStep(1)">← 回到輸入</button>
+    <div class="nav-right">
+      <button class="btn btn-ok" onclick="saveDraft()">💾 儲存草稿</button>
+      <button class="btn btn-primary" onclick="handleGenerate()">產生 HTML →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ STEP 3 ═══════════════════════════ -->
+<div class="panel" id="panel-3">
+  <div class="preview-wrap">
+    <div class="preview-bar">
+      <div class="preview-lbl">即時預覽</div>
+      <div class="preview-tools">
+        <div class="tgl-grp">
+          <button class="tgl-btn active" onclick="switchView('desktop',this)">電腦</button>
+          <button class="tgl-btn" onclick="switchView('mobile',this)">手機</button>
+        </div>
+        <div class="tgl-grp">
+          <button class="tgl-btn active" onclick="switchLang('zh',this)">中文</button>
+          <button class="tgl-btn" onclick="switchLang('en',this)">English</button>
+        </div>
+      </div>
+    </div>
+    <div class="preview-cont">
+      <iframe id="preview-frame" class="preview-iframe" style="min-height:400px"></iframe>
+    </div>
+  </div>
+
+  <div class="copy-row">
+    <button class="copy-big copy-zh" id="copy-zh" onclick="copyCode('zh')">
+      <span class="main">複製中文版代碼</span>
+      <span class="sub">貼入 Drupal（ZH）</span>
+    </button>
+    <button class="copy-big copy-en" id="copy-en" onclick="copyCode('en')">
+      <span class="main">複製英文版代碼</span>
+      <span class="sub">貼入 Drupal（EN）</span>
+    </button>
+  </div>
+
+  <details class="code-details">
+    <summary>▼ 查看中文版 HTML 代碼</summary>
+    <textarea class="code-ta" id="code-zh" rows="10" readonly></textarea>
+  </details>
+  <details class="code-details">
+    <summary>▼ 查看英文版 HTML 代碼</summary>
+    <textarea class="code-ta" id="code-en" rows="10" readonly></textarea>
+  </details>
+
+  <div class="nav">
+    <button class="btn btn-secondary" onclick="goStep(2)">← 返回編輯</button>
+    <div class="nav-right">
+      <button class="btn btn-ok" onclick="saveDraft()">💾 儲存草稿</button>
+      <button class="btn btn-primary" onclick="handleGenerate()">🔄 重新產生</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- .wrap -->
+
+<!-- Loading overlay -->
+<div class="loading-ov" id="loading-ov">
+  <div class="loading-card">
+    <div class="loading-spin"></div>
+    <div class="loading-txt" id="loading-txt">AI 正在解析資料...</div>
+    <div class="loading-sub" id="loading-sub">請稍候</div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────── State ───────────────────────────
+let inputMode = 'excel';
+let aiProvider = 'claude';
+let forums = [];
+let selectedForum = null;
+let zhHTML = '', enHTML = '';
+let currentLang = 'zh', currentView = 'desktop';
+let lid = 0;
+
+// ─────────────────────────── Navigation ───────────────────────────
+function goStep(n) {
+  [1,2,3].forEach(i => {
+    document.getElementById('panel-'+i).classList.toggle('active', i===n);
+    const tab = document.getElementById('step-tab-'+i);
+    tab.classList.remove('active','done');
+    if(i===n) tab.classList.add('active');
+    else if(i<n) tab.classList.add('done');
+  });
+  if(n===2) updateWorkflowView();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+// Step 1 → parse button resets only parse state, never Step 2 fields
+function resetParseState() {
+  document.getElementById('forum-select-wrap').style.display = 'none';
+  document.getElementById('draft-banner').classList.remove('show');
+  hideErr('parse-err');
+  const btn = document.getElementById('parse-btn');
+  btn.textContent = '解析資料 →';
+  btn.onclick = handleParse;
+}
+
+// ─────────────────────────── Mode toggle ───────────────────────────
+function setMode(mode, btn) {
+  inputMode = mode;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('mode-hint-excel').style.display = mode==='excel' ? 'block' : 'none';
+  document.getElementById('mode-hint-partner').style.display = mode==='partner' ? 'block' : 'none';
+  document.getElementById('api-section').style.display     = (mode==='text' || mode==='partner') ? 'block' : 'none';
+  document.getElementById('forum-select-wrap').style.display = 'none';
+  document.getElementById('draft-banner').classList.remove('show');
+
+  setChecked('opt-partner', mode === 'partner');
+  onPartnerModeChange(mode === 'partner');
+  updateWorkflowView();
+
+  const apiKey = sessionStorage.getItem('st26_api_key');
+  if(apiKey) document.getElementById('api-key-inp').value = apiKey;
+}
+
+function setProvider(provider, btn) {
+  aiProvider = provider;
+  document.querySelectorAll('#provider-btns .btn').forEach(b => {
+    b.style.background = '#fff'; b.style.color = '#333'; b.style.border = '1.5px solid #d1d5db';
+  });
+  btn.style.background = 'var(--brand)'; btn.style.color = '#fff'; btn.style.border = 'none';
+
+  const hints = {
+    claude: '申請 API Key：<a href="https://console.anthropic.com" target="_blank" style="color:var(--brand);font-weight:700">console.anthropic.com</a>（免費額度可用，無需綁定信用卡即可開始）',
+    openai: '申請 API Key：<a href="https://platform.openai.com/api-keys" target="_blank" style="color:var(--brand);font-weight:700">platform.openai.com</a>（GPT-4o，需綁定付款方式）',
+    gemini: '申請 API Key：<a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--brand);font-weight:700">aistudio.google.com</a>（Gemini 1.5 Flash，有免費額度）',
+  };
+  document.getElementById('api-provider-hint').innerHTML = hints[provider] || hints.claude;
+
+  const placeholders = { claude: 'sk-ant-...', openai: 'sk-...', gemini: 'AIza...' };
+  document.getElementById('api-key-inp').placeholder = placeholders[provider] || 'API Key...';
+
+  // Clear stored key when switching provider
+  const storedProvider = sessionStorage.getItem('st26_api_provider');
+  if(storedProvider && storedProvider !== provider) {
+    document.getElementById('api-key-inp').value = sessionStorage.getItem('st26_api_key_'+provider) || '';
+  }
+}
+
+function saveApiKey() {
+  const k = document.getElementById('api-key-inp').value.trim();
+  if(!k) return;
+  sessionStorage.setItem('st26_api_key_'+aiProvider, k);
+  sessionStorage.setItem('st26_api_provider', aiProvider);
+  alert('✅ API Key 已儲存（本次瀏覽期間有效）');
+}
+
+// ─────────────────────────── Excel Parser ───────────────────────────
+function parseCSVLine(text, delim) {
+  if(delim==='\t') return text.split('\t').map(s=>s.trim());
+  let ret=[],val='',inQ=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(c==='"'){inQ=!inQ;}
+    else if(c===','&&!inQ){ret.push(val.trim());val='';}
+    else{val+=c;}
+  }
+  ret.push(val.trim());
+  return ret;
+}
+
+function parsePrice(s){
+  if(!s||s==='-'||/tbc|tbd/i.test(s)) return null;
+  const n=parseFloat(s.replace(/[^\d.]/g,''));
+  return isNaN(n)?null:n;
+}
+
+function parseExcel(raw) {
+  const lines = raw.split(/\r?\n/).filter(l=>l.trim());
+  const delim = (lines[0].match(/\t/g)||[]).length >= (lines[0].match(/,/g)||[]).length ? '\t' : ',';
+  const skip = new Set(['forum','registration','monday','tuesday','wednesday','thursday','friday','semicon','program','glance']);
+  const parsed = [];
+
+  for(const line of lines) {
+    const c = parseCSVLine(line, delim);
+    if(c.length < 10) continue;
+    const off = (!c[0] && (c[1]||c[3])) ? 1 : 0;
+    const regTime=c[0+off], frmTime=c[1+off];
+    const nameEn=c[2+off], nameZh=c[3+off];
+    const venueEn=c[4+off]||'', venueZh=c[5+off]||'';
+    const theme=c[6+off]||'';
+    if(!nameEn||!frmTime) continue;
+    const lw=nameEn.toLowerCase().trim();
+    if(skip.has(lw)||skip.has(lw.split(' ')[0])) continue;
+    if(/monday|tuesday|wednesday|thursday|friday/i.test(nameEn)) continue;
+    if(/semicon taiwan \d{4}/i.test(nameEn)) continue;
+    const urlZh=c[7+off]?c[7+off].trim():'';
+    const urlEn=c[8+off]?c[8+off].trim():'';
+    const p0=9+off;
+    const prices={
+      seb_mem:parsePrice(c[p0]),   seb_non:parsePrice(c[p0+1]),
+      eb_mem: parsePrice(c[p0+2]), eb_non: parsePrice(c[p0+3]),
+      reg_mem:parsePrice(c[p0+4]), reg_non:parsePrice(c[p0+5]),
+      os_mem: parsePrice(c[p0+6]), os_non: parsePrice(c[p0+7]),
+      student:parsePrice(c[p0+8])
+    };
+    const hasPrices=Object.values(prices).some(v=>v!==null);
+    parsed.push({regTime,frmTime,nameEn,nameZh,venueEn,venueZh,theme,prices,hasPrices,urlZh,urlEn});
+  }
+
+  if(!parsed.length) {
+    showErr('parse-err','❌ 解析失敗：找不到符合公版結構的資料列，請確認複製的是「ST26_官網連結」資料表。');
+    return;
+  }
+
+  forums = parsed;
+  const sel = document.getElementById('forum-select');
+  sel.innerHTML = '<option value="">── 請選擇場次 ──</option>';
+  forums.forEach((f,i) => {
+    const o = document.createElement('option');
+    o.value = i;
+    o.textContent = f.nameEn + '（' + f.nameZh + '）';
+    sel.appendChild(o);
+  });
+  document.getElementById('forum-count').textContent = parsed.length;
+  document.getElementById('forum-select-wrap').style.display = 'block';
+}
+
+function onForumSelect() {
+  const idx = document.getElementById('forum-select').value;
+  if(!idx) { document.getElementById('forum-preview').style.display='none'; return; }
+  selectedForum = forums[idx];
+  const f = selectedForum;
+
+  document.getElementById('prev-venue').textContent = f.venueEn || '—';
+  document.getElementById('prev-venue-zh').textContent = f.venueZh || '';
+
+  const pd = document.getElementById('prev-price');
+  if(!f.hasPrices) {
+    pd.innerHTML = '<span style="font-size:12px;color:#92400e;font-weight:600;display:block;margin-top:6px">此為無票價場次（免費 / Partner Program）</span>';
+  } else {
+    const rows = [
+      ['Super Early-Bird (5/20–6/17)',f.prices.seb_mem,f.prices.seb_non],
+      ['Early-Bird (6/18–8/5)',f.prices.eb_mem,f.prices.eb_non],
+      ['Regular (8/6–8/30)',f.prices.reg_mem,f.prices.reg_non],
+      ['On-Site (8/31–9/4)',f.prices.os_mem,f.prices.os_non],
+    ];
+    pd.innerHTML = '<table class="price-tbl"><tr><th style="text-align:left">時段</th><th>SEMI 會員</th><th>非會員</th></tr>' +
+      rows.map(([l,m,n])=>`<tr><td>${l}</td><td style="color:var(--brand);font-weight:700">${fmtP(m)||'—'}</td><td>${fmtP(n)||'—'}</td></tr>`).join('') +
+      `<tr><td>學生票</td><td colspan="2" style="font-weight:700">${fmtP(f.prices.student)||'—'}</td></tr></table>`;
+  }
+
+  document.getElementById('forum-preview').style.display = 'block';
+
+  // Pre-fill fields
+  setVal('name-en', f.nameEn);
+  setVal('name-zh', f.nameZh);
+  setVal('venue-en', f.venueEn);
+  setVal('venue-zh', f.venueZh);
+  if(f.theme) setVal('theme-en', f.theme);
+  setVal('reg-url-zh', f.urlZh);
+  setVal('reg-url-en', f.urlEn);
+
+  checkDraft();
+}
+
+function fmtP(p){ if(p===null)return null; return 'NT$ '+Number(p).toLocaleString(); }
+
+// ─────────────────────────── AI Parser ───────────────────────────
+async function parseWithAI(raw) {
+  const apiKey = sessionStorage.getItem('st26_api_key_'+aiProvider) || document.getElementById('api-key-inp').value.trim();
+  if(!apiKey) {
+    showErr('parse-err','❌ 請先輸入 API Key 並按儲存');
+    return;
+  }
+  sessionStorage.setItem('st26_api_key_'+aiProvider, apiKey);
+
+  showLoading('AI 正在分析資料...', '請稍候，通常需要 5–15 秒');
+
+  const systemPrompt = `You are a data extraction assistant for SEMI Taiwan forum event pages.
+Extract all available information from the provided text and return ONLY a valid JSON object.
+Do not include any explanation, markdown, or code fences.
+
+Return this exact JSON structure (use null for missing fields, empty array [] for missing arrays):
+{
+  "nameZh": "",
+  "nameEn": "",
+  "venueZh": "",
+  "venueEn": "",
+  "themeZh": "",
+  "themeEn": "",
+  "outlineZh": "",
+  "outlineEn": "",
+  "advisedName": "",
+  "advisedUrl": "",
+  "partnerOrgsZh": "",
+  "partnerOrgsEn": "",
+  "regUrlZh": "",
+  "regUrlEn": "",
+  "mapUrl": "",
+  "remarkZh": "",
+  "remarkEn": "",
+  "relatedLinksZh": "",
+  "relatedLinksEn": "",
+  "chairs": [{"name": "", "url": ""}],
+  "mods": [{"name": "", "url": ""}],
+  "prices": {
+    "seb_mem": null, "seb_non": null,
+    "eb_mem": null,  "eb_non": null,
+    "reg_mem": null, "reg_non": null,
+    "os_mem": null,  "os_non": null,
+    "student": null
+  },
+  "hasPrices": false
+}
+
+Rules:
+- prices are numeric values in NTD (no currency symbol), null if not found
+- hasPrices: true if any price field is not null
+- chairs/mods: extract name as "Full Name | Title | Company" format when possible
+- outlineZh/outlineEn: the main forum description/about section, use double newline (\\n\\n) to separate paragraphs
+- remarkZh/remarkEn: registration-related notes, banquet registration instructions, external forum links, disclaimers, discount instructions, or special conditions (e.g. "＊You are currently registering for..."). These are NOT part of the main description.
+- partnerOrgsZh/partnerOrgsEn: organizer/co-organizer/advisor text links, one item per line in "Role | Organization Name | URL" format. Preserve URLs from Word hyperlinks when available.
+- If multiple organizations share the same role, repeat the same role label on each line. Do not invent separate role variants.
+- Never put the role label itself as the organization name. For example, do not output "Co-Organizer | Co-Organizer | URL"; extract the actual organization name.
+- relatedLinksZh/relatedLinksEn: leave these fields empty. Do not extract banquet registration or association websites into separate button links unless the user explicitly asks for standalone related buttons.
+- regUrlZh/regUrlEn: the primary registration URL. If only one URL is found, put it in both fields.
+- If text is in Chinese only, leave English fields as empty string. If English only, leave Chinese fields as empty string.
+- chairs/mods arrays should be empty [] if not found, never null`;
+
+  try {
+    let parsed;
+
+    if(aiProvider === 'claude') {
+      const resp = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-6',
+          max_tokens: 2000,
+          system: systemPrompt,
+          messages: [{ role: 'user', content: raw }]
+        })
+      });
+      if(!resp.ok) { const e = await resp.json(); throw new Error(e.error?.message || 'API 錯誤 '+resp.status); }
+      const data = await resp.json();
+      const text = data.content?.find(b => b.type==='text')?.text || '';
+      parsed = JSON.parse(text.replace(/```json|```/g,'').trim());
+
+    } else if(aiProvider === 'openai') {
+      const resp = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer '+apiKey },
+        body: JSON.stringify({
+          model: 'gpt-4o',
+          max_tokens: 2000,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: raw }
+          ]
+        })
+      });
+      if(!resp.ok) { const e = await resp.json(); throw new Error(e.error?.message || 'API 錯誤 '+resp.status); }
+      const data = await resp.json();
+      const text = data.choices?.[0]?.message?.content || '';
+      parsed = JSON.parse(text.replace(/```json|```/g,'').trim());
+
+    } else if(aiProvider === 'gemini') {
+      const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: systemPrompt + '\n\nInput:\n' + raw }] }],
+          generationConfig: { maxOutputTokens: 2000 }
+        })
+      });
+      if(!resp.ok) { const e = await resp.json(); throw new Error(e.error?.message || 'API 錯誤 '+resp.status); }
+      const data = await resp.json();
+      const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      parsed = JSON.parse(text.replace(/```json|```/g,'').trim());
+    }
+
+    hideLoading();
+    applyAIData(parsed);
+    goStep(2);
+
+  } catch(e) {
+    hideLoading();
+    showErr('parse-err', '❌ AI 解析失敗：' + e.message);
+  }
+}
+
+function applyAIData(d) {
+  selectedForum = d.hasPrices ? { ...d } : null;
+  if(d.hasPrices) selectedForum = d;
+  if(inputMode === 'partner') {
+    setChecked('opt-partner', true);
+    onPartnerModeChange(true);
+  }
+  mergeRelatedLinksIntoRemarks(d);
+
+  const aiFields = ['nameZh','nameEn','venueZh','venueEn','themeZh','themeEn',
+    'outlineZh','outlineEn','regUrlZh','regUrlEn','mapUrl','remarkZh','remarkEn','advisedName','advisedUrl',
+    'partnerOrgsZh','partnerOrgsEn','relatedLinksZh','relatedLinksEn'];
+
+  const map = {
+    nameZh:'name-zh', nameEn:'name-en', venueZh:'venue-zh', venueEn:'venue-en',
+    themeZh:'theme-zh', themeEn:'theme-en', outlineZh:'outline-zh', outlineEn:'outline-en',
+    regUrlZh:'reg-url-zh', regUrlEn:'reg-url-en', mapUrl:'map-url',
+    remarkZh:'remark-zh', remarkEn:'remark-en',
+    advisedName:'advised-name', advisedUrl:'advised-url',
+    partnerOrgsZh:'partner-orgs-zh', partnerOrgsEn:'partner-orgs-en',
+    relatedLinksZh:'related-links-zh', relatedLinksEn:'related-links-en'
+  };
+
+  aiFields.forEach(k => {
+    if(d[k]) {
+      setVal(map[k], d[k]);
+      const fid = 'field-'+map[k];
+      const fel = document.getElementById(fid);
+      if(fel) fel.classList.add('ai-filled');
+    }
+  });
+
+  // People
+  document.getElementById('chairs-wrap').innerHTML = '';
+  if(d.chairs?.length) d.chairs.forEach(p => addPerson('chairs-wrap', p.name, p.url));
+  else addPerson('chairs-wrap');
+
+  document.getElementById('mods-wrap').innerHTML = '';
+  if(d.mods?.length) d.mods.forEach(p => addPerson('mods-wrap', p.name, p.url));
+  else addPerson('mods-wrap');
+
+  // Store price data
+  if(d.hasPrices) {
+    selectedForum = { prices: d.prices, hasPrices: true,
+      nameEn: d.nameEn, nameZh: d.nameZh,
+      venueEn: d.venueEn, venueZh: d.venueZh,
+      urlZh: d.regUrlZh, urlEn: d.regUrlEn
+    };
+  }
+}
+
+function mergeRelatedLinksIntoRemarks(d) {
+  const merge = (remarkKey, linksKey) => {
+    if(!d[linksKey]) return;
+    const lines = parsePipeRows(d[linksKey], 2).map(parts => {
+      let label = parts[0], url = parts[1];
+      if(!url && safeUrl(label)) {
+        url = label;
+        label = '';
+      }
+      if(!url) return parts.filter(Boolean).join(' ');
+      return label ? label + ': ' + url : url;
+    }).filter(Boolean);
+    if(!lines.length) return;
+    d[remarkKey] = [d[remarkKey], lines.join('\n')].filter(Boolean).join('\n');
+    d[linksKey] = '';
+  };
+  merge('remarkZh', 'relatedLinksZh');
+  merge('remarkEn', 'relatedLinksEn');
+}
+
+// ─────────────────────────── Handle Parse → Step 2 ───────────────────────────
+function handleParse() {
+  const raw = document.getElementById('raw-input').value.trim();
+  if(!raw) { showErr('parse-err','請先貼入資料'); return; }
+  hideErr('parse-err');
+
+  if(inputMode === 'excel') {
+    parseExcel(raw);
+    // For excel mode, user needs to select forum first
+    // Then we go to step 2 from a "continue" button logic
+    // Actually let's add a proceed button after selection
+    showExcelContinue();
+  } else {
+    parseWithAI(raw);
+  }
+}
+
+function showExcelContinue() {
+  // We already show the forum select; user selects then clicks proceed
+  // Let's update the nav button behavior
+  const btn = document.getElementById('parse-btn');
+  btn.textContent = '繼續 →';
+  btn.onclick = proceedFromExcel;
+}
+
+function proceedFromExcel() {
+  const idx = document.getElementById('forum-select').value;
+  if(!idx) { showErr('parse-err','請先選擇場次'); return; }
+  onForumSelect();
+  goStep(2);
+  // Reset button
+  const btn = document.getElementById('parse-btn');
+  btn.textContent = '解析資料 →';
+  btn.onclick = handleParse;
+}
+
+function onPartnerModeChange(checked) {
+  if(checked) {
+    setChecked('opt-theme', true);
+    setChecked('opt-outline', true);
+    setChecked('opt-daypass', false);
+    setChecked('opt-discount', false);
+  } else {
+    setChecked('opt-daypass', true);
+    setChecked('opt-discount', true);
+  }
+  updateWorkflowView();
+}
+
+function updateWorkflowView() {
+  const partnerMode = document.getElementById('opt-partner')?.checked || inputMode === 'partner';
+  const show = (id, visible) => {
+    const el = document.getElementById(id);
+    if(el) el.style.display = visible ? '' : 'none';
+  };
+
+  show('forum-type-card', false);
+  show('partner-orgs-card', partnerMode);
+  show('people-card', !partnerMode);
+  show('related-links-wrap', false);
+  show('output-options-wrap', !partnerMode);
+
+  const note = document.getElementById('workflow-note');
+  if(note) {
+    note.textContent = partnerMode
+      ? '目前為合作論壇流程，只保留外部論壇上架需要的欄位；CP Excel、主席主持人與一般論壇輸出細項已收起。'
+      : '目前為一般論壇流程，只保留 CP Team 上架常用欄位；合作論壇欄位已收起，避免一般論壇編輯時被不相關內容干擾。';
+  }
+}
+
+// ─────────────────────────── Generate ───────────────────────────
+function handleGenerate() {
+  zhHTML = buildFullHTML('zh');
+  enHTML = buildFullHTML('en');
+  document.getElementById('code-zh').value = zhHTML;
+  document.getElementById('code-en').value = enHTML;
+
+  const alreadyOnStep3 = document.getElementById('panel-3').classList.contains('active');
+  if(alreadyOnStep3) {
+    // Just refresh preview in place, no navigation
+    updatePreview(currentLang);
+    // Reset copy buttons in case they were in "copied" state
+    ['zh','en'].forEach(l => {
+      const b = document.getElementById('copy-'+l);
+      if(b) b.classList.remove('copied');
+    });
+  } else {
+    // Reset lang toggle to ZH and navigate
+    document.querySelectorAll('.tgl-grp:last-child .tgl-btn').forEach((b,i) => {
+      b.classList.toggle('active', i===0);
+    });
+    currentLang = 'zh';
+    goStep(3);
+    updatePreview('zh');
+  }
+}
+
+function switchLang(lang, btn) {
+  currentLang = lang;
+  document.querySelectorAll('.tgl-grp:last-child .tgl-btn').forEach(b => {
+    if(b && btn) b.classList.remove('active');
+  });
+  if(btn) btn.classList.add('active');
+  updatePreview(lang);
+}
+
+function switchView(mode, btn) {
+  currentView = mode;
+  document.querySelectorAll('.tgl-grp:first-child .tgl-btn').forEach(b => b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  const frame = document.getElementById('preview-frame');
+  frame.classList.toggle('mobile', mode==='mobile');
+}
+
+function updatePreview(lang) {
+  const html = lang==='zh' ? zhHTML : enHTML;
+  const frame = document.getElementById('preview-frame');
+  // viewport meta tag ensures media queries fire correctly inside the iframe
+  frame.srcdoc = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{margin:0;padding:0;width:100%}body{padding:20px;box-sizing:border-box}</style></head><body>${html}</body></html>`;
+  frame.onload = () => {
+    try {
+      if(currentView === 'desktop') {
+        const h = frame.contentDocument.body.scrollHeight;
+        frame.style.height = (h + 40) + 'px';
+      }
+    } catch(e) {}
+  };
+}
+
+function copyCode(lang) {
+  const text = lang==='zh' ? zhHTML : enHTML;
+  const btn = document.getElementById('copy-'+lang);
+  navigator.clipboard?.writeText(text).then(() => copyDone(btn)).catch(() => fallbackCopy(text, btn));
+}
+
+function fallbackCopy(text, btn) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand('copy'); copyDone(btn); } catch(e) {}
+  document.body.removeChild(ta);
+}
+
+function copyDone(btn) {
+  btn.classList.add('copied');
+  const orig = btn.innerHTML;
+  btn.querySelector('.main').textContent = '✓ 已複製！';
+  setTimeout(() => {
+    btn.classList.remove('copied');
+    btn.innerHTML = orig;
+  }, 2500);
+}
+
+// ─────────────────────────── People ───────────────────────────
+function addPerson(wrapId, nameVal='', urlVal='') {
+  const row = document.createElement('div');
+  row.className = 'person-row';
+  row.innerHTML = `<input class="inp" data-r="name" placeholder="姓名 | 職稱 | 公司" value="${esc(nameVal)}" style="flex:1.5">` +
+    `<input class="inp" data-r="url" placeholder="https://..." value="${esc(urlVal)}" style="flex:1">` +
+    `<button class="btn btn-danger btn-sm" onclick="this.parentElement.remove()" style="flex-shrink:0;padding:9px 10px">✕</button>`;
+  document.getElementById(wrapId).appendChild(row);
+}
+
+function getPeople(wrapId) {
+  return Array.from(document.querySelectorAll('#'+wrapId+' .person-row')).map(r => ({
+    name: r.querySelector('[data-r="name"]').value.trim(),
+    url:  r.querySelector('[data-r="url"]').value.trim()
+  })).filter(p => p.name);
+}
+
+// ─────────────────────────── Logo System ───────────────────────────
+const CONTAINER_W   = 184;
+const CONTAINER_H   = 92;
+const CONTAINER_W_CO = 368;
+
+// Update the preview area of a card using CSS object-fit (no quality loss)
+function updateCardPreview(cardId) {
+  const card = document.getElementById(cardId);
+  if(!card) return;
+  const trimmedSrc = card.dataset.trimmedSrc;
+  if(!trimmedSrc) return;
+
+  const scale   = parseInt(card.dataset.scale || 80) / 100;
+  const isCo    = card.dataset.isCo === '1';
+  const contW   = isCo ? CONTAINER_W_CO : CONTAINER_W;
+  // inner box size = container × scale, logo fits inside that
+  const innerW  = Math.round(contW   * scale);
+  const innerH  = Math.round(CONTAINER_H * scale);
+
+  const hintEl   = document.getElementById('hint-'+cardId);
+  const imgWrap  = document.getElementById('imgwrap-'+cardId);
+  const imgEl    = document.getElementById('img-'+cardId);
+
+  if(hintEl)  hintEl.style.display  = 'none';
+  if(imgWrap) {
+    imgWrap.style.display = 'flex';
+    imgWrap.style.width   = contW + 'px';
+    imgWrap.style.height  = CONTAINER_H + 'px';
+  }
+  if(imgEl) {
+    imgEl.src = trimmedSrc;
+    imgEl.style.maxWidth  = innerW + 'px';
+    imgEl.style.maxHeight = innerH + 'px';
+  }
+}
+
+// Auto-trim: scan edges and crop whitespace/transparent pixels
+function autoCropCanvas(srcCanvas) {
+  const ctx = srcCanvas.getContext('2d');
+  const { width: w, height: h } = srcCanvas;
+  const data = ctx.getImageData(0, 0, w, h).data;
+
+  const isEdge = (x, y) => {
+    const i = (y * w + x) * 4;
+    const r = data[i], g = data[i+1], b = data[i+2], a = data[i+3];
+    if(a < 10) return true; // transparent
+    // near-white
+    return r > 240 && g > 240 && b > 240;
+  };
+
+  let top = 0, bottom = h - 1, left = 0, right = w - 1;
+
+  outer: for(let y = 0; y < h; y++) {
+    for(let x = 0; x < w; x++) { if(!isEdge(x, y)) { top = y; break outer; } }
+  }
+  outer: for(let y = h - 1; y >= 0; y--) {
+    for(let x = 0; x < w; x++) { if(!isEdge(x, y)) { bottom = y; break outer; } }
+  }
+  outer: for(let x = 0; x < w; x++) {
+    for(let y = top; y <= bottom; y++) { if(!isEdge(x, y)) { left = x; break outer; } }
+  }
+  outer: for(let x = w - 1; x >= 0; x--) {
+    for(let y = top; y <= bottom; y++) { if(!isEdge(x, y)) { right = x; break outer; } }
+  }
+
+  const cw = right - left + 1;
+  const ch = bottom - top + 1;
+  if(cw <= 0 || ch <= 0) return srcCanvas;
+
+  const cropped = document.createElement('canvas');
+  cropped.width = cw; cropped.height = ch;
+  cropped.getContext('2d').drawImage(srcCanvas, left, top, cw, ch, 0, 0, cw, ch);
+  return cropped;
+}
+
+async function loadAndTrimImage(src) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    // Don't set crossOrigin for data URLs — it causes canvas taint on local files
+    if(!src.startsWith('data:')) img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      try {
+        const tmp = document.createElement('canvas');
+        tmp.width  = img.naturalWidth;
+        tmp.height = img.naturalHeight;
+        tmp.getContext('2d').drawImage(img, 0, 0);
+        const cropped = autoCropCanvas(tmp);
+        resolve(cropped.toDataURL('image/png')); // always return a data URL string
+      } catch(e) {
+        resolve(src); // fallback: return original src as-is
+      }
+    };
+    img.onerror = () => resolve(src); // fallback on load error
+    img.src = src;
+  });
+}
+
+function addLogoCard(sectionId) { renderLogoCard(sectionId, '', false, 80); }
+
+function renderLogoCard(sectionId, srcVal, isCo, scaleVal, isUrlVal) {
+  const id = 'lc-' + lid++;
+  const grid = document.getElementById(sectionId);
+  const card = document.createElement('div');
+  card.className = 'logo-card' + (isCo ? ' co-brand' : '');
+  card.id = id;
+  card.dataset.origSrc = srcVal || '';
+  card.dataset.trimmedSrc = '';
+  card.dataset.isUrl = isUrlVal ? '1' : '0';
+  card.dataset.isCo = isCo ? '1' : '0';
+  card.dataset.scale = scaleVal || 80;
+
+  const contW = isCo ? CONTAINER_W_CO : CONTAINER_W;
+
+  card.innerHTML = `
+    <div class="logo-preview" id="prev-${id}" onclick="document.getElementById('file-${id}').click()">
+      <div id="hint-${id}" class="logo-drop-hint">點擊上傳<br>或貼入 URL</div>
+      <div id="imgwrap-${id}" style="display:none;align-items:center;justify-content:center;width:${contW}px;height:${CONTAINER_H}px">
+        <img id="img-${id}" src="" alt="logo" style="object-fit:contain;display:block">
+      </div>
+      <span class="logo-ord"></span>
+      <div class="logo-norm-overlay" id="norm-${id}">處理中...</div>
+    </div>
+    <div class="logo-controls">
+      <div class="logo-slider-row">
+        <label>大小</label>
+        <input type="range" class="logo-slider" id="slider-${id}" min="30" max="100" value="${scaleVal||80}"
+          oninput="onSliderInput('${id}',this.value)">
+        <span class="logo-slider-val" id="slval-${id}">${scaleVal||80}%</span>
+      </div>
+      <div class="logo-cobrand-row">
+        <label>
+          <input type="checkbox" id="co-${id}" ${isCo?'checked':''} onchange="toggleCoBrand('${id}','${sectionId}',this.checked)">
+          聯名 Logo（雙倍寬）
+        </label>
+      </div>
+      <input class="logo-url" type="text" placeholder="或貼入圖片 URL" value="${isUrlVal ? esc(srcVal) : ''}"
+        id="url-${id}" onchange="handleLogoUrl('${id}',this.value)">
+      <div class="logo-acts">
+        <button class="btn-mv" onclick="moveLogo('${id}',-1)">↑</button>
+        <button class="btn-mv" onclick="moveLogo('${id}',1)">↓</button>
+        <button class="btn-dl" onclick="document.getElementById('${id}').remove();updateOrdNums('${sectionId}')">✕</button>
+      </div>
+    </div>
+    <input type="file" accept="image/*" id="file-${id}" style="display:none"
+      onchange="handleLogoFile('${id}','${sectionId}',this)">`;
+
+  // Drag and drop
+  const preview = card.querySelector('.logo-preview');
+  preview.addEventListener('dragover', e => { e.preventDefault(); card.classList.add('drag-over'); });
+  preview.addEventListener('dragleave', () => card.classList.remove('drag-over'));
+  preview.addEventListener('drop', e => {
+    e.preventDefault(); card.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if(file && file.type.startsWith('image/')) processLogoFile(file, id, sectionId);
+  });
+
+  grid.appendChild(card);
+  updateOrdNums(sectionId);
+
+  // If restoring with existing src
+  if(srcVal) applyLogoSrc(id, srcVal, !!isUrlVal, sectionId);
+}
+
+function handleLogoFile(cardId, sectionId, input) {
+  const file = input.files[0];
+  if(file) processLogoFile(file, cardId, sectionId);
+}
+
+function processLogoFile(file, cardId, sectionId) {
+  const reader = new FileReader();
+  reader.onload = e => applyLogoSrc(cardId, e.target.result, false, sectionId);
+  reader.readAsDataURL(file);
+}
+
+function handleLogoUrl(cardId, url) {
+  const trimmed = url.trim();
+  if(!trimmed) return;
+  applyLogoSrc(cardId, trimmed, true, null);
+}
+
+async function applyLogoSrc(cardId, src, isUrl, sectionId) {
+  const card = document.getElementById(cardId);
+  if(!card) return;
+  card.dataset.origSrc = src;
+  card.dataset.isUrl   = isUrl ? '1' : '0';
+
+  const normOv = document.getElementById('norm-'+cardId);
+  if(normOv) normOv.style.display = 'flex';
+
+  try {
+    // Canvas is only used for trimming — result is still high-res data URL
+    const trimmedSrc = await loadAndTrimImage(src);
+    card.dataset.trimmedSrc = trimmedSrc;
+    updateCardPreview(cardId);
+  } catch(e) {
+    card.dataset.trimmedSrc = src;
+    updateCardPreview(cardId);
+  } finally {
+    if(normOv) normOv.style.display = 'none';
+  }
+
+  if(sectionId) updateOrdNums(sectionId);
+}
+
+function onSliderInput(cardId, val) {
+  const card = document.getElementById(cardId);
+  if(!card) return;
+  card.dataset.scale = val;
+  const valEl = document.getElementById('slval-'+cardId);
+  if(valEl) valEl.textContent = val + '%';
+  // No re-encoding — just update CSS sizes via updateCardPreview
+  updateCardPreview(cardId);
+}
+
+function toggleCoBrand(cardId, sectionId, isCo) {
+  const card = document.getElementById(cardId);
+  if(!card) return;
+  card.dataset.isCo = isCo ? '1' : '0';
+  card.classList.toggle('co-brand', isCo);
+
+  const wrap  = document.getElementById('imgwrap-'+cardId);
+  const contW = isCo ? CONTAINER_W_CO : CONTAINER_W;
+  if(wrap) { wrap.style.width = contW+'px'; wrap.style.height = CONTAINER_H+'px'; }
+
+  updateCardPreview(cardId);
+}
+
+function moveLogo(cardId, dir) {
+  const card = document.getElementById(cardId);
+  const grid = card.parentElement;
+  if(dir===-1 && card.previousElementSibling) grid.insertBefore(card, card.previousElementSibling);
+  else if(dir===1 && card.nextElementSibling) grid.insertBefore(card.nextElementSibling, card);
+  updateOrdNums(grid.id);
+}
+
+function updateOrdNums(sectionId) {
+  document.querySelectorAll('#'+sectionId+' .logo-card').forEach((c,i) => {
+    const n = c.querySelector('.logo-ord');
+    if(n) n.textContent = i+1;
+  });
+}
+
+function getLogos(sectionId) {
+  return Array.from(document.querySelectorAll('#'+sectionId+' .logo-card')).map(c => ({
+    src: c.dataset.trimmedSrc || c.dataset.origSrc || '',
+    origSrc: c.dataset.origSrc || '',
+    isUrl: c.dataset.isUrl === '1',
+    isCo: c.dataset.isCo === '1',
+    scale: parseInt(c.dataset.scale || 80)
+  })).filter(l => l.src);
+}
+
+// ─────────────────────────── Draft System ───────────────────────────
+function getDraftKey() {
+  const name = getVal('name-en') || (selectedForum?.nameEn) || '';
+  if(!name) return null;
+  return 'st26v9_' + btoa(unescape(encodeURIComponent(name))).substring(0,24);
+}
+
+function checkDraft() {
+  const key = getDraftKey();
+  if(key && localStorage.getItem(key)) {
+    document.getElementById('draft-banner').classList.add('show');
+  }
+}
+
+function saveDraft() {
+  const key = getDraftKey();
+  if(!key) { alert('請先填入場次名稱再儲存草稿'); return; }
+
+  // For URL-based logos, save the URL. For file-based, save the base64 but warn about size.
+  const serializeLogos = (sectionId) =>
+    Array.from(document.querySelectorAll('#'+sectionId+' .logo-card')).map(c => ({
+      origSrc: c.dataset.origSrc || '',
+      isUrl:   c.dataset.isUrl === '1',
+      isCo:    c.dataset.isCo === '1',
+      scale:   parseInt(c.dataset.scale || 80)
+    })).filter(l => l.origSrc);
+
+  const draft = {
+    nameZh: getVal('name-zh'), nameEn: getVal('name-en'),
+    venueZh: getVal('venue-zh'), venueEn: getVal('venue-en'),
+    themeZh: getVal('theme-zh'), themeEn: getVal('theme-en'),
+    outlineZh: getVal('outline-zh'), outlineEn: getVal('outline-en'),
+    partnerMode: document.getElementById('opt-partner')?.checked || false,
+    partnerOrgsZh: getVal('partner-orgs-zh'), partnerOrgsEn: getVal('partner-orgs-en'),
+    advisedName: getVal('advised-name'), advisedUrl: getVal('advised-url'),
+    chairs: getPeople('chairs-wrap'), mods: getPeople('mods-wrap'),
+    logos: {
+      org:     serializeLogos('logo-org'),
+      coorg:   serializeLogos('logo-coorg'),
+      sponsor: serializeLogos('logo-sponsor')
+    },
+    remarkZh: getVal('remark-zh'), remarkEn: getVal('remark-en'),
+    relatedLinksZh: getVal('related-links-zh'), relatedLinksEn: getVal('related-links-en'),
+    regUrlZh: getVal('reg-url-zh'), regUrlEn: getVal('reg-url-en'),
+    mapUrl: getVal('map-url'),
+    forumPrices: selectedForum ? { prices: selectedForum.prices, hasPrices: selectedForum.hasPrices } : null
+  };
+
+  try {
+    localStorage.setItem(key, JSON.stringify(draft));
+    const hasFileLogo = ['org','coorg','sponsor'].some(t =>
+      draft.logos[t].some(l => !l.isUrl && l.origSrc.startsWith('data:'))
+    );
+    if(hasFileLogo) {
+      alert('✅ 草稿已儲存！\n提示：本機上傳的 Logo 已一併儲存，但若圖片較多可能佔用較多空間。建議改用圖片 URL 以節省空間。');
+    } else {
+      alert('✅ 草稿已儲存！');
+    }
+  } catch(e) {
+    alert('儲存失敗：瀏覽器空間不足，請先清除草稿，或改用圖片 URL 取代本機上傳。');
+  }
+}
+
+function loadDraft() {
+  const key = getDraftKey();
+  if(!key) return;
+  const raw = localStorage.getItem(key);
+  if(!raw) return;
+
+  try {
+    const d = JSON.parse(raw);
+    const fieldMap = {
+      nameZh:'name-zh', nameEn:'name-en', venueZh:'venue-zh', venueEn:'venue-en',
+      themeZh:'theme-zh', themeEn:'theme-en', outlineZh:'outline-zh', outlineEn:'outline-en',
+      partnerOrgsZh:'partner-orgs-zh', partnerOrgsEn:'partner-orgs-en',
+      advisedName:'advised-name', advisedUrl:'advised-url',
+      remarkZh:'remark-zh', remarkEn:'remark-en',
+      relatedLinksZh:'related-links-zh', relatedLinksEn:'related-links-en',
+      regUrlZh:'reg-url-zh', regUrlEn:'reg-url-en', mapUrl:'map-url'
+    };
+    Object.entries(fieldMap).forEach(([k, id]) => {
+      if(d[k] !== undefined) setVal(id, d[k]);
+    });
+
+    setChecked('opt-partner', !!d.partnerMode);
+    onPartnerModeChange(!!d.partnerMode);
+
+    document.getElementById('chairs-wrap').innerHTML = '';
+    (d.chairs||[]).forEach(p => addPerson('chairs-wrap', p.name, p.url));
+    if(!d.chairs?.length) addPerson('chairs-wrap');
+
+    document.getElementById('mods-wrap').innerHTML = '';
+    (d.mods||[]).forEach(p => addPerson('mods-wrap', p.name, p.url));
+    if(!d.mods?.length) addPerson('mods-wrap');
+
+    // Restore logos — both URL-based and file-based (base64)
+    ['org','coorg','sponsor'].forEach(type => {
+      document.getElementById('logo-'+type).innerHTML = '';
+      (d.logos?.[type]||[]).forEach(l => {
+        if(l.origSrc) renderLogoCard('logo-'+type, l.origSrc, l.isCo || false, l.scale || 80, l.isUrl || false);
+      });
+    });
+
+    if(d.forumPrices) {
+      selectedForum = selectedForum || {};
+      selectedForum.prices    = d.forumPrices.prices;
+      selectedForum.hasPrices = d.forumPrices.hasPrices;
+    }
+
+    document.getElementById('draft-banner').classList.remove('show');
+    goStep(2);
+  } catch(e) {
+    alert('載入失敗：草稿資料損毀，請重新輸入。');
+  }
+}
+
+function clearDrafts() {
+  if(!confirm('確定要清除所有 ST26 草稿紀錄嗎？此動作無法復原。')) return;
+  const keys = [];
+  for(let i=0; i<localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if(k && k.startsWith('st26v9_')) keys.push(k);
+  }
+  keys.forEach(k => localStorage.removeItem(k));
+  document.getElementById('draft-banner').classList.remove('show');
+  alert('已清除 '+keys.length+' 筆草稿。');
+}
+
+// ─────────────────────────── Utilities ───────────────────────────
+function getVal(id) { return document.getElementById(id)?.value.trim() || ''; }
+function setVal(id, v) { const el = document.getElementById(id); if(el) el.value = v||''; }
+function setChecked(id, v) { const el = document.getElementById(id); if(el) el.checked = !!v; }
+function esc(s) {
+  if(!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function safeUrl(s, allowDataImage) {
+  let raw = String(s || '').trim();
+  if(!raw) return '';
+  raw = raw.replace(/^[<「『（(]+|[>」』）)]+$/g, '').replace(/[，,。；;、]+$/g, '');
+  if(allowDataImage && /^data:image\//i.test(raw)) return raw;
+  if(/^www\./i.test(raw)) raw = 'https://' + raw;
+  if(!/^[a-z][a-z0-9+.-]*:/i.test(raw) && /^[a-z0-9.-]+\.[a-z]{2,}(\/|$)/i.test(raw)) raw = 'https://' + raw;
+  if(raw.startsWith('/')) return raw;
+  if(!/^(https?:|mailto:|tel:)/i.test(raw)) return '';
+  try {
+    const u = new URL(raw);
+    if(['http:', 'https:', 'mailto:', 'tel:'].includes(u.protocol)) return raw;
+  } catch(e) {
+    return '';
+  }
+  return '';
+}
+function showErr(id, msg) {
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.textContent = msg; el.style.display = 'block';
+}
+function hideErr(id) {
+  const el = document.getElementById(id);
+  if(el) el.style.display = 'none';
+}
+function showLoading(txt, sub) {
+  document.getElementById('loading-txt').textContent = txt;
+  document.getElementById('loading-sub').textContent = sub || '';
+  document.getElementById('loading-ov').classList.add('show');
+}
+function hideLoading() { document.getElementById('loading-ov').classList.remove('show'); }
+
+// ─────────────────────────── Build HTML Functions ───────────────────────────
+const OUT_CSS = `<style>
+.st26,.st26 *{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased}
+.st26{font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue","Noto Sans TC",Arial,sans-serif;color:#1d1d1f;padding:0 0 32px;line-height:1.6}
+.st26-anchor-nav{display:flex;gap:12px;margin:16px 0 24px;flex-wrap:wrap}
+.st26-anchor-btn{font-size:14px;font-weight:700;color:#673BB8;text-decoration:none;padding:8px 16px;border:1px solid #d4c8f0;border-radius:100px;background:#f9f8ff;transition:all .2s;display:inline-flex;align-items:center;cursor:pointer}
+.st26-anchor-btn:hover{background:#673BB8;color:#fff;border-color:#673BB8}
+.st26-venue-btn-static{cursor:default}
+.st26-venue-btn-static:hover{background:#f9f8ff;color:#673BB8;border-color:#d4c8f0}
+.st26-details{margin-bottom:12px}
+.st26-summary{list-style:none;cursor:pointer;padding:12px 16px;background:#ede8f8;border-radius:8px;outline:none;display:block;margin-bottom:12px;transition:background-color .2s;border:1px solid #d4c8f0}
+.st26-summary:hover{background-color:#e2d9f3}
+.st26-summary::-webkit-details-marker{display:none}
+.st26-theme-line{font-size:24px;font-weight:800;color:#673BB8;display:inline}
+.st26-theme-line::after{content:'▼';font-size:14px;color:#673BB8;margin-left:12px;display:inline-block;transition:transform .2s;vertical-align:middle;font-family:Arial,sans-serif}
+details[open] .st26-theme-line::after{transform:rotate(180deg)}
+.st26-theme-static{font-size:24px;font-weight:800;color:#673BB8;display:block;padding:12px 16px;background:#ede8f8;border-radius:8px;border:1px solid #d4c8f0;margin-bottom:16px}
+.st26-lang-zh .st26-theme-line::before,.st26-lang-zh .st26-theme-static::before{content:'主題：';font-weight:800;color:#673BB8}
+.st26-lang-en .st26-theme-line::before,.st26-lang-en .st26-theme-static::before{content:'Theme: ';font-weight:800;color:#673BB8}
+.st26-outline{padding:16px 20px;background:#f9f8ff;border-left:4px solid #673BB8;border-radius:0 6px 6px 0;margin-top:4px;margin-bottom:16px;font-size:16px;color:#444;line-height:1.8}
+.st26-outline p{margin-bottom:10px}
+.st26-outline p:last-child{margin-bottom:0}
+.st26-outline a,.st26-pricing-remark a,.st26-partner-orgs a{color:#673BB8;text-decoration:none;font-weight:700}
+.st26-outline a:hover,.st26-pricing-remark a:hover,.st26-partner-orgs a:hover{text-decoration:underline}
+.st26-org{display:grid;grid-template-columns:repeat(3,1fr);align-items:start;gap:20px 24px;padding:16px 0;border-top:1px solid #e5e5ea;border-bottom:1px solid #e5e5ea;margin:20px 0}
+.st26-org-item{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1}
+.st26-org-role{font-size:13px;font-weight:700;color:#86868b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.st26-org-name{font-size:15px;font-weight:600;color:#333;line-height:1.5}
+.st26-org-name a{color:#673BB8;text-decoration:none;font-weight:600}
+.st26-org-name a:hover{text-decoration:underline}
+.st26-logo-row{display:grid;grid-template-columns:max-content minmax(0,1fr);align-items:start;column-gap:12px;padding:8px 0;border-bottom:1px solid #f5f5f7}
+.st26-logo-label{font-size:12px;font-weight:700;color:#86868b;text-transform:uppercase;letter-spacing:.05em;line-height:1.35;padding-top:18px;white-space:nowrap}
+.st26-logo-wrap{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px 10px;align-items:center;min-height:56px}
+.st26-logo-item{--logo-max-w:80%;--logo-max-h:43px;display:flex;align-items:center;justify-content:center;min-width:0;height:56px}
+.st26-logo-item-wide{grid-column:span 2}
+.st26-logo-item img{max-width:var(--logo-max-w);max-height:var(--logo-max-h);width:auto;height:auto;object-fit:contain;display:block}
+.st26-partner-orgs{display:grid;gap:8px;margin:14px 0 18px;padding:12px 0;border-top:1px solid #e5e5ea;border-bottom:1px solid #e5e5ea}
+.st26-partner-org-row{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:12px;align-items:start}
+.st26-partner-org-role{font-size:13px;font-weight:700;color:#86868b;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
+.st26-partner-org-name{display:grid;gap:4px;font-size:15px;font-weight:600;color:#333;line-height:1.5}
+.st26-partner-org-name-item{display:block;font-size:15px;font-weight:700;line-height:1.5}
+.st26-partner-org-name a,.st26-partner-org-row>a{color:#673BB8;text-decoration:none;font-weight:700}
+.st26-partner-org-name a:hover,.st26-partner-org-row>a:hover{text-decoration:underline}
+.st26-partner-org-row>a{grid-column:2;display:block}
+.st26-partner-org-row>a .st26-partner-org-name{display:block;color:#673BB8;font-weight:700}
+.st26-div{height:1px;background:#e5e5ea;margin:20px 0}
+.st26-pricing-remark{padding:12px 16px;background:#f9f8ff;border-left:3px solid #673BB8;border-radius:0 4px 4px 0;font-size:14px;color:#666;margin-bottom:16px;line-height:1.6}
+.st26-pricing-remark p{margin-bottom:6px}
+.st26-pricing-remark p:last-child{margin-bottom:0}
+.st26-ph{display:flex;justify-content:space-between;align-items:center;margin:16px 0 12px;flex-wrap:wrap;gap:12px}
+.st26-ph-title{font-size:18px;font-weight:800}
+.st26-btn{display:inline-flex;align-items:center;gap:10px;background:#673BB8;color:#fff;padding:8px 12px 8px 16px;border-radius:100px;font-size:15px;font-weight:700;text-decoration:none;transition:background .2s}
+.st26-btn:hover{background:#5a2ea8}
+.st26-btn-arr{width:22px;height:22px;background:#fff;color:#673BB8;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900}
+.st26-pr-wrap{display:flex;flex-direction:column;width:100%;margin-bottom:16px}
+.st26-pr-head{display:grid;grid-template-columns:1.2fr 1fr 1fr;border-bottom:2px solid #1d1d1f;padding-bottom:10px;font-size:13px;font-weight:700;color:#86868b;text-transform:uppercase;letter-spacing:.05em}
+.st26-pr-head>div:not(:first-child){text-align:right}
+.st26-pr-row{display:grid;grid-template-columns:1.2fr 1fr 1fr;padding:10px 0;border-bottom:1px solid #eeeeee;align-items:center}
+.st26-pr-row:last-child{border-bottom:none}
+.st26-pr-col1{display:flex;flex-direction:column;justify-content:center}
+.st26-pr-col2,.st26-pr-col3{text-align:right}
+.st26-pr-label{display:none}
+.st26-pname{font-size:15px;font-weight:700;color:#333}
+.st26-pdate{font-size:12px;font-weight:700;color:#673BB8;margin-top:2px}
+.st26-price{font-size:16px;font-weight:800;font-variant-numeric:tabular-nums}
+.st26-tbc{font-size:14px;font-weight:700;color:#86868b}
+.st26-dp{display:flex;align-items:center;gap:16px;padding:12px 16px;border:1px solid #e5e5ea;border-radius:8px;background:#fafafa;margin-top:12px;flex-wrap:wrap}
+.st26-dp-lbl{min-width:100px}
+.st26-dp-t{font-size:14px;font-weight:700;color:#555}
+.st26-dp-s{font-size:11px;color:#888;margin-top:2px}
+.st26-dp-grid{flex:1;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.st26-dp-item{display:flex;flex-direction:column;align-items:flex-end}
+.st26-dp-role{font-size:11px;font-weight:700;color:#888;margin-bottom:2px}
+.st26-dp-val{font-size:14px;font-weight:700;color:#555;font-variant-numeric:tabular-nums}
+.st26-discount{margin-top:16px;padding:14px 18px;background:#edf7e3;border-left:4px solid #55A51C;border-radius:0 6px 6px 0;font-size:14px;font-weight:600;color:#2d5a0e;line-height:1.6}
+.st26-note{margin-top:10px;font-size:13px;color:#888;line-height:1.5}
+@media(max-width:768px){
+  .st26-org{grid-template-columns:1fr;gap:16px}
+  .st26-org-item{min-width:100%}
+  .st26-dp{flex-direction:column;align-items:flex-start}
+  .st26-dp-grid{width:100%;display:grid;grid-template-columns:1fr;gap:12px}
+  .st26-dp-item{align-items:center;flex-direction:row;justify-content:space-between;width:100%;border-bottom:1px solid #eee;padding-bottom:8px}
+  .st26-dp-item:last-child{border-bottom:none;padding-bottom:0}
+  .st26-logo-row{display:block;padding:8px 0}
+  .st26-logo-label{width:100%;padding-top:0;margin-bottom:6px;font-size:12px}
+  .st26-logo-wrap{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;min-height:50px}
+  .st26-logo-item{height:50px}
+  .st26-partner-org-row{grid-template-columns:1fr;gap:2px}
+  .st26-partner-org-role{font-size:12px}
+  .st26-pr-head{display:none}
+  .st26-pr-row{display:flex;flex-direction:column;background:#fff;border:1px solid #d4c8f0;border-radius:8px;padding:16px;margin-bottom:12px;gap:0}
+  .st26-pr-col1{width:100%;border-bottom:2px solid #1d1d1f;padding-bottom:12px;margin-bottom:8px}
+  .st26-pr-col2,.st26-pr-col3{width:100%;display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #eee;text-align:right}
+  .st26-pr-col3{border-bottom:none;padding-bottom:0}
+  .st26-pr-label{display:block;font-size:13px;color:#86868b;font-weight:700}
+}
+</style>`;
+
+function isPartnerMode() {
+  return document.getElementById('opt-partner')?.checked || false;
+}
+
+function splitTrailingPunctuation(s) {
+  const m = String(s || '').match(/^(.+?)([.,;:!?，。；：！？）)]*)$/);
+  return m ? [m[1], m[2] || ''] : [s, ''];
+}
+
+function renderPlainWithLinks(text) {
+  const re = /(https?:\/\/[^\s<>"']+|mailto:[^\s<>"']+|tel:[^\s<>"']+|[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})/g;
+  let out = '', last = 0, m;
+  while((m = re.exec(text)) !== null) {
+    out += esc(text.slice(last, m.index));
+    let raw = m[0];
+    const parts = splitTrailingPunctuation(raw);
+    raw = parts[0];
+    const trailing = parts[1];
+    let href = raw;
+    if(/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(raw)) href = 'mailto:' + raw;
+    const safe = safeUrl(href);
+    out += safe ? '<a href="'+esc(safe)+'" target="_blank" rel="noopener noreferrer">'+esc(raw)+'</a>' : esc(raw);
+    out += esc(trailing);
+    last = m.index + m[0].length;
+  }
+  return out + esc(text.slice(last));
+}
+
+function renderInlineRichText(text) {
+  const raw = String(text || '');
+  const re = /\[([^\]]+)\]\(([^)]+)\)/g;
+  let out = '', last = 0, m;
+  while((m = re.exec(raw)) !== null) {
+    out += renderPlainWithLinks(raw.slice(last, m.index));
+    const href = safeUrl(m[2].trim());
+    out += href ? '<a href="'+esc(href)+'" target="_blank" rel="noopener noreferrer">'+esc(m[1].trim())+'</a>' : esc(m[0]);
+    last = m.index + m[0].length;
+  }
+  return out + renderPlainWithLinks(raw.slice(last));
+}
+
+function renderParagraphs(text) {
+  return String(text || '').split(/\n\n+/).map(p=>p.trim()).filter(Boolean)
+    .map(p=>'    <p>'+renderInlineRichText(p).replace(/\n/g,'<br>')+'</p>').join('\n');
+}
+
+function parsePipeRows(raw, expected) {
+  return String(raw || '').split(/\r?\n/).map(line => line.trim()).filter(Boolean).map(line => {
+    const parts = line.split(/\s*[|｜]\s*/).map(p => p.trim()).filter(Boolean);
+    while(parts.length < expected) parts.push('');
+    return parts;
+  });
+}
+
+function buildThemeBlock(theme, outline, lang) {
+  const showTheme   = document.getElementById('opt-theme')?.checked !== false;
+  const showOutline = document.getElementById('opt-outline')?.checked !== false;
+  const partnerMode = isPartnerMode();
+
+  if(!showTheme) return '';
+
+  const txt = theme || (lang==='zh' ? '即將公告' : 'To be announced');
+
+  if(partnerMode) {
+    const outlineHTML = (outline && showOutline)
+      ? '\n  <div class="st26-outline">\n'+renderParagraphs(outline)+'\n  </div>'
+      : '';
+    return '\n<div style="padding:4px 0;"><span class="st26-theme-static">'+esc(txt)+'</span></div>' + outlineHTML;
+  }
+
+  if(outline && showOutline) {
+    const paras = renderParagraphs(outline);
+    return '\n<details class="st26-details">\n  <summary class="st26-summary"><span class="st26-theme-line">'+esc(txt)+'</span></summary>\n  <div class="st26-outline">\n'+paras+'\n  </div>\n</details>';
+  }
+  return '\n<div style="padding:4px 0;"><span class="st26-theme-static">'+esc(txt)+'</span></div>';
+}
+
+function buildAnchorNav(venueDisplay, mapUrl, lang) {
+  if(!venueDisplay) return '';
+  const locLabel = lang==='zh' ? '地點：' : 'Venue: ';
+  const vText = locLabel + esc(venueDisplay);
+  const href = safeUrl(mapUrl);
+  let html = '\n<div class="st26-anchor-nav">\n';
+  if(href) html += '  <a href="'+esc(href)+'" target="_blank" rel="noopener noreferrer" class="st26-anchor-btn">'+vText+'</a>\n';
+  else html += '  <span class="st26-anchor-btn st26-venue-btn-static">'+vText+'</span>\n';
+  return html + '</div>';
+}
+
+function buildPartnerOrgsBlock(raw) {
+  const groups = [];
+  const byRole = new Map();
+  let lastRole = '';
+  parsePipeRows(raw, 3).forEach(parts => {
+    const parsed = parsePartnerOrgParts(parts, lastRole);
+    if(!parsed) return;
+    const { role, name, url } = parsed;
+    lastRole = role;
+    const key = role.toLowerCase().replace(/\s+/g, ' ').trim();
+    if(!byRole.has(key)) {
+      byRole.set(key, { role, names: [] });
+      groups.push(byRole.get(key));
+    }
+    const href = safeUrl(url);
+    const nameHtml = href
+      ? '<a class="st26-partner-org-name-item" href="'+esc(href)+'" target="_blank" rel="noopener noreferrer">'+esc(name)+'</a>'
+      : '<span class="st26-partner-org-name-item">'+renderInlineRichText(name)+'</span>';
+    byRole.get(key).names.push(nameHtml);
+  });
+  const rows = groups.map(g =>
+    '  <div class="st26-partner-org-row"><div class="st26-partner-org-role">'+esc(g.role)+'</div><div class="st26-partner-org-name">'+g.names.join('')+'</div></div>'
+  ).join('\n');
+  return rows ? '\n<div class="st26-partner-orgs">\n'+rows+'\n</div>' : '';
+}
+
+function isPartnerOrgRole(value) {
+  const text = String(value || '').trim().toLowerCase()
+    .replace(/[：:]/g, '')
+    .replace(/[–—-]/g, ' ')
+    .replace(/\s+/g, ' ');
+  if(!text) return false;
+  return [
+    '主辦單位','共同主辦單位','協辦單位','指導單位','贊助單位',
+    'organizer','co organizer','co organiser','co host','cohost',
+    'advisor','advised by','sponsor','sponsored by'
+  ].includes(text);
+}
+
+function fallbackOrgNameFromUrl(url, role) {
+  const href = safeUrl(url);
+  if(!href) return '';
+  const zh = /[\u4e00-\u9fff]/.test(role);
+  const known = [
+    [/htfa\.org\.tw/i, '台灣高科技廠房設施協會', 'Taiwan High-Tech Facility Association'],
+    [/ntu-htfrc\.org/i, '臺大土木系高科技廠房設施研究中心', 'High-Tech Facility Research Center, NTU'],
+    [/wcdr\.ntu\.edu\.tw/i, '臺大氣候天氣災害研究中心', 'Center for Weather and Climate Disaster Research, NTU']
+  ];
+  const hit = known.find(([re]) => re.test(href));
+  if(hit) return zh ? hit[1] : hit[2];
+  try {
+    const u = new URL(href, window.location.href);
+    return u.hostname.replace(/^www\./i, '');
+  } catch(e) {
+    return href;
+  }
+}
+
+function parsePartnerOrgParts(parts, lastRole) {
+  let role = parts[0] || '', name = parts[1] || '', url = parts[2] || '';
+  const firstIsRole = isPartnerOrgRole(role);
+  const secondIsRole = isPartnerOrgRole(name);
+
+  if(firstIsRole) {
+    if(safeUrl(name) && url && !safeUrl(url)) {
+      const actualUrl = name;
+      name = url;
+      url = actualUrl;
+    } else if(safeUrl(name) && !url) {
+      url = name;
+      name = fallbackOrgNameFromUrl(url, role);
+    } else if(secondIsRole && safeUrl(url)) {
+      name = fallbackOrgNameFromUrl(url, role);
+    }
+  } else if(lastRole) {
+    url = name || url;
+    name = role;
+    role = lastRole;
+  }
+
+  if(isPartnerOrgRole(name) && safeUrl(url)) {
+    name = fallbackOrgNameFromUrl(url, role);
+  }
+
+  if(!role || !name || isPartnerOrgRole(name)) return null;
+  return { role, name, url };
+}
+
+function buildOrgBlock(advisedName, advisedUrl, chairs, mods, lang, partnerMode) {
+  if(!advisedName && !chairs.length && !mods.length) return '';
+  const aLabel = partnerMode ? (lang==='zh' ? '主辦單位' : 'Organizer') : (lang==='zh' ? '指導單位' : 'Advised by');
+  const cLabel = lang==='zh' ? '論壇主席' : (chairs.length>1?'Forum Chairs':'Forum Chair');
+  const mLabel = lang==='zh' ? '論壇主持人' : (mods.length>1?'Forum Moderators':'Forum Moderator');
+  let html = '\n<div class="st26-org">\n';
+  if(advisedName) {
+    const href = safeUrl(advisedUrl);
+    const alink = href ? '<a href="'+esc(href)+'" target="_blank" rel="noopener noreferrer">'+esc(advisedName)+'</a>' : esc(advisedName);
+    html += '  <div class="st26-org-item"><span class="st26-org-role">'+aLabel+'</span><span class="st26-org-name">'+alink+'</span></div>\n';
+  }
+  if(chairs.length) {
+    const cs = chairs.map(p=>{
+      const href = safeUrl(p.url);
+      return href ? '<a href="'+esc(href)+'" target="_blank" rel="noopener noreferrer">'+esc(p.name)+'</a>' : esc(p.name);
+    }).join('<br>');
+    html += '  <div class="st26-org-item"><span class="st26-org-role">'+cLabel+'</span><span class="st26-org-name">'+cs+'</span></div>\n';
+  }
+  if(mods.length) {
+    const ms = mods.map(p=>{
+      const href = safeUrl(p.url);
+      return href ? '<a href="'+esc(href)+'" target="_blank" rel="noopener noreferrer">'+esc(p.name)+'</a>' : esc(p.name);
+    }).join('<br>');
+    html += '  <div class="st26-org-item"><span class="st26-org-role">'+mLabel+'</span><span class="st26-org-name">'+ms+'</span></div>\n';
+  }
+  return html + '</div>';
+}
+
+function buildLogoSection(label, logos) {
+  if(!logos.length) return '';
+  const imgs = logos.map(l => {
+    const scale = Math.max(30, Math.min(100, parseInt(l.scale || 80)));
+    const maxH = Math.round(54 * (scale / 100));
+    const src = safeUrl(l.src, true);
+    if(!src) return '';
+    const itemClass = l.isCo ? 'st26-logo-item st26-logo-item-wide' : 'st26-logo-item';
+    return `    <span class="${itemClass}" style="--logo-max-w:${scale}%;--logo-max-h:${maxH}px"><img src="${esc(src)}" alt="Logo"></span>`;
+  }).filter(Boolean).join('\n');
+  if(!imgs) return '';
+  return `<div class="st26-logo-row">\n  <div class="st26-logo-label">${esc(label)}</div>\n  <div class="st26-logo-wrap">\n${imgs}\n  </div>\n</div>`;
+}
+
+function pCell(v) {
+  if(v===null) return '<span class="st26-tbc">—</span>';
+  return '<span class="st26-price">NT$ '+Number(v).toLocaleString()+'</span>';
+}
+
+function buildPricingBlock(f, regUrlZh, regUrlEn, remarkZh, remarkEn, lang) {
+  const partnerMode = isPartnerMode();
+  const showDayPass  = !partnerMode && document.getElementById('opt-daypass')?.checked !== false;
+  const showDiscount = !partnerMode && document.getElementById('opt-discount')?.checked !== false;
+  const showFootnote = document.getElementById('opt-footnote')?.checked !== false;
+
+  const activeUrl = safeUrl(lang==='zh' ? (regUrlZh||regUrlEn||'') : (regUrlEn||regUrlZh||''));
+  const activeRemark = lang==='zh' ? remarkZh : remarkEn;
+  const remarkHTML = activeRemark ? '\n<div class="st26-pricing-remark">\n'+renderParagraphs(activeRemark)+'\n</div>\n' : '';
+  const btnLabel    = lang==='zh'?'立即報名':'Register Now';
+  const colPeriod   = lang==='zh'?'時段':'Period';
+  const colMem      = lang==='zh'?'SEMI 會員':'SEMI Member';
+  const colNon      = lang==='zh'?'非會員':'Non-member';
+  const stuRowName  = lang==='zh'?'學生票':'Student';
+  const stuRowDate  = lang==='zh'?'不含 EMBA':'EMBA Excluded';
+  const stuNote     = lang==='zh'?'需出示有效學生證':'Valid Student ID Required';
+  const taxNote     = lang==='zh'?'（含稅）':'(Tax Included)';
+  const phTitle     = lang==='zh'?'報名費用（含稅）':'Registration Fees (Tax Included)';
+  const dayPassTitle = lang==='zh'?'單日論壇通行證':'Day Pass';
+  const dpRole      = days => lang==='zh' ? days+'日' : (days===1 ? '1 Day' : days+' Days');
+  const discount    = lang==='zh'
+    ?'團報優惠（使用期限至 8/19）：3 位以上團體報名或報名 3 場以上論壇享 <strong>85 折優惠</strong>。'
+    :'Group Registration (available until August 19): Register 3 or more participants, or register for more than 3 forums hosted by SEMI Taiwan, to receive a <strong>15% discount</strong> on each purchase.';
+  const note = lang==='zh'
+    ?'＊主辦單位保留調整或更改活動議程之權利，最終議程以現場安排為準。'
+    :'* The organizer reserves the right to adjust or change the agenda. The final agenda is subject to the on-site arrangement.';
+  const btnHTML = activeUrl ? '<a class="st26-btn" href="'+esc(activeUrl)+'" target="_blank" rel="noopener noreferrer">'+btnLabel+' <span class="st26-btn-arr">→</span></a>' : '';
+
+  const priceTableHTML = (!f||!f.hasPrices) ? '' : (() => {
+    const p = f.prices;
+    const r1 = lang==='zh'?'超早鳥優惠':'Super Early-Bird';
+    const r2 = lang==='zh'?'早鳥優惠':'Early-Bird';
+    const r3 = lang==='zh'?'原價':'Regular';
+    const r4 = lang==='zh'?'現場價':'On-Site';
+    const rows = [
+      [r1,'5/20 - 6/17',p.seb_mem,p.seb_non],
+      [r2,'6/18 - 8/5',p.eb_mem,p.eb_non],
+      [r3,'8/6 - 8/30',p.reg_mem,p.reg_non],
+      [r4,'8/31 - 9/4',p.os_mem,p.os_non],
+    ];
+    const tblRows = rows.map(([n,d,m,nm]) =>
+      '  <div class="st26-pr-row">\n    <div class="st26-pr-col1"><div class="st26-pname">'+n+'</div><div class="st26-pdate">'+d+'</div></div>\n    <div class="st26-pr-col2"><span class="st26-pr-label">'+colMem+'</span><div>'+pCell(m)+'</div></div>\n    <div class="st26-pr-col3"><span class="st26-pr-label">'+colNon+'</span><div>'+pCell(nm)+'</div></div>\n  </div>'
+    ).join('\n');
+    const stuCell = p.student ? '<span class="st26-price">NT$ '+Number(p.student).toLocaleString()+'</span>' : '<span class="st26-tbc">—</span>';
+    return '<div class="st26-pr-wrap">\n  <div class="st26-pr-head">\n    <div>'+colPeriod+'</div>\n    <div>'+colMem+'</div>\n    <div>'+colNon+'</div>\n  </div>\n'+tblRows+'\n  <div class="st26-pr-row">\n    <div class="st26-pr-col1"><div class="st26-pname">'+stuRowName+'</div><div class="st26-pdate" style="color:#1d1d1f">'+stuRowDate+'</div></div>\n    <div class="st26-pr-col2" style="width:100%;grid-column:2/4;justify-content:flex-end;gap:12px;border:none">\n      <div style="font-size:12px;font-weight:700;color:#86868b">'+stuNote+'</div>\n      <div>'+stuCell+'</div>\n    </div>\n  </div>\n</div>';
+  })();
+
+  const dayPassHTML = showDayPass
+    ? '\n<div class="st26-dp">  <div class="st26-dp-lbl"><div class="st26-dp-t">'+dayPassTitle+'</div><div class="st26-dp-s">'+taxNote+'</div></div>  <div class="st26-dp-grid">    <div class="st26-dp-item"><span class="st26-dp-role">'+dpRole(1)+'</span><span class="st26-dp-val">NT$ 13,755</span></div>    <div class="st26-dp-item"><span class="st26-dp-role">'+dpRole(2)+'</span><span class="st26-dp-val">NT$ 26,040</span></div>    <div class="st26-dp-item"><span class="st26-dp-role">'+dpRole(3)+'</span><span class="st26-dp-val">NT$ 36,960</span></div>    <div class="st26-dp-item"><span class="st26-dp-role">'+dpRole(4)+'</span><span class="st26-dp-val">NT$ 46,515</span></div>    <div class="st26-dp-item"><span class="st26-dp-role">'+dpRole(5)+'</span><span class="st26-dp-val">NT$ 54,915</span></div>  </div></div>'
+    : '';
+  const discountHTML = showDiscount ? '<div class="st26-discount">'+discount+'</div>' : '';
+  const footnoteHTML = showFootnote ? '<div class="st26-note">'+note+'</div>' : '';
+
+  return '\n<div class="st26-ph">  <div class="st26-ph-title">'+phTitle+'</div>  '+btnHTML+'</div>\n'
+    + remarkHTML + priceTableHTML + dayPassHTML + discountHTML + footnoteHTML;
+}
+
+function buildFullHTML(lang) {
+  const f = selectedForum;
+  const partnerMode = isPartnerMode();
+  const theme   = getVal('theme-'+lang);
+  const outline = getVal('outline-'+lang);
+  const partnerOrgs = getVal('partner-orgs-'+lang);
+  const advisedName = getVal('advised-name');
+  const advisedUrl  = getVal('advised-url');
+  const regUrlZh = getVal('reg-url-zh');
+  const regUrlEn = getVal('reg-url-en');
+  const remarkZh = getVal('remark-zh');
+  const remarkEn = getVal('remark-en');
+  const mapUrl   = getVal('map-url');
+  const chairs   = getPeople('chairs-wrap');
+  const mods     = getPeople('mods-wrap');
+  const orgLogos    = getLogos('logo-org');
+  const coorgLogos  = getLogos('logo-coorg');
+  const sponsorLogos = getLogos('logo-sponsor');
+
+  const venueEn = getVal('venue-en');
+  const venueZh = getVal('venue-zh');
+  const venueDisplay = lang==='zh' ? (venueZh||venueEn) : venueEn;
+
+  const orgLabel   = lang==='zh' ? '主辦單位'     : 'Organizer';
+  const coorgLabel = lang==='zh' ? '共同主辦單位' : 'Co-organizer';
+  const sponLabel  = lang==='zh' ? '贊助單位'     : 'Sponsored by';
+
+  const themeBlock  = buildThemeBlock(theme, outline, lang);
+  const anchorNav   = buildAnchorNav(venueDisplay, mapUrl, lang);
+  const partnerOrgsBlock = buildPartnerOrgsBlock(partnerOrgs);
+  const orgBlock    = buildOrgBlock(advisedName, advisedUrl, chairs, mods, lang, partnerMode);
+  const logoOrg     = buildLogoSection(orgLabel, orgLogos);
+  const logoCoorg   = buildLogoSection(coorgLabel, coorgLogos);
+  const logoSponsor = buildLogoSection(sponLabel, sponsorLogos);
+  const pricingBlock = buildPricingBlock(f, regUrlZh, regUrlEn, remarkZh, remarkEn, lang);
+  const logosHtml   = [logoOrg, logoCoorg, logoSponsor].filter(Boolean).join('\n');
+  const hasLogos    = logosHtml.trim().length > 0;
+
+  return OUT_CSS + '\n<div class="st26 st26-lang-'+lang+'">\n' +
+    themeBlock + '\n' + anchorNav + '\n' + partnerOrgsBlock + '\n' + orgBlock + '\n' +
+    (hasLogos ? '\n'+logosHtml+'\n<div class="st26-div" style="margin-top:20px;"></div>\n' : '') +
+    pricingBlock + '\n</div>';
+}
+
+// ─────────────────────────── Init ───────────────────────────
+addPerson('chairs-wrap');
+addPerson('mods-wrap');
+addLogoCard('logo-org');
+addLogoCard('logo-coorg');
+addLogoCard('logo-sponsor');
+
+// Restore saved provider & key
+const savedProvider = sessionStorage.getItem('st26_api_provider') || 'claude';
+if(savedProvider !== 'claude') {
+  const provBtn = document.getElementById('prov-'+savedProvider);
+  if(provBtn) setProvider(savedProvider, provBtn);
+}
+const savedKey = sessionStorage.getItem('st26_api_key_'+savedProvider);
+if(savedKey) document.getElementById('api-key-inp').value = savedKey;
+</script>
+</body>
+</html>

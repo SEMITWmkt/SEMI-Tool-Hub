@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SEMICON Trend HTML Creator v3.2 — </title>
+<style>
+:root{--purple:#800080;--purple-bg:#f5eef5;--bg:#f2f2f5;--white:#fff;--border:#e1e1e1;--text:#1d1d1f;--gray:#6e6e73;--danger:#dc3545;--success:#28a745;--blue:#0066cc;--green:#2e7d32;--r:8px;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column;overflow:hidden;font-size:13px;}
+.header{background:var(--white);padding:10px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-shrink:0;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+.header h1{font-size:14px;font-weight:700;color:var(--purple);}
+.header-actions{display:flex;gap:8px;}
+.btn{background:var(--text);color:#fff;border:none;padding:7px 16px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;transition:opacity .18s;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;}
+.btn:hover{opacity:.82;}
+.btn-primary{background:var(--purple);}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text);}
+.btn-outline:hover{background:#efefef;opacity:1;}
+.btn-sm{padding:4px 10px;font-size:11px;}
+.btn-dashed{background:transparent;border:1.5px dashed var(--border);color:var(--gray);width:100%;padding:11px;border-radius:var(--r);font-size:12px;cursor:pointer;transition:all .18s;font-family:inherit;}
+.btn-dashed:hover{border-color:var(--purple);color:var(--purple);background:var(--purple-bg);}
+.workspace{display:flex;flex:1;min-height:0;}
+.editor-pane{width:57%;border-right:1px solid var(--border);overflow-y:auto;background:#f7f7f9;padding:14px;display:flex;flex-direction:column;gap:12px;}
+.output-pane{width:43%;display:flex;flex-direction:column;background:var(--white);}
+.output-tabs{display:flex;border-bottom:1px solid var(--border);background:#f9f9f9;flex-shrink:0;}
+.tab-btn{padding:9px 14px;font-size:12px;font-weight:600;border:none;background:transparent;cursor:pointer;color:var(--gray);border-bottom:2px solid transparent;transition:all .18s;white-space:nowrap;}
+.tab-btn.active{color:var(--purple);border-bottom-color:var(--purple);background:#fff;}
+.tab-btn:hover:not(.active){background:#f0f0f0;color:var(--text);}
+.tab-panel{display:none;flex:1;flex-direction:column;min-height:0;}
+.tab-panel.active{display:flex;}
+.preview-toolbar{padding:7px 12px;background:#f9f9f9;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;flex-shrink:0;font-size:11px;color:var(--gray);}
+#previewFrame{flex:1;border:none;}
+.code-area{flex:1;border:none;padding:14px;font-family:'Menlo','Monaco','Consolas',monospace;font-size:11px;line-height:1.55;resize:none;outline:none;background:#1a1a2e;color:#c8d3f5;}
+.tab-footer{padding:8px 12px;background:#f9f9f9;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-shrink:0;}
+.tab-footer span{font-size:11px;color:var(--gray);}
+.global-settings{background:var(--white);border:1px solid #d0a0d0;border-radius:var(--r);padding:14px;}
+.section-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--purple);margin-bottom:12px;}
+.form-row{display:flex;gap:10px;margin-bottom:10px;}
+.form-row:last-child{margin-bottom:0;}
+.form-group{flex:1;display:flex;flex-direction:column;gap:4px;}
+.form-group label{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--gray);font-weight:600;}
+.form-group input{border:1px solid #ccc;border-radius:5px;padding:6px 9px;font-size:12px;font-family:inherit;outline:none;transition:border-color .18s;}
+.form-group input:focus{border-color:var(--purple);}
+.theme-block{background:var(--white);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;transition:border-color .18s;}
+.theme-block.open{border-color:#cca0cc;}
+.theme-header{padding:9px 12px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;background:var(--white);transition:background .15s;}
+.theme-header:hover{background:#fdf8fd;}
+.th-left{display:flex;align-items:center;gap:8px;flex:1;min-width:0;}
+.th-badge{background:var(--purple-bg);color:var(--purple);padding:2px 7px;border-radius:4px;font-size:11px;font-family:monospace;font-weight:700;flex-shrink:0;}
+.th-title{font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.th-controls{display:flex;gap:3px;flex-shrink:0;}
+.ctrl-btn{background:#f5f5f7;border:1px solid var(--border);border-radius:4px;padding:3px 7px;font-size:11px;cursor:pointer;color:var(--text);transition:background .15s;}
+.ctrl-btn:hover{background:#e5e5e8;}
+.ctrl-btn:disabled{opacity:.28;cursor:not-allowed;}
+.ctrl-btn.del{color:var(--danger);}
+.ctrl-btn.del:hover{background:#fff0f0;border-color:#fcc;}
+.theme-body{padding:14px;border-top:1px solid var(--border);display:none;background:#fefefe;}
+.theme-block.open .theme-body{display:block;}
+.lang-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 14px;margin-bottom:14px;}
+.lang-header{font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;padding:3px 8px;border-radius:3px;margin-bottom:6px;display:inline-block;}
+.col-zh .lang-header{background:#e5f0ff;color:var(--blue);}
+.col-en .lang-header{background:#e8f5e9;color:var(--green);}
+.lang-field{margin-bottom:6px;}
+.lang-field:last-child{margin-bottom:0;}
+.lang-field label{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--gray);font-weight:600;display:block;margin-bottom:3px;}
+.lang-field input,.lang-field textarea{width:100%;border:1px solid #ddd;border-radius:5px;padding:6px 9px;font-size:12px;font-family:inherit;outline:none;transition:border-color .18s;}
+.lang-field textarea{resize:vertical;min-height:64px;line-height:1.5;}
+.lang-field input:focus,.lang-field textarea:focus{border-color:var(--purple);}
+.item-section{margin-bottom:12px;}
+.item-section:last-child{margin-bottom:0;}
+.item-section-head{display:flex;align-items:center;justify-content:space-between;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gray);padding-bottom:7px;border-bottom:1px solid var(--border);margin-bottom:8px;}
+.item-col-labels{display:grid;grid-template-columns:1fr 1fr 1.1fr 24px;gap:5px;margin-bottom:4px;padding:0 1px;}
+.item-col-labels span{font-size:9px;color:#aaa;text-transform:uppercase;letter-spacing:.5px;}
+.item-row{display:grid;grid-template-columns:1fr 1fr 1.1fr 24px;gap:5px;margin-bottom:5px;align-items:center;}
+.item-row input{border:1px solid #ddd;border-radius:4px;padding:5px 7px;font-size:11.5px;font-family:inherit;outline:none;width:100%;transition:border-color .18s;}
+.item-row input:focus{border-color:var(--purple);}
+.item-row .url-inp{color:#0066aa;}
+.item-row .url-inp::placeholder{color:#b0c8dd;}
+.tag-col-labels{display:grid;grid-template-columns:1fr 1fr 24px;gap:5px;margin-bottom:4px;padding:0 1px;}
+.tag-row{display:grid;grid-template-columns:1fr 1fr 24px;gap:5px;margin-bottom:5px;align-items:center;}
+.tag-row input{border:1px solid #ddd;border-radius:4px;padding:5px 7px;font-size:11.5px;font-family:inherit;outline:none;width:100%;transition:border-color .18s;}
+.tag-row input:focus{border-color:var(--purple);}
+.item-del{background:transparent;border:1px solid #ecc;color:#cc4444;border-radius:4px;width:24px;height:26px;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;transition:background .15s;flex-shrink:0;}
+.item-del:hover{background:#fff0f0;}
+.empty-note{font-size:11px;color:#bbb;font-style:italic;padding:3px 0 4px;}
+.divider{border:none;border-top:1px dashed #e8e8e8;margin:12px 0;}
+.help-pill{display:inline-block;background:#fff8e1;border:1px solid #ffe082;color:#7a6000;font-size:10px;padding:3px 9px;border-radius:12px;margin-top:6px;line-height:1.4;}
+.copied{background:var(--success)!important;color:#fff!important;opacity:1!important;}
+.notice-bar{background:#fff3cd;border:1px solid #ffe082;border-radius:6px;padding:8px 14px;font-size:11.5px;color:#7a5000;line-height:1.5;}
+.notice-bar strong{color:#5a3800;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>SEMICON Trend HTML Creator v3.2 </h1>
+  <div class="header-actions" style="display:flex;align-items:center;gap:8px;">
+    <span id="saveIndicator" style="font-size:11px;color:var(--success);opacity:0;transition:opacity .4s;white-space:nowrap;"></span>
+    <button class="btn btn-outline" onclick="clearStorage()" style="color:var(--danger);border-color:#f5c6cb;">🗑 清除記憶</button>
+    <button class="btn btn-outline" onclick="toggleAll()">展開 / 收合全部</button>
+    <button class="btn btn-primary" onclick="generate()">▶ 生成 + 預覽</button>
+  </div>
+</div>
+
+<div class="workspace">
+  <div class="editor-pane">
+
+    <div class="notice-bar">
+      <strong>⚠️ 使用說明：</strong>每次產出的 HTML 帶有唯一識別碼，可安全複製貼入 Drupal。<br>
+      <strong>新 HTML 請取代舊版</strong>，不要兩份同時存在同一頁面（功能雖不衝突，但 CSS 會重疊）。
+    </div>
+
+    <div class="global-settings">
+      <div class="section-title">全域介面文字設定</div>
+      <div class="form-row">
+        <div class="form-group"><label>展區欄標題 ZH</label><input id="gl1_zh" value="展區 / 專區"></div>
+        <div class="form-group"><label>展區欄標題 EN</label><input id="gl1_en" value="Exhibition Zone"></div>
+        <div class="form-group"><label>論壇欄標題 ZH</label><input id="gl2_zh" value="論壇議題"></div>
+        <div class="form-group"><label>論壇欄標題 EN</label><input id="gl2_en" value="Forum Topics"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>關鍵字欄標題 ZH</label><input id="gl3_zh" value="技術關鍵字"></div>
+        <div class="form-group"><label>關鍵字欄標題 EN</label><input id="gl3_en" value="Key Technologies"></div>
+        <div class="form-group"><label>抽屜前綴 ZH</label><input id="prefix_zh" value="主題"></div>
+        <div class="form-group"><label>抽屜前綴 EN</label><input id="prefix_en" value="THEME"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>空白佔位 ZH</label><input id="cs_zh" value="即將公布"></div>
+        <div class="form-group"><label>空白佔位 EN</label><input id="cs_en" value="Coming soon"></div>
+        <div class="form-group" style="flex:0.7;"><label>字型縮放（1 = 標準，目前 1.15）</label><input id="fsScale" value="1.15" type="number" step="0.05" min="0.7" max="2"></div>
+      </div>
+    </div>
+
+    <div id="themeList"></div>
+    <button class="btn-dashed" onclick="addTheme()">＋ 新增主題區塊</button>
+  </div>
+
+  <div class="output-pane">
+    <div class="output-tabs">
+      <button class="tab-btn active" data-tab="preview" onclick="switchTab('preview')">👁 預覽</button>
+      <button class="tab-btn" data-tab="zh" onclick="switchTab('zh')">🇹🇼 中文代碼</button>
+      <button class="tab-btn" data-tab="en" onclick="switchTab('en')">🇺🇸 英文代碼</button>
+    </div>
+    <div class="tab-panel active" id="tab-preview">
+      <div class="preview-toolbar">
+        語言：
+        <button class="btn btn-sm btn-primary" id="prev-zh" onclick="setPreviewLang('zh')">中文</button>
+        <button class="btn btn-sm btn-outline" id="prev-en" onclick="setPreviewLang('en')">English</button>
+        <span style="margin-left:auto;color:#bbb;font-size:10px;">點擊「生成 + 預覽」後顯示</span>
+      </div>
+      <iframe id="previewFrame" title="Preview"></iframe>
+    </div>
+    <div class="tab-panel" id="tab-zh">
+      <textarea class="code-area" id="zhOutput" readonly placeholder="點擊「▶ 生成 + 預覽」產出代碼"></textarea>
+      <div class="tab-footer">
+        <span id="zh-chars">—</span>
+        <button class="btn btn-sm btn-outline" onclick="copyCode('zhOutput',this)">複製中文代碼</button>
+      </div>
+    </div>
+    <div class="tab-panel" id="tab-en">
+      <textarea class="code-area" id="enOutput" readonly placeholder="點擊「▶ 生成 + 預覽」產出代碼"></textarea>
+      <div class="tab-footer">
+        <span id="en-chars">—</span>
+        <button class="btn btn-sm btn-outline" onclick="copyCode('enOutput',this)">複製英文代碼</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let themes = [
+  {icon_url:"",title_zh:"AI 算力",title_en:"AI Computing",sub_zh:"AI Accelerator · AI EDA · ASIC",sub_en:"AI Accelerator · AI EDA · ASIC",desc_zh:"",desc_en:"",showZone:true,showForum:true,zones:[{zh:"AI 半導體技術特區",en:"AI Semiconductor Technology Zone",url:""}],forums:[{zh:"AI Computing Forum（AI 算力技術論壇）",en:"AI Computing Forum",url:""},{zh:"IC Forum（先進製程全面 AI 化）",en:"IC Forum — Full AI Integration in Advanced Process",url:""}]},
+  {icon_url:"",title_zh:"實體 AI",title_en:"Physical AI",sub_zh:"Robotics · Agentic AI · Digital Twins",sub_en:"Robotics · Agentic AI · Digital Twins",desc_zh:"",desc_en:"",showZone:false,showForum:false,zones:[],forums:[]},
+  {icon_url:"",title_zh:"先進製程",title_en:"Advanced Manufacturing",sub_zh:"2nm GAA · BSPDN · Next-Gen Node",sub_en:"2nm GAA · BSPDN · Next-Gen Node",desc_zh:"",desc_en:"",showZone:false,showForum:true,zones:[],forums:[{zh:"半導體先進製程科技論壇",en:"Semiconductor Advanced Process Technology Forum",url:""}]},
+  {icon_url:"",title_zh:"先進封裝",title_en:"Advanced Packaging",sub_zh:"3DIC · Fan-Out · Chiplet",sub_en:"3DIC · Fan-Out · Chiplet",desc_zh:"",desc_en:"",showZone:true,showForum:true,zones:[{zh:"封裝技術概念區（3DIC先進封裝專區、面板級扇出封裝專區、半導體封裝專區、小晶片專區）",en:"Packaging Technology Concept Zone (3DIC, Fan-Out Panel-Level, Semiconductor Packaging, Chiplet)",url:""}],forums:[{zh:"面板級扇出型封裝創新論壇-異質整合國際高峰論壇系列活動",en:"Fan-Out Panel-Level Packaging Innovation Forum — Heterogeneous Integration Summit Series",url:""},{zh:"2026異質整合國際高峰論壇-第一天",en:"2026 Heterogeneous Integration International Summit — Day 1",url:""},{zh:"2026異質整合國際高峰論壇-第二天",en:"2026 Heterogeneous Integration International Summit — Day 2",url:""},{zh:"2026異質整合國際高峰論壇-第三天",en:"2026 Heterogeneous Integration International Summit — Day 3",url:""},{zh:"3DIC全球高峰論壇",en:"3DIC Global Summit",url:""}]},
+  {icon_url:"",title_zh:"矽光子",title_en:"Silicon Photonics",sub_zh:"CPO · 800G/1.6T · Photonic Computing",sub_en:"CPO · 800G/1.6T · Photonic Computing",desc_zh:"",desc_en:"",showZone:true,showForum:true,zones:[{zh:"矽光子專區",en:"Silicon Photonics Zone",url:""},{zh:"Power & Compound 概念區",en:"Power & Compound Semiconductor Concept Zone",url:""}],forums:[{zh:"矽光子論壇（定義次世代光電傳輸架構）",en:"Silicon Photonics Forum — Defining Next-Gen Optical Transmission Architecture",url:""},{zh:"矽光子國際論壇",en:"Silicon Photonics International Forum",url:""}]},
+  {icon_url:"",title_zh:"高頻寬記憶體",title_en:"High Bandwidth Memory",sub_zh:"HBM4 · CXL · 3D DRAM",sub_en:"HBM4 · CXL · 3D DRAM",desc_zh:"",desc_en:"",showZone:false,showForum:true,zones:[],forums:[{zh:"記憶體高峰論壇",en:"Memory Summit",url:""},{zh:"HIGS（HBM4 先進封裝）",en:"HIGS Forum — HBM4 Advanced Packaging",url:""}]},
+  {icon_url:"",title_zh:"自主晶圓廠",title_en:"Autonomous Fab",sub_zh:"Lights-out Fab · Digital Twin · AI Fab",sub_en:"Lights-out Fab · Digital Twin · AI Fab",desc_zh:"",desc_en:"",showZone:true,showForum:true,zones:[{zh:"高科技智慧製造特展（精密機械專區、高科技廠房設施專區、高科技智慧製造專區、晶圓智造特區）",en:"Hi-Tech Smart Manufacturing Exhibition (Precision Machinery, Fab Facilities, Smart Manufacturing, Wafer Fab)",url:""}],forums:[{zh:"微機電暨感測器論壇",en:"MEMS & Sensor Forum",url:""},{zh:"高科技智慧製造論壇",en:"Hi-Tech Smart Manufacturing Forum",url:""}]},
+  {icon_url:"",title_zh:"策略材料",title_en:"Strategic Materials",sub_zh:"SiC · GaN · EUV 光阻",sub_en:"SiC · GaN · EUV Photoresist",desc_zh:"",desc_en:"",showZone:true,showForum:true,zones:[{zh:"化合物半導體概念區（寬能隙功率半導體專區、光電半導體專區）",en:"Compound Semiconductor Concept Zone (Wide-Bandgap Power Semiconductor, Optoelectronic Semiconductor)",url:""},{zh:"材料專區",en:"Materials Zone",url:""}],forums:[{zh:"功率暨化合物半導體論壇",en:"Power & Compound Semiconductor Forum",url:""},{zh:"策略材料高峰論壇",en:"Strategic Materials Summit",url:""}]},
+  {icon_url:"",title_zh:"測試及量測",title_en:"Advanced Testing & Metrology",sub_zh:"SLT Shift Left · Virtual Metrology",sub_en:"SLT Shift Left · Virtual Metrology",desc_zh:"",desc_en:"",showZone:true,showForum:true,zones:[{zh:"測試專區",en:"Test Zone",url:""}],forums:[{zh:"先進測試論壇",en:"Advanced Test Forum",url:""},{zh:"半導體先進檢測與計量國際論壇",en:"Semiconductor Advanced Inspection & Metrology International Forum",url:""}]},
+  {icon_url:"",title_zh:"量子",title_en:"Quantum",sub_zh:"Post-Silicon · Quantum Computing",sub_en:"Post-Silicon · Quantum Computing",desc_zh:"",desc_en:"",showZone:true,showForum:true,zones:[{zh:"量子技術特區",en:"Quantum Technology Zone",url:""}],forums:[{zh:"合作論壇：量子台灣論壇 – 量子電腦",en:"Partner Forum: Quantum Taiwan — Quantum Computing",url:""},{zh:"合作論壇：量子台灣論壇 – 關鍵支援技術生態系",en:"Partner Forum: Quantum Taiwan — Key Support Technology Ecosystem",url:""}]},
+  {icon_url:"",title_zh:"半導體資安",title_en:"Semiconductor Cybersecurity",sub_zh:"Hardware Security · Zero Trust · AI Security",sub_en:"Hardware Security · Zero Trust · AI Security",desc_zh:"",desc_en:"",showZone:true,showForum:true,zones:[{zh:"半導體資安專區",en:"Semiconductor Cybersecurity Zone",url:""}],forums:[{zh:"半導體資安趨勢高峰論壇",en:"Semiconductor Cybersecurity Trend Summit",url:""}]},
+  {icon_url:"",title_zh:"新創",title_en:"Startup & Innovation",sub_zh:"Chip Startup · Pre-IPO · Investment",sub_en:"Chip Startup · Pre-IPO · Investment",desc_zh:"",desc_en:"",showZone:true,showForum:false,zones:[{zh:"晶片新創特區",en:"Chip Startup Zone",url:""}],forums:[]},
+  {icon_url:"",title_zh:"地緣戰略",title_en:"Geostrategy",sub_zh:"Supply Chain · Country Pavilions · Geopolitics",sub_en:"Supply Chain · Country Pavilions · Geopolitics",desc_zh:"",desc_en:"",showZone:true,showForum:true,zones:[{zh:"國家專區（來自 18 個國家）",en:"Country Pavilions (18 Nations)",url:""}],forums:[{zh:"CEO Forum",en:"CEO Forum",url:""},{zh:"Market Trend Forum",en:"Market Trend Forum",url:""}]},
+  {icon_url:"",title_zh:"永續",title_en:"Sustainability",sub_zh:"Net-Zero · ESG · Green Fab",sub_en:"Net-Zero · ESG · Green Fab",desc_zh:"",desc_en:"",showZone:true,showForum:true,zones:[{zh:"綠色製造概念區（空氣污染防治專區、碳資產管理專區、智慧能源管理專區、廢棄物減量及回收專區、水循環專區）",en:"Green Manufacturing Concept Zone (Air Pollution Control, Carbon Asset Management, Smart Energy, Waste Reduction & Recycling, Water Cycle)",url:""}],forums:[{zh:"半導體永續力國際論壇",en:"Semiconductor Sustainability International Forum",url:""}]},
+  {icon_url:"",title_zh:"人才培育",title_en:"Workforce Development",sub_zh:"Education · Emerging Talent · Pipeline",sub_en:"Education · Emerging Talent · Pipeline",desc_zh:"",desc_en:"",showZone:false,showForum:true,zones:[],forums:[{zh:"SEMI半導體新銳沙龍",en:"SEMI Emerging Talent Salon",url:""},{zh:"SEMI半導體新銳獎頒獎典禮 & 科技大師論壇",en:"SEMI Emerging Talent Award Ceremony & Tech Master Forum",url:""}]}
+];
+
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+function renderList(){
+  const list=document.getElementById('themeList');list.innerHTML='';
+  themes.forEach((t,i)=>{
+    const id=String(i+1).padStart(2,'0');
+    const block=document.createElement('div');
+    block.className='theme-block'+(i===0?' open':'');
+    block.innerHTML=`
+      <div class="theme-header" onclick="toggleBlock(this)">
+        <div class="th-left"><span class="th-badge">${id}</span><span class="th-title" id="tht-${i}">${t.title_zh||'未命名'}</span></div>
+        <div class="th-controls" onclick="event.stopPropagation()">
+          <button class="ctrl-btn" onclick="moveT(${i},-1)" ${i===0?'disabled':''}>▲</button>
+          <button class="ctrl-btn" onclick="moveT(${i},1)" ${i===themes.length-1?'disabled':''}>▼</button>
+          <button class="ctrl-btn del" onclick="delT(${i})">✖</button>
+        </div>
+      </div>
+      <div class="theme-body">
+        <div class="form-row" style="margin-bottom:12px;">
+          <div class="form-group">
+            <label>Icon 圖片 URL（SVG/PNG，可留空）</label>
+            <input type="text" value="${esc(t.icon_url)}" oninput="upd(${i},'icon_url',this.value)" placeholder="https://example.com/icons/theme-01.svg">
+          </div>
+        </div>
+        <span class="help-pill">💡 請設計師將 SVG 上傳到 Drupal 媒體庫後，將 URL 貼入此欄。留空時不顯示圖示。</span>
+        <div style="margin-top:12px;"></div>
+        <div class="lang-grid">
+          <div class="col-zh">
+            <span class="lang-header">🇹🇼 中文</span>
+            <div class="lang-field"><label>主標題</label><input value="${esc(t.title_zh)}" oninput="upd(${i},'title_zh',this.value);document.getElementById('tht-${i}').innerText=this.value||'未命名'"></div>
+            <div class="lang-field"><label>副標題（灰字）</label><input value="${esc(t.sub_zh)}" oninput="upd(${i},'sub_zh',this.value)"></div>
+          </div>
+          <div class="col-en">
+            <span class="lang-header">🇺🇸 English</span>
+            <div class="lang-field"><label>Title</label><input value="${esc(t.title_en)}" oninput="upd(${i},'title_en',this.value)"></div>
+            <div class="lang-field"><label>Subtitle (gray)</label><input value="${esc(t.sub_en)}" oninput="upd(${i},'sub_en',this.value)"></div>
+          </div>
+        </div>
+        <hr class="divider">
+        <div class="item-section-head" style="border:none;padding-bottom:6px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gray);">主題介紹文字（抽屜內顯示，可留空）</div>
+        <div class="lang-grid">
+          <div class="col-zh"><span class="lang-header">🇹🇼 中文介紹</span>
+            <div class="lang-field"><textarea placeholder="簡短描述此主題的核心方向…" oninput="upd(${i},'desc_zh',this.value)">${esc(t.desc_zh)}</textarea></div>
+          </div>
+          <div class="col-en"><span class="lang-header">🇺🇸 English Description</span>
+            <div class="lang-field"><textarea placeholder="Brief description of this theme…" oninput="upd(${i},'desc_en',this.value)">${esc(t.desc_en)}</textarea></div>
+          </div>
+        </div>
+        <hr class="divider">
+        <div class="item-section">
+          <div class="item-section-head" style="margin-bottom:6px;">
+            展區 / 專區
+            <div style="display:flex;align-items:center;gap:10px;">
+              <label style="display:flex;align-items:center;gap:5px;font-size:11px;font-weight:400;color:var(--gray);text-transform:none;letter-spacing:0;cursor:pointer;">
+                <input type="checkbox" id="chkZone-${i}" ${t.showZone?'checked':''} onchange="upd(${i},'showZone',this.checked);toggleSection('zone-body-${i}',this.checked)"> 顯示此欄
+              </label>
+              <button class="btn btn-sm btn-outline" onclick="addItem(${i},'zones')">＋ 新增</button>
+            </div>
+          </div>
+          <div id="zone-body-${i}" style="${t.showZone?'':'display:none;'}">
+            <div class="item-col-labels"><span>中文名稱</span><span>English Name</span><span>URL（可留空）</span><span></span></div>
+            <div id="zones-${i}">${renderRows(i,'zones')}</div>
+          </div>
+        </div>
+        <hr class="divider">
+        <div class="item-section">
+          <div class="item-section-head" style="margin-bottom:6px;">
+            論壇議題
+            <div style="display:flex;align-items:center;gap:10px;">
+              <label style="display:flex;align-items:center;gap:5px;font-size:11px;font-weight:400;color:var(--gray);text-transform:none;letter-spacing:0;cursor:pointer;">
+                <input type="checkbox" id="chkForum-${i}" ${t.showForum?'checked':''} onchange="upd(${i},'showForum',this.checked);toggleSection('forum-body-${i}',this.checked)"> 顯示此欄
+              </label>
+              <button class="btn btn-sm btn-outline" onclick="addItem(${i},'forums')">＋ 新增</button>
+            </div>
+          </div>
+          <div id="forum-body-${i}" style="${t.showForum?'':'display:none;'}">
+            <div class="item-col-labels"><span>中文名稱</span><span>English Name</span><span>URL（可留空）</span><span></span></div>
+            <div id="forums-${i}">${renderRows(i,'forums')}</div>
+          </div>
+        </div>
+      </div>`;
+    list.appendChild(block);
+  });
+}
+
+function renderRows(i,key){
+  const arr=themes[i][key];
+  if(!arr||arr.length===0)return`<div class="empty-note">（空，輸出將顯示「即將公布 / Coming soon」）</div>`;
+  return arr.map((item,j)=>`<div class="item-row"><input value="${esc(item.zh)}" oninput="updItem(${i},'${key}',${j},'zh',this.value)" placeholder="中文"><input value="${esc(item.en)}" oninput="updItem(${i},'${key}',${j},'en',this.value)" placeholder="English"><input class="url-inp" value="${esc(item.url)}" oninput="updItem(${i},'${key}',${j},'url',this.value)" placeholder="https://..."><button class="item-del" onclick="delItem(${i},'${key}',${j})">✕</button></div>`).join('');
+}
+
+
+function upd(i,k,v){themes[i][k]=v;}
+function updItem(i,l,j,k,v){themes[i][l][j][k]=v;}
+
+function addItem(i,key){themes[i][key].push({zh:'',en:'',url:''});document.getElementById(`${key}-${i}`).innerHTML=renderRows(i,key);}
+function delItem(i,key,j){themes[i][key].splice(j,1);document.getElementById(`${key}-${i}`).innerHTML=renderRows(i,key);}
+
+function addTheme(){
+  themes.push({icon_url:'',title_zh:'新主題',title_en:'New Theme',sub_zh:'副標題',sub_en:'Subtitle',desc_zh:'',desc_en:'',zones:[],forums:[],tags:[]});
+  renderList();
+  const blocks=document.querySelectorAll('.theme-block');
+  blocks.forEach(b=>b.classList.remove('open'));
+  const last=blocks[blocks.length-1];last.classList.add('open');
+  last.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function delT(i){if(confirm(`確定刪除「${themes[i].title_zh}」？`)){themes.splice(i,1);renderList();}}
+function moveT(i,dir){if(i+dir<0||i+dir>=themes.length)return;[themes[i],themes[i+dir]]=[themes[i+dir],themes[i]];renderList();}
+function toggleBlock(h){h.parentElement.classList.toggle('open');}
+function toggleSection(id, show){
+  const el = document.getElementById(id);
+  if(el) el.style.display = show ? '' : 'none';
+}
+let allOpen=false;
+function toggleAll(){allOpen=!allOpen;document.querySelectorAll('.theme-block').forEach(b=>b.classList.toggle('open',allOpen));}
+
+function switchTab(n){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelector(`[data-tab="${n}"]`).classList.add('active');
+  document.getElementById(`tab-${n}`).classList.add('active');
+}
+let prevLang='zh';
+function setPreviewLang(l){
+  prevLang=l;
+  document.getElementById('prev-zh').className=l==='zh'?'btn btn-sm btn-primary':'btn btn-sm btn-outline';
+  document.getElementById('prev-en').className=l==='en'?'btn btn-sm btn-primary':'btn btn-sm btn-outline';
+  const html=l==='zh'?document.getElementById('zhOutput').value:document.getElementById('enOutput').value;
+  if(html)document.getElementById('previewFrame').srcdoc=html;
+}
+
+// ═══════════════════════════════════════════
+// OUTPUT HTML BUILDER
+// FIX 1: scoped CSS with unique uid class
+// FIX 2: no global JS functions (event delegation)
+// FIX 3: num-wrap auto-width (no digit wrapping)
+// FIX 4: card label removed
+// ═══════════════════════════════════════════
+
+function buildOutputCSS(scale, sc) {
+  const s = b => (b * scale).toFixed(1) + 'px';
+  return `<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;700&display=swap');
+${sc}{--fd:'Syne','PingFang TC','Heiti TC','Microsoft JhengHei',sans-serif;--fb:'DM Sans','PingFang TC','Heiti TC','Microsoft JhengHei',sans-serif;--bk:#1d1d1f;--gr:#6e6e73;--li:#fff;--bd:rgba(0,0,0,0.1);--pu:#800080;}
+${sc} *{box-sizing:border-box;margin:0;padding:0;}
+${sc}{font-family:var(--fb);background:var(--li);padding:16px 0;max-width:1400px;margin:0 auto;}
+${sc} .st-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--bd);border:1px solid var(--bd);}
+@media(max-width:1024px){${sc} .st-grid{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:768px){${sc} .st-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:480px){${sc} .st-grid{grid-template-columns:1fr;}}
+${sc} .st-card{position:relative;background:#fff;padding:24px 20px;cursor:pointer;overflow:hidden;transition:background .18s ease;outline:none;-webkit-tap-highlight-color:transparent;}
+${sc} .st-num-wrap{display:inline-flex;align-items:center;justify-content:center;width:auto;min-width:46px;height:38px;padding:0 11px;border-radius:6px;background:#f5eef5;margin-bottom:14px;transition:background .15s;font-family:var(--fd);font-size:${s(16)};font-weight:800;color:var(--pu);white-space:nowrap;letter-spacing:-0.5px;line-height:1;}
+${sc} .st-card:hover .st-num-wrap,${sc} .st-card.active .st-num-wrap{background:#ede0ed;}
+${sc} .st-card-icon-wrap{position:absolute;top:12px;right:12px;width:64px;height:64px;display:flex;align-items:center;justify-content:center;opacity:.1;transition:opacity .25s,transform .25s;pointer-events:none;}
+${sc} .st-card-icon-wrap img{width:100%;height:100%;object-fit:contain;}
+${sc} .st-card:hover .st-card-icon-wrap,${sc} .st-card.active .st-card-icon-wrap{opacity:.3;transform:scale(1.06);}
+${sc} .st-card-title{font-family:var(--fd);font-size:${s(19)};font-weight:800;color:var(--bk);line-height:1.3;letter-spacing:-.2px;max-width:88%;}
+${sc} .st-card-sub{margin-top:8px;font-size:${s(12)};color:var(--gr);line-height:1.55;max-width:90%;}
+${sc} .st-card-bar{position:absolute;bottom:0;left:0;right:0;height:2px;background:transparent;transition:background .25s;}
+${sc} .st-card:hover .st-card-bar{background:rgba(0,0,0,.12);}
+${sc} .st-card.active .st-card-bar{background:var(--pu);}
+${sc} .st-caret{position:absolute;bottom:16px;right:16px;}
+${sc} .st-caret svg{width:14px;height:14px;stroke:var(--gr);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .35s cubic-bezier(.4,0,.2,1),stroke .2s;display:block;}
+${sc} .st-card.active .st-caret svg{transform:rotate(180deg);stroke:var(--pu);}
+${sc} .st-drawer{grid-column:1/-1;background:#fff;overflow:hidden;max-height:0;transition:max-height .45s cubic-bezier(.4,0,.2,1);}
+${sc} .st-drawer.open{max-height:900px;border-bottom:1px solid var(--bd);}
+${sc} .st-drawer-inner{padding:40px 48px;position:relative;border-left:3px solid var(--pu);}
+@media(max-width:768px){${sc} .st-drawer-inner{padding:28px 20px;}}
+${sc} .st-d-header{display:grid;grid-template-columns:2fr 3fr;gap:40px;align-items:start;margin-bottom:32px;}
+@media(max-width:768px){${sc} .st-d-header{grid-template-columns:1fr;gap:16px;margin-bottom:20px;}}
+${sc} .st-d-eye{font-size:${s(10)};font-weight:500;letter-spacing:3px;text-transform:uppercase;color:var(--pu);margin-bottom:8px;}
+${sc} .st-d-title{font-family:var(--fd);font-size:clamp(${s(20)},3vw,${s(30)});font-weight:800;color:var(--bk);letter-spacing:-.8px;margin-bottom:0;}
+${sc} .st-d-desc{font-size:${s(14)};color:var(--gr);line-height:1.85;margin:0;padding-top:6px;}
+${sc} .st-d-desc-empty{display:none;}
+${sc} .st-d-grid{display:grid;grid-template-columns:1fr 1.2fr 0.9fr;gap:32px;align-items:start;}
+@media(max-width:900px){${sc} .st-d-grid{grid-template-columns:1fr 1fr;gap:20px;}}
+@media(max-width:600px){${sc} .st-d-grid{grid-template-columns:1fr;gap:20px;}}
+${sc} .st-d-label{font-size:${s(10)};font-weight:500;letter-spacing:2.5px;text-transform:uppercase;color:var(--gr);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--bd);display:block;}
+${sc} .st-d-text{font-size:${s(13.5)};color:var(--bk);line-height:1.8;}
+${sc} .st-d-text a{color:var(--pu);text-decoration:none;transition:opacity .2s;}
+${sc} .st-d-text a:hover{opacity:.7;text-decoration:underline;}
+${sc} .st-d-list{list-style:none;padding:0;}
+${sc} .st-d-list li{font-size:${s(13)};color:var(--bk);line-height:1.75;padding:4px 0 4px 14px;position:relative;}
+${sc} .st-d-list li::before{content:'';position:absolute;left:0;top:13px;width:5px;height:1px;background:var(--pu);}
+${sc} .st-d-list li a{color:var(--pu);text-decoration:none;transition:opacity .2s;}
+${sc} .st-d-list li a:hover{opacity:.7;text-decoration:underline;}
+
+${sc} .st-cs{font-size:${s(12)};color:var(--gr);font-style:italic;padding:4px 0;}
+${sc} .st-close{position:absolute;top:20px;right:20px;width:28px;height:28px;background:rgba(0,0,0,.05);border:none;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s;}
+${sc} .st-close:hover{background:rgba(0,0,0,.1);}
+${sc} .st-close svg{width:10px;height:10px;stroke:var(--bk);fill:none;stroke-width:2;stroke-linecap:round;display:block;}
+${sc} .st-data{display:none;}
+</style>`;
+}
+
+function buildCards(lang, uid) {
+  const csText = lang==='zh'?document.getElementById('cs_zh').value:document.getElementById('cs_en').value;
+  const gl1    = lang==='zh'?document.getElementById('gl1_zh').value:document.getElementById('gl1_en').value;
+  const gl2    = lang==='zh'?document.getElementById('gl2_zh').value:document.getElementById('gl2_en').value;
+
+  const prefix = lang==='zh'?document.getElementById('prefix_zh').value:document.getElementById('prefix_en').value;
+
+  return themes.map((t,i)=>{
+    const id    = String(i+1).padStart(2,'0');
+    const title = lang==='zh'?t.title_zh:t.title_en;
+    const sub   = lang==='zh'?t.sub_zh:t.sub_en;
+    const desc  = lang==='zh'?t.desc_zh:t.desc_en;
+
+    const iconHtml = t.icon_url
+      ? `<div class="st-card-icon-wrap"><img src="${t.icon_url}" alt="${title}" loading="lazy"></div>`
+      : '';
+
+    const zoneHtml = (!t.zones||t.zones.length===0)
+      ? `<p class="st-cs">${csText}</p>`
+      : `<p class="st-d-text">${t.zones.map(z=>{const tx=lang==='zh'?z.zh:z.en;return z.url?`<a href="${z.url}" target="_blank" rel="noopener">${tx}</a>`:tx;}).join('<br><br>')}</p>`;
+
+    const forumHtml = (!t.forums||t.forums.length===0)
+      ? `<p class="st-cs">${csText}</p>`
+      : `<ul class="st-d-list">${t.forums.map(f=>{const tx=lang==='zh'?f.zh:f.en;const inner=f.url?`<a href="${f.url}" target="_blank" rel="noopener">${tx}</a>`:tx;return`<li>${inner}</li>`;}).join('')}</ul>`;
+
+    const descHtml = desc
+      ? `<p class="st-d-desc">${desc}</p>`
+      : `<p class="st-d-desc st-d-desc-empty"></p>`;
+
+    // Build bottom grid dynamically based on showZone / showForum
+    const cols = [];
+    if(t.showZone)  cols.push(`<div><span class="st-d-label">${gl1}</span>${zoneHtml}</div>`);
+    if(t.showForum) cols.push(`<div><span class="st-d-label">${gl2}</span>${forumHtml}</div>`);
+    const colCount = cols.length;
+    const gridCols = colCount === 1 ? '1fr' : '1fr 1.3fr';
+    const gridHtml = colCount > 0
+      ? `<div class="st-d-grid" style="grid-template-columns:${gridCols};">${cols.join('')}</div>`
+      : '';
+
+    return `        <div class="st-card" tabindex="0">
+            <div class="st-num-wrap">${id}</div>
+            ${iconHtml}
+            <div class="st-card-title">${title}</div>
+            <div class="st-card-sub">${sub}</div>
+            <div class="st-card-bar"></div>
+            <span class="st-caret"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+            <div class="st-data">
+                <div class="st-d-header">
+                    <div>
+                        <div class="st-d-eye">${prefix} ${id}</div>
+                        <div class="st-d-title">${title}</div>
+                    </div>
+                    <div>${descHtml}</div>
+                </div>
+                ${gridHtml}
+            </div>
+        </div>`;
+  }).join('\n');
+}
+
+function buildOutputJS(uid) {
+  // No global functions — all scoped inside IIFE
+  // Queries scoped to the specific grid element by unique ID
+  return `<script>
+(function(){
+  var g=document.getElementById('${uid}-g');
+  if(!g){return;}
+  var cards=Array.prototype.slice.call(g.querySelectorAll('.st-card'));
+  var drw=document.getElementById('${uid}-d');
+  var dc=document.getElementById('${uid}-c');
+  var ac=null;
+  function closeAll(){drw.classList.remove('open');if(ac)ac.classList.remove('active');ac=null;}
+  function toggle(card){
+    var same=ac===card;closeAll();
+    if(!same){
+      card.classList.add('active');ac=card;
+      var d=card.querySelector('.st-data');if(d)dc.innerHTML=d.innerHTML;
+      var ft=cards[0].offsetTop,cols=0;
+      for(var i=0;i<cards.length;i++){if(cards[i].offsetTop===ft)cols++;else break;}
+      if(!cols)cols=1;
+      var row=Math.floor(cards.indexOf(card)/cols);
+      var last=Math.min((row+1)*cols-1,cards.length-1);
+      g.insertBefore(drw,cards[last].nextSibling);
+      setTimeout(function(){drw.classList.add('open');drw.scrollIntoView({behavior:'smooth',block:'nearest'});},50);
+    }
+  }
+  cards.forEach(function(c){
+    c.addEventListener('click',function(){toggle(c);});
+    c.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle(c);}});
+  });
+  drw.querySelector('.st-close').addEventListener('click',closeAll);
+})();
+<\/script>`;
+}
+
+function buildHTML(lang) {
+  const scale = parseFloat(document.getElementById('fsScale').value)||1.15;
+  // Unique 6-char ID — prevents ALL conflicts if multiple versions on same page
+  const uid = 'st' + Math.random().toString(36).slice(2,8);
+  const sc  = '.' + uid;  // CSS scope selector
+  const css    = buildOutputCSS(scale, sc);
+  const cards  = buildCards(lang, uid);
+  const js     = buildOutputJS(uid);
+  const comment = lang==='zh'
+    ? '<!-- SEMICON Taiwan 2026 | 互動展區選單 — 中文版 -->'
+    : '<!-- SEMICON Taiwan 2026 | Interactive Theme Blocks — English -->';
+  const drawer = `        <div class="st-drawer" id="${uid}-d">
+            <div class="st-drawer-inner">
+                <button class="st-close"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+                <div id="${uid}-c"></div>
+            </div>
+        </div>`;
+  return `${comment}\n${css}\n<div class="${uid}">\n    <div class="st-grid" id="${uid}-g">\n${cards}\n${drawer}\n    </div>\n</div>\n\n${js}`;
+}
+
+function generate(){
+  const zh=buildHTML('zh');
+  const en=buildHTML('en');
+  document.getElementById('zhOutput').value=zh;
+  document.getElementById('enOutput').value=en;
+  document.getElementById('zh-chars').textContent=zh.length.toLocaleString()+' 字元';
+  document.getElementById('en-chars').textContent=en.length.toLocaleString()+' chars';
+  document.getElementById('previewFrame').srcdoc=prevLang==='zh'?zh:en;
+  switchTab('preview');
+}
+
+function copyCode(id,btn){
+  const ta=document.getElementById(id);
+  if(!ta.value){alert('請先點擊「▶ 生成 + 預覽」！');return;}
+  ta.select();document.execCommand('copy');
+  const orig=btn.textContent;btn.textContent='✓ 已複製';btn.classList.add('copied');
+  setTimeout(()=>{btn.textContent=orig;btn.classList.remove('copied');},2200);
+}
+
+// ════════ LOCALSTORAGE ════════
+const STORAGE_KEY = 'semicon_generator_v3';
+
+function saveToStorage() {
+  try {
+    const state = {
+      themes,
+      globals: {
+        gl1_zh: document.getElementById('gl1_zh').value,
+        gl1_en: document.getElementById('gl1_en').value,
+        gl2_zh: document.getElementById('gl2_zh').value,
+        gl2_en: document.getElementById('gl2_en').value,
+        prefix_zh: document.getElementById('prefix_zh').value,
+        prefix_en: document.getElementById('prefix_en').value,
+        cs_zh: document.getElementById('cs_zh').value,
+        cs_en: document.getElementById('cs_en').value,
+        fsScale: document.getElementById('fsScale').value,
+      }
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    flashSaveIndicator();
+  } catch(e) { console.warn('Storage save failed', e); }
+}
+
+function loadFromStorage() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return false;
+    const state = JSON.parse(raw);
+    if (state.themes && Array.isArray(state.themes)) {
+      themes = state.themes;
+    }
+    if (state.globals) {
+      const g = state.globals;
+      Object.keys(g).forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = g[id];
+      });
+    }
+    return true;
+  } catch(e) { console.warn('Storage load failed', e); return false; }
+}
+
+function clearStorage() {
+  if (!confirm('確定要清除所有已儲存的資料，並還原為預設值嗎？')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  location.reload();
+}
+
+function flashSaveIndicator() {
+  const el = document.getElementById('saveIndicator');
+  if (!el) return;
+  el.textContent = '✓ 已自動儲存';
+  el.style.opacity = '1';
+  clearTimeout(el._t);
+  el._t = setTimeout(() => { el.style.opacity = '0'; }, 1800);
+}
+
+// Wrap all mutation functions to auto-save
+const _upd = upd;
+upd = function(...a) { _upd(...a); saveToStorage(); };
+const _updItem = updItem;
+updItem = function(...a) { _updItem(...a); saveToStorage(); };
+const _addItem = addItem;
+addItem = function(...a) { _addItem(...a); saveToStorage(); };
+const _delItem = delItem;
+delItem = function(...a) { _delItem(...a); saveToStorage(); };
+const _addTheme = addTheme;
+addTheme = function() { _addTheme(); saveToStorage(); };
+const _delT = delT;
+delT = function(...a) { _delT(...a); saveToStorage(); };
+const _moveT = moveT;
+moveT = function(...a) { _moveT(...a); saveToStorage(); };
+
+// Auto-save on global field changes
+document.addEventListener('DOMContentLoaded', () => {
+  ['gl1_zh','gl1_en','gl2_zh','gl2_en','prefix_zh','prefix_en','cs_zh','cs_en','fsScale'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', saveToStorage);
+  });
+});
+
+window.onload = () => {
+  const restored = loadFromStorage();
+  renderList();
+  if (restored) {
+    const el = document.getElementById('saveIndicator');
+    if (el) { el.textContent = '✓ 已載入上次資料'; el.style.opacity = '1'; setTimeout(() => { el.style.opacity = '0'; }, 2500); }
+  }
+};
+</script>
+</body>
+</html>

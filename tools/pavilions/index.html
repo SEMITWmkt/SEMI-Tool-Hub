@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEMICON 展商 HTML 產生器</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen p-6">
+    <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6 h-[calc(100vh-3rem)]">
+        
+        <!-- 左側：輸入區 -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col gap-4 overflow-y-auto">
+            <div class="flex justify-between items-end border-b pb-3">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-900">資料輸入設定 (編輯專用)</h2>
+                    <p class="text-xs text-slate-500 mt-1">v1.1 confidence workflow · 先檢查資料，再複製 HTML</p>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <div class="col-span-2 sm:col-span-1">
+                    <label class="block text-sm font-semibold mb-1">1. 專區名稱</label>
+                    <input type="text" id="pavName" placeholder="例如：半導體封裝專區 / Packaging Pavilion" class="w-full p-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                </div>
+                <div class="col-span-2 sm:col-span-1">
+                    <label class="block text-sm font-semibold mb-1">輸出語系 (切換框架語言)</label>
+                    <select id="outputLang" class="w-full p-2 border border-slate-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        <option value="zh">中文 (自動使用中文名)</option>
+                        <option value="en">English (自動使用英文名)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold mb-1">2. 專區簡介 (純文字貼上，無則留白)</label>
+                <textarea id="introText" class="w-full h-20 p-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="輸入專區介紹... (系統會自動處理段落與加粗 SEMICON Taiwan 2026)"></textarea>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold mb-1">3. 鎖定技術與應用 (一行一項，無則留白)</label>
+                <textarea id="bulletPoints" class="w-full h-20 p-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="智慧工廠&#10;自動化控制系統..."></textarea>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 border-t pt-4">
+                <div>
+                    <label class="block text-sm font-semibold mb-1">4. 專區主題色碼 (HEX)</label>
+                    <div class="flex items-center gap-3">
+                        <input type="color" id="colorPicker" value="#673BB8" class="w-10 h-10 rounded cursor-pointer border-0 p-0">
+                        <input type="text" id="colorHex" value="#673BB8" class="flex-1 p-2 border border-slate-300 rounded-lg font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none uppercase">
+                    </div>
+                    <div class="flex flex-wrap gap-2 mt-2" aria-label="SEMICON preset colors">
+                        <button type="button" class="colorSwatch w-7 h-7 rounded-full border-2 border-white shadow ring-1 ring-slate-300" style="background:#673BB8" data-color="#673BB8" title="SEMICON Purple"></button>
+                        <button type="button" class="colorSwatch w-7 h-7 rounded-full border-2 border-white shadow ring-1 ring-slate-300" style="background:#005BAC" data-color="#005BAC" title="SEMICON Blue"></button>
+                        <button type="button" class="colorSwatch w-7 h-7 rounded-full border-2 border-white shadow ring-1 ring-slate-300" style="background:#00A0B0" data-color="#00A0B0" title="SEMICON Teal"></button>
+                        <button type="button" class="colorSwatch w-7 h-7 rounded-full border-2 border-white shadow ring-1 ring-slate-300" style="background:#E87722" data-color="#E87722" title="SEMICON Orange"></button>
+                        <button type="button" class="colorSwatch w-7 h-7 rounded-full border-2 border-white shadow ring-1 ring-slate-300" style="background:#4B5563" data-color="#4B5563" title="Neutral Gray"></button>
+                    </div>
+                </div>
+                <div class="relative">
+                    <label class="block text-sm font-semibold mb-1">5. Excel 資料格式切換</label>
+                    <select id="dataFormat" class="w-full p-2.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white">
+                        <option value="standard">標準格式 (含中英文、攤位)</option>
+                        <option value="country">國家館表單 (自動共用攤位)</option>
+                    </select>
+                </div>
+                
+                <div id="sharedBoothContainer" class="col-span-2 hidden bg-indigo-50 p-3 rounded-lg border border-indigo-100">
+                    <label class="block text-sm font-semibold mb-1 text-indigo-800">輸入全館共用攤位號碼</label>
+                    <input type="text" id="sharedBoothInput" placeholder="例如：P1234 (若留白則預設顯示 TBD)" class="w-full p-2 border border-indigo-200 rounded font-mono text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                </div>
+            </div>
+
+            <div class="flex-1 flex flex-col min-h-[150px]">
+                <div class="flex items-start justify-between gap-3 mb-1">
+                    <div>
+                        <label class="block text-sm font-semibold">6. Excel 原始名單 (不需標題列)</label>
+                        <p id="formatHint" class="text-xs text-slate-500">預期順序：中文名 / 英文名 / 專區名 / 攤位號碼 / 網址</p>
+                    </div>
+                    <div class="flex flex-wrap justify-end gap-2">
+                        <button type="button" id="sampleStandardBtn" class="text-xs font-semibold px-3 py-1.5 rounded border border-slate-300 hover:bg-slate-50">載入標準範例</button>
+                        <button type="button" id="sampleCountryBtn" class="text-xs font-semibold px-3 py-1.5 rounded border border-slate-300 hover:bg-slate-50">載入國家館範例</button>
+                    </div>
+                </div>
+                <textarea id="rawData" class="w-full flex-1 p-3 border border-slate-300 rounded-lg text-sm font-mono whitespace-pre focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="將 Excel 內容貼上至此..."></textarea>
+            </div>
+
+            <button id="generateBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition-colors shadow-sm mt-auto">
+                檢查並產生 HTML 代碼
+            </button>
+        </div>
+
+        <!-- 右側：輸出與預覽區 -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col gap-5 relative h-full">
+            <div id="validationPanel" class="border border-slate-200 rounded-lg bg-slate-50 p-4">
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-900">發布檢查</h3>
+                        <p id="readinessSummary" class="text-xs text-slate-500 mt-1">尚未解析資料。載入範例或貼上 Excel 後產生 HTML。</p>
+                    </div>
+                    <span id="readinessBadge" class="text-xs font-bold px-2.5 py-1 rounded-full bg-slate-200 text-slate-600">Not checked</span>
+                </div>
+                <div id="reviewTable" class="mt-3 max-h-44 overflow-auto hidden"></div>
+            </div>
+
+            <div class="flex justify-between items-end border-b pb-3">
+                <div class="flex gap-6">
+                    <button id="tabCode" class="text-lg font-bold text-blue-600 border-b-2 border-blue-600 pb-1 transition-colors">HTML 原始碼</button>
+                    <button id="tabPreview" class="text-lg font-bold text-slate-400 hover:text-slate-600 pb-1 transition-colors">視覺預覽</button>
+                </div>
+                <button id="copyBtn" class="bg-slate-800 hover:bg-slate-900 text-white text-sm font-semibold py-1.5 px-4 rounded transition-colors flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                    複製代碼
+                </button>
+            </div>
+            
+            <div id="copyToast" class="absolute top-4 right-4 bg-emerald-500 text-white px-4 py-2 rounded shadow-lg text-sm font-bold opacity-0 pointer-events-none transition-opacity duration-300 z-50">
+                代碼已複製到剪貼簿！
+            </div>
+
+            <!-- 代碼區域 -->
+            <textarea id="outputHtml" class="w-full flex-1 h-full p-4 border border-slate-300 rounded-lg text-sm font-mono bg-slate-50 focus:outline-none resize-none" readonly placeholder="產生的 HTML 將顯示於此處，可直接全選複製貼入 Drupal 後台..."></textarea>
+            
+            <!-- 預覽區域 -->
+            <div id="previewContainer" class="w-full flex-1 h-full p-4 border border-slate-300 rounded-lg overflow-y-auto hidden bg-white">
+                <div class="text-slate-400 text-sm text-center mt-10">請先點擊左側「一鍵轉換 HTML 代碼」以生成預覽</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // UI Tabs Sync
+        const tabCode = document.getElementById('tabCode');
+        const tabPreview = document.getElementById('tabPreview');
+        const outputHtml = document.getElementById('outputHtml');
+        const previewContainer = document.getElementById('previewContainer');
+        const copyBtn = document.getElementById('copyBtn');
+
+        tabCode.addEventListener('click', () => {
+            tabCode.classList.add('text-blue-600', 'border-b-2', 'border-blue-600');
+            tabCode.classList.remove('text-slate-400');
+            tabPreview.classList.remove('text-blue-600', 'border-b-2', 'border-blue-600');
+            tabPreview.classList.add('text-slate-400');
+            outputHtml.classList.remove('hidden');
+            previewContainer.classList.add('hidden');
+            copyBtn.style.display = 'flex';
+        });
+
+        tabPreview.addEventListener('click', () => {
+            tabPreview.classList.add('text-blue-600', 'border-b-2', 'border-blue-600');
+            tabPreview.classList.remove('text-slate-400');
+            tabCode.classList.remove('text-blue-600', 'border-b-2', 'border-blue-600');
+            tabCode.classList.add('text-slate-400');
+            previewContainer.classList.remove('hidden');
+            outputHtml.classList.add('hidden');
+            copyBtn.style.display = 'none'; // Hide copy button in preview mode to avoid confusion
+        });
+
+        // Color Sync
+        const colorPicker = document.getElementById('colorPicker');
+        const colorHex = document.getElementById('colorHex');
+        const dataFormat = document.getElementById('dataFormat');
+        const formatHint = document.getElementById('formatHint');
+        const sharedBoothContainer = document.getElementById('sharedBoothContainer');
+        const readinessSummary = document.getElementById('readinessSummary');
+        const readinessBadge = document.getElementById('readinessBadge');
+        const reviewTable = document.getElementById('reviewTable');
+        const sampleStandardBtn = document.getElementById('sampleStandardBtn');
+        const sampleCountryBtn = document.getElementById('sampleCountryBtn');
+
+        const sampleStandardData = [
+            '先進封裝科技股份有限公司\tAdvanced Packaging Technology Co., Ltd.\tPackaging Pavilion\tN1001\thttps://www.example.com/advanced-packaging',
+            '矽智整合系統\tSilicon Integration Systems\tPackaging Pavilion\tN1002\thttps://www.example.com/silicon-integration',
+            '晶圓測試解決方案\tWafer Test Solutions Inc.\tPackaging Pavilion\tN1003\thttps://www.example.com/wafer-test'
+        ].join('\n');
+
+        const sampleCountryData = [
+            '1\tJapan Micro Devices\tAkira Sato\takira@example.jp\t+81-3-0000-0000\tTokyo, Japan\thttps://www.example.jp/jmd',
+            '2\tKorea Fab Materials\tKim Hana\thana@example.kr\t+82-2-0000-0000\tSeoul, Korea\thttps://www.example.kr/kfm',
+            '3\tSingapore Process Tech\tAlex Tan\talex@example.sg\t+65-0000-0000\tSingapore\thttps://www.example.sg/spt'
+        ].join('\n');
+
+        function setThemeColor(hex) {
+            const normalized = /^#[0-9A-F]{6}$/i.test(hex) ? hex.toUpperCase() : '#673BB8';
+            colorPicker.value = normalized;
+            colorHex.value = normalized;
+        }
+
+        colorPicker.addEventListener('input', (e) => setThemeColor(e.target.value));
+        colorHex.addEventListener('input', (e) => {
+            let val = e.target.value;
+            if(!val.startsWith('#')) val = '#' + val;
+            if(/^#[0-9A-F]{6}$/i.test(val)) setThemeColor(val);
+        });
+
+        document.querySelectorAll('.colorSwatch').forEach(button => {
+            button.addEventListener('click', () => setThemeColor(button.dataset.color));
+        });
+
+        function syncFormatUi() {
+            if (dataFormat.value === 'standard') {
+                formatHint.textContent = '預期順序：中文名 / 英文名 / 專區名 / 攤位號碼 / 網址';
+                sharedBoothContainer.classList.add('hidden');
+            } else {
+                formatHint.textContent = '預期順序：No. / Company Name / Contact Person / E-mail / Phone / Address / Website';
+                sharedBoothContainer.classList.remove('hidden');
+            }
+        }
+
+        dataFormat.addEventListener('change', syncFormatUi);
+
+        function escapeHtml(value) {
+            return String(value || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function normalizeKnownUrlTypo(url) {
+            return String(url || '').trim().replace('http://http:www.cotec.com.tw', 'http://www.cotec.com.tw');
+        }
+
+        function isValidUrl(url) {
+            return /^https?:\/\/\S+/i.test(url);
+        }
+
+        function getDisplayName(item, outputLang) {
+            return outputLang === 'en'
+                ? (item.engName || item.localName)
+                : (item.localName || item.engName);
+        }
+
+        function parseVendorRows(rawData, format, sharedBooth, outputLang) {
+            const rows = rawData.split(/\r?\n/);
+            const parsedItems = [];
+
+            rows.forEach((line, index) => {
+                if (!line.trim()) return;
+                if (line.toLowerCase().includes('company name') || line.toLowerCase().includes('customer_name')) return;
+
+                const parts = line.split('\t').map(part => part.trim());
+                const issues = [];
+                let localName = '';
+                let engName = '';
+                let booth = '';
+                let url = '';
+
+                if (format === 'standard') {
+                    localName = parts[0] || '';
+                    engName = parts[1] || '';
+                    booth = parts[3] || '';
+                    url = parts[4] || '';
+
+                    if (parts.length < 5) {
+                        issues.push({ type: 'check', text: `欄位數不足：讀到 ${parts.length} 欄，預期至少 5 欄` });
+                    }
+                } else {
+                    localName = parts[1] || '';
+                    engName = parts[1] || '';
+                    booth = sharedBooth || '';
+                    url = parts[6] || '';
+
+                    if (parts.length < 7) {
+                        issues.push({ type: 'check', text: `欄位數不足：讀到 ${parts.length} 欄，預期至少 7 欄` });
+                    }
+                }
+
+                url = normalizeKnownUrlTypo(url);
+                const displayName = getDisplayName({ localName, engName }, outputLang);
+
+                if (!displayName) issues.push({ type: 'missing', text: '缺少可顯示的公司名稱' });
+                if (!booth) issues.push({ type: 'missing', text: '缺少攤位號碼' });
+                if (!url) {
+                    issues.push({ type: 'check', text: '缺少網址，輸出將使用 #' });
+                } else if (!isValidUrl(url)) {
+                    issues.push({ type: 'check', text: '網址格式需以 http:// 或 https:// 開頭，輸出將使用 #' });
+                }
+
+                parsedItems.push({
+                    lineNumber: index + 1,
+                    localName,
+                    engName,
+                    booth,
+                    url,
+                    safeUrl: isValidUrl(url) ? url : '#',
+                    displayName,
+                    issues,
+                    canOutput: Boolean(displayName && booth)
+                });
+            });
+
+            parsedItems.sort((a, b) => {
+                const aName = (a.engName || a.localName || '').toLowerCase();
+                const bName = (b.engName || b.localName || '').toLowerCase();
+                return aName.localeCompare(bName);
+            });
+
+            return parsedItems;
+        }
+
+        function renderReadiness(parsedItems) {
+            const total = parsedItems.length;
+            const outputCount = parsedItems.filter(item => item.canOutput).length;
+            const missingCount = parsedItems.filter(item => item.issues.some(issue => issue.type === 'missing')).length;
+            const checkCount = parsedItems.filter(item => item.issues.some(issue => issue.type === 'check')).length;
+
+            if (!total) {
+                readinessSummary.textContent = '未解析到資料列。請確認 Excel 內容是否已貼上。';
+                readinessBadge.textContent = 'Missing data';
+                readinessBadge.className = 'text-xs font-bold px-2.5 py-1 rounded-full bg-red-100 text-red-700';
+                reviewTable.classList.add('hidden');
+                reviewTable.innerHTML = '';
+                return;
+            }
+
+            readinessSummary.textContent = `${total} 列資料 · ${outputCount} 列可輸出 · ${missingCount} 列需修正 · ${checkCount} 列需確認`;
+
+            if (missingCount > 0) {
+                readinessBadge.textContent = 'Fix required';
+                readinessBadge.className = 'text-xs font-bold px-2.5 py-1 rounded-full bg-red-100 text-red-700';
+            } else if (checkCount > 0) {
+                readinessBadge.textContent = 'Check links';
+                readinessBadge.className = 'text-xs font-bold px-2.5 py-1 rounded-full bg-amber-100 text-amber-700';
+            } else {
+                readinessBadge.textContent = 'Ready';
+                readinessBadge.className = 'text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700';
+            }
+        }
+
+        function renderReviewTable(parsedItems) {
+            if (!parsedItems.length) return;
+
+            const rows = parsedItems.map(item => {
+                const hasMissing = item.issues.some(issue => issue.type === 'missing');
+                const hasCheck = item.issues.some(issue => issue.type === 'check');
+                const statusLabel = hasMissing ? 'Fix' : hasCheck ? 'Check' : 'Ready';
+                const statusClass = hasMissing ? 'text-red-700 bg-red-50' : hasCheck ? 'text-amber-700 bg-amber-50' : 'text-emerald-700 bg-emerald-50';
+                const issueText = item.issues.length ? item.issues.map(issue => issue.text).join('；') : '可發布';
+
+                return `<tr class="border-t border-slate-200">
+                    <td class="py-2 pr-3 text-xs text-slate-500 whitespace-nowrap">#${item.lineNumber}</td>
+                    <td class="py-2 pr-3 text-xs font-semibold text-slate-800">${escapeHtml(item.displayName || '(無公司名稱)')}</td>
+                    <td class="py-2 pr-3 text-xs font-mono text-slate-700 whitespace-nowrap">${escapeHtml(item.booth || '-')}</td>
+                    <td class="py-2 pr-3 text-xs"><span class="px-2 py-0.5 rounded-full font-bold ${statusClass}">${statusLabel}</span></td>
+                    <td class="py-2 text-xs text-slate-600">${escapeHtml(issueText)}</td>
+                </tr>`;
+            }).join('');
+
+            reviewTable.innerHTML = `<table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="text-xs text-slate-500">
+                        <th class="pb-1 pr-3 font-semibold">列</th>
+                        <th class="pb-1 pr-3 font-semibold">公司</th>
+                        <th class="pb-1 pr-3 font-semibold">攤位</th>
+                        <th class="pb-1 pr-3 font-semibold">狀態</th>
+                        <th class="pb-1 font-semibold">檢查</th>
+                    </tr>
+                </thead>
+                <tbody>${rows}</tbody>
+            </table>`;
+            reviewTable.classList.remove('hidden');
+        }
+
+        function generateHeaderHtml(pavNameInput, introInput, bulletsInput, outputLang) {
+            const txtFocus = outputLang === 'en' ? 'Focus Areas:' : '鎖定技術與應用';
+            const txtComingSoon = outputLang === 'en' ? 'Coming soon' : '敬請期待';
+            const safePavName = escapeHtml(pavNameInput);
+            const txtTitle = outputLang === 'en'
+                ? (safePavName ? `SEMICON Taiwan 2026 ${safePavName} Exhibitors` : 'SEMICON Taiwan 2026 Exhibitors')
+                : (safePavName ? `SEMICON Taiwan 2026 ${safePavName}參展廠商` : 'SEMICON Taiwan 2026 參展廠商');
+
+            let headerHtml = '';
+            if (!introInput && !bulletsInput) {
+                headerHtml += `    <p style="font-size:16px;font-weight:bold;margin-bottom:24px;">${txtComingSoon}</p>\n`;
+            } else {
+                if (introInput) {
+                    const safeIntro = escapeHtml(introInput).replace(/SEMICON Taiwan 2026/gi, '<strong>SEMICON Taiwan 2026</strong>');
+                    safeIntro.split('\n').filter(p => p.trim()).forEach(p => {
+                        headerHtml += `    <p>\n        <span>${p.trim()}</span>\n    </p>\n`;
+                    });
+                }
+
+                if (bulletsInput) {
+                    const listItems = bulletsInput
+                        .split('\n')
+                        .filter(b => b.trim())
+                        .map(b => `            <li>${escapeHtml(b.trim())}</li>`)
+                        .join('\n');
+                    headerHtml += `    <div style="margin-bottom:24px;">\n        <h4 style="margin-bottom:8px;"><strong>${txtFocus}</strong></h4>\n        <ul style="margin:0;padding-left:20px;">\n${listItems}\n        </ul>\n    </div>\n`;
+                } else if (introInput) {
+                    headerHtml += `    <p>\n        &nbsp;\n    </p>\n`;
+                }
+            }
+
+            headerHtml += `    <h3 style="margin-bottom:16px;">\n        <strong>${txtTitle}</strong>\n    </h3>`;
+            return headerHtml;
+        }
+
+        function buildFinalHtml(parsedItems, hexColor, outputLang, headerHtml) {
+            const txtBooth = outputLang === 'en' ? 'Booth' : '攤位';
+            const outputItems = parsedItems.filter(item => item.canOutput);
+            const itemBlocks = outputItems.map(item => {
+                const displayCompanyName = escapeHtml(item.displayName);
+                const booth = escapeHtml(item.booth);
+                const href = escapeHtml(item.safeUrl);
+                const dynamicBoothPadding = outputLang === 'en' ? '0 10px' : '0 16px';
+
+                return `        <a style="align-items:stretch;border-radius:6px;border:2px solid ${hexColor};box-sizing:border-box;color:#333;display:flex;min-width:260px;overflow:hidden;text-decoration:none;width:calc(50% - 5px);" href="${href}" target="_blank" rel="noopener noreferrer">
+            <span style="align-items:center;background-color:${hexColor};color:#fff;display:flex;flex-direction:column;justify-content:center;min-width:80px;padding:${dynamicBoothPadding};white-space:nowrap;flex-shrink:0;">
+                <span style="font-size:12px;opacity:0.9;line-height:1.2;">${txtBooth}</span>
+                <span style="font-weight:700;font-size:16px;font-family:monospace;line-height:1.2;">${booth}</span>
+            </span>
+            <span style="align-items:center;display:flex;font-size:15px;font-weight:600;padding:12px 16px;">${displayCompanyName}</span>
+        </a>`.replace(/\n\s+/g, ' ');
+            });
+
+            const blocksHtml = itemBlocks.join('\n\n');
+            return `<div style="color:#333;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif;line-height:1.6;">\n${headerHtml}\n    <div style="display:flex;flex-wrap:wrap;gap:10px;">\n\n${blocksHtml}\n\n    </div>\n</div>`;
+        }
+
+        function generateHtml() {
+            const pavNameInput = document.getElementById('pavName').value.trim();
+            const introInput = document.getElementById('introText').value.trim();
+            const bulletsInput = document.getElementById('bulletPoints').value.trim();
+            const outputLang = document.getElementById('outputLang').value;
+            const hexColor = /^#[0-9A-F]{6}$/i.test(colorHex.value.trim()) ? colorHex.value.trim().toUpperCase() : '#673BB8';
+            const rawData = document.getElementById('rawData').value.trim();
+            const format = dataFormat.value;
+            const sharedBooth = document.getElementById('sharedBoothInput').value.trim() || 'TBD';
+
+            if (!rawData) {
+                outputHtml.value = '錯誤：請提供原始資料名單。';
+                previewContainer.innerHTML = `<div class="text-red-500 text-sm text-center mt-10">錯誤：請提供原始資料名單。</div>`;
+                readinessSummary.textContent = '缺少原始資料。請貼上 Excel 名單或載入範例資料。';
+                readinessBadge.textContent = 'Missing data';
+                readinessBadge.className = 'text-xs font-bold px-2.5 py-1 rounded-full bg-red-100 text-red-700';
+                reviewTable.classList.add('hidden');
+                reviewTable.innerHTML = '';
+                return;
+            }
+
+            const parsedItems = parseVendorRows(rawData, format, sharedBooth, outputLang);
+            renderReadiness(parsedItems);
+            renderReviewTable(parsedItems);
+
+            const outputItems = parsedItems.filter(item => item.canOutput);
+            if (!outputItems.length) {
+                outputHtml.value = '錯誤：沒有可輸出的展商資料。請先修正公司名稱與攤位號碼。';
+                previewContainer.innerHTML = `<div class="text-red-500 text-sm text-center mt-10">沒有可輸出的展商資料。請先修正公司名稱與攤位號碼。</div>`;
+                return;
+            }
+
+            const headerHtml = generateHeaderHtml(pavNameInput, introInput, bulletsInput, outputLang);
+            const finalHtml = buildFinalHtml(parsedItems, hexColor, outputLang, headerHtml);
+            outputHtml.value = finalHtml;
+            previewContainer.innerHTML = finalHtml;
+        }
+
+        sampleStandardBtn.addEventListener('click', () => {
+            dataFormat.value = 'standard';
+            syncFormatUi();
+            document.getElementById('pavName').value = '半導體封裝專區';
+            document.getElementById('outputLang').value = 'zh';
+            document.getElementById('introText').value = 'SEMICON Taiwan 2026 匯集封裝測試、異質整合與先進製程供應鏈。';
+            document.getElementById('bulletPoints').value = 'Advanced packaging\nHeterogeneous integration\nWafer testing';
+            document.getElementById('rawData').value = sampleStandardData;
+            generateHtml();
+        });
+
+        sampleCountryBtn.addEventListener('click', () => {
+            dataFormat.value = 'country';
+            syncFormatUi();
+            document.getElementById('pavName').value = 'Japan Pavilion';
+            document.getElementById('outputLang').value = 'en';
+            document.getElementById('sharedBoothInput').value = 'P1234';
+            document.getElementById('introText').value = '';
+            document.getElementById('bulletPoints').value = '';
+            document.getElementById('rawData').value = sampleCountryData;
+            generateHtml();
+        });
+
+        document.getElementById('generateBtn').addEventListener('click', generateHtml);
+
+        // Copy functionality
+        document.getElementById('copyBtn').addEventListener('click', () => {
+            if(!outputHtml.value || outputHtml.value.startsWith("錯誤")) return;
+
+            outputHtml.select();
+            document.execCommand('copy');
+            
+            const toast = document.getElementById('copyToast');
+            toast.style.opacity = '1';
+            setTimeout(() => toast.style.opacity = '0', 2000);
+            
+            window.getSelection().removeAllRanges();
+        });
+    </script>
+</body>
+</html>

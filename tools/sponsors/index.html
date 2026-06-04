@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SEMICON 贊助商 HTML 產生器 V5.1.1</title>
+<style>
+  :root {
+    --primary: #800080;
+    --bg-color: #f3f4f6;
+    --panel-bg: #ffffff;
+    --border: #d1d5db;
+    --text-main: #111827;
+    --muted: #6b7280;
+    --ok: #047857;
+    --warn: #92400e;
+    --bad: #b91c1c;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+  * { box-sizing: border-box; }
+
+  /* 頂部導航分頁 */
+  .app-header {
+    background: var(--panel-bg);
+    border-bottom: 1px solid var(--border);
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    z-index: 10;
+  }
+  .app-header h1 { font-size: 1.2rem; color: var(--text-main); margin: 0; padding: 15px 0; }
+  
+  .tabs { display: flex; gap: 10px; }
+  .tab-btn {
+    background: transparent; border: none; border-bottom: 3px solid transparent;
+    padding: 15px 20px; font-weight: 800; font-size: 0.95rem; color: #6b7280;
+    cursor: pointer; transition: all 0.2s; border-radius: 0;
+  }
+  .tab-btn:hover { color: var(--text-main); }
+  .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+  .tab-content { display: none; flex-grow: 1; overflow-y: auto; padding: 20px; }
+  .tab-content.active { display: block; }
+
+  /* ================== 步驟一：資料管理 ================== */
+  .manage-container {
+    max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+  }
+  .panel-box {
+    background: var(--panel-bg); padding: 24px; border: 1px solid var(--border);
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+  }
+  
+  .section-title { font-size: 0.95rem; font-weight: 800; color: var(--text-main); margin-top: 0; margin-bottom: 15px; text-transform: uppercase; border-bottom: 1px solid var(--border); padding-bottom: 5px;}
+
+  .collapsible-header {
+    display: flex; justify-content: space-between; align-items: center; cursor: pointer;
+    background: #f9fafb; padding: 10px 15px; border: 1px solid var(--border); margin-bottom: 15px;
+    transition: background 0.2s;
+  }
+  .collapsible-header:hover { background: #f3f4f6; }
+  .collapsible-header .section-title { margin: 0; border: none; padding: 0; color: #4b5563; }
+  .collapsible-icon { font-size: 0.8rem; color: #6b7280; transition: transform 0.3s; }
+  .collapsible-icon.open { transform: rotate(180deg); }
+
+  .form-group { margin-bottom: 15px; }
+  .form-group label { display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 5px; color: #4b5563; }
+  .form-group input[type="text"], .form-group select {
+    width: 100%; padding: 10px; border: 1px solid var(--border); font-size: 0.95rem; outline: none; background: #fff;
+  }
+  .form-group input[type="text"]:focus, .form-group select:focus { border-color: var(--text-main); }
+  
+  .paste-zone {
+    width: 100%; height: 100px; border: 1px dashed #9ca3af; 
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: #f9fafb; cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden;
+  }
+  .paste-zone:hover, .paste-zone:focus { border-color: var(--text-main); background: #f3f4f6; outline: none; }
+  .paste-zone p { margin: 0; font-size: 0.85rem; color: #6b7280; pointer-events: none; font-weight: bold;}
+  .paste-zone small { margin-top: 5px; font-size: 0.75rem; color: #10b981; pointer-events: none; font-weight: bold; }
+  .paste-zone img { position: absolute; max-width: 100%; max-height: 100%; object-fit: contain; background: #fff; display: none; }
+
+  .grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  button.btn-action { cursor: pointer; padding: 10px 15px; border: none; font-weight: bold; font-size: 0.95rem; transition: all 0.2s; }
+  .btn-add { background: var(--text-main); color: #fff; width: 100%; margin-top: 10px; }
+  .btn-add:hover { background: #374151; }
+  
+  .mgmt-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .btn-clear { background: #fee2e2; color: #dc2626; padding: 4px 8px; font-size: 0.75rem; border: 1px solid #fca5a5; cursor: pointer; font-weight: bold;}
+  .btn-clear:hover { background: #fecaca; }
+  .btn-sys { background: #f3f4f6; color: #374151; padding: 4px 8px; font-size: 0.75rem; border: 1px solid var(--border); cursor: pointer; font-weight: bold; margin-right: 5px;}
+  .btn-sys:hover { background: #e5e7eb; }
+  .btn-sys.primary-light { background: #f5eef5; color: var(--primary); border-color: #d8b4d8; }
+  .btn-sys.primary-light:hover { background: #ead7ea; }
+
+  .status-summary {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    background: #f9fafb; border: 1px solid var(--border); padding: 10px 12px;
+    margin-bottom: 12px; font-size: 0.82rem; color: #374151;
+  }
+  .summary-main { font-weight: 800; color: var(--text-main); }
+  .summary-sub { color: var(--muted); font-size: 0.76rem; }
+  .publish-state {
+    flex-shrink: 0; border-radius: 999px; padding: 4px 9px; font-size: 0.68rem;
+    line-height: 1.25; font-weight: 900; text-transform: uppercase; border: 1px solid transparent;
+    white-space: nowrap;
+  }
+  .publish-state.ready { color: var(--ok); background: #ecfdf5; border-color: #bbf7d0; }
+  .publish-state.attention { color: var(--warn); background: #fffbeb; border-color: #fde68a; }
+
+  .empty-state {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 10px; text-align: center; padding: 34px 18px; border: 1px dashed var(--border);
+    background: #f9fafb; color: var(--muted); min-height: 180px;
+  }
+  .empty-state-title { font-size: 0.95rem; font-weight: 900; color: var(--text-main); }
+  .empty-state-copy { max-width: 280px; line-height: 1.55; font-size: 0.82rem; margin: 0; }
+  .empty-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+
+  /* 拖曳列表與項目樣式 */
+  .sponsor-list-mgmt { flex-grow: 1; }
+  .mgmt-item { 
+    display: flex; justify-content: space-between; align-items: stretch; 
+    background: #f9fafb; padding: 8px; margin-bottom: 8px; 
+    border: 1px solid var(--border); font-size: 0.85rem;
+    transition: background-color 0.2s;
+  }
+  .mgmt-item:hover { background: #f3f4f6; }
+  
+  .mgmt-drag-handle { 
+    cursor: grab; display: flex; align-items: center; justify-content: center; 
+    padding: 0 10px; color: #9ca3af; font-size: 1.2rem;
+  }
+  .mgmt-drag-handle:active { cursor: grabbing; }
+  .mgmt-item.dragging { opacity: 0.4; border: 1px dashed var(--primary); background: #f3e8f3; }
+  .mgmt-item.drag-over-top { border-top: 3px solid var(--primary); }
+  .mgmt-item.drag-over-bottom { border-bottom: 3px solid var(--primary); }
+
+  .mgmt-item-info { display: flex; flex-grow: 1; overflow: hidden; align-items: center; gap: 12px; }
+  .mgmt-thumb { width: 55px; height: 36px; object-fit: contain; background: #fff; border: 1px solid #e5e7eb; padding: 2px;}
+  .mgmt-text { display: flex; flex-direction: column; overflow: hidden; flex-grow: 1; gap: 4px;}
+  .mgmt-tier { font-weight: bold; font-size: 0.7rem; color: var(--text-main); }
+  .mgmt-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 600; color: #4b5563;}
+  .mgmt-topline { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .status-pill {
+    display: inline-flex; align-items: center; border-radius: 999px; padding: 2px 7px;
+    font-size: 0.62rem; line-height: 1.35; font-weight: 900; letter-spacing: .02em;
+    text-transform: uppercase; border: 1px solid transparent;
+  }
+  .status-pill.ready { color: var(--ok); background: #ecfdf5; border-color: #bbf7d0; }
+  .status-pill.check { color: var(--warn); background: #fffbeb; border-color: #fde68a; }
+  .status-pill.missing { color: var(--bad); background: #fef2f2; border-color: #fecaca; }
+  .status-reason { color: var(--muted); font-size: 0.68rem; font-weight: 700; }
+  .sample-note {
+    display: none; margin-bottom: 10px; padding: 9px 11px; border: 1px solid #fde68a;
+    background: #fffbeb; color: #7c4a03; font-size: 0.78rem; line-height: 1.45;
+  }
+  .sample-note.show { display: block; }
+  
+  /* 行內編輯與控制區 */
+  .mgmt-inline-ctrl { display: flex; gap: 8px; align-items: center; }
+  .mgmt-inline-ctrl input[type="text"] { flex-grow: 1; padding: 4px 6px; font-size: 0.7rem; border: 1px solid var(--border); outline: none; background: #fff;}
+  .mgmt-inline-ctrl input[type="text"]:focus { border-color: var(--primary); }
+  
+  .mgmt-scale-ctrl { display: flex; align-items: center; gap: 5px; width: 100px; flex-shrink: 0;}
+  .mgmt-scale-ctrl input[type="range"] { flex-grow: 1; height: 4px; cursor: pointer; padding: 0; }
+  .mgmt-scale-ctrl span { font-size: 0.65rem; color: var(--primary); font-weight: bold; width: 30px; text-align: right;}
+
+  .mgmt-actions { display: flex; flex-direction: column; gap: 5px; margin-left: 10px; flex-shrink: 0; justify-content: center; width: 60px;}
+  .mgmt-actions-btn-group { display: flex; gap: 5px; width: 100%;}
+  .btn-icon { flex: 1; background: #fff; color: #374151; padding: 4px 0; font-size: 0.8rem; border: 1px solid var(--border); cursor: pointer; font-weight: bold; text-align: center;}
+  .btn-icon:hover { background: #e5e7eb; }
+  .btn-delete { background: #fee2e2; color: #dc2626; padding: 5px 0; font-size: 0.75rem; border: 1px solid #fca5a5; cursor: pointer; width: 100%; font-weight: bold; text-align: center;}
+  .btn-delete:hover { background: #fecaca; }
+
+  /* ================== 步驟二：預覽與輸出 ================== */
+  .preview-output-container { max-width: 1400px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; height: 100%; }
+  .preview-section { background: var(--panel-bg); border: 1px solid var(--border); padding: 20px; display: flex; flex-direction: column; flex-grow: 1; min-height: 400px;}
+  .preview-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+  .preview-controls h2 { font-size: 1.1rem; margin: 0; color: var(--text-main); display: flex; align-items: center; gap: 10px;}
+  .preview-badge { background: #e5e7eb; padding: 3px 8px; font-size: 0.75rem; border-radius: 4px; }
+  
+  .device-toggles { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+  .btn-device { background: #f9fafb; border: 1px solid var(--border); color: #4b5563; padding: 6px 12px; font-size: 0.85rem; cursor: pointer; font-weight: bold;}
+  .btn-device.active { background: var(--text-main); color: #fff; border-color: var(--text-main); }
+  .lang-toggles { display: flex; gap: 6px; padding-right: 10px; border-right: 1px solid var(--border); }
+  
+  .iframe-container { background: #e5e7eb; padding: 20px; flex-grow: 1; display: flex; justify-content: center; align-items: flex-start; transition: all 0.3s; overflow-y: auto;}
+  #previewIframe { 
+    background: #fff; border: 1px solid #d1d5db; transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); width: 100%; height: 100%; min-height: 500px;
+  }
+  #previewIframe.mobile-mode { width: 375px; height: 667px; min-height: 667px; border: 12px solid #1f2937; border-top-width: 40px; border-bottom-width: 40px; border-radius: 24px; }
+
+  .code-output-section { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; flex-shrink: 0; }
+  .code-box { background: var(--panel-bg); border: 1px solid var(--border); padding: 15px; display: flex; flex-direction: column; }
+  .box-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .box-header h2 { font-size: 1rem; margin: 0; display: flex; align-items: center; gap: 8px; }
+  .badge-zh { background: #1e3a8a; color: white; padding: 2px 6px; font-size: 0.7rem; }
+  .badge-en { background: #047857; color: white; padding: 2px 6px; font-size: 0.7rem; }
+  
+  .btn-copy { background: var(--text-main); color: #fff; padding: 6px 12px; font-size: 0.85rem; border: none; cursor: pointer; font-weight: bold;}
+  .btn-copy:hover { background: #374151; }
+
+  textarea { flex-grow: 1; width: 100%; height: 120px; padding: 12px; font-family: "SFMono-Regular", Consolas, monospace; font-size: 0.8rem; border: 1px solid var(--border); background: #f9fafb; resize: none; color: #334155; line-height: 1.4; outline: none;}
+
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-thumb { background: #cbd5e1; }
+  ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <h1>贊助商 Logo HTML 產生器 V5.1.1</h1>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('manage')">1. 資料設定與管理</button>
+    <button class="tab-btn" onclick="switchTab('preview')">2. 即時預覽與輸出</button>
+  </div>
+</div>
+
+<div id="tab-manage" class="tab-content active">
+  <div class="manage-container">
+    
+    <div class="panel-box">
+      <div class="collapsible-header" onclick="toggleTierSettings()">
+        <div class="section-title">1. 自訂級別名稱 (進階/極少使用)</div>
+        <span class="collapsible-icon" id="tierToggleIcon">▼</span>
+      </div>
+      
+      <div id="tierSettingsContent" style="display: none; padding: 15px; background: #f9fafb; border: 1px solid var(--border); border-top: none; margin-top: -15px; margin-bottom: 20px;">
+        <div class="grid-2col">
+          <div class="form-group" style="margin:0;"><label>白金級 (中文)</label><input type="text" id="t_plat_zh" value="白金級贊助"></div>
+          <div class="form-group" style="margin:0;"><label>Platinum (英文)</label><input type="text" id="t_plat_en" value="Platinum Sponsors"></div>
+          <div class="form-group" style="margin:0;"><label>金級 (中文)</label><input type="text" id="t_gold_zh" value="金級贊助"></div>
+          <div class="form-group" style="margin:0;"><label>Gold (英文)</label><input type="text" id="t_gold_en" value="Gold Sponsors"></div>
+          <div class="form-group" style="margin:0;"><label>銀級 (中文)</label><input type="text" id="t_silv_zh" value="銀級贊助"></div>
+          <div class="form-group" style="margin:0;"><label>Silver (英文)</label><input type="text" id="t_silv_en" value="Silver Sponsors"></div>
+          <div class="form-group" style="margin:0;"><label>特別贊助 (中文)</label><input type="text" id="t_spec_zh" value="官方策略合作夥伴"></div>
+          <div class="form-group" style="margin:0;"><label>Special (英文)</label><input type="text" id="t_spec_en" value="Official Strategic Partners"></div>
+        </div>
+      </div>
+
+      <div class="section-title">2. 新增贊助商卡片</div>
+      <div class="form-group">
+        <label>選擇級別 (Tier)</label>
+        <select id="inputTier">
+          <option value="platinum">Platinum / 白金級</option>
+          <option value="gold">Gold / 金級</option>
+          <option value="silver">Silver / 銀級</option>
+          <option value="special">Special / 特別贊助</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label>公司名稱 (選填，內部辨識用)</label>
+        <input type="text" id="inputName" placeholder="例如：台積電 (若不填仍可看圖辨識)">
+      </div>
+
+      <div class="form-group">
+        <label>上傳 Logo 圖片 (必填，點擊/拖曳/貼上均可)</label>
+        <div id="pasteZone" class="paste-zone" tabindex="0">
+          <p>點擊、貼上 (Ctrl+V) 或拖曳圖片</p>
+          <small>✅ 自動極限壓縮，不佔空間</small>
+          <img id="previewImage" src="" alt="預覽">
+          <input type="file" id="fileInput" accept="image/*" style="display: none;">
+        </div>
+        <input type="hidden" id="imageBase64" value="">
+      </div>
+
+      <div class="form-group">
+        <label>目標網址 (URL，若無則留空)</label>
+        <input type="text" id="inputLink" placeholder="https:// (之後也可以在右側列表隨時修改)">
+      </div>
+
+      <button class="btn-action btn-add" onclick="addSponsor()">+ 寫入列表</button>
+    </div>
+
+    <div class="panel-box" style="display: flex; flex-direction: column; padding-top: 15px;">
+      <div class="mgmt-header">
+        <div class="section-title" style="margin:0; border:none; padding:0;">3. 排序與屬性管理</div>
+        <div>
+          <!-- 核心新增：專案備份還原系統 -->
+          <button class="btn-sys primary-light" onclick="loadSampleData()" title="載入示範資料">Sample</button>
+          <button class="btn-sys" onclick="exportData()" title="下載目前的工作檔">💾 Save work file</button>
+          <button class="btn-sys" onclick="document.getElementById('importFile').click()" title="載入之前儲存的工作檔">📂 Load work file</button>
+          <input type="file" id="importFile" accept=".json" style="display:none;" onchange="importData(event)">
+          <button class="btn-clear" onclick="clearAllData()">⚠ 清空</button>
+        </div>
+      </div>
+      <div class="status-summary" id="statusSummary">
+        <div>
+          <div class="summary-main">0 logos · 0 ready · 0 missing · 0 check</div>
+          <div class="summary-sub">目前輸出清單狀態</div>
+        </div>
+        <span class="publish-state attention" id="publishState">Needs attention</span>
+      </div>
+      <div class="sample-note" id="sampleNote">已載入示範資料。正式使用前請清空或替換成實際贊助商 Logo。</div>
+      <div class="sponsor-list-mgmt" id="mgmtList">
+        <div style="font-size: 0.8rem; color: #999; text-align: center; padding: 20px;">尚未加入任何資料</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div id="tab-preview" class="tab-content">
+  <div class="preview-output-container">
+    
+    <div class="preview-section">
+      <div class="preview-controls">
+        <h2>即時視覺預覽 <span class="preview-badge" id="previewLangBadge">中文版</span></h2>
+        <div class="device-toggles">
+          <div class="lang-toggles">
+            <button id="btnPreviewZh" class="btn-device active" onclick="setPreviewLang('zh')">中文</button>
+            <button id="btnPreviewEn" class="btn-device" onclick="setPreviewLang('en')">English</button>
+          </div>
+          <button id="btnDesktop" class="btn-device active" onclick="setPreviewMode('desktop')">💻 100% 滿版電腦預覽</button>
+          <button id="btnMobile" class="btn-device" onclick="setPreviewMode('mobile')">📱 375px 手機預覽</button>
+        </div>
+      </div>
+      <div class="iframe-container">
+        <iframe id="previewIframe" srcdoc="<div style='text-align:center; padding: 20px; color:#999; font-family:sans-serif;'>新增資料後即可預覽</div>"></iframe>
+      </div>
+    </div>
+
+    <div class="code-output-section">
+      <div class="code-box">
+        <div class="box-header">
+          <h2><span class="badge-zh">中文版</span> 輸出代碼</h2>
+          <button class="btn-copy" onclick="copyCode('outputCodeZh')">複製中文 HTML</button>
+        </div>
+        <textarea id="outputCodeZh" readonly placeholder="請先新增資料..."></textarea>
+      </div>
+
+      <div class="code-box">
+        <div class="box-header">
+          <h2><span class="badge-en">英文版</span> 輸出代碼</h2>
+          <button class="btn-copy" onclick="copyCode('outputCodeEn')">複製英文 HTML</button>
+        </div>
+        <textarea id="outputCodeEn" readonly placeholder="請先新增資料..."></textarea>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  let sponsors = { platinum: [], gold: [], silver: [], special: [] };
+  let draggedItemInfo = null;
+  let currentPreviewLang = 'zh';
+  const TOOL_VERSION = 'v5.1.1';
+  const BACKUP_SCHEMA = 'semicon-sponsors-v1';
+
+  function toggleTierSettings() {
+    const content = document.getElementById('tierSettingsContent');
+    const icon = document.getElementById('tierToggleIcon');
+    if (content.style.display === 'none') {
+      content.style.display = 'block'; icon.classList.add('open');
+    } else {
+      content.style.display = 'none'; icon.classList.remove('open');
+    }
+  }
+
+  function switchTab(tabId) {
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    
+    document.getElementById('tab-' + tabId).classList.add('active');
+    document.querySelector(`[onclick="switchTab('${tabId}')"]`).classList.add('active');
+
+    if (tabId === 'preview') updateSystem();
+  }
+
+  function setPreviewMode(mode) {
+    const iframe = document.getElementById('previewIframe');
+    const btnDesktop = document.getElementById('btnDesktop');
+    const btnMobile = document.getElementById('btnMobile');
+
+    if (mode === 'mobile') {
+      iframe.classList.add('mobile-mode'); btnMobile.classList.add('active'); btnDesktop.classList.remove('active');
+    } else {
+      iframe.classList.remove('mobile-mode'); btnDesktop.classList.add('active'); btnMobile.classList.remove('active');
+    }
+  }
+
+  function setPreviewLang(lang) {
+    currentPreviewLang = lang;
+    document.getElementById('btnPreviewZh').classList.toggle('active', lang === 'zh');
+    document.getElementById('btnPreviewEn').classList.toggle('active', lang === 'en');
+    document.getElementById('previewLangBadge').innerText = lang === 'zh' ? '中文版' : 'English';
+    updatePreviewIframe();
+  }
+
+  // --- 本地存儲與匯出匯入 ---
+  const STORAGE_KEY = 'semicon_sponsor_state_v5';
+
+  function getSaveDataObject() {
+    return {
+      schema: BACKUP_SCHEMA,
+      tool: 'Sponsors Logo HTML Generator',
+      version: TOOL_VERSION,
+      projectName: 'SEMICON Taiwan Sponsors',
+      exportedAt: new Date().toISOString(),
+      sponsors: sponsors,
+      titles: {
+        plat_zh: document.getElementById('t_plat_zh').value, plat_en: document.getElementById('t_plat_en').value,
+        gold_zh: document.getElementById('t_gold_zh').value, gold_en: document.getElementById('t_gold_en').value,
+        silv_zh: document.getElementById('t_silv_zh').value, silv_en: document.getElementById('t_silv_en').value,
+        spec_zh: document.getElementById('t_spec_zh').value, spec_en: document.getElementById('t_spec_en').value
+      }
+    };
+  }
+
+  function saveData() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(getSaveDataObject()));
+  }
+
+  function applyDataToUI(parsed) {
+    if (parsed.sponsors) {
+      const normalizedSponsors = { platinum: [], gold: [], silver: [], special: [] };
+      for (let tier in normalizedSponsors) {
+        const incoming = parsed.sponsors[tier] || [];
+        normalizedSponsors[tier] = incoming.map(s => ({
+          id: s.id || Date.now().toString() + Math.random().toString(36).slice(2),
+          name: s.name || '',
+          image: s.image || '',
+          link: s.link || '',
+          scale: s.scale === undefined ? 100 : s.scale
+        }));
+      }
+      sponsors = normalizedSponsors;
+    }
+    if (parsed.titles) {
+      document.getElementById('t_plat_zh').value = parsed.titles.plat_zh || '白金級贊助';
+      document.getElementById('t_plat_en').value = parsed.titles.plat_en || 'Platinum Sponsors';
+      document.getElementById('t_gold_zh').value = parsed.titles.gold_zh || '金級贊助';
+      document.getElementById('t_gold_en').value = parsed.titles.gold_en || 'Gold Sponsors';
+      document.getElementById('t_silv_zh').value = parsed.titles.silv_zh || '銀級贊助';
+      document.getElementById('t_silv_en').value = parsed.titles.silv_en || 'Silver Sponsors';
+      document.getElementById('t_spec_zh').value = parsed.titles.spec_zh || '官方策略合作夥伴';
+      document.getElementById('t_spec_en').value = parsed.titles.spec_en || 'Official Strategic Partners';
+    }
+    updateSystem();
+  }
+
+  function loadData() {
+    const rawData = localStorage.getItem(STORAGE_KEY);
+    if (rawData) {
+      try { applyDataToUI(JSON.parse(rawData)); } catch (e) { console.error("讀取快取失敗", e); }
+    }
+  }
+
+  function exportData() {
+    saveData();
+    const dataStr = JSON.stringify(getSaveDataObject(), null, 2);
+    const blob = new Blob([dataStr], {type: "application/json"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `semicon_sponsors_workfile_${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function importData(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        const parsed = JSON.parse(e.target.result);
+        if (parsed.sponsors) {
+          applyDataToUI(parsed);
+          saveData();
+          alert("資料已成功還原！");
+        } else {
+          alert("檔案格式不符。");
+        }
+      } catch (err) {
+        alert("無法讀取此備份檔案。");
+      }
+    };
+    reader.readAsText(file);
+    event.target.value = ''; // reset
+  }
+
+  function clearAllData() {
+    if (confirm("確定要清空所有贊助商資料嗎？此操作無法復原。請確認已匯出備份。")) {
+      sponsors = { platinum: [], gold: [], silver: [], special: [] };
+      localStorage.removeItem(STORAGE_KEY);
+      document.getElementById('sampleNote').classList.remove('show');
+      updateSystem();
+    }
+  }
+
+  function sponsorStatus(s) {
+    if (!s.image) return { key: 'missing', label: 'Missing', hint: '缺 Logo 圖片' };
+    const hasName = s.name && s.name.trim() && s.name.trim() !== '未命名廠商';
+    const hasLink = s.link && s.link.trim();
+    if (!hasName || !hasLink) return { key: 'check', label: 'Check', hint: !hasName ? '建議補公司名稱' : '尚未填連結' };
+    return { key: 'ready', label: 'Ready', hint: '可輸出' };
+  }
+
+  function getSponsorCounts() {
+    const counts = { total: 0, ready: 0, missing: 0, check: 0 };
+    Object.values(sponsors).forEach(list => {
+      list.forEach(s => {
+        counts.total += 1;
+        counts[sponsorStatus(s).key] += 1;
+      });
+    });
+    return counts;
+  }
+
+  function updateStatusSummary() {
+    const counts = getSponsorCounts();
+    const summary = document.querySelector('#statusSummary .summary-main');
+    const sub = document.querySelector('#statusSummary .summary-sub');
+    const publishState = document.getElementById('publishState');
+    summary.innerText = `${counts.total} logos · ${counts.ready} ready · ${counts.missing} missing · ${counts.check} check`;
+    sub.innerText = counts.total ? '目前輸出清單狀態' : '先加入第一個 Logo，或載入示範資料了解輸出效果';
+    const needsAttention = counts.total === 0 || counts.missing > 0 || counts.check > 0;
+    publishState.className = `publish-state ${needsAttention ? 'attention' : 'ready'}`;
+    publishState.innerText = needsAttention ? 'Needs attention' : 'Ready to publish';
+  }
+
+  function makeSampleLogo(label, color) {
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="360" height="180" viewBox="0 0 360 180"><rect width="360" height="180" fill="white"/><rect x="24" y="24" width="312" height="132" rx="10" fill="${color}" opacity="0.1"/><text x="180" y="101" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="800" text-anchor="middle" fill="${color}">${label}</text></svg>`;
+    return 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg);
+  }
+
+  function loadSampleData() {
+    const counts = getSponsorCounts();
+    if (counts.total && !confirm('載入示範資料會取代目前清單。請先確認已儲存工作檔。')) return;
+    sponsors = {
+      platinum: [
+        { id: 'sample-platinum-1', name: 'Aurora Semi', image: makeSampleLogo('AURORA', '#800080'), link: 'https://example.com/aurora', scale: 100 }
+      ],
+      gold: [
+        { id: 'sample-gold-1', name: 'Nova Systems', image: makeSampleLogo('NOVA', '#b7791f'), link: '', scale: 95 },
+        { id: 'sample-gold-2', name: 'Vector Fab', image: makeSampleLogo('VECTOR', '#2563eb'), link: 'https://example.com/vector', scale: 100 }
+      ],
+      silver: [],
+      special: [
+        { id: 'sample-special-1', name: '', image: makeSampleLogo('PARTNER', '#047857'), link: 'https://example.com/partner', scale: 90 }
+      ]
+    };
+    document.getElementById('sampleNote').classList.add('show');
+    updateSystem();
+  }
+
+  const pasteZone = document.getElementById('pasteZone');
+  const previewImage = document.getElementById('previewImage');
+  const base64Input = document.getElementById('imageBase64');
+  const fileInput = document.getElementById('fileInput');
+
+  function processImageFile(file) {
+    if (!file || !file.type.startsWith('image/')) { alert("請確保您提供的是圖片檔案。"); return; }
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = function() {
+      const canvas = document.createElement('canvas'); const ctx = canvas.getContext('2d');
+      const MAX_WIDTH = 400; const MAX_HEIGHT = 400;
+      let width = img.width; let height = img.height;
+
+      if (width > height) { if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; } } 
+      else { if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; } }
+      canvas.width = width; canvas.height = height; ctx.drawImage(img, 0, 0, width, height);
+
+      const compressedBase64 = canvas.toDataURL('image/webp', 0.8);
+      previewImage.src = compressedBase64; previewImage.style.display = 'block'; base64Input.value = compressedBase64;
+      URL.revokeObjectURL(url);
+    };
+    img.src = url;
+  }
+
+  pasteZone.addEventListener('paste', function(e) {
+    e.preventDefault();
+    const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+    let foundImage = false;
+    for (let index in items) {
+      if (items[index].kind === 'file' && items[index].type.startsWith('image/')) {
+        processImageFile(items[index].getAsFile()); foundImage = true;
+      }
+    }
+    setTimeout(() => { if(!base64Input.value && !foundImage) alert("剪貼簿中找不到圖片。"); }, 100);
+  });
+
+  pasteZone.addEventListener('dragover', function(e) { e.preventDefault(); pasteZone.style.borderColor = '#111'; });
+  pasteZone.addEventListener('dragleave', function(e) { e.preventDefault(); pasteZone.style.borderColor = ''; });
+  pasteZone.addEventListener('drop', function(e) {
+    e.preventDefault(); pasteZone.style.borderColor = '';
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) processImageFile(e.dataTransfer.files[0]);
+  });
+  pasteZone.addEventListener('click', function() { fileInput.click(); });
+  fileInput.addEventListener('change', function() {
+    if (this.files && this.files.length > 0) processImageFile(this.files[0]);
+    this.value = '';
+  });
+
+  function addSponsor() {
+    const tier = document.getElementById('inputTier').value;
+    const name = document.getElementById('inputName').value.trim() || '未命名廠商';
+    const image = document.getElementById('imageBase64').value;
+    const link = document.getElementById('inputLink').value.trim();
+
+    if (!image) { alert("請先在上傳區填入 Logo 圖片！"); return; }
+
+    const id = Date.now().toString();
+    sponsors[tier].push({ id, name, image, link, scale: 100 }); 
+    document.getElementById('sampleNote').classList.remove('show');
+
+    document.getElementById('inputName').value = '';
+    document.getElementById('inputLink').value = '';
+    base64Input.value = '';
+    previewImage.style.display = 'none';
+    previewImage.src = '';
+    
+    updateSystem();
+  }
+
+  function removeSponsor(tier, index) { sponsors[tier].splice(index, 1); updateSystem(); }
+  function moveUp(tier, index) {
+    if (index > 0) {
+      const temp = sponsors[tier][index - 1]; sponsors[tier][index - 1] = sponsors[tier][index]; sponsors[tier][index] = temp;
+      updateSystem();
+    }
+  }
+  function moveDown(tier, index) {
+    if (index < sponsors[tier].length - 1) {
+      const temp = sponsors[tier][index + 1]; sponsors[tier][index + 1] = sponsors[tier][index]; sponsors[tier][index] = temp;
+      updateSystem();
+    }
+  }
+
+  // --- 核心：行內更新網址與比例 ---
+  function updateSponsorScale(tier, index, val) {
+    sponsors[tier][index].scale = parseInt(val);
+    document.getElementById(`scale-val-${tier}-${index}`).innerText = val + '%';
+    generateBilingualHTML();
+    saveData();
+  }
+
+  function updateSponsorLink(tier, index, val) {
+    sponsors[tier][index].link = val.trim();
+    updateSystem();
+  }
+
+  const inputs = document.querySelectorAll('.grid-2col input');
+  inputs.forEach(input => { input.addEventListener('input', updateSystem); });
+
+  function updateSystem() {
+    renderMgmtList();
+    generateBilingualHTML();
+    updateStatusSummary();
+    saveData(); 
+  }
+
+  function renderMgmtList() {
+    const listEl = document.getElementById('mgmtList');
+    listEl.innerHTML = '';
+    let hasData = false;
+    const tiersOrder = ['platinum', 'gold', 'silver', 'special'];
+    
+    tiersOrder.forEach(tier => {
+      sponsors[tier].forEach((s, index) => {
+        hasData = true;
+        const item = document.createElement('div');
+        item.className = 'mgmt-item';
+        item.draggable = true;
+
+        item.ondragstart = (e) => {
+          draggedItemInfo = { tier, index };
+          e.dataTransfer.effectAllowed = 'move';
+          setTimeout(() => item.classList.add('dragging'), 0);
+        };
+        item.ondragend = () => {
+          item.classList.remove('dragging');
+          document.querySelectorAll('.mgmt-item').forEach(el => el.classList.remove('drag-over-top', 'drag-over-bottom'));
+          draggedItemInfo = null;
+        };
+        item.ondragover = (e) => {
+          e.preventDefault();
+          const bounding = item.getBoundingClientRect();
+          const offset = bounding.y + (bounding.height / 2);
+          if (e.clientY > offset) {
+            item.classList.add('drag-over-bottom'); item.classList.remove('drag-over-top');
+          } else {
+            item.classList.add('drag-over-top'); item.classList.remove('drag-over-bottom');
+          }
+        };
+        item.ondragleave = () => { item.classList.remove('drag-over-top', 'drag-over-bottom'); };
+        item.ondrop = (e) => {
+          e.preventDefault();
+          item.classList.remove('drag-over-top', 'drag-over-bottom');
+          if (!draggedItemInfo) return;
+
+          const sourceTier = draggedItemInfo.tier;
+          const sourceIndex = draggedItemInfo.index;
+          const targetTier = tier;
+          let targetIndex = index;
+
+          const bounding = item.getBoundingClientRect();
+          const offset = bounding.y + (bounding.height / 2);
+          if (e.clientY > offset) { targetIndex += 1; }
+
+          if (sourceTier === targetTier && sourceIndex < targetIndex) { targetIndex -= 1; }
+
+          const movedItem = sponsors[sourceTier].splice(sourceIndex, 1)[0];
+          sponsors[targetTier].splice(targetIndex, 0, movedItem);
+
+          updateSystem();
+        };
+
+        const status = sponsorStatus(s);
+        const safeName = s.name || '未命名廠商';
+        const safeLink = s.link || '';
+        item.innerHTML = `
+          <div class="mgmt-drag-handle" title="按住拖拉進行排序">⋮⋮</div>
+          <div class="mgmt-item-info">
+            <img src="${s.image}" class="mgmt-thumb" alt="thumb">
+            <div class="mgmt-text">
+              <div class="mgmt-topline">
+                <span class="mgmt-tier">${tier.toUpperCase()}</span>
+                <span class="status-pill ${status.key}" title="${status.hint}">${status.label}</span>
+                ${status.key === 'check' ? `<span class="status-reason">${status.hint}</span>` : ''}
+              </div>
+              <span class="mgmt-name" title="${safeName}">${safeName}</span>
+              
+              <div class="mgmt-inline-ctrl">
+                <input type="text" value="${safeLink}" placeholder="未填連結(點此補上)" onchange="updateSponsorLink('${tier}', ${index}, this.value)" title="隨時更新網址，離開輸入框即自動存檔">
+                <div class="mgmt-scale-ctrl">
+                  <input type="range" min="50" max="150" value="${s.scale}" oninput="updateSponsorScale('${tier}', ${index}, this.value)" title="即時視覺校準">
+                  <span id="scale-val-${tier}-${index}">${s.scale}%</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+          <div class="mgmt-actions">
+            <div class="mgmt-actions-btn-group">
+              <button class="btn-icon" onclick="moveUp('${tier}', ${index})" title="往上移一格">↑</button>
+              <button class="btn-icon" onclick="moveDown('${tier}', ${index})" title="往下移一格">↓</button>
+            </div>
+            <button class="btn-delete" onclick="removeSponsor('${tier}', ${index})">✕ 刪除</button>
+          </div>
+        `;
+        listEl.appendChild(item);
+      });
+    });
+    if (!hasData) {
+      listEl.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-title">尚未加入 Logo</div>
+          <p class="empty-state-copy">先貼上或上傳第一個贊助商 Logo。若只是想看輸出效果，可以載入示範資料。</p>
+          <div class="empty-actions">
+            <button class="btn-sys primary-light" onclick="document.getElementById('pasteZone').focus()">Add logo</button>
+            <button class="btn-sys" onclick="loadSampleData()">Load sample</button>
+          </div>
+        </div>
+      `;
+    }
+  }
+
+  function generateBilingualHTML() {
+    const titles = {
+      platinum: { zh: document.getElementById('t_plat_zh').value, en: document.getElementById('t_plat_en').value },
+      gold: { zh: document.getElementById('t_gold_zh').value, en: document.getElementById('t_gold_en').value },
+      silver: { zh: document.getElementById('t_silv_zh').value, en: document.getElementById('t_silv_en').value },
+      special: { zh: document.getElementById('t_spec_zh').value, en: document.getElementById('t_spec_en').value }
+    };
+
+    let hasData = false;
+    for (let t in sponsors) { if (sponsors[t].length > 0) hasData = true; }
+
+    if (!hasData) {
+      document.getElementById('outputCodeZh').value = '';
+      document.getElementById('outputCodeEn').value = '';
+      document.getElementById('previewIframe').srcdoc = "<div style='text-align:center; padding: 20px; color:#999; font-family:sans-serif;'>新增資料後即可預覽</div>";
+      return;
+    }
+
+    const baseCSS = `
+<style>
+  .sp-static-wrap { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; max-width: 1200px; margin: 20px auto; padding: 0 20px; box-sizing: border-box; }
+  .sp-static-wrap * { box-sizing: border-box; }
+  .sp-tier { margin-bottom: 30px; }
+  .sp-title { font-size: 1.2rem; font-weight: 800; margin-bottom: 15px; color: #111; text-transform: uppercase; letter-spacing: 1px; }
+  
+  .sp-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; }
+  
+  .sp-card {
+    display: flex; align-items: center; justify-content: center; background: transparent; 
+    height: 80px; padding: 10px; position: relative;
+    border: 1px solid #e5e7eb; 
+    border-radius: 0;
+    overflow: hidden; 
+  }
+  
+  .sp-card.has-link { text-decoration: none; transition: all 0.2s ease-out; cursor: pointer; }
+  .sp-card.has-link:hover { 
+    border-color: #9ca3af; 
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06); 
+    transform: translateY(-2px); 
+  }
+  
+  .sp-card img { max-width: 90%; max-height: 90%; object-fit: contain; }
+
+  @media (max-width: 1024px) { .sp-grid { grid-template-columns: repeat(4, 1fr); } }
+  @media (max-width: 900px) { .sp-grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 600px) { .sp-grid { grid-template-columns: repeat(2, 1fr); } }
+</style>
+`;
+
+    const buildHTML = (lang) => {
+      let html = `<div class="sp-static-wrap">\n`;
+      const order = ['platinum', 'gold', 'silver', 'special'];
+      
+      order.forEach(tier => {
+        if (sponsors[tier].length > 0) {
+          const tierName = titles[tier][lang]; 
+          html += `  <!-- ${tierName} -->\n`;
+          html += `  <div class="sp-tier">\n`;
+          html += `    <h3 class="sp-title ${tier}">${tierName}</h3>\n`;
+          html += `    <div class="sp-grid">\n`;
+          
+          sponsors[tier].forEach(s => {
+            const hasLink = s.link && s.link !== '';
+            const scaleFactor = (s.scale || 100) / 100; 
+            const scaleStyle = scaleFactor !== 1 ? ` style="transform: scale(${scaleFactor});"` : '';
+
+            if (hasLink) {
+              html += `      <a href="${s.link}" target="_blank" class="sp-card has-link" title="${s.name}">\n`;
+            } else {
+              html += `      <div class="sp-card" title="${s.name}">\n`;
+            }
+            
+            html += `        <img src="${s.image}" alt="${s.name}"${scaleStyle}>\n`;
+            
+            if (hasLink) html += `      </a>\n`; else html += `      </div>\n`;
+          });
+          
+          html += `    </div>\n  </div>\n\n`;
+        }
+      });
+      html += `</div>`;
+      return baseCSS + html;
+    };
+
+    const zhCode = buildHTML('zh').trim();
+    document.getElementById('outputCodeZh').value = zhCode;
+    document.getElementById('outputCodeEn').value = buildHTML('en').trim();
+    updatePreviewIframe();
+  }
+
+  function updatePreviewIframe() {
+    const zhCode = document.getElementById('outputCodeZh').value;
+    const enCode = document.getElementById('outputCodeEn').value;
+    const activeCode = currentPreviewLang === 'en' ? enCode : zhCode;
+    if (!activeCode) {
+      document.getElementById('previewIframe').srcdoc = "<div style='text-align:center; padding: 20px; color:#999; font-family:sans-serif;'>新增資料後即可預覽</div>";
+      return;
+    }
+    document.getElementById('previewIframe').srcdoc = `
+      <html>
+      <head><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+      <body style="margin:0; padding-top:20px; background-color: #ffffff;">
+        ${activeCode}
+      </body>
+      </html>
+    `;
+  }
+
+  function copyCode(elementId) {
+    const code = document.getElementById(elementId).value;
+    if (!code) { alert("請先新增贊助商！"); return; }
+    
+    const textArea = document.getElementById(elementId);
+    textArea.select();
+    document.execCommand('copy');
+    
+    const btn = event.currentTarget;
+    const originalText = btn.innerText;
+    btn.innerText = "✓ 已複製！";
+    btn.style.background = "#10b981";
+    setTimeout(() => { btn.innerText = originalText; btn.style.background = ""; }, 2000);
+  }
+
+  window.onload = function() {
+    loadData();
+    updateStatusSummary();
+  };
+</script>
+</body>
+</html>
