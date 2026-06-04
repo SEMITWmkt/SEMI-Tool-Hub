@@ -267,27 +267,28 @@
       min-width: 0;
       min-height: 0;
       position: relative;
-      padding: 10px;
+      padding: 0;
       display: grid;
       grid-template-columns: minmax(0, 1fr);
+      background: #f4f5f7;
     }
 
     .frame-shell {
       min-width: 0;
       min-height: 0;
       background: #fff;
-      border: 1px solid var(--line-2);
-      border-radius: 10px;
-      box-shadow: var(--shadow);
+      border: 0;
+      border-radius: 0;
+      box-shadow: none;
       overflow: hidden;
       display: grid;
-      grid-template-rows: 34px minmax(0, 1fr);
+      grid-template-rows: minmax(0, 1fr);
     }
 
     .frame-strip {
+      display: none;
       background: #f8f9fb;
       border-bottom: 1px solid var(--line);
-      display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 10px;

@@ -8,9 +8,9 @@ Last checked: 2026-06-03, Asia/Taipei.
 
 | Hub module | Source folder | Source repo | Source branch / commit | Hub integration status | Notes |
 |---|---|---|---|---|---|
-| `tools/sponsors/index.html` | `/Users/lun04/Desktop/Sponsors Logo HTML Creator` | `SEMITWmkt/Sponsors-Logo-HTML-Creator` | `main @ 72d03a6` | Integrated v5.1.1 | Source repo has `.DS_Store` modified and `index-v5.0-backup.html` untracked. |
-| `tools/pavilions/index.html` | `/Users/lun04/Desktop/Pavilions Vendor HTML Creator` | `SEMITWmkt/Pavilions-Vendor-HTML-Creator` | `pavilions-v1.1-confidence` working copy | Integrated v1.1 confidence slice | Needs manual visual QA and source repo commit. Source repo has `.DS_Store` modified. |
-| `tools/forum/index.html` | `/Users/lun04/Desktop/Fourm HTML Creator` | `SEMITWmkt/SEMI-AutoCompiler-FORUM` | `main @ f2d1ce5` | Integrated v9.11 | Synced from desktop source after user confirmed Forum is updated to v9.11. |
+| `tools/sponsors/index.html` | `/Users/lun04/Desktop/Sponsors Logo HTML Creator` | `SEMITWmkt/Sponsors-Logo-HTML-Creator` | `main @ 72d03a6` | Integrated v5.1.1 + Hub layout fit | Source repo has `.DS_Store` modified and `index-v5.0-backup.html` untracked. Hub module removes narrow centering for integrated use. |
+| `tools/pavilions/index.html` | `/Users/lun04/Desktop/Pavilions Vendor HTML Creator` | `SEMITWmkt/Pavilions-Vendor-HTML-Creator` | `pavilions-v1.1-confidence` working copy | Integrated v1.1 confidence slice + Hub layout fit | Needs manual visual QA and source repo commit. Source repo has `.DS_Store` modified. Hub module removes narrow centering for integrated use. |
+| `tools/forum/index.html` | `/Users/lun04/Desktop/Fourm HTML Creator` | `SEMITWmkt/SEMI-AutoCompiler-FORUM` | `main @ f2d1ce5` | Integrated v9.11 + Hub layout fit | Synced from desktop source after user confirmed Forum is updated to v9.11. Hub module removes narrow centering for integrated use. |
 | `tools/trends/index.html` | `/Users/lun04/Desktop/Trend_Table Creator ` | `SEMITWmkt/Trend_Table-Creator` | `main @ 88f35b8` | Integrated | Source folder has a trailing space in its name; use clean clone path later. |
 
 ## Integration Policy

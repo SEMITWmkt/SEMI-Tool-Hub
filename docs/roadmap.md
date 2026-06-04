@@ -42,6 +42,7 @@ Status: current.
 - Confirm all four Hub modules launch from `index.html`.
 - Confirm Pavilions v1.1 appears inside Hub.
 - Resolve Forum source drift.
+- Align embedded tool layouts with the Hub workspace so tools do not appear as narrow standalone pages.
 - Decide whether source docs should be copied into Hub docs or kept as tool-level references.
 
 ## Phase 3: Forum Generator Review
