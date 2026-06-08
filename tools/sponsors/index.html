@@ -170,6 +170,15 @@
     background: #fffbeb; color: #7c4a03; font-size: 0.78rem; line-height: 1.45;
   }
   .sample-note.show { display: block; }
+  .batch-intake {
+    margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border);
+  }
+  .batch-intake textarea {
+    height: 88px; min-height: 88px; resize: vertical; margin-bottom: 8px;
+  }
+  .batch-help {
+    color: var(--muted); font-size: 0.76rem; line-height: 1.45; margin: 0 0 8px;
+  }
   
   /* 行內編輯與控制區 */
   .mgmt-inline-ctrl { display: flex; gap: 8px; align-items: center; }
@@ -288,6 +297,13 @@
       </div>
 
       <button class="btn-action btn-add" onclick="addSponsor()">+ 寫入列表</button>
+
+      <div class="batch-intake">
+        <div class="section-title">批次貼上名單 (先建立待補 Logo 清單)</div>
+        <p class="batch-help">可貼上 Excel、CSV 或文字列。支援：級別 / 公司名稱 / URL；缺 Logo 會保留在清單中，但不會輸出破圖。</p>
+        <textarea id="batchSponsorInput" placeholder="例如：&#10;Platinum	TSMC	https://www.tsmc.com&#10;金級, ASE, www.aseglobal.com&#10;Silver | Nova Systems | https://example.com"></textarea>
+        <button class="btn-action btn-add" onclick="importSponsorList()">解析名單並加入清單</button>
+      </div>
     </div>
 
     <div class="panel-box" style="display: flex; flex-direction: column; padding-top: 15px;">
@@ -296,16 +312,21 @@
         <div>
           <!-- 核心新增：專案備份還原系統 -->
           <button class="btn-sys primary-light" onclick="loadSampleData()" title="載入示範資料">Sample</button>
-          <button class="btn-sys" onclick="exportData()" title="下載目前的工作檔">💾 Save work file</button>
-          <button class="btn-sys" onclick="document.getElementById('importFile').click()" title="載入之前儲存的工作檔">📂 Load work file</button>
+          <button class="btn-sys" onclick="exportData()" title="下載目前的工作檔">Save work file</button>
+          <button class="btn-sys" onclick="document.getElementById('importFile').click()" title="載入之前儲存的工作檔">Load work file</button>
           <input type="file" id="importFile" accept=".json" style="display:none;" onchange="importData(event)">
           <button class="btn-clear" onclick="clearAllData()">⚠ 清空</button>
         </div>
+      </div>
+      <div class="form-group" style="margin-bottom: 12px;">
+        <label>工作檔名稱</label>
+        <input type="text" id="projectName" value="SEMICON Taiwan Sponsors" placeholder="例如：SEMICON Taiwan 2026 Sponsors">
       </div>
       <div class="status-summary" id="statusSummary">
         <div>
           <div class="summary-main">0 logos · 0 ready · 0 missing · 0 check</div>
           <div class="summary-sub">目前輸出清單狀態</div>
+          <div class="summary-sub" id="autosaveState">Autosaved draft ready</div>
         </div>
         <span class="publish-state attention" id="publishState">Needs attention</span>
       </div>
@@ -366,6 +387,63 @@
   const TOOL_VERSION = 'v5.1.1';
   const BACKUP_SCHEMA = 'semicon-sponsors-v1';
 
+  function cleanText(value) {
+    return String(value || '').replace(/\u00A0/g, ' ').trim();
+  }
+
+  function escapeHtml(value) {
+    return String(value || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function escapeAttr(value) {
+    return escapeHtml(value);
+  }
+
+  function parseTextRow(line) {
+    const text = cleanText(line);
+    if (!text) return [];
+    if (text.includes('\t')) return text.split('\t').map(cleanText);
+    if (text.includes('|')) return text.split('|').map(cleanText);
+    if (text.includes(',')) return text.split(',').map(cleanText);
+    return text.split(/\s{2,}/).map(cleanText);
+  }
+
+  function normalizeUrl(value) {
+    let url = cleanText(value).replace(/[。；;，,]+$/g, '');
+    if (/^www\./i.test(url)) url = `https://${url}`;
+    if (/^[a-z0-9.-]+\.[a-z]{2,}(\/\S*)?$/i.test(url)) url = `https://${url}`;
+    return url;
+  }
+
+  function isUsableUrl(value) {
+    return /^https?:\/\/\S+/i.test(cleanText(value));
+  }
+
+  function looksLikeUrl(value) {
+    const text = cleanText(value);
+    return /^(https?:\/\/|www\.)/i.test(text) || /^[a-z0-9.-]+\.[a-z]{2,}(\/\S*)?$/i.test(text);
+  }
+
+  function normalizeTier(value) {
+    const text = cleanText(value).toLowerCase();
+    if (/白金|platinum|plat/.test(text)) return 'platinum';
+    if (/金級|gold/.test(text)) return 'gold';
+    if (/銀級|silver|silv/.test(text)) return 'silver';
+    if (/特別|策略|special|partner/.test(text)) return 'special';
+    return '';
+  }
+
+  function isSponsorHeader(line) {
+    const text = cleanText(line).toLowerCase();
+    const hits = ['tier', '級別', 'sponsor', '贊助', 'company', '公司', 'url', 'website', 'link'];
+    return hits.filter(hit => text.includes(hit)).length >= 2;
+  }
+
   function toggleTierSettings() {
     const content = document.getElementById('tierSettingsContent');
     const icon = document.getElementById('tierToggleIcon');
@@ -414,7 +492,7 @@
       schema: BACKUP_SCHEMA,
       tool: 'Sponsors Logo HTML Generator',
       version: TOOL_VERSION,
-      projectName: 'SEMICON Taiwan Sponsors',
+      projectName: document.getElementById('projectName').value.trim() || 'SEMICON Taiwan Sponsors',
       exportedAt: new Date().toISOString(),
       sponsors: sponsors,
       titles: {
@@ -428,9 +506,16 @@
 
   function saveData() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(getSaveDataObject()));
+    const autosaveState = document.getElementById('autosaveState');
+    if (autosaveState) {
+      autosaveState.innerText = `Autosaved draft · ${new Date().toLocaleString('zh-TW', { hour12: false })}`;
+    }
   }
 
   function applyDataToUI(parsed) {
+    if (parsed.projectName) {
+      document.getElementById('projectName').value = parsed.projectName;
+    }
     if (parsed.sponsors) {
       const normalizedSponsors = { platinum: [], gold: [], silver: [], special: [] };
       for (let tier in normalizedSponsors) {
@@ -439,7 +524,7 @@
           id: s.id || Date.now().toString() + Math.random().toString(36).slice(2),
           name: s.name || '',
           image: s.image || '',
-          link: s.link || '',
+          link: normalizeUrl(s.link || ''),
           scale: s.scale === undefined ? 100 : s.scale
         }));
       }
@@ -512,6 +597,7 @@
     if (!s.image) return { key: 'missing', label: 'Missing', hint: '缺 Logo 圖片' };
     const hasName = s.name && s.name.trim() && s.name.trim() !== '未命名廠商';
     const hasLink = s.link && s.link.trim();
+    if (hasLink && !isUsableUrl(normalizeUrl(s.link))) return { key: 'check', label: 'Check', hint: '網址格式需確認' };
     if (!hasName || !hasLink) return { key: 'check', label: 'Check', hint: !hasName ? '建議補公司名稱' : '尚未填連結' };
     return { key: 'ready', label: 'Ready', hint: '可輸出' };
   }
@@ -569,7 +655,7 @@
   const base64Input = document.getElementById('imageBase64');
   const fileInput = document.getElementById('fileInput');
 
-  function processImageFile(file) {
+  function compressImageFile(file, callback) {
     if (!file || !file.type.startsWith('image/')) { alert("請確保您提供的是圖片檔案。"); return; }
     const img = new Image();
     const url = URL.createObjectURL(file);
@@ -583,10 +669,31 @@
       canvas.width = width; canvas.height = height; ctx.drawImage(img, 0, 0, width, height);
 
       const compressedBase64 = canvas.toDataURL('image/webp', 0.8);
-      previewImage.src = compressedBase64; previewImage.style.display = 'block'; base64Input.value = compressedBase64;
       URL.revokeObjectURL(url);
+      callback(compressedBase64);
     };
     img.src = url;
+  }
+
+  function processImageFile(file) {
+    compressImageFile(file, (compressedBase64) => {
+      previewImage.src = compressedBase64; previewImage.style.display = 'block'; base64Input.value = compressedBase64;
+    });
+  }
+
+  function pickSponsorLogo(tier, index) {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = function() {
+      if (input.files && input.files[0]) {
+        compressImageFile(input.files[0], (compressedBase64) => {
+          sponsors[tier][index].image = compressedBase64;
+          updateSystem();
+        });
+      }
+    };
+    input.click();
   }
 
   pasteZone.addEventListener('paste', function(e) {
@@ -617,7 +724,7 @@
     const tier = document.getElementById('inputTier').value;
     const name = document.getElementById('inputName').value.trim() || '未命名廠商';
     const image = document.getElementById('imageBase64').value;
-    const link = document.getElementById('inputLink').value.trim();
+    const link = normalizeUrl(document.getElementById('inputLink').value);
 
     if (!image) { alert("請先在上傳區填入 Logo 圖片！"); return; }
 
@@ -632,6 +739,50 @@
     previewImage.src = '';
     
     updateSystem();
+  }
+
+  function importSponsorList() {
+    const input = document.getElementById('batchSponsorInput');
+    const lines = input.value.split(/\r?\n/).filter(line => cleanText(line));
+    if (!lines.length) { alert('請先貼上贊助商名單。'); return; }
+
+    let added = 0;
+    let defaultTier = document.getElementById('inputTier').value || 'gold';
+    lines.forEach((line) => {
+      if (isSponsorHeader(line)) return;
+      const parts = parseTextRow(line).filter(Boolean);
+      if (!parts.length) return;
+
+      let tier = parts.map(normalizeTier).find(Boolean) || defaultTier;
+      const urlPart = parts.find(looksLikeUrl) || '';
+      const link = normalizeUrl(urlPart);
+      const nameParts = parts.filter(part => {
+        if (normalizeTier(part)) return false;
+        if (looksLikeUrl(part)) return false;
+        return true;
+      });
+      const name = cleanText(nameParts.join(' '));
+      if (!name) return;
+
+      sponsors[tier].push({
+        id: Date.now().toString() + Math.random().toString(36).slice(2),
+        name,
+        image: '',
+        link,
+        scale: 100
+      });
+      added += 1;
+    });
+
+    if (!added) {
+      alert('沒有解析到可加入的贊助商名稱。請確認資料至少包含公司名稱。');
+      return;
+    }
+
+    document.getElementById('sampleNote').classList.remove('show');
+    input.value = '';
+    updateSystem();
+    alert(`已加入 ${added} 筆贊助商資料。缺 Logo 的項目會保留在清單中，但不會輸出破圖。`);
   }
 
   function removeSponsor(tier, index) { sponsors[tier].splice(index, 1); updateSystem(); }
@@ -657,11 +808,11 @@
   }
 
   function updateSponsorLink(tier, index, val) {
-    sponsors[tier][index].link = val.trim();
+    sponsors[tier][index].link = normalizeUrl(val);
     updateSystem();
   }
 
-  const inputs = document.querySelectorAll('.grid-2col input');
+  const inputs = document.querySelectorAll('.grid-2col input, #projectName');
   inputs.forEach(input => { input.addEventListener('input', updateSystem); });
 
   function updateSystem() {
@@ -729,21 +880,24 @@
 
         const status = sponsorStatus(s);
         const safeName = s.name || '未命名廠商';
-        const safeLink = s.link || '';
+        const safeLink = normalizeUrl(s.link || '');
+        const thumbHtml = s.image
+          ? `<img src="${s.image}" class="mgmt-thumb" alt="thumb">`
+          : `<div class="mgmt-thumb" style="display:flex;align-items:center;justify-content:center;color:#b91c1c;font-size:.65rem;font-weight:900;">No logo</div>`;
         item.innerHTML = `
           <div class="mgmt-drag-handle" title="按住拖拉進行排序">⋮⋮</div>
           <div class="mgmt-item-info">
-            <img src="${s.image}" class="mgmt-thumb" alt="thumb">
+            ${thumbHtml}
             <div class="mgmt-text">
               <div class="mgmt-topline">
                 <span class="mgmt-tier">${tier.toUpperCase()}</span>
                 <span class="status-pill ${status.key}" title="${status.hint}">${status.label}</span>
-                ${status.key === 'check' ? `<span class="status-reason">${status.hint}</span>` : ''}
+                ${status.key !== 'ready' ? `<span class="status-reason">${escapeHtml(status.hint)}</span>` : ''}
               </div>
-              <span class="mgmt-name" title="${safeName}">${safeName}</span>
+              <span class="mgmt-name" title="${escapeAttr(safeName)}">${escapeHtml(safeName)}</span>
               
               <div class="mgmt-inline-ctrl">
-                <input type="text" value="${safeLink}" placeholder="未填連結(點此補上)" onchange="updateSponsorLink('${tier}', ${index}, this.value)" title="隨時更新網址，離開輸入框即自動存檔">
+                <input type="text" value="${escapeAttr(safeLink)}" placeholder="未填連結(點此補上)" onchange="updateSponsorLink('${tier}', ${index}, this.value)" title="隨時更新網址，離開輸入框即自動存檔">
                 <div class="mgmt-scale-ctrl">
                   <input type="range" min="50" max="150" value="${s.scale}" oninput="updateSponsorScale('${tier}', ${index}, this.value)" title="即時視覺校準">
                   <span id="scale-val-${tier}-${index}">${s.scale}%</span>
@@ -757,6 +911,7 @@
               <button class="btn-icon" onclick="moveUp('${tier}', ${index})" title="往上移一格">↑</button>
               <button class="btn-icon" onclick="moveDown('${tier}', ${index})" title="往下移一格">↓</button>
             </div>
+            <button class="btn-icon" onclick="pickSponsorLogo('${tier}', ${index})" title="替這筆資料補上或更換 Logo">Logo</button>
             <button class="btn-delete" onclick="removeSponsor('${tier}', ${index})">✕ 刪除</button>
           </div>
         `;
@@ -786,12 +941,12 @@
     };
 
     let hasData = false;
-    for (let t in sponsors) { if (sponsors[t].length > 0) hasData = true; }
+    for (let t in sponsors) { if (sponsors[t].some(s => s.image)) hasData = true; }
 
     if (!hasData) {
       document.getElementById('outputCodeZh').value = '';
       document.getElementById('outputCodeEn').value = '';
-      document.getElementById('previewIframe').srcdoc = "<div style='text-align:center; padding: 20px; color:#999; font-family:sans-serif;'>新增資料後即可預覽</div>";
+      document.getElementById('previewIframe').srcdoc = "<div style='text-align:center; padding: 20px; color:#999; font-family:sans-serif;'>目前沒有可輸出的 Logo。請先補上至少一張 Logo 圖片。</div>";
       return;
     }
 
@@ -832,25 +987,28 @@
       const order = ['platinum', 'gold', 'silver', 'special'];
       
       order.forEach(tier => {
-        if (sponsors[tier].length > 0) {
-          const tierName = titles[tier][lang]; 
+        const publishableSponsors = sponsors[tier].filter(s => s.image);
+        if (publishableSponsors.length > 0) {
+          const tierName = escapeHtml(titles[tier][lang]);
           html += `  <!-- ${tierName} -->\n`;
           html += `  <div class="sp-tier">\n`;
           html += `    <h3 class="sp-title ${tier}">${tierName}</h3>\n`;
           html += `    <div class="sp-grid">\n`;
           
-          sponsors[tier].forEach(s => {
-            const hasLink = s.link && s.link !== '';
+          publishableSponsors.forEach(s => {
+            const normalizedLink = normalizeUrl(s.link);
+            const hasLink = normalizedLink && isUsableUrl(normalizedLink);
             const scaleFactor = (s.scale || 100) / 100; 
             const scaleStyle = scaleFactor !== 1 ? ` style="transform: scale(${scaleFactor});"` : '';
+            const sponsorName = escapeAttr(s.name || 'Sponsor');
 
             if (hasLink) {
-              html += `      <a href="${s.link}" target="_blank" class="sp-card has-link" title="${s.name}">\n`;
+              html += `      <a href="${escapeAttr(normalizedLink)}" target="_blank" rel="noopener noreferrer" class="sp-card has-link" title="${sponsorName}">\n`;
             } else {
-              html += `      <div class="sp-card" title="${s.name}">\n`;
+              html += `      <div class="sp-card" title="${sponsorName}">\n`;
             }
             
-            html += `        <img src="${s.image}" alt="${s.name}"${scaleStyle}>\n`;
+            html += `        <img src="${s.image}" alt="${sponsorName}"${scaleStyle}>\n`;
             
             if (hasLink) html += `      </a>\n`; else html += `      </div>\n`;
           });

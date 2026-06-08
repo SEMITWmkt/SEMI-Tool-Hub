@@ -2,14 +2,14 @@
 
 This file records how each desktop/source tool is integrated into SEMI-Tool-Hub.
 
-Last checked: 2026-06-03, Asia/Taipei.
+Last checked: 2026-06-08, Asia/Taipei.
 
 ## Tool Integration Status
 
 | Hub module | Source folder | Source repo | Source branch / commit | Hub integration status | Notes |
 |---|---|---|---|---|---|
-| `tools/sponsors/index.html` | `/Users/lun04/Desktop/Sponsors Logo HTML Creator` | `SEMITWmkt/Sponsors-Logo-HTML-Creator` | `main @ 72d03a6` | Integrated v5.1.1 + Hub layout fit | Source repo has `.DS_Store` modified and `index-v5.0-backup.html` untracked. Hub module removes narrow centering for integrated use. |
-| `tools/pavilions/index.html` | `/Users/lun04/Desktop/Pavilions Vendor HTML Creator` | `SEMITWmkt/Pavilions-Vendor-HTML-Creator` | `pavilions-v1.1-confidence` working copy | Integrated v1.1 confidence slice + Hub layout fit | Needs manual visual QA and source repo commit. Source repo has `.DS_Store` modified. Hub module removes narrow centering for integrated use. |
+| `tools/sponsors/index.html` | `/Users/lun04/Desktop/Sponsors Logo HTML Creator` | `SEMITWmkt/Sponsors-Logo-HTML-Creator` | `main @ 72d03a6` | Integrated v5.1.1 + data resilience + project state slice | Adds batch sponsor metadata paste, missing-logo work items, URL normalization, output protection, project name, work file save/load, and visible autosaved draft state. Source repo still needs sync after Hub validation. |
+| `tools/pavilions/index.html` | `/Users/lun04/Desktop/Pavilions Vendor HTML Creator` | `SEMITWmkt/Pavilions-Vendor-HTML-Creator` | `pavilions-v1.1-confidence` working copy | Integrated v1.1 confidence + data resilience + project state slice | Adds tolerant text parsing, URL normalization, inferred booth/URL, safer review, local autosaved draft, and work file save/load for recurring edits. Source repo still needs sync after Hub validation. |
 | `tools/forum/index.html` | `/Users/lun04/Desktop/Fourm HTML Creator` | `SEMITWmkt/SEMI-AutoCompiler-FORUM` | `main @ f2d1ce5` | Integrated v9.11 + Hub layout fit | Synced from desktop source after user confirmed Forum is updated to v9.11. Hub module removes narrow centering for integrated use. |
 | `tools/trends/index.html` | `/Users/lun04/Desktop/Trend_Table Creator ` | `SEMITWmkt/Trend_Table-Creator` | `main @ 88f35b8` | Integrated | Source folder has a trailing space in its name; use clean clone path later. |
 
