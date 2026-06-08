@@ -1,0 +1,1557 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SEMI Tool Hub Unified UI Demo</title>
+  <style>
+    :root {
+      --bg: #f5f6f8;
+      --surface: #ffffff;
+      --surface-soft: #fafbfc;
+      --ink: #191b21;
+      --text: #30343c;
+      --muted: #707784;
+      --faint: #a2aab6;
+      --line: #dde2ea;
+      --line-strong: #c4ccd8;
+      --brand: #7a197f;
+      --brand-dark: #59115e;
+      --blue: #2d64a1;
+      --green: #2f7955;
+      --amber: #9a6a18;
+      --red: #c3463c;
+      --shadow: 0 18px 42px rgba(25, 29, 38, .10);
+      --shadow-soft: 0 10px 26px rgba(25, 29, 38, .07);
+      --r: 8px;
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--ink);
+      font: 15px/1.55 var(--font);
+      letter-spacing: 0;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button, input { font: inherit; }
+
+    button {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .page {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: 68px minmax(0, 1fr);
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      height: 68px;
+      border-bottom: 1px solid rgba(221, 226, 234, .9);
+      background: rgba(255, 255, 255, .88);
+      backdrop-filter: blur(18px);
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 20px;
+      padding: 0 24px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+      font-weight: 950;
+      white-space: nowrap;
+    }
+
+    .brand-mark {
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      background: #111318;
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-size: 13px;
+      letter-spacing: .08em;
+    }
+
+    .brand-text {
+      display: grid;
+      gap: 1px;
+      min-width: 0;
+    }
+
+    .brand-title {
+      font-size: 15px;
+      line-height: 1.2;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .brand-subtitle {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 850;
+      line-height: 1.2;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .switcher {
+      min-width: 0;
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 4px 0;
+    }
+
+    .switch-btn {
+      height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+      color: #3c424c;
+      padding: 0 15px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 900;
+      white-space: nowrap;
+      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, color .18s ease;
+    }
+
+    .switch-btn:hover {
+      transform: translateY(-1px);
+      border-color: var(--line-strong);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .switch-btn.active {
+      background: #111318;
+      border-color: #111318;
+      color: #fff;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 9px;
+      white-space: nowrap;
+    }
+
+    .action {
+      min-height: 38px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--r);
+      background: #fff;
+      color: var(--ink);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 13px;
+      font-size: 13px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .action:hover {
+      border-color: var(--brand);
+      color: var(--brand);
+    }
+
+    .action.primary {
+      background: var(--brand);
+      border-color: var(--brand);
+      color: #fff;
+    }
+
+    .action.primary:hover {
+      background: var(--brand-dark);
+      color: #fff;
+    }
+
+    main {
+      min-width: 0;
+    }
+
+    .demo {
+      display: none;
+    }
+
+    .demo.active {
+      display: block;
+    }
+
+    .intro {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 42px 24px 18px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .kicker {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 950;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    .intro h1 {
+      margin: 0;
+      max-width: 940px;
+      font-size: clamp(34px, 5vw, 62px);
+      line-height: 1.05;
+      letter-spacing: 0;
+    }
+
+    .intro p {
+      margin: 0;
+      max-width: 900px;
+      color: #4f5663;
+      font-size: clamp(16px, 1.8vw, 21px);
+      line-height: 1.55;
+    }
+
+    .demo-note {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 0 24px 24px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 750;
+    }
+
+    .tool-grid {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 8px 24px 54px;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .tool-card {
+      min-height: 254px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--surface);
+      padding: 24px;
+      color: var(--ink);
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      gap: 18px;
+      box-shadow: 0 1px 0 rgba(255, 255, 255, .9) inset;
+      transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+      cursor: pointer;
+    }
+
+    .tool-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--line-strong);
+      box-shadow: var(--shadow);
+    }
+
+    .tool-card.active {
+      border-color: #161922;
+      box-shadow: var(--shadow);
+    }
+
+    .tool-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-weight: 950;
+      letter-spacing: .03em;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .tool-icon::after {
+      content: "";
+      position: absolute;
+      right: -12px;
+      bottom: -12px;
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, .26);
+      transform: rotate(14deg);
+    }
+
+    .forum-icon { background: #2d64a1; }
+    .trend-icon { background: #2f7955; }
+    .sponsor-icon { background: #7a197f; }
+    .pavilion-icon { background: #9a6a18; }
+
+    .card-copy {
+      display: grid;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .card-copy h2 {
+      margin: 0;
+      font-size: 22px;
+      line-height: 1.18;
+      letter-spacing: 0;
+    }
+
+    .card-copy p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.48;
+    }
+
+    .card-foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .mini-status {
+      border-radius: 999px;
+      padding: 4px 8px;
+      background: #edf2f7;
+      color: #4c5563;
+      text-transform: none;
+    }
+
+    .preview-stage {
+      max-width: 1180px;
+      margin: -28px auto 64px;
+      padding: 0 24px;
+    }
+
+    .large-workspace {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+      box-shadow: var(--shadow-soft);
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: minmax(270px, .9fr) minmax(0, 1.5fr);
+    }
+
+    .workspace-side {
+      background: #f8f9fb;
+      border-right: 1px solid var(--line);
+      padding: 28px;
+      display: grid;
+      gap: 18px;
+      align-content: start;
+    }
+
+    .workspace-side h3,
+    .workspace-main h3,
+    .control-panel h3,
+    .stage-card h3 {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    .workspace-side p,
+    .workspace-main p,
+    .control-panel p,
+    .stage-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .steps {
+      display: grid;
+      gap: 10px;
+    }
+
+    .step {
+      border: 1px solid var(--line);
+      border-radius: var(--r);
+      background: #fff;
+      padding: 12px;
+      display: grid;
+      gap: 3px;
+    }
+
+    .step strong {
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .step span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .workspace-main {
+      padding: 28px;
+      display: grid;
+      gap: 18px;
+      align-content: start;
+    }
+
+    .workspace-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .workspace-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .ghost-btn {
+      height: 36px;
+      border: 1px solid var(--line);
+      border-radius: var(--r);
+      background: #fff;
+      color: var(--ink);
+      padding: 0 11px;
+      font-size: 12px;
+      font-weight: 900;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .ghost-btn:hover {
+      border-color: var(--brand);
+      color: var(--brand);
+    }
+
+    .mock-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 14px;
+    }
+
+    .mock-field {
+      min-height: 126px;
+      border: 1px solid var(--line);
+      border-radius: var(--r);
+      background: #fbfcfd;
+      padding: 14px;
+      display: grid;
+      gap: 10px;
+      align-content: start;
+    }
+
+    .mock-line {
+      height: 10px;
+      border-radius: 999px;
+      background: #dfe5ee;
+    }
+
+    .mock-line.short { width: 58%; }
+    .mock-line.mid { width: 78%; }
+    .mock-line.full { width: 100%; }
+
+    .publish-card {
+      border: 1px solid var(--line);
+      border-radius: var(--r);
+      background: #fff;
+      padding: 16px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .publish-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .publish-row:last-child {
+      padding-bottom: 0;
+      border-bottom: 0;
+    }
+
+    .ready {
+      color: var(--green);
+      background: #edf8f1;
+    }
+
+    .check {
+      color: var(--amber);
+      background: #fff6e2;
+    }
+
+    .cannot {
+      color: var(--red);
+      background: #fff0ef;
+    }
+
+    .badge {
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-size: 11px;
+      font-weight: 950;
+      white-space: nowrap;
+    }
+
+    .split-wrap {
+      max-width: 1340px;
+      margin: 0 auto;
+      padding: 34px 24px 60px;
+      display: grid;
+      grid-template-columns: 260px minmax(0, 1fr);
+      gap: 18px;
+    }
+
+    .side-nav {
+      position: sticky;
+      top: 88px;
+      align-self: start;
+      display: grid;
+      gap: 10px;
+    }
+
+    .side-nav h2 {
+      margin: 0 0 5px;
+      font-size: 18px;
+    }
+
+    .side-tool {
+      min-height: 72px;
+      border: 1px solid var(--line);
+      border-radius: var(--r);
+      background: #fff;
+      padding: 12px;
+      display: grid;
+      grid-template-columns: 40px minmax(0, 1fr);
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+    }
+
+    .side-tool:hover,
+    .side-tool.active {
+      transform: translateY(-1px);
+      border-color: var(--line-strong);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .side-tool.active {
+      border-color: #111318;
+    }
+
+    .side-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 950;
+    }
+
+    .side-name {
+      min-width: 0;
+      display: grid;
+      gap: 2px;
+    }
+
+    .side-name strong {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 13px;
+    }
+
+    .side-name span {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 850;
+    }
+
+    .split-board {
+      display: grid;
+      gap: 18px;
+    }
+
+    .split-head {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      padding: 20px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .split-head h1 {
+      margin: 0 0 4px;
+      font-size: 24px;
+      line-height: 1.2;
+    }
+
+    .split-head p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .production-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.03fr) minmax(0, .97fr);
+      gap: 18px;
+    }
+
+    .panel {
+      min-height: 620px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      padding: 22px;
+      display: grid;
+      gap: 16px;
+      align-content: start;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 14px;
+    }
+
+    .section-title h2 {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.25;
+    }
+
+    .section-title span {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 850;
+    }
+
+    .input-stack {
+      display: grid;
+      gap: 12px;
+    }
+
+    .mock-input {
+      min-height: 46px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--r);
+      background: #fbfcfd;
+      padding: 12px 13px;
+      color: #9aa2af;
+      font-weight: 750;
+    }
+
+    .mock-input.tall {
+      min-height: 150px;
+    }
+
+    .data-table {
+      border: 1px solid var(--line);
+      border-radius: var(--r);
+      overflow: hidden;
+      display: grid;
+    }
+
+    .data-row {
+      display: grid;
+      grid-template-columns: 1.3fr .75fr .8fr;
+      gap: 0;
+      min-height: 42px;
+      border-bottom: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .data-row:last-child {
+      border-bottom: 0;
+    }
+
+    .data-row.header {
+      background: #f6f8fb;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 950;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .data-cell {
+      padding: 11px 12px;
+      border-right: 1px solid var(--line);
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 12px;
+      font-weight: 760;
+    }
+
+    .data-cell:last-child {
+      border-right: 0;
+    }
+
+    .preview-box {
+      min-height: 278px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--r);
+      background:
+        linear-gradient(90deg, rgba(221, 226, 234, .45) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(221, 226, 234, .45) 1px, transparent 1px),
+        #fbfcfd;
+      background-size: 28px 28px;
+      padding: 18px;
+      display: grid;
+      align-content: center;
+      justify-items: center;
+      gap: 12px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .preview-logo-grid {
+      width: min(330px, 100%);
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .preview-logo {
+      height: 58px;
+      border: 1px solid var(--line);
+      border-radius: var(--r);
+      background: #fff;
+      display: grid;
+      place-items: center;
+      color: #697180;
+      font-size: 11px;
+      font-weight: 950;
+    }
+
+    .command-wrap {
+      background: #111318;
+      color: #fff;
+      min-height: calc(100vh - 68px);
+    }
+
+    .command-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 42px 24px 60px;
+      display: grid;
+      gap: 22px;
+    }
+
+    .command-hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(320px, .9fr);
+      align-items: end;
+      gap: 28px;
+      padding-bottom: 8px;
+    }
+
+    .command-hero h1 {
+      margin: 0;
+      font-size: clamp(34px, 5vw, 64px);
+      line-height: 1.04;
+      letter-spacing: 0;
+    }
+
+    .command-hero p {
+      margin: 14px 0 0;
+      max-width: 760px;
+      color: #bdc5d2;
+      font-size: 17px;
+    }
+
+    .health-summary {
+      border: 1px solid rgba(255, 255, 255, .14);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, .06);
+      padding: 20px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .health-summary h2 {
+      margin: 0;
+      font-size: 17px;
+    }
+
+    .meter {
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .16);
+      overflow: hidden;
+    }
+
+    .meter span {
+      display: block;
+      height: 100%;
+      width: 82%;
+      border-radius: inherit;
+      background: #ffffff;
+    }
+
+    .command-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .command-card {
+      min-height: 250px;
+      border: 1px solid rgba(255, 255, 255, .15);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, .08);
+      color: #fff;
+      padding: 20px;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      gap: 14px;
+      cursor: pointer;
+      transition: transform .2s ease, background .2s ease, border-color .2s ease;
+    }
+
+    .command-card:hover,
+    .command-card.active {
+      transform: translateY(-3px);
+      background: rgba(255, 255, 255, .12);
+      border-color: rgba(255, 255, 255, .32);
+    }
+
+    .command-card h2 {
+      margin: 0;
+      font-size: 21px;
+      line-height: 1.18;
+    }
+
+    .command-card p {
+      margin: 0;
+      color: #c8d0db;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .health-list {
+      display: grid;
+      gap: 9px;
+    }
+
+    .health-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      color: #dce2ea;
+      font-size: 12px;
+      font-weight: 850;
+    }
+
+    .health-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #72d29b;
+      flex: 0 0 auto;
+    }
+
+    .health-dot.warn { background: #e8b650; }
+    .health-dot.stop { background: #e36d64; }
+
+    .command-detail {
+      border: 1px solid rgba(255, 255, 255, .15);
+      border-radius: 14px;
+      background: #f7f8fb;
+      color: var(--ink);
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 340px;
+    }
+
+    .command-preview {
+      padding: 24px;
+      display: grid;
+      gap: 16px;
+      align-content: start;
+    }
+
+    .command-preview h3 {
+      margin: 0;
+      font-size: 22px;
+    }
+
+    .canvas {
+      min-height: 230px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+    }
+
+    .canvas-grid {
+      width: min(460px, 100%);
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .canvas-cell {
+      min-height: 72px;
+      border: 1px solid var(--line);
+      border-radius: var(--r);
+      background: #fafbfc;
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .control-panel {
+      border-left: 1px solid var(--line);
+      background: #fff;
+      padding: 24px;
+      display: grid;
+      gap: 14px;
+      align-content: start;
+    }
+
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: var(--r);
+      padding: 13px;
+      display: grid;
+      gap: 6px;
+    }
+
+    .metric strong {
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 820;
+    }
+
+    @media (max-width: 1080px) {
+      .topbar {
+        grid-template-columns: minmax(0, 1fr);
+        height: auto;
+        min-height: 68px;
+        padding: 12px 18px;
+        gap: 10px;
+      }
+
+      .switcher {
+        justify-content: flex-start;
+      }
+
+      .top-actions {
+        justify-content: flex-start;
+        overflow-x: auto;
+      }
+
+      .tool-grid,
+      .command-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .split-wrap,
+      .large-workspace,
+      .command-hero,
+      .command-detail {
+        grid-template-columns: 1fr;
+      }
+
+      .side-nav {
+        position: static;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .side-nav h2 {
+        grid-column: 1 / -1;
+      }
+
+      .control-panel,
+      .workspace-side {
+        border-left: 0;
+        border-right: 0;
+        border-top: 1px solid var(--line);
+      }
+    }
+
+    @media (max-width: 720px) {
+      .intro,
+      .demo-note,
+      .tool-grid,
+      .preview-stage,
+      .split-wrap,
+      .command-inner {
+        padding-left: 14px;
+        padding-right: 14px;
+      }
+
+      .tool-grid,
+      .command-grid,
+      .side-nav,
+      .production-grid,
+      .mock-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .tool-card {
+        min-height: 220px;
+      }
+
+      .workspace-head,
+      .split-head {
+        display: grid;
+      }
+
+      .workspace-actions {
+        justify-content: flex-start;
+      }
+
+      .data-row {
+        grid-template-columns: 1fr;
+      }
+
+      .data-cell {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .data-cell:last-child {
+        border-bottom: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="topbar">
+      <a class="brand" href="index.html" aria-label="Back to SEMI Tool Hub">
+        <span class="brand-mark">SEMI</span>
+        <span class="brand-text">
+          <span class="brand-title">Unified Generator Demo</span>
+          <span class="brand-subtitle">Three directions for one product language</span>
+        </span>
+      </a>
+
+      <nav class="switcher" aria-label="Demo versions">
+        <button class="switch-btn active" type="button" data-demo="gallery">A. 大按鈕入口</button>
+        <button class="switch-btn" type="button" data-demo="split">B. 穩定工作台</button>
+        <button class="switch-btn" type="button" data-demo="command">C. 資料健康儀表</button>
+      </nav>
+
+      <div class="top-actions">
+        <a class="action" href="index.html">回 Hub</a>
+        <a class="action primary" id="currentToolLink" href="tools/sponsors/index.html" target="_blank" rel="noopener">打開正式工具</a>
+      </div>
+    </header>
+
+    <main>
+      <section class="demo active" id="galleryDemo">
+        <div class="intro">
+          <div class="kicker">Direction A / Apple-like entry, iLovePDF-level clarity</div>
+          <h1>把四個產生器變成同一個內容工作站的四個任務。</h1>
+          <p>這一版適合當 Hub 首頁或部門共用入口：每個工具都是大按鈕、清楚目的、清楚狀態。進入正式工具後仍保留原本流程，不讓既有使用者重新學。</p>
+        </div>
+        <p class="demo-note">此方向重點：大型工具卡、明確圖示、hover 回饋、少量文字。它負責「選任務」，不是直接取代產生器內部流程。</p>
+        <div class="tool-grid" data-tool-picker></div>
+        <div class="preview-stage">
+          <div class="large-workspace">
+            <aside class="workspace-side">
+              <h3 id="gallerySideTitle">Sponsors Logo</h3>
+              <p id="gallerySideText">持續更新贊助商資料，維持固定 HTML 輸出格式。</p>
+              <div class="steps">
+                <div class="step">
+                  <strong>1. 載入工作檔</strong>
+                  <span>上次編輯狀態是資料來源。</span>
+                </div>
+                <div class="step">
+                  <strong>2. 匯入新資料</strong>
+                  <span>可貼混亂表格，系統標記缺漏。</span>
+                </div>
+                <div class="step">
+                  <strong>3. 檢查並發布</strong>
+                  <span>確認 Ready 後複製 Drupal HTML。</span>
+                </div>
+              </div>
+            </aside>
+            <section class="workspace-main">
+              <div class="workspace-head">
+                <div>
+                  <h3 id="galleryMainTitle">贊助商 Logo HTML 產生器</h3>
+                  <p id="galleryMainDesc">同一套「資料、檢查、預覽、HTML」語言，用在四個工具上。</p>
+                </div>
+                <div class="workspace-actions">
+                  <button class="ghost-btn" type="button">Save work file</button>
+                  <button class="ghost-btn" type="button">Load work file</button>
+                </div>
+              </div>
+              <div class="mock-grid">
+                <div class="mock-field">
+                  <div class="mock-line mid"></div>
+                  <div class="mock-line full"></div>
+                  <div class="mock-line short"></div>
+                </div>
+                <div class="publish-card">
+                  <div class="publish-row">
+                    <strong>發布檢查</strong>
+                    <span class="badge check" id="galleryStatus">Needs check</span>
+                  </div>
+                  <div class="publish-row">
+                    <span id="galleryIssueA">缺 2 個 Logo</span>
+                    <span class="badge check">Review</span>
+                  </div>
+                  <div class="publish-row">
+                    <span id="galleryIssueB">HTML 可產生</span>
+                    <span class="badge ready">Ready</span>
+                  </div>
+                </div>
+              </div>
+              <div class="preview-box">
+                <div class="preview-logo-grid">
+                  <div class="preview-logo">Logo</div>
+                  <div class="preview-logo">Logo</div>
+                  <div class="preview-logo">Logo</div>
+                  <div class="preview-logo">Logo</div>
+                  <div class="preview-logo">Logo</div>
+                  <div class="preview-logo">Logo</div>
+                </div>
+                <p id="galleryPreviewText">固定輸出格式，避免手改 HTML。</p>
+              </div>
+            </section>
+          </div>
+        </div>
+      </section>
+
+      <section class="demo" id="splitDemo">
+        <div class="split-wrap">
+          <aside class="side-nav">
+            <h2>Direction B</h2>
+            <div data-side-picker></div>
+          </aside>
+          <section class="split-board">
+            <div class="split-head">
+              <div>
+                <h1 id="splitTitle">贊助商 Logo HTML 產生器</h1>
+                <p id="splitDesc">保留目前使用者熟悉的操作邏輯，但四個產生器都使用一致的資料區、檢查區、預覽區和 HTML 輸出語言。</p>
+              </div>
+              <div class="workspace-actions">
+                <button class="ghost-btn" type="button">Save work file</button>
+                <button class="ghost-btn" type="button">Load work file</button>
+                <a class="ghost-btn" id="splitOpenLink" href="tools/sponsors/index.html" target="_blank" rel="noopener">正式工具</a>
+              </div>
+            </div>
+
+            <div class="production-grid">
+              <section class="panel">
+                <div class="section-title">
+                  <div>
+                    <h2>資料輸入與整理</h2>
+                    <span id="splitInputHint">貼上名單或單筆更新，系統保留工作狀態。</span>
+                  </div>
+                  <span class="badge check">Autosaved draft</span>
+                </div>
+                <div class="input-stack">
+                  <div class="mock-input" id="splitFieldA">專案名稱 / SEMICON Taiwan Sponsors</div>
+                  <div class="mock-input tall" id="splitFieldB">貼上公司名、級別、網址，或載入上次的 work file。</div>
+                  <div class="data-table">
+                    <div class="data-row header">
+                      <div class="data-cell">Name</div>
+                      <div class="data-cell">Status</div>
+                      <div class="data-cell">Action</div>
+                    </div>
+                    <div class="data-row">
+                      <div class="data-cell" id="splitRowA">ABC Semiconductor</div>
+                      <div class="data-cell">Ready</div>
+                      <div class="data-cell">Edit</div>
+                    </div>
+                    <div class="data-row">
+                      <div class="data-cell" id="splitRowB">Missing logo item</div>
+                      <div class="data-cell">Needs check</div>
+                      <div class="data-cell">Fix</div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <section class="panel">
+                <div class="section-title">
+                  <div>
+                    <h2>發布檢查與輸出</h2>
+                    <span>可貼 Drupal 前先看資料是否可靠。</span>
+                  </div>
+                  <span class="badge check" id="splitStatus">Needs check</span>
+                </div>
+                <div class="publish-card">
+                  <div class="publish-row">
+                    <span id="splitCheckA">2 筆需要補 Logo</span>
+                    <span class="badge check">Review</span>
+                  </div>
+                  <div class="publish-row">
+                    <span id="splitCheckB">網址格式已自動修正</span>
+                    <span class="badge ready">Ready</span>
+                  </div>
+                  <div class="publish-row">
+                    <span>HTML 結構固定</span>
+                    <span class="badge ready">Ready</span>
+                  </div>
+                </div>
+                <div class="preview-box">
+                  <div class="preview-logo-grid">
+                    <div class="preview-logo">Preview</div>
+                    <div class="preview-logo">Preview</div>
+                    <div class="preview-logo">Preview</div>
+                    <div class="preview-logo">Preview</div>
+                    <div class="preview-logo">Preview</div>
+                    <div class="preview-logo">Preview</div>
+                  </div>
+                  <p id="splitPreviewText">右側永遠回答：能不能發布、看起來如何、HTML 是否可貼。</p>
+                </div>
+              </section>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <section class="demo" id="commandDemo">
+        <div class="command-wrap">
+          <div class="command-inner">
+            <section class="command-hero">
+              <div>
+                <div class="kicker">Direction C / Tesla-like system monitor</div>
+                <h1>先看資料健康，再決定是否發布。</h1>
+                <p>這一版把四個產生器視為同一個內容生產系統。它最強的是管理感和品質感，適合未來加入版本比較、更新紀錄、流量回報。</p>
+              </div>
+              <div class="health-summary">
+                <h2>Workspace health</h2>
+                <div class="meter"><span></span></div>
+                <p>整體可發布度 82%。Sponsors 與 Pavilions 仍有資料缺漏，Forum 保持既有流程，Trends 需要補 URL。</p>
+              </div>
+            </section>
+
+            <div class="command-grid" data-command-picker></div>
+
+            <section class="command-detail">
+              <div class="command-preview">
+                <h3 id="commandTitle">Sponsors Logo</h3>
+                <p id="commandDesc">把工具當成一個持續更新的專案，而不是一次性的 HTML 產生器。</p>
+                <div class="canvas">
+                  <div class="canvas-grid">
+                    <div class="canvas-cell">Data</div>
+                    <div class="canvas-cell">Review</div>
+                    <div class="canvas-cell">Preview</div>
+                    <div class="canvas-cell">HTML</div>
+                    <div class="canvas-cell">Work file</div>
+                    <div class="canvas-cell">Publish</div>
+                  </div>
+                </div>
+              </div>
+              <aside class="control-panel">
+                <h3>可落地能力</h3>
+                <p id="commandAbility">亂資料整理、單筆更新、缺漏檢查、固定輸出。</p>
+                <div class="metric">
+                  <strong id="metricA">86%</strong>
+                  <span>資料完整度</span>
+                </div>
+                <div class="metric">
+                  <strong id="metricB">12</strong>
+                  <span>本次更新項目</span>
+                </div>
+                <div class="metric">
+                  <strong id="metricC">3</strong>
+                  <span>需確認項目</span>
+                </div>
+              </aside>
+            </section>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const tools = [
+      {
+        id: "forum",
+        code: "FR",
+        shortName: "Forum",
+        name: "論壇頁 HTML 產生器",
+        type: "頁面內容",
+        iconClass: "forum-icon",
+        path: "tools/forum/index.html",
+        card: "既有團隊正在使用，優先保留三步驟流程，只統一外層語言與發布檢查。",
+        side: "論壇資料與講者內容",
+        sideText: "把複雜論壇內容整理成中英文 Drupal-ready HTML。",
+        issues: ["保留既有流程", "補 work file", "補發布檢查"],
+        fields: ["論壇名稱 / 日期 / 地點", "貼上 Excel 或 Word 內容，維持 v9.11 使用者熟悉流程。"],
+        rows: ["Keynote Forum", "Speaker missing logo"],
+        checks: ["講者資料需確認", "報名連結格式正確"],
+        preview: "不要大改流程，只做一致的工作台外框。",
+        metricA: "78%",
+        metricB: "8",
+        metricC: "5",
+        ability: "保留三步驟、補工作檔、補檢查清單、維持穩定使用。"
+      },
+      {
+        id: "trends",
+        code: "TH",
+        shortName: "Theme",
+        name: "主題 / 趨勢互動區塊產生器",
+        type: "互動區塊",
+        iconClass: "trend-icon",
+        path: "tools/trends/index.html",
+        card: "主題卡、展區、論壇議題共用資料狀態，輸出一致的互動 HTML。",
+        side: "主題與趨勢互動內容",
+        sideText: "集中管理主題卡片、URL、圖示和中英文內容。",
+        issues: ["缺 URL 標記", "缺 icon 標記", "支援工作檔"],
+        fields: ["主題群組 / Active theme", "貼上主題、展區、論壇議題，並標記缺少 URL 或 icon 的項目。"],
+        rows: ["Smart Manufacturing", "AI missing URL"],
+        checks: ["1 筆缺 URL", "HTML scoped CSS 正常"],
+        preview: "互動模組也用同一套 Ready / Needs check 語言。",
+        metricA: "91%",
+        metricB: "16",
+        metricC: "2",
+        ability: "主題資料保存、URL 檢查、icon 檢查、互動預覽。"
+      },
+      {
+        id: "sponsors",
+        code: "SP",
+        shortName: "Logo",
+        name: "贊助商 Logo HTML 產生器",
+        type: "品牌露出",
+        iconClass: "sponsor-icon",
+        path: "tools/sponsors/index.html",
+        card: "處理持續新增、刪除、改級別的贊助商資料，避免手改 HTML。",
+        side: "Sponsors Logo",
+        sideText: "持續更新贊助商資料，維持固定 HTML 輸出格式。",
+        issues: ["缺 2 個 Logo", "網址已修正", "可輸出 HTML"],
+        fields: ["專案名稱 / SEMICON Taiwan Sponsors", "貼上公司名、級別、網址，或載入上次的 work file。"],
+        rows: ["ABC Semiconductor", "Missing logo item"],
+        checks: ["2 筆需要補 Logo", "網址格式已自動修正"],
+        preview: "固定輸出格式，避免手改 HTML。",
+        metricA: "86%",
+        metricB: "12",
+        metricC: "3",
+        ability: "亂資料整理、單筆更新、缺漏檢查、固定輸出。"
+      },
+      {
+        id: "pavilions",
+        code: "PV",
+        shortName: "Pav.",
+        name: "專區展商 HTML 產生器",
+        type: "展商資料",
+        iconClass: "pavilion-icon",
+        path: "tools/pavilions/index.html",
+        card: "把混亂展商名單轉成固定卡片格式，先檢查再複製 Drupal HTML。",
+        side: "Pavilion vendors",
+        sideText: "用同一套資料解析、表格檢查、預覽輸出處理展商名單。",
+        issues: ["攤位缺漏", "網址格式修正", "可手動補列"],
+        fields: ["專區名稱 / Packaging Pavilion", "貼上公司、攤位、網址；系統解析後可單筆修正。"],
+        rows: ["Future Automation", "Vendor missing booth"],
+        checks: ["1 筆缺攤位", "網址格式已自動修正"],
+        preview: "展商名單再亂，最後都回到固定卡片格式。",
+        metricA: "82%",
+        metricB: "24",
+        metricC: "4",
+        ability: "亂表格解析、攤位檢查、單筆修正、專區卡片輸出。"
+      }
+    ];
+
+    let activeToolId = "sponsors";
+
+    const switchButtons = document.querySelectorAll("[data-demo]");
+    const demos = {
+      gallery: document.getElementById("galleryDemo"),
+      split: document.getElementById("splitDemo"),
+      command: document.getElementById("commandDemo")
+    };
+    const currentToolLink = document.getElementById("currentToolLink");
+
+    function getTool(id = activeToolId) {
+      return tools.find(tool => tool.id === id) || tools[2];
+    }
+
+    function iconMarkup(tool, className = "tool-icon") {
+      return `<span class="${className} ${tool.iconClass}">${tool.code}</span>`;
+    }
+
+    function renderGalleryCards() {
+      const container = document.querySelector("[data-tool-picker]");
+      container.innerHTML = tools.map(tool => `
+        <article class="tool-card ${tool.id === activeToolId ? "active" : ""}" data-tool="${tool.id}" tabindex="0">
+          ${iconMarkup(tool)}
+          <div class="card-copy">
+            <h2>${tool.shortName}</h2>
+            <p>${tool.card}</p>
+          </div>
+          <div class="card-foot">
+            <span>${tool.type}</span>
+            <span class="mini-status">${tool.code}</span>
+          </div>
+        </article>
+      `).join("");
+    }
+
+    function renderSideTools() {
+      const container = document.querySelector("[data-side-picker]");
+      container.innerHTML = tools.map(tool => `
+        <article class="side-tool ${tool.id === activeToolId ? "active" : ""}" data-tool="${tool.id}" tabindex="0">
+          ${iconMarkup(tool, "side-icon")}
+          <span class="side-name">
+            <strong>${tool.shortName}</strong>
+            <span>${tool.type}</span>
+          </span>
+        </article>
+      `).join("");
+    }
+
+    function renderCommandCards() {
+      const container = document.querySelector("[data-command-picker]");
+      container.innerHTML = tools.map((tool, index) => `
+        <article class="command-card ${tool.id === activeToolId ? "active" : ""}" data-tool="${tool.id}" tabindex="0">
+          ${iconMarkup(tool)}
+          <div>
+            <h2>${tool.shortName}</h2>
+            <p>${tool.card}</p>
+          </div>
+          <div class="health-list">
+            <div class="health-item"><span>${tool.issues[0]}</span><i class="health-dot ${index === 0 ? "warn" : ""}"></i></div>
+            <div class="health-item"><span>${tool.issues[1]}</span><i class="health-dot ${index === 3 ? "warn" : ""}"></i></div>
+            <div class="health-item"><span>${tool.issues[2]}</span><i class="health-dot"></i></div>
+          </div>
+        </article>
+      `).join("");
+    }
+
+    function setText(id, value) {
+      const node = document.getElementById(id);
+      if (node) node.textContent = value;
+    }
+
+    function updateDetails() {
+      const tool = getTool();
+      currentToolLink.href = tool.path;
+
+      setText("gallerySideTitle", tool.side);
+      setText("gallerySideText", tool.sideText);
+      setText("galleryMainTitle", tool.name);
+      setText("galleryMainDesc", tool.card);
+      setText("galleryIssueA", tool.issues[0]);
+      setText("galleryIssueB", tool.issues[2]);
+      setText("galleryPreviewText", tool.preview);
+
+      setText("splitTitle", tool.name);
+      setText("splitDesc", tool.card);
+      setText("splitInputHint", tool.sideText);
+      setText("splitFieldA", tool.fields[0]);
+      setText("splitFieldB", tool.fields[1]);
+      setText("splitRowA", tool.rows[0]);
+      setText("splitRowB", tool.rows[1]);
+      setText("splitCheckA", tool.checks[0]);
+      setText("splitCheckB", tool.checks[1]);
+      setText("splitPreviewText", tool.preview);
+      document.getElementById("splitOpenLink").href = tool.path;
+
+      setText("commandTitle", tool.name);
+      setText("commandDesc", tool.card);
+      setText("commandAbility", tool.ability);
+      setText("metricA", tool.metricA);
+      setText("metricB", tool.metricB);
+      setText("metricC", tool.metricC);
+    }
+
+    function renderAll() {
+      renderGalleryCards();
+      renderSideTools();
+      renderCommandCards();
+      updateDetails();
+    }
+
+    function selectTool(id) {
+      activeToolId = id;
+      renderAll();
+    }
+
+    function activateDemo(id) {
+      Object.entries(demos).forEach(([key, element]) => {
+        element.classList.toggle("active", key === id);
+      });
+      switchButtons.forEach(button => {
+        button.classList.toggle("active", button.dataset.demo === id);
+      });
+    }
+
+    switchButtons.forEach(button => {
+      button.addEventListener("click", () => activateDemo(button.dataset.demo));
+    });
+
+    document.addEventListener("click", event => {
+      const card = event.target.closest("[data-tool]");
+      if (!card) return;
+      selectTool(card.dataset.tool);
+    });
+
+    document.addEventListener("keydown", event => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      const card = event.target.closest("[data-tool]");
+      if (!card) return;
+      event.preventDefault();
+      selectTool(card.dataset.tool);
+    });
+
+    renderAll();
+  </script>
+</body>
+</html>
