@@ -34,6 +34,7 @@ The desktop tool folders are treated as source material during migration. The Hu
 
 | Document | Purpose |
 |---|---|
+| [Product Brief](docs/product-brief.md) | Product framing for problem statement, personas, user story, flow, scope, criteria, metrics, risks, and roadmap. |
 | [Product Principles](docs/product-principles.md) | Decision rules for what to build, avoid, and defer. |
 | [Roadmap](docs/roadmap.md) | Current delivery phases and next tool priorities. |
 | [Version Map](docs/version-map.md) | Integration source, current Hub module status, and drift notes. |
@@ -41,6 +42,10 @@ The desktop tool folders are treated as source material during migration. The Hu
 | [Functional Map](docs/functional-map.md) | Product functions organized by workflow and role. |
 | [Pavilions v1.1 Spec](docs/pavilions-v1.1-spec.md) | Scope and acceptance criteria for the next tool slice. |
 | [Trial Runs 2026-06-03](docs/trial-runs-2026-06-03.md) | Baseline results from editor, visitor, and developer perspectives. |
+
+## UIUX Direction
+
+The current integrated Hub keeps the existing generators usable. The next design pass is captured in [uiux-demo.html](uiux-demo.html), which proposes one shared product language for source input, validation, preview, and Drupal HTML copy workflows.
 
 ## Current Focus
 
