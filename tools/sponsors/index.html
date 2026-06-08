@@ -184,6 +184,16 @@
   .mgmt-inline-ctrl { display: flex; gap: 8px; align-items: center; }
   .mgmt-inline-ctrl input[type="text"] { flex-grow: 1; padding: 4px 6px; font-size: 0.7rem; border: 1px solid var(--border); outline: none; background: #fff;}
   .mgmt-inline-ctrl input[type="text"]:focus { border-color: var(--primary); }
+  .mgmt-name-edit {
+    width: 100%; padding: 4px 6px; font-size: 0.72rem; font-weight: 700;
+    border: 1px solid var(--border); outline: none; background: #fff; color: #4b5563;
+  }
+  .mgmt-name-edit:focus { border-color: var(--primary); }
+  .mgmt-tier-select {
+    padding: 3px 5px; font-size: 0.68rem; font-weight: 800; color: var(--text-main);
+    border: 1px solid var(--border); background: #fff; outline: none;
+  }
+  .mgmt-tier-select:focus { border-color: var(--primary); }
   
   .mgmt-scale-ctrl { display: flex; align-items: center; gap: 5px; width: 100px; flex-shrink: 0;}
   .mgmt-scale-ctrl input[type="range"] { flex-grow: 1; height: 4px; cursor: pointer; padding: 0; }
@@ -812,6 +822,18 @@
     updateSystem();
   }
 
+  function updateSponsorName(tier, index, val) {
+    sponsors[tier][index].name = cleanText(val);
+    updateSystem();
+  }
+
+  function updateSponsorTier(oldTier, index, newTier) {
+    if (!sponsors[oldTier] || !sponsors[newTier] || oldTier === newTier) return;
+    const movedItem = sponsors[oldTier].splice(index, 1)[0];
+    sponsors[newTier].push(movedItem);
+    updateSystem();
+  }
+
   const inputs = document.querySelectorAll('.grid-2col input, #projectName');
   inputs.forEach(input => { input.addEventListener('input', updateSystem); });
 
@@ -884,17 +906,24 @@
         const thumbHtml = s.image
           ? `<img src="${s.image}" class="mgmt-thumb" alt="thumb">`
           : `<div class="mgmt-thumb" style="display:flex;align-items:center;justify-content:center;color:#b91c1c;font-size:.65rem;font-weight:900;">No logo</div>`;
+        const tierSelect = `
+          <select class="mgmt-tier-select" onchange="updateSponsorTier('${tier}', ${index}, this.value)" title="更改贊助級別">
+            <option value="platinum" ${tier === 'platinum' ? 'selected' : ''}>PLATINUM</option>
+            <option value="gold" ${tier === 'gold' ? 'selected' : ''}>GOLD</option>
+            <option value="silver" ${tier === 'silver' ? 'selected' : ''}>SILVER</option>
+            <option value="special" ${tier === 'special' ? 'selected' : ''}>SPECIAL</option>
+          </select>`;
         item.innerHTML = `
           <div class="mgmt-drag-handle" title="按住拖拉進行排序">⋮⋮</div>
           <div class="mgmt-item-info">
             ${thumbHtml}
             <div class="mgmt-text">
               <div class="mgmt-topline">
-                <span class="mgmt-tier">${tier.toUpperCase()}</span>
+                ${tierSelect}
                 <span class="status-pill ${status.key}" title="${status.hint}">${status.label}</span>
                 ${status.key !== 'ready' ? `<span class="status-reason">${escapeHtml(status.hint)}</span>` : ''}
               </div>
-              <span class="mgmt-name" title="${escapeAttr(safeName)}">${escapeHtml(safeName)}</span>
+              <input class="mgmt-name-edit" type="text" value="${escapeAttr(safeName)}" placeholder="公司名稱" onchange="updateSponsorName('${tier}', ${index}, this.value)" title="更改公司名稱">
               
               <div class="mgmt-inline-ctrl">
                 <input type="text" value="${escapeAttr(safeLink)}" placeholder="未填連結(點此補上)" onchange="updateSponsorLink('${tier}', ${index}, this.value)" title="隨時更新網址，離開輸入框即自動存檔">

@@ -239,6 +239,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   </div>
   <div class="header-actions">
     <span class="save-indicator" id="saveIndicator"></span>
+    <button class="btn btn-outline btn-sm" onclick="exportWorkFile()">Save work file</button>
+    <button class="btn btn-outline btn-sm" onclick="document.getElementById('workFileInput').click()">Load work file</button>
+    <input type="file" id="workFileInput" accept=".json" style="display:none" onchange="importWorkFile(event)">
     <button class="icon-btn" onclick="showApiKeyModal()" title="設定 API Key">🔑</button>
     <button class="btn btn-outline btn-sm" onclick="clearStorage()" style="color:var(--danger);border-color:#f5c6cb;">🗑</button>
     <button class="btn btn-outline btn-sm" onclick="toggleAll()">展開/收合</button>
@@ -326,6 +329,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
         <button id="btnZH" class="active" onclick="setLang('zh')">中文</button>
         <button id="btnEN" onclick="setLang('en')">English</button>
       </div>
+      <span style="font-size:10px;color:var(--gray);" id="publishCheck">Not checked</span>
       <span style="margin-left:auto;font-size:10px;color:#bbb;" id="previewStatus">等待變更…</span>
     </div>
     <iframe class="preview-frame" id="previewFrame" title="即時預覽"></iframe>
@@ -579,8 +583,32 @@ function schedulePreview(){
 function updatePreview(){
   const html=buildHTML(prevLang);
   document.getElementById('previewFrame').srcdoc=html;
+  updatePublishCheck();
   document.getElementById('previewStatus').textContent='已更新';
   setTimeout(()=>{document.getElementById('previewStatus').textContent='';},2000);
+}
+
+function updatePublishCheck(){
+  let missingText=0;
+  let missingUrl=0;
+  let missingIcon=0;
+  themes.forEach(t=>{
+    if(!t.title_zh||!t.title_en)missingText++;
+    if(!t.icon_url)missingIcon++;
+    ['zones','forums'].forEach(key=>{
+      if(!t[key])return;
+      t[key].forEach(item=>{if((item.zh||item.en)&&!item.url)missingUrl++;});
+    });
+  });
+  const el=document.getElementById('publishCheck');
+  if(!el)return;
+  if(!missingText&&!missingUrl&&!missingIcon){
+    el.textContent='Ready';
+    el.style.color='var(--success)';
+  }else{
+    el.textContent=`Needs check · ${missingText} text · ${missingUrl} URL · ${missingIcon} icon`;
+    el.style.color='var(--danger)';
+  }
 }
 
 function setLang(l){
@@ -935,10 +963,40 @@ async function runAiFillTheme(i){
 // LOCALSTORAGE
 // ════════════════════════════════════════════
 const STORAGE_KEY = 'semicon_generator_v4';
+const WORKFILE_SCHEMA = 'semicon-trends-workfile-v1';
+
+function getGlobals(){
+  return {gl1_zh:document.getElementById('gl1_zh').value,gl1_en:document.getElementById('gl1_en').value,gl2_zh:document.getElementById('gl2_zh').value,gl2_en:document.getElementById('gl2_en').value,prefix_zh:document.getElementById('prefix_zh').value,prefix_en:document.getElementById('prefix_en').value,cs_zh:document.getElementById('cs_zh').value,cs_en:document.getElementById('cs_en').value,fsScale:document.getElementById('fsScale').value,mobileCols:document.getElementById('mobileCols').value};
+}
+
+function applyGlobals(g){
+  if(!g)return;
+  Object.keys(g).forEach(id=>{const el=document.getElementById(id);if(el)el.value=g[id];});
+}
+
+function getWorkState(){
+  return {
+    schema: WORKFILE_SCHEMA,
+    tool: 'Trend Table Generator',
+    version: 'v4.0',
+    projectName: 'SEMICON Taiwan Trend Table',
+    exportedAt: new Date().toISOString(),
+    data: { themes, globals: getGlobals() }
+  };
+}
+
+function applyWorkState(workfile){
+  const data = workfile.data || workfile;
+  if(data.themes&&Array.isArray(data.themes))themes=data.themes;
+  applyGlobals(data.globals);
+  renderList();
+  schedulePreview();
+  saveToStorage();
+}
 
 function saveToStorage(){
   try{
-    const g={gl1_zh:document.getElementById('gl1_zh').value,gl1_en:document.getElementById('gl1_en').value,gl2_zh:document.getElementById('gl2_zh').value,gl2_en:document.getElementById('gl2_en').value,prefix_zh:document.getElementById('prefix_zh').value,prefix_en:document.getElementById('prefix_en').value,cs_zh:document.getElementById('cs_zh').value,cs_en:document.getElementById('cs_en').value,fsScale:document.getElementById('fsScale').value,mobileCols:document.getElementById('mobileCols').value};
+    const g=getGlobals();
     localStorage.setItem(STORAGE_KEY,JSON.stringify({themes,globals:g}));
     flashSave();
   }catch(e){}
@@ -949,9 +1007,31 @@ function loadFromStorage(){
     if(!raw)return false;
     const s=JSON.parse(raw);
     if(s.themes&&Array.isArray(s.themes))themes=s.themes;
-    if(s.globals){const g=s.globals;Object.keys(g).forEach(id=>{const el=document.getElementById(id);if(el)el.value=g[id];});}
+    if(s.globals)applyGlobals(s.globals);
     return true;
   }catch(e){return false;}
+}
+function exportWorkFile(){
+  saveToStorage();
+  const dataStr=JSON.stringify(getWorkState(),null,2);
+  const blob=new Blob([dataStr],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=`semicon_trends_workfile_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+function importWorkFile(event){
+  const file=event.target.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{applyWorkState(JSON.parse(e.target.result));}
+    catch(err){alert('無法讀取此工作檔。');}
+  };
+  reader.readAsText(file);
+  event.target.value='';
 }
 function clearStorage(){
   if(!confirm('確定要清除所有已儲存的資料，並還原為預設值嗎？'))return;

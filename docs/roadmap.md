@@ -69,7 +69,7 @@ Out of scope:
 
 ## Phase 2.6: Project State Continuity
 
-Status: started with Sponsors and Pavilions.
+Status: started with Sponsors, Pavilions, and Trends.
 
 Goal: make recurring website updates editable through saved structured state instead of manual HTML edits.
 
@@ -80,11 +80,27 @@ Scope:
 - Pavilions work files preserve pavilion name, language, intro, bullets, color, data format, shared booth, and raw vendor rows.
 - Local autosaved drafts make browser refreshes safer.
 - Generated HTML remains an output artifact, not the editing source.
+- Trends work files preserve theme cards, drawer settings, global labels, and responsive output settings.
+- Sponsor rows support direct name and tier edits for one-item updates.
+- Pavilions parsed review rows support direct company, booth, and URL edits.
 
 Next:
 
-- Extend the same standard to Trends.
 - Add Forum project state without disrupting the current v9.11 workflow.
+
+## Phase 2.7: Shared Generator UI
+
+Status: specified, incremental rollout.
+
+Goal: make all generators feel like the same SEMI Tool Hub product without forcing a disruptive redesign.
+
+Scope:
+
+- Add shared generator UI standard.
+- Standardize work-file wording.
+- Standardize publish check language.
+- Standardize preview and copy controls.
+- Preserve active Forum workflow while aligning the outer shell.
 
 ## Phase 3: Forum Generator Review
 
