@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SEMICON 主題產生器 v4.0</title>
+<title>SEMICON 主題產生器 v4.2</title>
 <style>
 :root{
   --pu:#800080;--pu-light:#f5eef5;--pu-mid:#ddc0dd;
@@ -74,12 +74,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 /* ── AI PANEL ── */
 .ai-panel{background:var(--white);border:1.5px solid var(--ai);
   border-radius:var(--r);overflow:hidden;}
+.ai-panel.optional{border-color:#d7e3f8;}
 .ai-panel-header{padding:11px 14px;display:flex;align-items:center;gap:8px;
   cursor:pointer;user-select:none;background:var(--ai-light);}
 .ai-panel-header:hover{background:#dce8fc;}
 .ai-panel-icon{font-size:16px;}
 .ai-panel-title{font-size:13px;font-weight:700;color:var(--ai);flex:1;}
 .ai-panel-sub{font-size:11px;color:#5a8de8;}
+.ai-panel-tag{font-size:10px;font-weight:700;color:var(--ai);background:#fff;
+  border:1px solid #c5d8fb;border-radius:12px;padding:2px 7px;}
 .ai-chevron{font-size:10px;color:var(--ai);transition:transform .2s;}
 .ai-panel.open .ai-chevron{transform:rotate(180deg);}
 .ai-panel-body{display:none;padding:14px;border-top:1px solid #c5d8fb;}
@@ -222,6 +225,45 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 .ai-fill-input:focus{border-color:var(--ai);}
 .ai-fill-btns{display:flex;flex-direction:column;gap:5px;}
 
+/* ── REVIEW TOOLS ── */
+.review-tools{background:var(--white);border:1px solid var(--bd);border-radius:var(--r);
+  padding:10px;display:flex;flex-direction:column;gap:8px;}
+.review-row{display:flex;gap:8px;align-items:center;}
+.batch-tools{border-top:1px dashed var(--bd);padding-top:8px;}
+.batch-tools summary{list-style:none;cursor:pointer;font-size:11px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.8px;color:var(--gray);display:flex;
+  align-items:center;gap:6px;user-select:none;}
+.batch-tools summary::-webkit-details-marker{display:none;}
+.batch-body{padding-top:8px;display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.batch-card{border:1px solid var(--bd);border-radius:var(--r-sm);padding:8px;background:#fafafa;}
+.batch-card-title{font-size:11px;font-weight:700;color:var(--text);margin-bottom:6px;}
+.batch-textarea{width:100%;min-height:96px;border:1px solid var(--bd);
+  border-radius:var(--r-sm);padding:7px 9px;font-size:11px;line-height:1.45;
+  font-family:"Menlo","Monaco","Consolas",monospace;resize:vertical;outline:none;background:#fff;}
+.batch-textarea:focus{border-color:var(--pu);}
+.batch-actions{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;}
+.batch-note{font-size:10px;color:var(--gray);line-height:1.4;margin-top:5px;}
+.review-search,.review-select{border:1px solid var(--bd);border-radius:var(--r-sm);
+  padding:7px 9px;font-size:12px;font-family:inherit;outline:none;background:#fff;}
+.review-search{flex:1;min-width:0;}
+.review-select{width:190px;}
+.review-search:focus,.review-select:focus{border-color:var(--pu);}
+.issue-toggle.active{background:var(--pu-light);border-color:#cca0cc;color:var(--pu);}
+.publish-issues{border-top:1px dashed var(--bd);padding-top:8px;display:none;}
+.publish-issues.show{display:block;}
+.publish-summary{font-size:11px;color:var(--gray);margin-bottom:6px;}
+.issue-list{display:flex;flex-direction:column;gap:4px;max-height:160px;overflow:auto;}
+.issue-item{border:1px solid #f1d4d7;background:#fff9f9;color:#8a1f2d;
+  border-radius:var(--r-sm);padding:6px 8px;font-size:11px;line-height:1.35;
+  display:flex;justify-content:space-between;gap:8px;cursor:pointer;text-align:left;}
+.issue-item:hover{border-color:#e5a9af;background:#fff3f4;}
+.issue-item.warn{border-color:#f0dfb3;background:#fffaf0;color:#7a6000;}
+.issue-meta{color:var(--gray);white-space:nowrap;}
+.empty-filter{background:var(--white);border:1px dashed var(--bd);border-radius:var(--r);
+  padding:18px;text-align:center;color:var(--gray);font-size:12px;}
+.issue-badge{background:#fff4f4;color:var(--danger);border:1px solid #f5c6cb;
+  padding:2px 6px;border-radius:10px;font-size:10px;font-weight:700;}
+
 /* ── MISC ── */
 .copied{background:var(--success)!important;border-color:var(--success)!important;}
 .loading-dots::after{content:'...';animation:dots 1.2s steps(4,end) infinite;}
@@ -235,10 +277,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 <header class="app-header">
   <div class="header-brand">
     <h1>SEMICON 主題產生器</h1>
-    <span class="version-badge">v4.0</span>
+    <span class="version-badge">v4.2</span>
   </div>
   <div class="header-actions">
     <span class="save-indicator" id="saveIndicator"></span>
+    <button class="btn btn-outline btn-sm" onclick="exportWorkFile()">Save work file</button>
+    <button class="btn btn-outline btn-sm" onclick="document.getElementById('workFileInput').click()">Load work file</button>
+    <input type="file" id="workFileInput" accept=".json" style="display:none" onchange="importWorkFile(event)">
     <button class="icon-btn" onclick="showApiKeyModal()" title="設定 API Key">🔑</button>
     <button class="btn btn-outline btn-sm" onclick="clearStorage()" style="color:var(--danger);border-color:#f5c6cb;">🗑</button>
     <button class="btn btn-outline btn-sm" onclick="toggleAll()">展開/收合</button>
@@ -254,11 +299,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   <div class="editor-pane">
 
     <!-- AI PANEL -->
-    <div class="ai-panel" id="aiPanel">
+    <div class="ai-panel optional" id="aiPanel">
       <div class="ai-panel-header" onclick="toggleAiPanel()">
         <span class="ai-panel-icon">🤖</span>
         <span class="ai-panel-title">AI 智慧匯入</span>
-        <span class="ai-panel-sub">貼入網址或文字，自動填入欄位</span>
+        <span class="ai-panel-sub">選用：貼入網址或文字，自動填入欄位</span>
+        <span class="ai-panel-tag">Optional</span>
         <span class="ai-chevron">▼</span>
       </div>
       <div class="ai-panel-body">
@@ -280,6 +326,42 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
         </div>
         <div class="ai-log" id="aiLog"></div>
       </div>
+    </div>
+
+    <!-- REVIEW TOOLS -->
+    <div class="review-tools">
+      <div class="review-row">
+        <input class="review-search" id="themeSearch" type="search" placeholder="搜尋主題、展區、論壇…" oninput="setThemeSearch(this.value)">
+        <select class="review-select" id="quickJump" onchange="quickJumpTo(this.value)">
+          <option value="">快速跳轉主題</option>
+        </select>
+        <button class="btn btn-outline btn-sm issue-toggle" id="issueToggle" onclick="toggleIssueFilter()">只看需檢查</button>
+      </div>
+      <div class="publish-issues" id="publishIssues"></div>
+      <details class="batch-tools">
+        <summary>批次編輯文字 / Icon</summary>
+        <div class="batch-body">
+          <div class="batch-card">
+            <div class="batch-card-title">主題文字表</div>
+            <textarea class="batch-textarea" id="textBatchInput" placeholder="按「匯出文字表」取得 TSV，編輯後再貼回套用。"></textarea>
+            <div class="batch-actions">
+              <button class="btn btn-outline btn-sm" onclick="exportTextBatch()">匯出文字表</button>
+              <button class="btn btn-primary btn-sm" onclick="applyTextBatch()">套用文字表</button>
+            </div>
+            <div class="batch-note">欄位：編號、中文標題、英文標題、中文副標、英文副標、中文介紹、英文介紹。</div>
+          </div>
+          <div class="batch-card">
+            <div class="batch-card-title">Icon URL</div>
+            <textarea class="batch-textarea" id="iconBatchInput" placeholder="每行一個 icon URL，依 01-15 順序；或用「01 URL」格式。"></textarea>
+            <div class="batch-actions">
+              <button class="btn btn-outline btn-sm" onclick="applyBundledIcons()">套用目前 15 張 icon</button>
+              <button class="btn btn-outline btn-sm" onclick="exportIconBatch()">匯出 Icon URL</button>
+              <button class="btn btn-primary btn-sm" onclick="applyIconBatch()">套用 Icon URL</button>
+            </div>
+            <div class="batch-note">本機預覽可用內建路徑；正式上線請貼 CMS 上傳後的公開圖片網址。</div>
+          </div>
+        </div>
+      </details>
     </div>
 
     <!-- THEME LIST -->
@@ -326,6 +408,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
         <button id="btnZH" class="active" onclick="setLang('zh')">中文</button>
         <button id="btnEN" onclick="setLang('en')">English</button>
       </div>
+      <span style="font-size:10px;color:var(--gray);" id="publishCheck">Not checked</span>
       <span style="margin-left:auto;font-size:10px;color:#bbb;" id="previewStatus">等待變更…</span>
     </div>
     <iframe class="preview-frame" id="previewFrame" title="即時預覽"></iframe>
@@ -357,28 +440,276 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 // ════════════════════════════════════════════
 // DATA
 // ════════════════════════════════════════════
-let themes = [
-  {icon_url:"",title_zh:"AI 算力",title_en:"AI Computing",sub_zh:"AI Accelerator · AI EDA · ASIC",sub_en:"AI Accelerator · AI EDA · ASIC",desc_zh:"",desc_en:"",showZone:true,showForum:true,zones:[{zh:"AI 半導體技術特區",en:"AI Semiconductor Technology Zone",url:""}],forums:[{zh:"AI Computing Forum（AI 算力技術論壇）",en:"AI Computing Forum",url:""},{zh:"IC Forum（先進製程全面 AI 化）",en:"IC Forum — Full AI Integration in Advanced Process",url:""}]},
-  {icon_url:"",title_zh:"實體 AI",title_en:"Physical AI",sub_zh:"Robotics · Agentic AI · Digital Twins",sub_en:"Robotics · Agentic AI · Digital Twins",desc_zh:"",desc_en:"",showZone:false,showForum:false,zones:[],forums:[]},
-  {icon_url:"",title_zh:"先進製程",title_en:"Advanced Manufacturing",sub_zh:"2nm GAA · BSPDN · Next-Gen Node",sub_en:"2nm GAA · BSPDN · Next-Gen Node",desc_zh:"",desc_en:"",showZone:false,showForum:true,zones:[],forums:[{zh:"半導體先進製程科技論壇",en:"Semiconductor Advanced Process Technology Forum",url:""}]},
-  {icon_url:"",title_zh:"先進封裝",title_en:"Advanced Packaging",sub_zh:"3DIC · Fan-Out · Chiplet",sub_en:"3DIC · Fan-Out · Chiplet",desc_zh:"",desc_en:"",showZone:true,showForum:true,zones:[{zh:"封裝技術概念區（3DIC先進封裝專區、面板級扇出封裝專區、半導體封裝專區、小晶片專區）",en:"Packaging Technology Concept Zone (3DIC, Fan-Out Panel-Level, Semiconductor Packaging, Chiplet)",url:""}],forums:[{zh:"面板級扇出型封裝創新論壇-異質整合國際高峰論壇系列活動",en:"Fan-Out Panel-Level Packaging Innovation Forum — Heterogeneous Integration Summit Series",url:""},{zh:"2026異質整合國際高峰論壇-第一天",en:"2026 Heterogeneous Integration International Summit — Day 1",url:""},{zh:"2026異質整合國際高峰論壇-第二天",en:"2026 Heterogeneous Integration International Summit — Day 2",url:""},{zh:"2026異質整合國際高峰論壇-第三天",en:"2026 Heterogeneous Integration International Summit — Day 3",url:""},{zh:"3DIC全球高峰論壇",en:"3DIC Global Summit",url:""}]},
-  {icon_url:"",title_zh:"矽光子",title_en:"Silicon Photonics",sub_zh:"CPO · 800G/1.6T · Photonic Computing",sub_en:"CPO · 800G/1.6T · Photonic Computing",desc_zh:"",desc_en:"",showZone:true,showForum:true,zones:[{zh:"矽光子專區",en:"Silicon Photonics Zone",url:""},{zh:"Power & Compound 概念區",en:"Power & Compound Semiconductor Concept Zone",url:""}],forums:[{zh:"矽光子論壇（定義次世代光電傳輸架構）",en:"Silicon Photonics Forum",url:""},{zh:"矽光子國際論壇",en:"Silicon Photonics International Forum",url:""}]},
-  {icon_url:"",title_zh:"高頻寬記憶體",title_en:"High Bandwidth Memory",sub_zh:"HBM4 · CXL · 3D DRAM",sub_en:"HBM4 · CXL · 3D DRAM",desc_zh:"",desc_en:"",showZone:false,showForum:true,zones:[],forums:[{zh:"記憶體高峰論壇",en:"Memory Summit",url:""},{zh:"HIGS（HBM4 先進封裝）",en:"HIGS Forum — HBM4 Advanced Packaging",url:""}]},
-  {icon_url:"",title_zh:"自主晶圓廠",title_en:"Autonomous Fab",sub_zh:"Lights-out Fab · Digital Twin · AI Fab",sub_en:"Lights-out Fab · Digital Twin · AI Fab",desc_zh:"",desc_en:"",showZone:true,showForum:true,zones:[{zh:"高科技智慧製造特展（精密機械專區、高科技廠房設施專區、高科技智慧製造專區、晶圓智造特區）",en:"Hi-Tech Smart Manufacturing Exhibition (Precision Machinery, Fab Facilities, Smart Manufacturing, Wafer Fab)",url:""}],forums:[{zh:"微機電暨感測器論壇",en:"MEMS & Sensor Forum",url:""},{zh:"高科技智慧製造論壇",en:"Hi-Tech Smart Manufacturing Forum",url:""}]},
-  {icon_url:"",title_zh:"策略材料",title_en:"Strategic Materials",sub_zh:"SiC · GaN · EUV 光阻",sub_en:"SiC · GaN · EUV Photoresist",desc_zh:"",desc_en:"",showZone:true,showForum:true,zones:[{zh:"化合物半導體概念區（寬能隙功率半導體專區、光電半導體專區）",en:"Compound Semiconductor Concept Zone",url:""},{zh:"材料專區",en:"Materials Zone",url:""}],forums:[{zh:"功率暨化合物半導體論壇",en:"Power & Compound Semiconductor Forum",url:""},{zh:"策略材料高峰論壇",en:"Strategic Materials Summit",url:""}]},
-  {icon_url:"",title_zh:"測試及量測",title_en:"Advanced Testing & Metrology",sub_zh:"SLT Shift Left · Virtual Metrology",sub_en:"SLT Shift Left · Virtual Metrology",desc_zh:"",desc_en:"",showZone:true,showForum:true,zones:[{zh:"測試專區",en:"Test Zone",url:""}],forums:[{zh:"先進測試論壇",en:"Advanced Test Forum",url:""},{zh:"半導體先進檢測與計量國際論壇",en:"Semiconductor Advanced Inspection & Metrology International Forum",url:""}]},
-  {icon_url:"",title_zh:"量子",title_en:"Quantum",sub_zh:"Post-Silicon · Quantum Computing",sub_en:"Post-Silicon · Quantum Computing",desc_zh:"",desc_en:"",showZone:true,showForum:true,zones:[{zh:"量子技術特區",en:"Quantum Technology Zone",url:""}],forums:[{zh:"合作論壇：量子台灣論壇 – 量子電腦",en:"Partner Forum: Quantum Taiwan — Quantum Computing",url:""},{zh:"合作論壇：量子台灣論壇 – 關鍵支援技術生態系",en:"Partner Forum: Quantum Taiwan — Key Support Technology Ecosystem",url:""}]},
-  {icon_url:"",title_zh:"半導體資安",title_en:"Semiconductor Cybersecurity",sub_zh:"Hardware Security · Zero Trust · AI Security",sub_en:"Hardware Security · Zero Trust · AI Security",desc_zh:"",desc_en:"",showZone:true,showForum:true,zones:[{zh:"半導體資安專區",en:"Semiconductor Cybersecurity Zone",url:""}],forums:[{zh:"半導體資安趨勢高峰論壇",en:"Semiconductor Cybersecurity Trend Summit",url:""}]},
-  {icon_url:"",title_zh:"新創",title_en:"Startup & Innovation",sub_zh:"Chip Startup · Pre-IPO · Investment",sub_en:"Chip Startup · Pre-IPO · Investment",desc_zh:"",desc_en:"",showZone:true,showForum:false,zones:[{zh:"晶片新創特區",en:"Chip Startup Zone",url:""}],forums:[]},
-  {icon_url:"",title_zh:"地緣戰略",title_en:"Geostrategy",sub_zh:"Supply Chain · Country Pavilions · Geopolitics",sub_en:"Supply Chain · Country Pavilions · Geopolitics",desc_zh:"",desc_en:"",showZone:true,showForum:true,zones:[{zh:"國家專區（來自 18 個國家）",en:"Country Pavilions (18 Nations)",url:""}],forums:[{zh:"CEO Forum",en:"CEO Forum",url:""},{zh:"Market Trend Forum",en:"Market Trend Forum",url:""}]},
-  {icon_url:"",title_zh:"永續",title_en:"Sustainability",sub_zh:"Net-Zero · ESG · Green Fab",sub_en:"Net-Zero · ESG · Green Fab",desc_zh:"",desc_en:"",showZone:true,showForum:true,zones:[{zh:"綠色製造概念區（空氣污染防治專區、碳資產管理專區、智慧能源管理專區、廢棄物減量及回收專區、水循環專區）",en:"Green Manufacturing Concept Zone (Air Pollution Control, Carbon Asset Management, Smart Energy, Waste Reduction & Recycling, Water Cycle)",url:""}],forums:[{zh:"半導體永續力國際論壇",en:"Semiconductor Sustainability International Forum",url:""}]},
-  {icon_url:"",title_zh:"人才培育",title_en:"Workforce Development",sub_zh:"Education · Emerging Talent · Pipeline",sub_en:"Education · Emerging Talent · Pipeline",desc_zh:"",desc_en:"",showZone:false,showForum:true,zones:[],forums:[{zh:"SEMI半導體新銳沙龍",en:"SEMI Emerging Talent Salon",url:""},{zh:"SEMI半導體新銳獎頒獎典禮 & 科技大師論壇",en:"SEMI Emerging Talent Award Ceremony & Tech Master Forum",url:""}]}
+const DEFAULT_ICON_URLS = [
+  "assets/icons/01-ai-computing.jpg",
+  "assets/icons/02-physical-ai.jpg",
+  "assets/icons/03-advanced-manufacturing.jpg",
+  "assets/icons/04-advanced-packaging.jpg",
+  "assets/icons/05-silicon-photonics.jpg",
+  "assets/icons/06-hbm.jpg",
+  "assets/icons/07-autonomous-fab.jpg",
+  "assets/icons/08-strategic-materials.jpg",
+  "assets/icons/09-advanced-testing-metrology.jpg",
+  "assets/icons/10-quantum.jpg",
+  "assets/icons/11-semiconductor-cybersecurity.jpg",
+  "assets/icons/12-startup.jpg",
+  "assets/icons/13-geostrategy.jpg",
+  "assets/icons/14-sustainability.jpg",
+  "assets/icons/15-workforce-development.jpg"
 ];
+
+let themes = [
+  {icon_url:DEFAULT_ICON_URLS[0],title_zh:"AI 算力",title_en:"AI Computing",sub_zh:"AI Accelerator · AI EDA · ASIC",sub_en:"AI Accelerator · AI EDA · ASIC",desc_zh:"",desc_en:"",showZone:true,showForum:true,zones:[{zh:"AI 半導體技術特區",en:"AI Semiconductor Technology Zone",url:""}],forums:[{zh:"AI Computing Forum（AI 算力技術論壇）",en:"AI Computing Forum",url:""},{zh:"IC Forum（先進製程全面 AI 化）",en:"IC Forum — Full AI Integration in Advanced Process",url:""}]},
+  {icon_url:DEFAULT_ICON_URLS[1],title_zh:"實體 AI",title_en:"Physical AI",sub_zh:"Robotics · Agentic AI · Digital Twins",sub_en:"Robotics · Agentic AI · Digital Twins",desc_zh:"",desc_en:"",showZone:false,showForum:false,zones:[],forums:[]},
+  {icon_url:DEFAULT_ICON_URLS[2],title_zh:"先進製程",title_en:"Advanced Manufacturing",sub_zh:"2nm GAA · BSPDN · Next-Gen Node",sub_en:"2nm GAA · BSPDN · Next-Gen Node",desc_zh:"",desc_en:"",showZone:false,showForum:true,zones:[],forums:[{zh:"半導體先進製程科技論壇",en:"Semiconductor Advanced Process Technology Forum",url:""}]},
+  {icon_url:DEFAULT_ICON_URLS[3],title_zh:"先進封裝",title_en:"Advanced Packaging",sub_zh:"3DIC · Fan-Out · Chiplet",sub_en:"3DIC · Fan-Out · Chiplet",desc_zh:"",desc_en:"",showZone:true,showForum:true,zones:[{zh:"封裝技術概念區（3DIC先進封裝專區、面板級扇出封裝專區、半導體封裝專區、小晶片專區）",en:"Packaging Technology Concept Zone (3DIC, Fan-Out Panel-Level, Semiconductor Packaging, Chiplet)",url:""}],forums:[{zh:"面板級扇出型封裝創新論壇-異質整合國際高峰論壇系列活動",en:"Fan-Out Panel-Level Packaging Innovation Forum — Heterogeneous Integration Summit Series",url:""},{zh:"2026異質整合國際高峰論壇-第一天",en:"2026 Heterogeneous Integration International Summit — Day 1",url:""},{zh:"2026異質整合國際高峰論壇-第二天",en:"2026 Heterogeneous Integration International Summit — Day 2",url:""},{zh:"2026異質整合國際高峰論壇-第三天",en:"2026 Heterogeneous Integration International Summit — Day 3",url:""},{zh:"3DIC全球高峰論壇",en:"3DIC Global Summit",url:""}]},
+  {icon_url:DEFAULT_ICON_URLS[4],title_zh:"矽光子",title_en:"Silicon Photonics",sub_zh:"CPO · 800G/1.6T · Photonic Computing",sub_en:"CPO · 800G/1.6T · Photonic Computing",desc_zh:"",desc_en:"",showZone:true,showForum:true,zones:[{zh:"矽光子專區",en:"Silicon Photonics Zone",url:""},{zh:"Power & Compound 概念區",en:"Power & Compound Semiconductor Concept Zone",url:""}],forums:[{zh:"矽光子論壇（定義次世代光電傳輸架構）",en:"Silicon Photonics Forum",url:""},{zh:"矽光子國際論壇",en:"Silicon Photonics International Forum",url:""}]},
+  {icon_url:DEFAULT_ICON_URLS[5],title_zh:"高頻寬記憶體",title_en:"High Bandwidth Memory",sub_zh:"HBM4 · CXL · 3D DRAM",sub_en:"HBM4 · CXL · 3D DRAM",desc_zh:"",desc_en:"",showZone:false,showForum:true,zones:[],forums:[{zh:"記憶體高峰論壇",en:"Memory Summit",url:""},{zh:"HIGS（HBM4 先進封裝）",en:"HIGS Forum — HBM4 Advanced Packaging",url:""}]},
+  {icon_url:DEFAULT_ICON_URLS[6],title_zh:"自主晶圓廠",title_en:"Autonomous Fab",sub_zh:"Lights-out Fab · Digital Twin · AI Fab",sub_en:"Lights-out Fab · Digital Twin · AI Fab",desc_zh:"",desc_en:"",showZone:true,showForum:true,zones:[{zh:"高科技智慧製造特展（精密機械專區、高科技廠房設施專區、高科技智慧製造專區、晶圓智造特區）",en:"Hi-Tech Smart Manufacturing Exhibition (Precision Machinery, Fab Facilities, Smart Manufacturing, Wafer Fab)",url:""}],forums:[{zh:"微機電暨感測器論壇",en:"MEMS & Sensor Forum",url:""},{zh:"高科技智慧製造論壇",en:"Hi-Tech Smart Manufacturing Forum",url:""}]},
+  {icon_url:DEFAULT_ICON_URLS[7],title_zh:"策略材料",title_en:"Strategic Materials",sub_zh:"SiC · GaN · EUV 光阻",sub_en:"SiC · GaN · EUV Photoresist",desc_zh:"",desc_en:"",showZone:true,showForum:true,zones:[{zh:"化合物半導體概念區（寬能隙功率半導體專區、光電半導體專區）",en:"Compound Semiconductor Concept Zone",url:""},{zh:"材料專區",en:"Materials Zone",url:""}],forums:[{zh:"功率暨化合物半導體論壇",en:"Power & Compound Semiconductor Forum",url:""},{zh:"策略材料高峰論壇",en:"Strategic Materials Summit",url:""}]},
+  {icon_url:DEFAULT_ICON_URLS[8],title_zh:"測試及量測",title_en:"Advanced Testing & Metrology",sub_zh:"SLT Shift Left · Virtual Metrology",sub_en:"SLT Shift Left · Virtual Metrology",desc_zh:"",desc_en:"",showZone:true,showForum:true,zones:[{zh:"測試專區",en:"Test Zone",url:""}],forums:[{zh:"先進測試論壇",en:"Advanced Test Forum",url:""},{zh:"半導體先進檢測與計量國際論壇",en:"Semiconductor Advanced Inspection & Metrology International Forum",url:""}]},
+  {icon_url:DEFAULT_ICON_URLS[9],title_zh:"量子",title_en:"Quantum",sub_zh:"Post-Silicon · Quantum Computing",sub_en:"Post-Silicon · Quantum Computing",desc_zh:"",desc_en:"",showZone:true,showForum:true,zones:[{zh:"量子技術特區",en:"Quantum Technology Zone",url:""}],forums:[{zh:"合作論壇：量子台灣論壇 – 量子電腦",en:"Partner Forum: Quantum Taiwan — Quantum Computing",url:""},{zh:"合作論壇：量子台灣論壇 – 關鍵支援技術生態系",en:"Partner Forum: Quantum Taiwan — Key Support Technology Ecosystem",url:""}]},
+  {icon_url:DEFAULT_ICON_URLS[10],title_zh:"半導體資安",title_en:"Semiconductor Cybersecurity",sub_zh:"Hardware Security · Zero Trust · AI Security",sub_en:"Hardware Security · Zero Trust · AI Security",desc_zh:"",desc_en:"",showZone:true,showForum:true,zones:[{zh:"半導體資安專區",en:"Semiconductor Cybersecurity Zone",url:""}],forums:[{zh:"半導體資安趨勢高峰論壇",en:"Semiconductor Cybersecurity Trend Summit",url:""}]},
+  {icon_url:DEFAULT_ICON_URLS[11],title_zh:"新創",title_en:"Startup & Innovation",sub_zh:"Chip Startup · Pre-IPO · Investment",sub_en:"Chip Startup · Pre-IPO · Investment",desc_zh:"",desc_en:"",showZone:true,showForum:false,zones:[{zh:"晶片新創特區",en:"Chip Startup Zone",url:""}],forums:[]},
+  {icon_url:DEFAULT_ICON_URLS[12],title_zh:"地緣戰略",title_en:"Geostrategy",sub_zh:"Supply Chain · Country Pavilions · Geopolitics",sub_en:"Supply Chain · Country Pavilions · Geopolitics",desc_zh:"",desc_en:"",showZone:true,showForum:true,zones:[{zh:"國家專區（來自 18 個國家）",en:"Country Pavilions (18 Nations)",url:""}],forums:[{zh:"CEO Forum",en:"CEO Forum",url:""},{zh:"Market Trend Forum",en:"Market Trend Forum",url:""}]},
+  {icon_url:DEFAULT_ICON_URLS[13],title_zh:"永續",title_en:"Sustainability",sub_zh:"Net-Zero · ESG · Green Fab",sub_en:"Net-Zero · ESG · Green Fab",desc_zh:"",desc_en:"",showZone:true,showForum:true,zones:[{zh:"綠色製造概念區（空氣污染防治專區、碳資產管理專區、智慧能源管理專區、廢棄物減量及回收專區、水循環專區）",en:"Green Manufacturing Concept Zone (Air Pollution Control, Carbon Asset Management, Smart Energy, Waste Reduction & Recycling, Water Cycle)",url:""}],forums:[{zh:"半導體永續力國際論壇",en:"Semiconductor Sustainability International Forum",url:""}]},
+  {icon_url:DEFAULT_ICON_URLS[14],title_zh:"人才培育",title_en:"Workforce Development",sub_zh:"Education · Emerging Talent · Pipeline",sub_en:"Education · Emerging Talent · Pipeline",desc_zh:"",desc_en:"",showZone:false,showForum:true,zones:[],forums:[{zh:"SEMI半導體新銳沙龍",en:"SEMI Emerging Talent Salon",url:""},{zh:"SEMI半導體新銳獎頒獎典禮 & 科技大師論壇",en:"SEMI Emerging Talent Award Ceremony & Tech Master Forum",url:""}]}
+];
+
+let themeSearchTerm = '';
+let showOnlyIssues = false;
 
 // ════════════════════════════════════════════
 // RENDER
 // ════════════════════════════════════════════
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+function themeLabel(i){
+  const t = themes[i] || {};
+  return `${String(i+1).padStart(2,'0')} ${t.title_zh || t.title_en || '未命名'}`;
+}
+
+function themeSearchText(t,i){
+  const rows = []
+    .concat(t.zones || [])
+    .concat(t.forums || [])
+    .map(item => `${item.zh || ''} ${item.en || ''} ${item.url || ''}`)
+    .join(' ');
+  return `${themeLabel(i)} ${t.title_zh || ''} ${t.title_en || ''} ${t.sub_zh || ''} ${t.sub_en || ''} ${t.desc_zh || ''} ${t.desc_en || ''} ${rows}`.toLowerCase();
+}
+
+function addIssue(issues, themeIndex, message, meta, severity='error'){
+  issues.push({themeIndex, message, meta, severity});
+}
+
+function checkContentRows(issues, t, themeIndex, key, label){
+  const rows = t[key] || [];
+  if(t[key === 'zones' ? 'showZone' : 'showForum'] && rows.length === 0){
+    addIssue(issues, themeIndex, `${label}已顯示，但沒有資料列`, label, 'warn');
+  }
+  rows.forEach((item,j)=>{
+    const rowMeta = `${label} ${j+1}`;
+    const hasAny = !!((item.zh || '').trim() || (item.en || '').trim() || (item.url || '').trim());
+    if(!hasAny){
+      addIssue(issues, themeIndex, `${rowMeta} 是空白列`, rowMeta);
+      return;
+    }
+    if(!(item.zh || '').trim())addIssue(issues, themeIndex, `${rowMeta} 缺中文名稱`, rowMeta);
+    if(!(item.en || '').trim())addIssue(issues, themeIndex, `${rowMeta} 缺英文名稱`, rowMeta);
+    if(((item.zh || '').trim() || (item.en || '').trim()) && !(item.url || '').trim()){
+      addIssue(issues, themeIndex, `${rowMeta} 缺 URL`, rowMeta);
+    }
+  });
+}
+
+function getPublishIssues(){
+  const issues = [];
+  themes.forEach((t,i)=>{
+    if(!(t.title_zh || '').trim())addIssue(issues, i, '缺中文主標題', '主題文字');
+    if(!(t.title_en || '').trim())addIssue(issues, i, '缺英文主標題', 'Title');
+    if(!(t.sub_zh || '').trim())addIssue(issues, i, '缺中文副標題', '主題文字');
+    if(!(t.sub_en || '').trim())addIssue(issues, i, '缺英文副標題', 'Subtitle');
+    checkContentRows(issues, t, i, 'zones', '展區');
+    checkContentRows(issues, t, i, 'forums', '論壇');
+  });
+  return issues;
+}
+
+function shouldRenderTheme(t,i,term,issues){
+  const matchesSearch = !term || themeSearchText(t,i).includes(term);
+  const matchesIssue = !showOnlyIssues || issues.some(issue=>issue.themeIndex===i);
+  return matchesSearch && matchesIssue;
+}
+
+function updateQuickNav(){
+  const jump = document.getElementById('quickJump');
+  if(!jump)return;
+  const prev = jump.value;
+  jump.innerHTML = '<option value="">快速跳轉主題</option>';
+  themes.forEach((t,i)=>{
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = themeLabel(i);
+    jump.appendChild(opt);
+  });
+  jump.value = prev;
+}
+
+function openThemeBlock(i){
+  const block = document.querySelector(`.theme-block[data-theme-index="${i}"]`);
+  if(!block)return;
+  document.querySelectorAll('.theme-block').forEach(b=>b.classList.remove('open'));
+  block.classList.add('open');
+  block.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function setThemeSearch(value){
+  themeSearchTerm = value || '';
+  renderList();
+  updatePublishCheck();
+}
+
+function toggleIssueFilter(){
+  showOnlyIssues = !showOnlyIssues;
+  const btn = document.getElementById('issueToggle');
+  if(btn)btn.classList.toggle('active', showOnlyIssues);
+  renderList();
+  updatePublishCheck();
+}
+
+function quickJumpTo(value){
+  if(value === '')return;
+  themeSearchTerm = '';
+  showOnlyIssues = false;
+  const search = document.getElementById('themeSearch');
+  const toggle = document.getElementById('issueToggle');
+  if(search)search.value = '';
+  if(toggle)toggle.classList.remove('active');
+  renderList();
+  openThemeBlock(Number(value));
+}
+
+function jumpToIssue(i){
+  themeSearchTerm = '';
+  const search = document.getElementById('themeSearch');
+  if(search)search.value = '';
+  renderList();
+  openThemeBlock(i);
+}
+
+function renderPublishIssues(issues){
+  const panel = document.getElementById('publishIssues');
+  if(!panel)return;
+  panel.classList.toggle('show', issues.length > 0);
+  if(!issues.length){
+    panel.innerHTML = '';
+    return;
+  }
+  const firstIssues = issues.slice(0, 12).map(issue=>`
+    <button class="issue-item ${issue.severity==='warn'?'warn':''}" onclick="jumpToIssue(${issue.themeIndex})">
+      <span>${esc(themeLabel(issue.themeIndex))} - ${esc(issue.message)}</span>
+      <span class="issue-meta">${esc(issue.meta)}</span>
+    </button>`).join('');
+  const more = issues.length > 12 ? `<div class="publish-summary">另外還有 ${issues.length - 12} 個項目，請先處理上方項目。</div>` : '';
+  panel.innerHTML = `
+    <div class="publish-summary">發布前檢查：點擊項目可跳到對應主題。Icon URL 為選填，不列入缺漏。</div>
+    <div class="issue-list">${firstIssues}</div>
+    ${more}`;
+}
+
+function tsvCell(value){
+  return String(value || '').replace(/\r?\n/g, ' ').replace(/\t/g, ' ');
+}
+
+function exportTextBatch(){
+  const rows = [
+    ['No','Title ZH','Title EN','Subtitle ZH','Subtitle EN','Description ZH','Description EN'].join('\t')
+  ];
+  themes.forEach((t,i)=>{
+    rows.push([
+      String(i+1).padStart(2,'0'),
+      tsvCell(t.title_zh),
+      tsvCell(t.title_en),
+      tsvCell(t.sub_zh),
+      tsvCell(t.sub_en),
+      tsvCell(t.desc_zh),
+      tsvCell(t.desc_en)
+    ].join('\t'));
+  });
+  const el = document.getElementById('textBatchInput');
+  if(el){el.value = rows.join('\n');el.focus();el.select();}
+}
+
+function applyTextBatch(){
+  const el = document.getElementById('textBatchInput');
+  if(!el || !el.value.trim()){alert('請先貼上文字表。');return;}
+  const rows = el.value.trim().split(/\r?\n/);
+  let updated = 0;
+  rows.forEach((line,rowIndex)=>{
+    const cols = line.split('\t');
+    if(cols.length < 5)return;
+    if(rowIndex === 0 && /^no$/i.test(cols[0].trim()))return;
+    const maybeIndex = parseInt(cols[0],10);
+    const idx = Number.isFinite(maybeIndex) ? maybeIndex - 1 : rowIndex;
+    if(idx < 0 || idx >= themes.length)return;
+    const offset = Number.isFinite(maybeIndex) ? 1 : 0;
+    if(cols[offset] !== undefined)themes[idx].title_zh = cols[offset].trim();
+    if(cols[offset+1] !== undefined)themes[idx].title_en = cols[offset+1].trim();
+    if(cols[offset+2] !== undefined)themes[idx].sub_zh = cols[offset+2].trim();
+    if(cols[offset+3] !== undefined)themes[idx].sub_en = cols[offset+3].trim();
+    if(cols[offset+4] !== undefined)themes[idx].desc_zh = cols[offset+4].trim();
+    if(cols[offset+5] !== undefined)themes[idx].desc_en = cols[offset+5].trim();
+    updated++;
+  });
+  renderList();schedulePreview();saveToStorage();
+  alert('已套用 '+updated+' 個主題文字。');
+}
+
+function applyBundledIcons(){
+  themes.forEach((t,i)=>{if(DEFAULT_ICON_URLS[i])t.icon_url = DEFAULT_ICON_URLS[i];});
+  renderList();schedulePreview();saveToStorage();
+}
+
+function fillMissingIconsWithDefaults(){
+  themes.forEach((t,i)=>{
+    if(DEFAULT_ICON_URLS[i] && !(t.icon_url || '').trim())t.icon_url = DEFAULT_ICON_URLS[i];
+  });
+}
+
+function exportIconBatch(){
+  const el = document.getElementById('iconBatchInput');
+  if(!el)return;
+  el.value = themes.map((t,i)=>`${String(i+1).padStart(2,'0')}\t${t.icon_url || ''}`).join('\n');
+  el.focus();
+  el.select();
+}
+
+function parseIconLine(line,rowIndex){
+  const trimmed = line.trim();
+  if(!trimmed)return null;
+  const tabParts = trimmed.split('\t');
+  if(tabParts.length >= 2){
+    const idx = parseInt(tabParts[0],10);
+    return { index: Number.isFinite(idx) ? idx - 1 : rowIndex, url: tabParts.slice(1).join('\t').trim() };
+  }
+  const match = trimmed.match(/^(\d{1,2})[\s,]+(.+)$/);
+  if(match)return { index: parseInt(match[1],10)-1, url: match[2].trim() };
+  return { index: rowIndex, url: trimmed };
+}
+
+function applyIconBatch(){
+  const el = document.getElementById('iconBatchInput');
+  if(!el || !el.value.trim()){alert('請先貼上 icon URL。');return;}
+  let updated = 0;
+  el.value.split(/\r?\n/).forEach((line,rowIndex)=>{
+    const parsed = parseIconLine(line,rowIndex);
+    if(!parsed || parsed.index < 0 || parsed.index >= themes.length)return;
+    themes[parsed.index].icon_url = parsed.url;
+    updated++;
+  });
+  renderList();schedulePreview();saveToStorage();
+  alert('已套用 '+updated+' 個 icon URL。');
+}
 
 function renderList(){
   const list = document.getElementById('themeList');
@@ -394,16 +725,24 @@ function renderList(){
     sel.appendChild(opt);
   });
   if(prev) sel.value = prev;
+  updateQuickNav();
 
+  const term = themeSearchTerm.trim().toLowerCase();
+  const issues = getPublishIssues();
+  let rendered = 0;
   themes.forEach((t,i) => {
+    if(!shouldRenderTheme(t,i,term,issues))return;
     const id = String(i+1).padStart(2,'0');
+    const issueCount = issues.filter(issue=>issue.themeIndex===i).length;
     const block = document.createElement('div');
-    block.className = 'theme-block' + (i===0 ? ' open' : '');
+    block.className = 'theme-block' + (rendered===0 ? ' open' : '');
+    block.dataset.themeIndex = i;
     block.innerHTML = `
       <div class="theme-header" onclick="toggleBlock(this)">
         <div class="th-left">
           <span class="th-badge">${id}</span>
           <span class="th-title" id="tht-${i}">${t.title_zh||'未命名'}</span>
+          ${issueCount?`<span class="issue-badge">${issueCount}</span>`:''}
         </div>
         <div class="th-controls" onclick="event.stopPropagation()">
           <button class="ctrl-btn ai-fill" onclick="toggleAiFill(${i})" title="AI 填入此主題">🤖</button>
@@ -500,7 +839,11 @@ function renderList(){
       el.addEventListener('input', schedulePreview);
       el.addEventListener('change', schedulePreview);
     });
+    rendered++;
   });
+  if(!rendered){
+    list.innerHTML = '<div class="empty-filter">沒有符合目前搜尋或檢查條件的主題。</div>';
+  }
 }
 
 function renderRows(i,key){
@@ -577,10 +920,27 @@ function schedulePreview(){
 }
 
 function updatePreview(){
-  const html=buildHTML(prevLang);
+  const html=buildHTML(prevLang,true);
   document.getElementById('previewFrame').srcdoc=html;
+  updatePublishCheck();
   document.getElementById('previewStatus').textContent='已更新';
   setTimeout(()=>{document.getElementById('previewStatus').textContent='';},2000);
+}
+
+function updatePublishCheck(){
+  const issues = getPublishIssues();
+  const errors = issues.filter(issue=>issue.severity!=='warn').length;
+  const warnings = issues.length - errors;
+  const el=document.getElementById('publishCheck');
+  if(!el)return;
+  renderPublishIssues(issues);
+  if(!issues.length){
+    el.textContent='Ready';
+    el.style.color='var(--success)';
+  }else{
+    el.textContent=`Needs check · ${errors} issue${errors===1?'':'s'}${warnings?` · ${warnings} warn`:''}`;
+    el.style.color=errors?'var(--danger)':'#7a6000';
+  }
 }
 
 function setLang(l){
@@ -597,22 +957,22 @@ function buildOutputCSS(scale, sc, mobileCols) {
   const s = b => (b * scale).toFixed(1) + 'px';
   return `<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;700&display=swap');
-${sc}{--fd:'Syne','PingFang TC','Heiti TC','Microsoft JhengHei',sans-serif;--fb:'DM Sans','PingFang TC','Heiti TC','Microsoft JhengHei',sans-serif;--bk:#1d1d1f;--gr:#6e6e73;--li:#fff;--bd:rgba(0,0,0,0.1);--pu:#800080;}
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&display=swap');
+${sc}{--fd:'DM Sans','PingFang TC','Heiti TC','Microsoft JhengHei',Arial,sans-serif;--fb:'DM Sans','PingFang TC','Heiti TC','Microsoft JhengHei',Arial,sans-serif;--bk:#1d1d1f;--gr:#6e6e73;--li:#fff;--bd:rgba(0,0,0,0.1);--pu:#800080;}
 ${sc} *{box-sizing:border-box;margin:0;padding:0;}
 ${sc}{font-family:var(--fb);background:var(--li);padding:16px 0;max-width:1400px;margin:0 auto;}
-${sc} .st-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--bd);border:1px solid var(--bd);}
-@media(max-width:1024px){${sc} .st-grid{grid-template-columns:repeat(3,1fr);}}
+${sc} .st-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:1px;background:var(--bd);border:1px solid var(--bd);}
+@media(max-width:1180px){${sc} .st-grid{grid-template-columns:repeat(3,1fr);}}
 @media(max-width:768px){${sc} .st-grid{grid-template-columns:repeat(2,1fr);}}
 @media(max-width:480px){${sc} .st-grid{grid-template-columns:repeat(${mobileCols},1fr);}}
-${sc} .st-card{position:relative;background:#fff;padding:24px 20px;cursor:pointer;overflow:hidden;transition:background .18s ease;outline:none;-webkit-tap-highlight-color:transparent;}
+${sc} .st-card{position:relative;background:#fff;padding:24px 20px 48px;min-height:280px;cursor:pointer;overflow:hidden;transition:background .18s ease;outline:none;-webkit-tap-highlight-color:transparent;}
 ${sc} .st-num-wrap{display:inline-flex;align-items:center;justify-content:center;width:auto;min-width:46px;height:38px;padding:0 11px;border-radius:6px;background:#f5eef5;margin-bottom:14px;transition:background .15s;font-family:var(--fd);font-size:${s(16)};font-weight:800;color:var(--pu);white-space:nowrap;letter-spacing:-0.5px;line-height:1;}
 ${sc} .st-card:hover .st-num-wrap,${sc} .st-card.active .st-num-wrap{background:#ede0ed;}
-${sc} .st-card-icon-wrap{position:absolute;top:12px;right:12px;width:64px;height:64px;display:flex;align-items:center;justify-content:center;opacity:.1;transition:opacity .25s,transform .25s;pointer-events:none;}
-${sc} .st-card-icon-wrap img{width:100%;height:100%;object-fit:contain;}
-${sc} .st-card:hover .st-card-icon-wrap,${sc} .st-card.active .st-card-icon-wrap{opacity:.3;transform:scale(1.06);}
-${sc} .st-card-title{font-family:var(--fd);font-size:${s(19)};font-weight:800;color:var(--bk);line-height:1.3;letter-spacing:-.2px;max-width:88%;}
-${sc} .st-card-sub{margin-top:8px;font-size:${s(12)};color:var(--gr);line-height:1.55;max-width:90%;}
+${sc} .st-card-icon-wrap{position:absolute;top:16px;right:14px;width:104px;height:104px;border-radius:10px;display:flex;align-items:center;justify-content:center;opacity:.18;transition:opacity .25s,transform .25s;pointer-events:none;overflow:hidden;}
+${sc} .st-card-icon-wrap img{width:100%;height:100%;object-fit:cover;object-position:center 42%;filter:saturate(.9);}
+${sc} .st-card:hover .st-card-icon-wrap,${sc} .st-card.active .st-card-icon-wrap{opacity:.32;transform:scale(1.04);}
+${sc} .st-card-title{font-family:var(--fd);font-size:clamp(${s(14)},1.35vw,${s(17)});font-weight:800;color:var(--bk);line-height:1.16;letter-spacing:0;max-width:100%;word-break:normal;overflow-wrap:normal;hyphens:none;}
+${sc} .st-card-sub{margin-top:10px;font-size:${s(12)};color:var(--gr);line-height:1.55;max-width:100%;word-break:normal;overflow-wrap:normal;hyphens:none;}
 ${sc} .st-card-bar{position:absolute;bottom:0;left:0;right:0;height:2px;background:transparent;transition:background .25s;}
 ${sc} .st-card:hover .st-card-bar{background:rgba(0,0,0,.12);}
 ${sc} .st-card.active .st-card-bar{background:var(--pu);}
@@ -632,9 +992,10 @@ ${sc} .st-d-desc-empty{display:none;}
 ${sc} .st-d-grid{display:grid;gap:32px;align-items:start;}
 @media(max-width:600px){${sc} .st-d-grid{grid-template-columns:1fr!important;gap:20px;}}
 ${sc} .st-d-label{font-size:${s(10)};font-weight:500;letter-spacing:2.5px;text-transform:uppercase;color:var(--gr);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--bd);display:block;}
-${sc} .st-d-list{list-style:none;padding:0;}
-${sc} .st-d-list li{font-size:${s(13)};color:var(--bk);line-height:1.75;padding:4px 0 4px 14px;position:relative;}
-${sc} .st-d-list li::before{content:'';position:absolute;left:0;top:13px;width:5px;height:1px;background:var(--pu);}
+${sc} .st-d-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:12px;}
+${sc} .st-d-list li{font-size:${s(13)};color:var(--bk);line-height:1.7;padding:0;display:grid;grid-template-columns:10px 1fr;column-gap:8px;align-items:start;}
+${sc} .st-list-marker{width:6px;height:1px;background:var(--pu);display:block;margin-top:.85em;}
+${sc} .st-list-text{display:block;min-width:0;}
 ${sc} .st-d-list li a{color:var(--pu);text-decoration:none;transition:opacity .2s;}
 ${sc} .st-d-list li a:hover{opacity:.7;text-decoration:underline;}
 ${sc} .st-cs{font-size:${s(12)};color:var(--gr);font-style:italic;padding:4px 0;}
@@ -645,11 +1006,30 @@ ${sc} .st-data{display:none;}
 </style>`;
 }
 
-function buildCards(lang, uid) {
+function resolvePreviewUrl(url){
+  const value = (url || '').trim();
+  if(!value)return '';
+  if(/^(https?:|data:|blob:|\/\/)/i.test(value))return value;
+  try{return new URL(value, window.location.href).href;}
+  catch(e){return value;}
+}
+
+function buildCards(lang, uid, forPreview) {
   const csText = lang==='zh'?document.getElementById('cs_zh').value:document.getElementById('cs_en').value;
   const gl1    = lang==='zh'?document.getElementById('gl1_zh').value:document.getElementById('gl1_en').value;
   const gl2    = lang==='zh'?document.getElementById('gl2_zh').value:document.getElementById('gl2_en').value;
   const prefix = lang==='zh'?document.getElementById('prefix_zh').value:document.getElementById('prefix_en').value;
+  const buildDrawerList = arr => {
+    const rows = (arr || []).map(item => {
+      const tx = lang==='zh' ? item.zh : item.en;
+      if(!tx)return '';
+      const content = item.url
+        ? `<a href="${esc(item.url)}" target="_blank" rel="noopener">${esc(tx)}</a>`
+        : esc(tx);
+      return `<li><span class="st-list-marker" aria-hidden="true"></span><span class="st-list-text">${content}</span></li>`;
+    }).filter(Boolean);
+    return rows.length ? `<ul class="st-d-list">${rows.join('')}</ul>` : `<p class="st-cs">${esc(csText)}</p>`;
+  };
 
   return themes.map((t,i)=>{
     const id    = String(i+1).padStart(2,'0');
@@ -657,25 +1037,21 @@ function buildCards(lang, uid) {
     const sub   = lang==='zh'?t.sub_zh:t.sub_en;
     const desc  = lang==='zh'?t.desc_zh:t.desc_en;
 
-    const iconHtml = t.icon_url
-      ? `<div class="st-card-icon-wrap"><img src="${t.icon_url}" alt="${title}" loading="lazy"></div>`
+    const iconUrl = forPreview ? resolvePreviewUrl(t.icon_url) : t.icon_url;
+    const iconHtml = iconUrl
+      ? `<div class="st-card-icon-wrap"><img src="${esc(iconUrl)}" alt="${esc(title)}" loading="lazy"></div>`
       : '';
 
-    const zoneHtml = (!t.zones||t.zones.length===0)
-      ? `<p class="st-cs">${csText}</p>`
-      : `<ul class="st-d-list">${t.zones.map(z=>{const tx=lang==='zh'?z.zh:z.en;const inner=z.url?`<a href="${z.url}" target="_blank" rel="noopener">${tx}</a>`:tx;return`<li>${inner}</li>`;}).join('')}</ul>`;
-
-    const forumHtml = (!t.forums||t.forums.length===0)
-      ? `<p class="st-cs">${csText}</p>`
-      : `<ul class="st-d-list">${t.forums.map(f=>{const tx=lang==='zh'?f.zh:f.en;const inner=f.url?`<a href="${f.url}" target="_blank" rel="noopener">${tx}</a>`:tx;return`<li>${inner}</li>`;}).join('')}</ul>`;
+    const zoneHtml = buildDrawerList(t.zones);
+    const forumHtml = buildDrawerList(t.forums);
 
     const descHtml = desc
-      ? `<p class="st-d-desc">${desc}</p>`
+      ? `<p class="st-d-desc">${esc(desc)}</p>`
       : `<p class="st-d-desc st-d-desc-empty"></p>`;
 
     const cols = [];
-    if(t.showZone)  cols.push(`<div><span class="st-d-label">${gl1}</span>${zoneHtml}</div>`);
-    if(t.showForum) cols.push(`<div><span class="st-d-label">${gl2}</span>${forumHtml}</div>`);
+    if(t.showZone)  cols.push(`<div><span class="st-d-label">${esc(gl1)}</span>${zoneHtml}</div>`);
+    if(t.showForum) cols.push(`<div><span class="st-d-label">${esc(gl2)}</span>${forumHtml}</div>`);
     const gridCols = cols.length===1?'1fr':'1fr 1.3fr';
     const gridHtml = cols.length>0
       ? `<div class="st-d-grid" style="grid-template-columns:${gridCols};">${cols.join('')}</div>`
@@ -684,13 +1060,13 @@ function buildCards(lang, uid) {
     return `        <div class="st-card" tabindex="0">
             <div class="st-num-wrap">${id}</div>
             ${iconHtml}
-            <div class="st-card-title">${title}</div>
-            <div class="st-card-sub">${sub}</div>
+            <div class="st-card-title">${esc(title)}</div>
+            <div class="st-card-sub">${esc(sub)}</div>
             <div class="st-card-bar"></div>
             <span class="st-caret"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
             <div class="st-data">
                 <div class="st-d-header">
-                    <div><div class="st-d-eye">${prefix} ${id}</div><div class="st-d-title">${title}</div></div>
+                    <div><div class="st-d-eye">${esc(prefix)} ${id}</div><div class="st-d-title">${esc(title)}</div></div>
                     <div>${descHtml}</div>
                 </div>
                 ${gridHtml}
@@ -732,13 +1108,13 @@ function buildOutputJS(uid) {
 <\/script>`;
 }
 
-function buildHTML(lang) {
+function buildHTML(lang, forPreview=false) {
   const scale = parseFloat(document.getElementById('fsScale').value)||1.15;
   const uid   = 'st'+Math.random().toString(36).slice(2,8);
   const sc    = '.'+uid;
   const mobileCols = document.getElementById('mobileCols').value||'2';
   const css   = buildOutputCSS(scale,sc,mobileCols);
-  const cards = buildCards(lang,uid);
+  const cards = buildCards(lang,uid,forPreview);
   const js    = buildOutputJS(uid);
   const comment = lang==='zh'
     ? '<!-- SEMICON Taiwan 2026 | 互動展區選單 — 中文版 -->'
@@ -935,10 +1311,41 @@ async function runAiFillTheme(i){
 // LOCALSTORAGE
 // ════════════════════════════════════════════
 const STORAGE_KEY = 'semicon_generator_v4';
+const WORKFILE_SCHEMA = 'semicon-trends-workfile-v1';
+
+function getGlobals(){
+  return {gl1_zh:document.getElementById('gl1_zh').value,gl1_en:document.getElementById('gl1_en').value,gl2_zh:document.getElementById('gl2_zh').value,gl2_en:document.getElementById('gl2_en').value,prefix_zh:document.getElementById('prefix_zh').value,prefix_en:document.getElementById('prefix_en').value,cs_zh:document.getElementById('cs_zh').value,cs_en:document.getElementById('cs_en').value,fsScale:document.getElementById('fsScale').value,mobileCols:document.getElementById('mobileCols').value};
+}
+
+function applyGlobals(g){
+  if(!g)return;
+  Object.keys(g).forEach(id=>{const el=document.getElementById(id);if(el)el.value=g[id];});
+}
+
+function getWorkState(){
+  return {
+    schema: WORKFILE_SCHEMA,
+    tool: 'Trend Table Generator',
+    version: 'v4.2',
+    projectName: 'SEMICON Taiwan Trend Table',
+    exportedAt: new Date().toISOString(),
+    data: { themes, globals: getGlobals() }
+  };
+}
+
+function applyWorkState(workfile){
+  const data = workfile.data || workfile;
+  if(data.themes&&Array.isArray(data.themes))themes=data.themes;
+  fillMissingIconsWithDefaults();
+  applyGlobals(data.globals);
+  renderList();
+  schedulePreview();
+  saveToStorage();
+}
 
 function saveToStorage(){
   try{
-    const g={gl1_zh:document.getElementById('gl1_zh').value,gl1_en:document.getElementById('gl1_en').value,gl2_zh:document.getElementById('gl2_zh').value,gl2_en:document.getElementById('gl2_en').value,prefix_zh:document.getElementById('prefix_zh').value,prefix_en:document.getElementById('prefix_en').value,cs_zh:document.getElementById('cs_zh').value,cs_en:document.getElementById('cs_en').value,fsScale:document.getElementById('fsScale').value,mobileCols:document.getElementById('mobileCols').value};
+    const g=getGlobals();
     localStorage.setItem(STORAGE_KEY,JSON.stringify({themes,globals:g}));
     flashSave();
   }catch(e){}
@@ -949,9 +1356,32 @@ function loadFromStorage(){
     if(!raw)return false;
     const s=JSON.parse(raw);
     if(s.themes&&Array.isArray(s.themes))themes=s.themes;
-    if(s.globals){const g=s.globals;Object.keys(g).forEach(id=>{const el=document.getElementById(id);if(el)el.value=g[id];});}
+    fillMissingIconsWithDefaults();
+    if(s.globals)applyGlobals(s.globals);
     return true;
   }catch(e){return false;}
+}
+function exportWorkFile(){
+  saveToStorage();
+  const dataStr=JSON.stringify(getWorkState(),null,2);
+  const blob=new Blob([dataStr],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=`semicon_trends_workfile_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+function importWorkFile(event){
+  const file=event.target.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{applyWorkState(JSON.parse(e.target.result));}
+    catch(err){alert('無法讀取此工作檔。');}
+  };
+  reader.readAsText(file);
+  event.target.value='';
 }
 function clearStorage(){
   if(!confirm('確定要清除所有已儲存的資料，並還原為預設值嗎？'))return;
