@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SEMICON 主題產生器 v4.2</title>
+<title>SEMICON 主題產生器 v4.3</title>
 <style>
 :root{
   --pu:#800080;--pu-light:#f5eef5;--pu-mid:#ddc0dd;
@@ -277,7 +277,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 <header class="app-header">
   <div class="header-brand">
     <h1>SEMICON 主題產生器</h1>
-    <span class="version-badge">v4.2</span>
+    <span class="version-badge">v4.3</span>
   </div>
   <div class="header-actions">
     <span class="save-indicator" id="saveIndicator"></span>
@@ -440,23 +440,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 // ════════════════════════════════════════════
 // DATA
 // ════════════════════════════════════════════
-const DEFAULT_ICON_URLS = [
-  "assets/icons/01-ai-computing.jpg",
-  "assets/icons/02-physical-ai.jpg",
-  "assets/icons/03-advanced-manufacturing.jpg",
-  "assets/icons/04-advanced-packaging.jpg",
-  "assets/icons/05-silicon-photonics.jpg",
-  "assets/icons/06-hbm.jpg",
-  "assets/icons/07-autonomous-fab.jpg",
-  "assets/icons/08-strategic-materials.jpg",
-  "assets/icons/09-advanced-testing-metrology.jpg",
-  "assets/icons/10-quantum.jpg",
-  "assets/icons/11-semiconductor-cybersecurity.jpg",
-  "assets/icons/12-startup.jpg",
-  "assets/icons/13-geostrategy.jpg",
-  "assets/icons/14-sustainability.jpg",
-  "assets/icons/15-workforce-development.jpg"
+const DEFAULT_ICON_BASE_URL = "https://semitwmkt.github.io/Trend_Table-Creator/assets/icons/";
+const DEFAULT_ICON_FILENAMES = [
+  "01-ai-computing.jpg",
+  "02-physical-ai.jpg",
+  "03-advanced-manufacturing.jpg",
+  "04-advanced-packaging.jpg",
+  "05-silicon-photonics.jpg",
+  "06-hbm.jpg",
+  "07-autonomous-fab.jpg",
+  "08-strategic-materials.jpg",
+  "09-advanced-testing-metrology.jpg",
+  "10-quantum.jpg",
+  "11-semiconductor-cybersecurity.jpg",
+  "12-startup.jpg",
+  "13-geostrategy.jpg",
+  "14-sustainability.jpg",
+  "15-workforce-development.jpg"
 ];
+const DEFAULT_ICON_URLS = DEFAULT_ICON_FILENAMES.map(name => DEFAULT_ICON_BASE_URL + name);
 
 let themes = [
   {icon_url:DEFAULT_ICON_URLS[0],title_zh:"AI 算力",title_en:"AI Computing",sub_zh:"AI Accelerator · AI EDA · ASIC",sub_en:"AI Accelerator · AI EDA · ASIC",desc_zh:"",desc_en:"",showZone:true,showForum:true,zones:[{zh:"AI 半導體技術特區",en:"AI Semiconductor Technology Zone",url:""}],forums:[{zh:"AI Computing Forum（AI 算力技術論壇）",en:"AI Computing Forum",url:""},{zh:"IC Forum（先進製程全面 AI 化）",en:"IC Forum — Full AI Integration in Advanced Process",url:""}]},
@@ -670,9 +672,18 @@ function applyBundledIcons(){
   renderList();schedulePreview();saveToStorage();
 }
 
+function isBundledIconUrl(value, index){
+  const url = (value || '').trim();
+  const filename = DEFAULT_ICON_FILENAMES[index];
+  if(!url || !filename)return false;
+  return url === `assets/icons/${filename}` ||
+    url.endsWith(`/assets/icons/${filename}`) ||
+    url.endsWith(`/tools/trends/assets/icons/${filename}`);
+}
+
 function fillMissingIconsWithDefaults(){
   themes.forEach((t,i)=>{
-    if(DEFAULT_ICON_URLS[i] && !(t.icon_url || '').trim())t.icon_url = DEFAULT_ICON_URLS[i];
+    if(DEFAULT_ICON_URLS[i] && (!(t.icon_url || '').trim() || isBundledIconUrl(t.icon_url, i)))t.icon_url = DEFAULT_ICON_URLS[i];
   });
 }
 
@@ -965,14 +976,14 @@ ${sc} .st-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:1p
 @media(max-width:1180px){${sc} .st-grid{grid-template-columns:repeat(3,1fr);}}
 @media(max-width:768px){${sc} .st-grid{grid-template-columns:repeat(2,1fr);}}
 @media(max-width:480px){${sc} .st-grid{grid-template-columns:repeat(${mobileCols},1fr);}}
-${sc} .st-card{position:relative;background:#fff;padding:24px 20px 48px;min-height:280px;cursor:pointer;overflow:hidden;transition:background .18s ease;outline:none;-webkit-tap-highlight-color:transparent;}
-${sc} .st-num-wrap{display:inline-flex;align-items:center;justify-content:center;width:auto;min-width:46px;height:38px;padding:0 11px;border-radius:6px;background:#f5eef5;margin-bottom:14px;transition:background .15s;font-family:var(--fd);font-size:${s(16)};font-weight:800;color:var(--pu);white-space:nowrap;letter-spacing:-0.5px;line-height:1;}
+${sc} .st-card{position:relative;background:#fff;padding:20px 18px 40px;min-height:236px;cursor:pointer;overflow:hidden;transition:background .18s ease;outline:none;-webkit-tap-highlight-color:transparent;}
+${sc} .st-num-wrap{display:inline-flex;align-items:center;justify-content:center;width:auto;min-width:46px;height:38px;padding:0 11px;border-radius:6px;background:#f5eef5;margin-bottom:12px;transition:background .15s;font-family:var(--fd);font-size:${s(16)};font-weight:800;color:var(--pu);white-space:nowrap;letter-spacing:-0.5px;line-height:1;}
 ${sc} .st-card:hover .st-num-wrap,${sc} .st-card.active .st-num-wrap{background:#ede0ed;}
-${sc} .st-card-icon-wrap{position:absolute;top:16px;right:14px;width:104px;height:104px;border-radius:10px;display:flex;align-items:center;justify-content:center;opacity:.18;transition:opacity .25s,transform .25s;pointer-events:none;overflow:hidden;}
-${sc} .st-card-icon-wrap img{width:100%;height:100%;object-fit:cover;object-position:center 42%;filter:saturate(.9);}
-${sc} .st-card:hover .st-card-icon-wrap,${sc} .st-card.active .st-card-icon-wrap{opacity:.32;transform:scale(1.04);}
+${sc} .st-card-icon-wrap{position:absolute;top:16px;right:16px;width:92px;height:92px;border-radius:10px;display:flex;align-items:center;justify-content:center;opacity:.2;transition:opacity .25s,transform .25s;pointer-events:none;overflow:hidden;}
+${sc} .st-card-icon-wrap img{width:100%;height:100%;object-fit:contain;object-position:center;filter:saturate(.9);}
+${sc} .st-card:hover .st-card-icon-wrap,${sc} .st-card.active .st-card-icon-wrap{opacity:.34;transform:scale(1.04);}
 ${sc} .st-card-title{font-family:var(--fd);font-size:clamp(${s(14)},1.35vw,${s(17)});font-weight:800;color:var(--bk);line-height:1.16;letter-spacing:0;max-width:100%;word-break:normal;overflow-wrap:normal;hyphens:none;}
-${sc} .st-card-sub{margin-top:10px;font-size:${s(12)};color:var(--gr);line-height:1.55;max-width:100%;word-break:normal;overflow-wrap:normal;hyphens:none;}
+${sc} .st-card-sub{margin-top:8px;font-size:${s(12)};color:var(--gr);line-height:1.45;max-width:100%;word-break:normal;overflow-wrap:normal;hyphens:none;}
 ${sc} .st-card-bar{position:absolute;bottom:0;left:0;right:0;height:2px;background:transparent;transition:background .25s;}
 ${sc} .st-card:hover .st-card-bar{background:rgba(0,0,0,.12);}
 ${sc} .st-card.active .st-card-bar{background:var(--pu);}
@@ -1326,7 +1337,7 @@ function getWorkState(){
   return {
     schema: WORKFILE_SCHEMA,
     tool: 'Trend Table Generator',
-    version: 'v4.2',
+    version: 'v4.3',
     projectName: 'SEMICON Taiwan Trend Table',
     exportedAt: new Date().toISOString(),
     data: { themes, globals: getGlobals() }
