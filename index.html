@@ -3,916 +3,1557 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SEMICON Content Tool Hub</title>
+  <title>SEMI Tool Hub</title>
   <style>
     :root {
-      --bg: #f4f5f7;
-      --panel: #ffffff;
-      --panel-2: #fafbfc;
-      --ink: #17191f;
+      --bg: #f5f6f8;
+      --surface: #ffffff;
+      --surface-soft: #fafbfc;
+      --ink: #191b21;
+      --text: #30343c;
       --muted: #707784;
-      --faint: #a6adb8;
-      --line: #dfe3e9;
-      --line-2: #c7ced8;
+      --faint: #a2aab6;
+      --line: #dde2ea;
+      --line-strong: #c4ccd8;
       --brand: #7a197f;
-      --brand-dark: #5f1163;
-      --blue: #2f5e8f;
-      --green: #2f6f52;
-      --amber: #8d641d;
-      --shadow: 0 18px 48px rgba(17, 24, 39, .11);
+      --brand-dark: #59115e;
+      --blue: #2d64a1;
+      --green: #2f7955;
+      --amber: #9a6a18;
+      --red: #c3463c;
+      --shadow: 0 18px 42px rgba(25, 29, 38, .10);
+      --shadow-soft: 0 10px 26px rgba(25, 29, 38, .07);
       --r: 8px;
-      --rail: 76px;
-      --top: 58px;
-      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif;
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", Arial, sans-serif;
     }
 
     * { box-sizing: border-box; }
 
+    html { scroll-behavior: smooth; }
+
     body {
       margin: 0;
       min-height: 100vh;
-      overflow: hidden;
       background: var(--bg);
       color: var(--ink);
-      font-family: var(--font);
-      font-size: 14px;
+      font: 15px/1.55 var(--font);
       letter-spacing: 0;
     }
 
-    button, input {
-      font: inherit;
-    }
+    a { color: inherit; text-decoration: none; }
+    button, input { font: inherit; }
 
     button {
       -webkit-tap-highlight-color: transparent;
     }
 
-    .shell {
-      height: 100vh;
+    .page {
+      min-height: 100vh;
       display: grid;
-      grid-template-columns: var(--rail) minmax(0, 1fr);
-      background: var(--bg);
-    }
-
-    .rail {
-      background: #0f1115;
-      color: #fff;
-      display: grid;
-      grid-template-rows: var(--top) minmax(0, 1fr) auto;
-      border-right: 1px solid #0a0b0e;
-      z-index: 10;
-    }
-
-    .mark {
-      display: grid;
-      place-items: center;
-      border-bottom: 1px solid rgba(255, 255, 255, .08);
-      font-weight: 900;
-      letter-spacing: .08em;
-      font-size: 13px;
-      color: #fff;
-    }
-
-    .tools {
-      padding: 10px 8px;
-      display: grid;
-      gap: 8px;
-      align-content: start;
-      overflow-y: auto;
-    }
-
-    .rail-btn {
-      height: 54px;
-      border: 1px solid transparent;
-      border-radius: 10px;
-      background: transparent;
-      color: #cfd4dc;
-      cursor: pointer;
-      display: grid;
-      place-items: center;
-      gap: 2px;
-      position: relative;
-    }
-
-    .rail-btn:hover {
-      background: rgba(255, 255, 255, .07);
-      color: #fff;
-    }
-
-    .rail-btn.active {
-      background: #fff;
-      color: var(--ink);
-      border-color: rgba(255, 255, 255, .14);
-    }
-
-    .rail-code {
-      font-weight: 900;
-      font-size: 15px;
-      line-height: 1;
-    }
-
-    .rail-label {
-      font-size: 10px;
-      font-weight: 800;
-      line-height: 1;
-      letter-spacing: .02em;
-    }
-
-    .rail-bottom {
-      padding: 8px;
-      border-top: 1px solid rgba(255, 255, 255, .08);
-    }
-
-    .circle-btn {
-      width: 100%;
-      height: 44px;
-      border: 1px solid rgba(255, 255, 255, .12);
-      background: transparent;
-      color: #d8dde5;
-      border-radius: 10px;
-      cursor: pointer;
-      font-size: 18px;
-      font-weight: 500;
-    }
-
-    .circle-btn:hover {
-      color: #fff;
-      background: rgba(255, 255, 255, .08);
-    }
-
-    .stage {
-      min-width: 0;
-      height: 100vh;
-      display: grid;
-      grid-template-rows: var(--top) minmax(0, 1fr);
+      grid-template-rows: 68px minmax(0, 1fr);
     }
 
     .topbar {
-      background: rgba(250, 251, 252, .92);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      height: 68px;
+      border-bottom: 1px solid rgba(221, 226, 234, .9);
+      background: rgba(255, 255, 255, .88);
       backdrop-filter: blur(18px);
-      border-bottom: 1px solid var(--line);
       display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
+      grid-template-columns: auto minmax(0, 1fr) auto;
       align-items: center;
-      gap: 14px;
-      padding: 0 14px 0 18px;
-      z-index: 8;
+      gap: 20px;
+      padding: 0 24px;
     }
 
-    .identity {
-      min-width: 0;
-      display: flex;
+    .brand {
+      display: inline-flex;
       align-items: center;
       gap: 12px;
-    }
-
-    .title-block {
       min-width: 0;
+      font-weight: 950;
+      white-space: nowrap;
+    }
+
+    .brand-mark {
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      background: #111318;
+      color: #fff;
       display: grid;
-      gap: 2px;
+      place-items: center;
+      font-size: 13px;
+      letter-spacing: .08em;
     }
 
-    .eyebrow {
-      font-size: 10px;
+    .brand-text {
+      display: grid;
+      gap: 1px;
+      min-width: 0;
+    }
+
+    .brand-title {
+      font-size: 15px;
+      line-height: 1.2;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .brand-subtitle {
       color: var(--muted);
-      font-weight: 900;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .tool-title {
-      margin: 0;
-      font-size: 16px;
+      font-size: 11px;
+      font-weight: 850;
       line-height: 1.2;
-      white-space: nowrap;
+      letter-spacing: .08em;
+      text-transform: uppercase;
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
-    .status {
+    .switcher {
+      min-width: 0;
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 4px 0;
+    }
+
+    .switch-btn {
+      height: 38px;
+      border: 1px solid var(--line);
       border-radius: 999px;
-      padding: 4px 8px;
-      font-size: 10px;
-      line-height: 1.2;
+      background: #fff;
+      color: #3c424c;
+      padding: 0 15px;
+      cursor: pointer;
+      font-size: 13px;
       font-weight: 900;
-      text-transform: uppercase;
-      border: 1px solid transparent;
-      flex: 0 0 auto;
+      white-space: nowrap;
+      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, color .18s ease;
     }
 
-    .status.stable { color: var(--green); background: #edf7f1; border-color: #cde8d6; }
-    .status.ai { color: var(--blue); background: #eef4ff; border-color: #ccd9f5; }
-    .status.review { color: var(--amber); background: #fff6e3; border-color: #efd9a8; }
+    .switch-btn:hover {
+      transform: translateY(-1px);
+      border-color: var(--line-strong);
+      box-shadow: var(--shadow-soft);
+    }
 
-    .actions {
+    .switch-btn.active {
+      background: #111318;
+      border-color: #111318;
+      color: #fff;
+    }
+
+    .top-actions {
       display: flex;
       align-items: center;
-      gap: 8px;
-      min-width: 0;
+      justify-content: flex-end;
+      gap: 9px;
+      white-space: nowrap;
     }
 
-    .command {
-      width: min(320px, 32vw);
-      border: 1px solid var(--line-2);
+    .action {
+      min-height: 38px;
+      border: 1px solid var(--line-strong);
       border-radius: var(--r);
       background: #fff;
       color: var(--ink);
-      outline: none;
-      padding: 9px 11px;
-      font-size: 12px;
-    }
-
-    .command:focus {
-      border-color: var(--brand);
-      box-shadow: 0 0 0 3px rgba(122, 25, 127, .10);
-    }
-
-    .action-btn {
-      height: 36px;
-      border: 1px solid var(--line-2);
-      background: #fff;
-      color: var(--ink);
-      border-radius: var(--r);
-      padding: 0 12px;
-      cursor: pointer;
-      font-size: 12px;
-      font-weight: 850;
-      text-decoration: none;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      white-space: nowrap;
+      padding: 0 13px;
+      font-size: 13px;
+      font-weight: 900;
+      cursor: pointer;
     }
 
-    .action-btn:hover {
+    .action:hover {
       border-color: var(--brand);
       color: var(--brand);
     }
 
-    .action-btn.primary {
-      color: #fff;
+    .action.primary {
       background: var(--brand);
       border-color: var(--brand);
+      color: #fff;
     }
 
-    .action-btn.primary:hover {
+    .action.primary:hover {
       background: var(--brand-dark);
       color: #fff;
     }
 
-    .workspace {
+    main {
       min-width: 0;
-      min-height: 0;
-      position: relative;
-      padding: 0;
-      display: grid;
-      grid-template-columns: minmax(0, 1fr);
-      background: #f4f5f7;
     }
 
-    .frame-shell {
-      min-width: 0;
-      min-height: 0;
-      background: #fff;
-      border: 0;
-      border-radius: 0;
-      box-shadow: none;
-      overflow: hidden;
-      display: grid;
-      grid-template-rows: minmax(0, 1fr);
-    }
-
-    .frame-strip {
+    .demo {
       display: none;
-      background: #f8f9fb;
-      border-bottom: 1px solid var(--line);
+    }
+
+    .demo.active {
+      display: block;
+    }
+
+    .intro {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 42px 24px 18px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .kicker {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 950;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    .intro h1 {
+      margin: 0;
+      max-width: 940px;
+      font-size: clamp(34px, 5vw, 62px);
+      line-height: 1.05;
+      letter-spacing: 0;
+    }
+
+    .intro p {
+      margin: 0;
+      max-width: 900px;
+      color: #4f5663;
+      font-size: clamp(16px, 1.8vw, 21px);
+      line-height: 1.55;
+    }
+
+    .demo-note {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 0 24px 24px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 750;
+    }
+
+    .tool-grid {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 8px 24px 54px;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .tool-card {
+      min-height: 254px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--surface);
+      padding: 24px;
+      color: var(--ink);
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      gap: 18px;
+      box-shadow: 0 1px 0 rgba(255, 255, 255, .9) inset;
+      transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+      cursor: pointer;
+    }
+
+    .tool-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--line-strong);
+      box-shadow: var(--shadow);
+    }
+
+    .tool-card.active {
+      border-color: #161922;
+      box-shadow: var(--shadow);
+    }
+
+    .tool-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-weight: 950;
+      letter-spacing: .03em;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .tool-icon::after {
+      content: "";
+      position: absolute;
+      right: -12px;
+      bottom: -12px;
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, .26);
+      transform: rotate(14deg);
+    }
+
+    .forum-icon { background: #2d64a1; }
+    .trend-icon { background: #2f7955; }
+    .sponsor-icon { background: #7a197f; }
+    .pavilion-icon { background: #9a6a18; }
+
+    .card-copy {
+      display: grid;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .card-copy h2 {
+      margin: 0;
+      font-size: 22px;
+      line-height: 1.18;
+      letter-spacing: 0;
+    }
+
+    .card-copy p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.48;
+    }
+
+    .card-foot {
+      display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 10px;
-      padding: 0 9px 0 12px;
       color: var(--muted);
-      font-size: 11px;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    }
-
-    .frame-path {
-      min-width: 0;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .frame-controls {
-      display: flex;
-      gap: 5px;
-      flex: 0 0 auto;
-    }
-
-    .mini-btn {
-      width: 26px;
-      height: 24px;
-      border-radius: 6px;
-      border: 1px solid var(--line);
-      background: #fff;
-      color: #3e4653;
-      cursor: pointer;
-      font-size: 11px;
+      font-size: 12px;
       font-weight: 900;
-      display: grid;
-      place-items: center;
+      text-transform: uppercase;
     }
 
-    .mini-btn:hover {
+    .mini-status {
+      border-radius: 999px;
+      padding: 4px 8px;
+      background: #edf2f7;
+      color: #4c5563;
+      text-transform: none;
+    }
+
+    .preview-stage {
+      max-width: 1180px;
+      margin: -28px auto 64px;
+      padding: 0 24px;
+    }
+
+    .large-workspace {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+      box-shadow: var(--shadow-soft);
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: minmax(270px, .9fr) minmax(0, 1.5fr);
+    }
+
+    .workspace-side {
+      background: #f8f9fb;
+      border-right: 1px solid var(--line);
+      padding: 28px;
+      display: grid;
+      gap: 18px;
+      align-content: start;
+    }
+
+    .workspace-side h3,
+    .workspace-main h3,
+    .control-panel h3,
+    .stage-card h3 {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    .workspace-side p,
+    .workspace-main p,
+    .control-panel p,
+    .stage-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .steps {
+      display: grid;
+      gap: 10px;
+    }
+
+    .step {
+      border: 1px solid var(--line);
+      border-radius: var(--r);
+      background: #fff;
+      padding: 12px;
+      display: grid;
+      gap: 3px;
+    }
+
+    .step strong {
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .step span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .workspace-main {
+      padding: 28px;
+      display: grid;
+      gap: 18px;
+      align-content: start;
+    }
+
+    .workspace-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .workspace-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .ghost-btn {
+      height: 36px;
+      border: 1px solid var(--line);
+      border-radius: var(--r);
+      background: #fff;
+      color: var(--ink);
+      padding: 0 11px;
+      font-size: 12px;
+      font-weight: 900;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .ghost-btn:hover {
       border-color: var(--brand);
       color: var(--brand);
     }
 
-    iframe {
-      width: 100%;
-      height: 100%;
-      border: 0;
-      background: #fff;
-    }
-
-    .drawer {
-      position: fixed;
-      top: var(--top);
-      right: 0;
-      bottom: 0;
-      width: min(390px, calc(100vw - var(--rail)));
-      background: rgba(255, 255, 255, .97);
-      border-left: 1px solid var(--line);
-      box-shadow: -18px 0 44px rgba(17, 24, 39, .13);
-      transform: translateX(102%);
-      transition: transform .22s ease;
-      z-index: 20;
+    .mock-grid {
       display: grid;
-      grid-template-rows: auto minmax(0, 1fr);
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 14px;
     }
 
-    .drawer.open {
-      transform: translateX(0);
-    }
-
-    .drawer-head {
-      padding: 16px 16px 12px;
-      border-bottom: 1px solid var(--line);
+    .mock-field {
+      min-height: 126px;
+      border: 1px solid var(--line);
+      border-radius: var(--r);
+      background: #fbfcfd;
+      padding: 14px;
       display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
       gap: 10px;
-      align-items: start;
+      align-content: start;
     }
 
-    .drawer-head h2 {
-      margin: 0;
+    .mock-line {
+      height: 10px;
+      border-radius: 999px;
+      background: #dfe5ee;
+    }
+
+    .mock-line.short { width: 58%; }
+    .mock-line.mid { width: 78%; }
+    .mock-line.full { width: 100%; }
+
+    .publish-card {
+      border: 1px solid var(--line);
+      border-radius: var(--r);
+      background: #fff;
+      padding: 16px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .publish-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .publish-row:last-child {
+      padding-bottom: 0;
+      border-bottom: 0;
+    }
+
+    .ready {
+      color: var(--green);
+      background: #edf8f1;
+    }
+
+    .check {
+      color: var(--amber);
+      background: #fff6e2;
+    }
+
+    .cannot {
+      color: var(--red);
+      background: #fff0ef;
+    }
+
+    .badge {
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-size: 11px;
+      font-weight: 950;
+      white-space: nowrap;
+    }
+
+    .split-wrap {
+      max-width: 1340px;
+      margin: 0 auto;
+      padding: 34px 24px 60px;
+      display: grid;
+      grid-template-columns: 260px minmax(0, 1fr);
+      gap: 18px;
+    }
+
+    .side-nav {
+      position: sticky;
+      top: 88px;
+      align-self: start;
+      display: grid;
+      gap: 10px;
+    }
+
+    .side-nav h2 {
+      margin: 0 0 5px;
       font-size: 18px;
+    }
+
+    .side-tool {
+      min-height: 72px;
+      border: 1px solid var(--line);
+      border-radius: var(--r);
+      background: #fff;
+      padding: 12px;
+      display: grid;
+      grid-template-columns: 40px minmax(0, 1fr);
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+    }
+
+    .side-tool:hover,
+    .side-tool.active {
+      transform: translateY(-1px);
+      border-color: var(--line-strong);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .side-tool.active {
+      border-color: #111318;
+    }
+
+    .side-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 950;
+    }
+
+    .side-name {
+      min-width: 0;
+      display: grid;
+      gap: 2px;
+    }
+
+    .side-name strong {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 13px;
+    }
+
+    .side-name span {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 850;
+    }
+
+    .split-board {
+      display: grid;
+      gap: 18px;
+    }
+
+    .split-head {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      padding: 20px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .split-head h1 {
+      margin: 0 0 4px;
+      font-size: 24px;
+      line-height: 1.2;
+    }
+
+    .split-head p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .production-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.03fr) minmax(0, .97fr);
+      gap: 18px;
+    }
+
+    .panel {
+      min-height: 620px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      padding: 22px;
+      display: grid;
+      gap: 16px;
+      align-content: start;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 14px;
+    }
+
+    .section-title h2 {
+      margin: 0;
+      font-size: 20px;
       line-height: 1.25;
     }
 
-    .drawer-head p {
-      margin: 6px 0 0;
+    .section-title span {
       color: var(--muted);
-      line-height: 1.55;
       font-size: 12px;
+      font-weight: 850;
     }
 
-    .drawer-body {
-      overflow: auto;
-      padding: 14px 16px 20px;
+    .input-stack {
+      display: grid;
+      gap: 12px;
+    }
+
+    .mock-input {
+      min-height: 46px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--r);
+      background: #fbfcfd;
+      padding: 12px 13px;
+      color: #9aa2af;
+      font-weight: 750;
+    }
+
+    .mock-input.tall {
+      min-height: 150px;
+    }
+
+    .data-table {
+      border: 1px solid var(--line);
+      border-radius: var(--r);
+      overflow: hidden;
+      display: grid;
+    }
+
+    .data-row {
+      display: grid;
+      grid-template-columns: 1.3fr .75fr .8fr;
+      gap: 0;
+      min-height: 42px;
+      border-bottom: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .data-row:last-child {
+      border-bottom: 0;
+    }
+
+    .data-row.header {
+      background: #f6f8fb;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 950;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .data-cell {
+      padding: 11px 12px;
+      border-right: 1px solid var(--line);
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 12px;
+      font-weight: 760;
+    }
+
+    .data-cell:last-child {
+      border-right: 0;
+    }
+
+    .preview-box {
+      min-height: 278px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--r);
+      background:
+        linear-gradient(90deg, rgba(221, 226, 234, .45) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(221, 226, 234, .45) 1px, transparent 1px),
+        #fbfcfd;
+      background-size: 28px 28px;
+      padding: 18px;
+      display: grid;
+      align-content: center;
+      justify-items: center;
+      gap: 12px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .preview-logo-grid {
+      width: min(330px, 100%);
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .preview-logo {
+      height: 58px;
+      border: 1px solid var(--line);
+      border-radius: var(--r);
+      background: #fff;
+      display: grid;
+      place-items: center;
+      color: #697180;
+      font-size: 11px;
+      font-weight: 950;
+    }
+
+    .command-wrap {
+      background: #111318;
+      color: #fff;
+      min-height: calc(100vh - 68px);
+    }
+
+    .command-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 42px 24px 60px;
+      display: grid;
+      gap: 22px;
+    }
+
+    .command-hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(320px, .9fr);
+      align-items: end;
+      gap: 28px;
+      padding-bottom: 8px;
+    }
+
+    .command-hero h1 {
+      margin: 0;
+      font-size: clamp(34px, 5vw, 64px);
+      line-height: 1.04;
+      letter-spacing: 0;
+    }
+
+    .command-hero p {
+      margin: 14px 0 0;
+      max-width: 760px;
+      color: #bdc5d2;
+      font-size: 17px;
+    }
+
+    .health-summary {
+      border: 1px solid rgba(255, 255, 255, .14);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, .06);
+      padding: 20px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .health-summary h2 {
+      margin: 0;
+      font-size: 17px;
+    }
+
+    .meter {
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .16);
+      overflow: hidden;
+    }
+
+    .meter span {
+      display: block;
+      height: 100%;
+      width: 82%;
+      border-radius: inherit;
+      background: #ffffff;
+    }
+
+    .command-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .command-card {
+      min-height: 250px;
+      border: 1px solid rgba(255, 255, 255, .15);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, .08);
+      color: #fff;
+      padding: 20px;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      gap: 14px;
+      cursor: pointer;
+      transition: transform .2s ease, background .2s ease, border-color .2s ease;
+    }
+
+    .command-card:hover,
+    .command-card.active {
+      transform: translateY(-3px);
+      background: rgba(255, 255, 255, .12);
+      border-color: rgba(255, 255, 255, .32);
+    }
+
+    .command-card h2 {
+      margin: 0;
+      font-size: 21px;
+      line-height: 1.18;
+    }
+
+    .command-card p {
+      margin: 0;
+      color: #c8d0db;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .health-list {
+      display: grid;
+      gap: 9px;
+    }
+
+    .health-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      color: #dce2ea;
+      font-size: 12px;
+      font-weight: 850;
+    }
+
+    .health-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #72d29b;
+      flex: 0 0 auto;
+    }
+
+    .health-dot.warn { background: #e8b650; }
+    .health-dot.stop { background: #e36d64; }
+
+    .command-detail {
+      border: 1px solid rgba(255, 255, 255, .15);
+      border-radius: 14px;
+      background: #f7f8fb;
+      color: var(--ink);
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 340px;
+    }
+
+    .command-preview {
+      padding: 24px;
       display: grid;
       gap: 16px;
       align-content: start;
     }
 
-    .close-btn {
-      width: 32px;
-      height: 32px;
-      border: 1px solid var(--line-2);
-      border-radius: var(--r);
-      background: #fff;
-      color: var(--ink);
-      cursor: pointer;
-      font-weight: 800;
-    }
-
-    .close-btn:hover {
-      border-color: var(--brand);
-      color: var(--brand);
-    }
-
-    .drawer-section {
-      border-top: 1px solid var(--line);
-      padding-top: 13px;
-    }
-
-    .drawer-section:first-child {
-      border-top: 0;
-      padding-top: 0;
-    }
-
-    .drawer-section h3 {
-      margin: 0 0 9px;
-      color: #384152;
-      font-size: 11px;
-      font-weight: 900;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-    }
-
-    .list {
+    .command-preview h3 {
       margin: 0;
-      padding: 0;
-      list-style: none;
-      display: grid;
-      gap: 7px;
+      font-size: 22px;
     }
 
-    .list li {
-      color: #424b59;
-      background: var(--panel-2);
+    .canvas {
+      min-height: 230px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+    }
+
+    .canvas-grid {
+      width: min(460px, 100%);
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .canvas-cell {
+      min-height: 72px;
       border: 1px solid var(--line);
       border-radius: var(--r);
-      padding: 9px 10px;
-      line-height: 1.5;
+      background: #fafbfc;
+      display: grid;
+      place-items: center;
+      color: var(--muted);
       font-size: 12px;
+      font-weight: 900;
     }
 
-    .quick-picker {
-      position: fixed;
-      top: 68px;
-      right: 14px;
-      width: min(420px, calc(100vw - 28px));
+    .control-panel {
+      border-left: 1px solid var(--line);
       background: #fff;
-      border: 1px solid var(--line-2);
-      box-shadow: var(--shadow);
-      border-radius: 10px;
-      padding: 8px;
-      z-index: 30;
-      display: none;
+      padding: 24px;
+      display: grid;
+      gap: 14px;
+      align-content: start;
     }
 
-    .quick-picker.open {
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: var(--r);
+      padding: 13px;
       display: grid;
       gap: 6px;
     }
 
-    .quick-item {
-      border: 1px solid transparent;
-      background: transparent;
-      border-radius: var(--r);
-      cursor: pointer;
-      padding: 10px;
-      text-align: left;
-      display: grid;
-      gap: 4px;
+    .metric strong {
+      font-size: 22px;
+      line-height: 1;
     }
 
-    .quick-item:hover,
-    .quick-item.active {
-      border-color: var(--line);
-      background: #f7f8fa;
-    }
-
-    .quick-name {
-      font-weight: 900;
-      color: var(--ink);
-    }
-
-    .quick-meta {
-      font-size: 11px;
-      color: var(--muted);
-    }
-
-    .empty {
+    .metric span {
       color: var(--muted);
       font-size: 12px;
-      padding: 10px;
+      font-weight: 820;
     }
 
-    .veil {
-      position: fixed;
-      inset: var(--top) 0 0 var(--rail);
-      background: rgba(15, 17, 21, .16);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity .2s ease;
-      z-index: 15;
-    }
-
-    .veil.show {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    @media (max-width: 920px) {
-      :root { --rail: 64px; --top: 58px; }
+    @media (max-width: 1080px) {
       .topbar {
         grid-template-columns: minmax(0, 1fr);
-        align-content: center;
-        gap: 5px;
-        padding: 7px 10px 8px 12px;
+        height: auto;
+        min-height: 68px;
+        padding: 12px 18px;
+        gap: 10px;
       }
-      .actions {
+
+      .switcher {
+        justify-content: flex-start;
+      }
+
+      .top-actions {
+        justify-content: flex-start;
         overflow-x: auto;
-        padding-bottom: 2px;
       }
-      .command {
-        min-width: 190px;
-        width: 42vw;
+
+      .tool-grid,
+      .command-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
-      .tool-title {
-        font-size: 14px;
+
+      .split-wrap,
+      .large-workspace,
+      .command-hero,
+      .command-detail {
+        grid-template-columns: 1fr;
       }
-      .frame-shell {
-        border-radius: 8px;
+
+      .side-nav {
+        position: static;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
-      .workspace {
-        padding: 7px;
+
+      .side-nav h2 {
+        grid-column: 1 / -1;
+      }
+
+      .control-panel,
+      .workspace-side {
+        border-left: 0;
+        border-right: 0;
+        border-top: 1px solid var(--line);
       }
     }
 
-    @media (max-width: 640px) {
-      body { overflow: auto; }
-      .shell {
-        min-height: 100vh;
-        height: auto;
+    @media (max-width: 720px) {
+      .intro,
+      .demo-note,
+      .tool-grid,
+      .preview-stage,
+      .split-wrap,
+      .command-inner {
+        padding-left: 14px;
+        padding-right: 14px;
+      }
+
+      .tool-grid,
+      .command-grid,
+      .side-nav,
+      .production-grid,
+      .mock-grid {
         grid-template-columns: 1fr;
-        grid-template-rows: 66px minmax(0, 1fr);
       }
-      .rail {
-        min-width: 0;
-        grid-template-columns: 64px minmax(0, 1fr) 52px;
-        grid-template-rows: 66px;
-        min-height: 66px;
-        height: 66px;
+
+      .tool-card {
+        min-height: 220px;
+      }
+
+      .workspace-head,
+      .split-head {
+        display: grid;
+      }
+
+      .workspace-actions {
+        justify-content: flex-start;
+      }
+
+      .data-row {
+        grid-template-columns: 1fr;
+      }
+
+      .data-cell {
         border-right: 0;
-        border-bottom: 1px solid #0a0b0e;
+        border-bottom: 1px solid var(--line);
       }
-      .mark {
+
+      .data-cell:last-child {
         border-bottom: 0;
-        border-right: 1px solid rgba(255, 255, 255, .08);
-      }
-      .tools {
-        display: flex;
-        overflow-x: auto;
-        overflow-y: hidden;
-        padding: 8px;
-      }
-      .rail-btn {
-        width: 58px;
-        height: 48px;
-        flex: 0 0 auto;
-      }
-      .rail-bottom {
-        padding: 8px;
-        border-top: 0;
-        border-left: 1px solid rgba(255, 255, 255, .08);
-      }
-      .stage {
-        height: calc(100vh - 66px);
-      }
-      .drawer {
-        top: 66px;
-        width: 100vw;
-      }
-      .veil {
-        inset: 66px 0 0 0;
       }
     }
   </style>
 </head>
 <body>
-  <div class="shell">
-    <aside class="rail" aria-label="Tool navigation">
-      <div class="mark">SEMI</div>
-      <nav class="tools" id="railTools"></nav>
-      <div class="rail-bottom">
-        <button class="circle-btn" id="infoBtn" type="button" title="工具資訊">i</button>
+  <div class="page">
+    <header class="topbar">
+      <a class="brand" href="index.html" aria-label="Back to SEMI Tool Hub">
+        <span class="brand-mark">SEMI</span>
+        <span class="brand-text">
+          <span class="brand-title">SEMI Tool Hub</span>
+          <span class="brand-subtitle">Unified content workstation homepage</span>
+        </span>
+      </a>
+
+      <nav class="switcher" aria-label="Demo versions">
+        <button class="switch-btn active" type="button" data-demo="gallery">A. 大按鈕入口</button>
+        <button class="switch-btn" type="button" data-demo="split">B. 穩定工作台</button>
+        <button class="switch-btn" type="button" data-demo="command">C. 資料健康儀表</button>
+      </nav>
+
+      <div class="top-actions">
+        <a class="action" id="workspaceLink" href="workspace.html?tool=sponsors">進入整合工作台</a>
+        <a class="action primary" id="currentToolLink" href="tools/sponsors/index.html" target="_blank" rel="noopener">打開正式工具</a>
       </div>
-    </aside>
+    </header>
 
-    <main class="stage">
-      <header class="topbar">
-        <div class="identity">
-          <span class="status ai" id="statusBadge">AI</span>
-          <div class="title-block">
-            <div class="eyebrow" id="eyebrow">Content Tool Hub</div>
-            <h1 class="tool-title" id="toolTitle">SEMICON Content Tool Hub</h1>
+    <main>
+      <section class="demo active" id="galleryDemo">
+        <div class="intro">
+          <div class="kicker">Direction A / Apple-like entry, iLovePDF-level clarity</div>
+          <h1>把四個產生器收斂成一個可持續更新的內容工作站。</h1>
+          <p>首頁負責讓團隊快速選任務，進入工作台後再完成資料整理、檢查、預覽與 HTML 輸出。這樣保留既有流程，也把產品語言統一起來。</p>
+        </div>
+        <p class="demo-note">此方向現在就是正式首頁：大型工具卡負責選任務，工作台負責編輯與發布。首頁不再模擬假功能，只負責導向正確工作流。</p>
+        <div class="tool-grid" data-tool-picker></div>
+        <div class="preview-stage">
+          <div class="large-workspace">
+            <aside class="workspace-side">
+              <h3 id="gallerySideTitle">Sponsors Logo</h3>
+              <p id="gallerySideText">持續更新贊助商資料，維持固定 HTML 輸出格式。</p>
+              <div class="steps">
+                <div class="step">
+                  <strong>1. 載入工作檔</strong>
+                  <span>上次編輯狀態是資料來源。</span>
+                </div>
+                <div class="step">
+                  <strong>2. 匯入新資料</strong>
+                  <span>可貼混亂表格，系統標記缺漏。</span>
+                </div>
+                <div class="step">
+                  <strong>3. 檢查並發布</strong>
+                  <span>確認 Ready 後複製 Drupal HTML。</span>
+                </div>
+              </div>
+            </aside>
+            <section class="workspace-main">
+              <div class="workspace-head">
+                <div>
+                  <h3 id="galleryMainTitle">贊助商 Logo HTML 產生器</h3>
+                  <p id="galleryMainDesc">同一套「資料、檢查、預覽、HTML」語言，用在四個工具上。</p>
+                </div>
+                <div class="workspace-actions">
+                  <button class="ghost-btn" type="button">Save work file</button>
+                  <button class="ghost-btn" type="button">Load work file</button>
+                </div>
+              </div>
+              <div class="mock-grid">
+                <div class="mock-field">
+                  <div class="mock-line mid"></div>
+                  <div class="mock-line full"></div>
+                  <div class="mock-line short"></div>
+                </div>
+                <div class="publish-card">
+                  <div class="publish-row">
+                    <strong>發布檢查</strong>
+                    <span class="badge check" id="galleryStatus">Needs check</span>
+                  </div>
+                  <div class="publish-row">
+                    <span id="galleryIssueA">缺 2 個 Logo</span>
+                    <span class="badge check">Review</span>
+                  </div>
+                  <div class="publish-row">
+                    <span id="galleryIssueB">HTML 可產生</span>
+                    <span class="badge ready">Ready</span>
+                  </div>
+                </div>
+              </div>
+              <div class="preview-box">
+                <div class="preview-logo-grid">
+                  <div class="preview-logo">Logo</div>
+                  <div class="preview-logo">Logo</div>
+                  <div class="preview-logo">Logo</div>
+                  <div class="preview-logo">Logo</div>
+                  <div class="preview-logo">Logo</div>
+                  <div class="preview-logo">Logo</div>
+                </div>
+                <p id="galleryPreviewText">固定輸出格式，避免手改 HTML。</p>
+              </div>
+            </section>
           </div>
         </div>
-        <div class="actions">
-          <input class="command" id="commandInput" type="search" placeholder="搜尋工具">
-          <button class="action-btn" id="reloadBtn" type="button">重載</button>
-          <button class="action-btn" id="copyPathBtn" type="button">路徑</button>
-          <a class="action-btn" href="uiux-demo.html" target="_blank" rel="noopener">UIUX Demo</a>
-          <a class="action-btn" href="uiux-unified-demo.html" target="_blank" rel="noopener">Unified Demo</a>
-          <a class="action-btn primary" id="openToolBtn" href="#" target="_blank" rel="noopener">開新視窗</a>
-        </div>
-      </header>
+      </section>
 
-      <section class="workspace">
-        <div class="frame-shell">
-          <div class="frame-strip">
-            <span class="frame-path" id="framePath"></span>
-            <div class="frame-controls">
-              <button class="mini-btn" id="backBtn" type="button" title="上一個工具">L</button>
-              <button class="mini-btn" id="nextBtn" type="button" title="下一個工具">R</button>
+      <section class="demo" id="splitDemo">
+        <div class="split-wrap">
+          <aside class="side-nav">
+            <h2>Direction B</h2>
+            <div data-side-picker></div>
+          </aside>
+          <section class="split-board">
+            <div class="split-head">
+              <div>
+                <h1 id="splitTitle">贊助商 Logo HTML 產生器</h1>
+                <p id="splitDesc">保留目前使用者熟悉的操作邏輯，但四個產生器都使用一致的資料區、檢查區、預覽區和 HTML 輸出語言。</p>
+              </div>
+              <div class="workspace-actions">
+                <button class="ghost-btn" type="button">Save work file</button>
+                <button class="ghost-btn" type="button">Load work file</button>
+                <a class="ghost-btn" id="splitOpenLink" href="tools/sponsors/index.html" target="_blank" rel="noopener">正式工具</a>
+              </div>
             </div>
+
+            <div class="production-grid">
+              <section class="panel">
+                <div class="section-title">
+                  <div>
+                    <h2>資料輸入與整理</h2>
+                    <span id="splitInputHint">貼上名單或單筆更新，系統保留工作狀態。</span>
+                  </div>
+                  <span class="badge check">Autosaved draft</span>
+                </div>
+                <div class="input-stack">
+                  <div class="mock-input" id="splitFieldA">專案名稱 / SEMICON Taiwan Sponsors</div>
+                  <div class="mock-input tall" id="splitFieldB">貼上公司名、級別、網址，或載入上次的 work file。</div>
+                  <div class="data-table">
+                    <div class="data-row header">
+                      <div class="data-cell">Name</div>
+                      <div class="data-cell">Status</div>
+                      <div class="data-cell">Action</div>
+                    </div>
+                    <div class="data-row">
+                      <div class="data-cell" id="splitRowA">ABC Semiconductor</div>
+                      <div class="data-cell">Ready</div>
+                      <div class="data-cell">Edit</div>
+                    </div>
+                    <div class="data-row">
+                      <div class="data-cell" id="splitRowB">Missing logo item</div>
+                      <div class="data-cell">Needs check</div>
+                      <div class="data-cell">Fix</div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <section class="panel">
+                <div class="section-title">
+                  <div>
+                    <h2>發布檢查與輸出</h2>
+                    <span>可貼 Drupal 前先看資料是否可靠。</span>
+                  </div>
+                  <span class="badge check" id="splitStatus">Needs check</span>
+                </div>
+                <div class="publish-card">
+                  <div class="publish-row">
+                    <span id="splitCheckA">2 筆需要補 Logo</span>
+                    <span class="badge check">Review</span>
+                  </div>
+                  <div class="publish-row">
+                    <span id="splitCheckB">網址格式已自動修正</span>
+                    <span class="badge ready">Ready</span>
+                  </div>
+                  <div class="publish-row">
+                    <span>HTML 結構固定</span>
+                    <span class="badge ready">Ready</span>
+                  </div>
+                </div>
+                <div class="preview-box">
+                  <div class="preview-logo-grid">
+                    <div class="preview-logo">Preview</div>
+                    <div class="preview-logo">Preview</div>
+                    <div class="preview-logo">Preview</div>
+                    <div class="preview-logo">Preview</div>
+                    <div class="preview-logo">Preview</div>
+                    <div class="preview-logo">Preview</div>
+                  </div>
+                  <p id="splitPreviewText">右側永遠回答：能不能發布、看起來如何、HTML 是否可貼。</p>
+                </div>
+              </section>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <section class="demo" id="commandDemo">
+        <div class="command-wrap">
+          <div class="command-inner">
+            <section class="command-hero">
+              <div>
+                <div class="kicker">Direction C / Tesla-like system monitor</div>
+                <h1>先看資料健康，再決定是否發布。</h1>
+                <p>這一版把四個產生器視為同一個內容生產系統。它最強的是管理感和品質感，適合未來加入版本比較、更新紀錄、流量回報。</p>
+              </div>
+              <div class="health-summary">
+                <h2>Workspace health</h2>
+                <div class="meter"><span></span></div>
+                <p>整體可發布度 82%。Sponsors 與 Pavilions 仍有資料缺漏，Forum 保持既有流程，Trends 需要補 URL。</p>
+              </div>
+            </section>
+
+            <div class="command-grid" data-command-picker></div>
+
+            <section class="command-detail">
+              <div class="command-preview">
+                <h3 id="commandTitle">Sponsors Logo</h3>
+                <p id="commandDesc">把工具當成一個持續更新的專案，而不是一次性的 HTML 產生器。</p>
+                <div class="canvas">
+                  <div class="canvas-grid">
+                    <div class="canvas-cell">Data</div>
+                    <div class="canvas-cell">Review</div>
+                    <div class="canvas-cell">Preview</div>
+                    <div class="canvas-cell">HTML</div>
+                    <div class="canvas-cell">Work file</div>
+                    <div class="canvas-cell">Publish</div>
+                  </div>
+                </div>
+              </div>
+              <aside class="control-panel">
+                <h3>可落地能力</h3>
+                <p id="commandAbility">亂資料整理、單筆更新、缺漏檢查、固定輸出。</p>
+                <div class="metric">
+                  <strong id="metricA">86%</strong>
+                  <span>資料完整度</span>
+                </div>
+                <div class="metric">
+                  <strong id="metricB">12</strong>
+                  <span>本次更新項目</span>
+                </div>
+                <div class="metric">
+                  <strong id="metricC">3</strong>
+                  <span>需確認項目</span>
+                </div>
+              </aside>
+            </section>
           </div>
-          <iframe id="toolFrame" title="SEMICON HTML generator"></iframe>
         </div>
       </section>
     </main>
   </div>
-
-  <div class="quick-picker" id="quickPicker"></div>
-  <div class="veil" id="veil"></div>
-  <aside class="drawer" id="drawer" aria-label="Tool details">
-    <div class="drawer-head">
-      <div>
-        <h2 id="drawerTitle"></h2>
-        <p id="drawerSummary"></p>
-      </div>
-      <button class="close-btn" id="closeDrawerBtn" type="button">x</button>
-    </div>
-    <div class="drawer-body" id="drawerBody"></div>
-  </aside>
 
   <script>
     const tools = [
       {
         id: "forum",
         code: "FR",
-        rail: "Forum",
+        shortName: "Forum",
         name: "論壇頁 HTML 產生器",
-        category: "Forum",
-        group: "頁面內容",
-        version: "v9.11",
-        status: "AI Assisted",
-        statusClass: "ai",
+        type: "頁面內容",
+        iconClass: "forum-icon",
         path: "tools/forum/index.html",
-        summary: "將 ST26 論壇資料、主題、講者、價格、合作單位、報名連結與 Logo 整理成可貼入 Drupal 的中英文 HTML。",
-        inputs: ["Excel / CSV 論壇資料", "論壇主題與大綱", "主席、主持人、指導單位", "合作單位文字連結", "Logo 圖片或圖片 URL", "報名與地圖連結"],
-        outputs: ["中文版 HTML", "英文版 HTML", "桌機 / 手機預覽", "同瀏覽器草稿保存"],
-        improvements: ["確認 v9.11 在 Hub iframe 內的版面", "新增 JSON 專案匯出 / 匯入", "新增 Drupal 貼上前檢查清單"],
-        keywords: ["forum", "論壇", "pricing", "logo", "ai", "drupal", "registration", "英文", "中文"]
+        card: "既有團隊正在使用，優先保留三步驟流程，只統一外層語言與發布檢查。",
+        side: "論壇資料與講者內容",
+        sideText: "把複雜論壇內容整理成中英文 Drupal-ready HTML。",
+        issues: ["保留既有流程", "補 work file", "補發布檢查"],
+        fields: ["論壇名稱 / 日期 / 地點", "貼上 Excel 或 Word 內容，維持 v9.11 使用者熟悉流程。"],
+        rows: ["Keynote Forum", "Speaker missing logo"],
+        checks: ["講者資料需確認", "報名連結格式正確"],
+        preview: "不要大改流程，只做一致的工作台外框。",
+        metricA: "78%",
+        metricB: "8",
+        metricC: "5",
+        ability: "保留三步驟、補工作檔、補檢查清單、維持穩定使用。"
       },
       {
         id: "trends",
         code: "TH",
-        rail: "Theme",
+        shortName: "Theme",
         name: "主題 / 趨勢互動區塊產生器",
-        category: "Theme",
-        group: "互動區塊",
-        version: "v4.0",
-        status: "AI Assisted",
-        statusClass: "ai",
+        type: "互動區塊",
+        iconClass: "trend-icon",
         path: "tools/trends/index.html",
-        summary: "管理 SEMICON 主題卡片、展區、論壇議題與互動抽屜，輸出 CSS 隔離的中英文互動 HTML。",
-        inputs: ["主題中英文標題", "展區 / 專區清單", "論壇議題清單", "SVG 圖示 URL", "AI 匯入用網址或文字"],
-        outputs: ["中文版互動 HTML", "英文版互動 HTML", "即時 iframe 預覽", "localStorage 自動保存"],
-        improvements: ["明確標示 AI 是選用功能", "加入空白欄位檢查", "加入主題快速跳轉"],
-        keywords: ["trend", "theme", "主題", "趨勢", "drawer", "互動", "展區", "論壇", "scoped css"]
+        card: "主題卡、展區、論壇議題共用資料狀態，輸出一致的互動 HTML。",
+        side: "主題與趨勢互動內容",
+        sideText: "集中管理主題卡片、URL、圖示和中英文內容。",
+        issues: ["缺 URL 標記", "缺 icon 標記", "支援工作檔"],
+        fields: ["主題群組 / Active theme", "貼上主題、展區、論壇議題，並標記缺少 URL 或 icon 的項目。"],
+        rows: ["Smart Manufacturing", "AI missing URL"],
+        checks: ["1 筆缺 URL", "HTML scoped CSS 正常"],
+        preview: "互動模組也用同一套 Ready / Needs check 語言。",
+        metricA: "91%",
+        metricB: "16",
+        metricC: "2",
+        ability: "主題資料保存、URL 檢查、icon 檢查、互動預覽。"
       },
       {
         id: "sponsors",
         code: "SP",
-        rail: "Logo",
+        shortName: "Logo",
         name: "贊助商 Logo HTML 產生器",
-        category: "Sponsor",
-        group: "品牌露出",
-        version: "v5.1.1",
-        status: "Stable",
-        statusClass: "stable",
+        type: "品牌露出",
+        iconClass: "sponsor-icon",
         path: "tools/sponsors/index.html",
-        summary: "建立贊助商 Logo 分級、排序、連結與雙語輸出，支援資料備份和還原。",
-        inputs: ["Logo 圖片貼上或上傳", "贊助商名稱", "贊助級別", "網站連結", "級別中英文名稱"],
-        outputs: ["中文版贊助商 HTML", "英文版贊助商 HTML", "JSON 備份檔", "視覺預覽"],
-        improvements: ["維持缺漏檢查與備份流程", "下一步統一 Hub 內按鈕與預覽語言", "確認是否需要工具層級 release notes"],
-        keywords: ["sponsor", "贊助", "logo", "白金", "金級", "silver", "backup", "json"]
+        card: "處理持續新增、刪除、改級別的贊助商資料，避免手改 HTML。",
+        side: "Sponsors Logo",
+        sideText: "持續更新贊助商資料，維持固定 HTML 輸出格式。",
+        issues: ["缺 2 個 Logo", "網址已修正", "可輸出 HTML"],
+        fields: ["專案名稱 / SEMICON Taiwan Sponsors", "貼上公司名、級別、網址，或載入上次的 work file。"],
+        rows: ["ABC Semiconductor", "Missing logo item"],
+        checks: ["2 筆需要補 Logo", "網址格式已自動修正"],
+        preview: "固定輸出格式，避免手改 HTML。",
+        metricA: "86%",
+        metricB: "12",
+        metricC: "3",
+        ability: "亂資料整理、單筆更新、缺漏檢查、固定輸出。"
       },
       {
         id: "pavilions",
         code: "PV",
-        rail: "Pav.",
+        shortName: "Pav.",
         name: "專區展商 HTML 產生器",
-        category: "Pavilion",
-        group: "展商資料",
-        version: "v1.1",
-        status: "Needs Review",
-        statusClass: "review",
+        type: "展商資料",
+        iconClass: "pavilion-icon",
         path: "tools/pavilions/index.html",
-        summary: "把展商 Excel 名單轉成專區介紹與展商卡片 HTML，並在複製前檢查公司名稱、攤位與網址。",
-        inputs: ["專區名稱", "專區簡介", "技術與應用重點", "Excel 展商名單", "主題色碼"],
-        outputs: ["單語系 HTML", "視覺預覽", "發布檢查表", "可複製 Drupal HTML"],
-        improvements: ["完成瀏覽器視覺 QA", "決定缺網址是否阻擋複製", "後續評估中英文同時輸出"],
-        keywords: ["pavilion", "vendor", "展商", "專區", "booth", "excel", "攤位", "名單"]
+        card: "把混亂展商名單轉成固定卡片格式，先檢查再複製 Drupal HTML。",
+        side: "Pavilion vendors",
+        sideText: "用同一套資料解析、表格檢查、預覽輸出處理展商名單。",
+        issues: ["攤位缺漏", "網址格式修正", "可手動補列"],
+        fields: ["專區名稱 / Packaging Pavilion", "貼上公司、攤位、網址；系統解析後可單筆修正。"],
+        rows: ["Future Automation", "Vendor missing booth"],
+        checks: ["1 筆缺攤位", "網址格式已自動修正"],
+        preview: "展商名單再亂，最後都回到固定卡片格式。",
+        metricA: "82%",
+        metricB: "24",
+        metricC: "4",
+        ability: "亂表格解析、攤位檢查、單筆修正、專區卡片輸出。"
       }
     ];
 
-    let activeTool = tools[0];
-    let drawerOpen = false;
+    let activeToolId = "sponsors";
 
-    const railTools = document.getElementById("railTools");
-    const statusBadge = document.getElementById("statusBadge");
-    const eyebrow = document.getElementById("eyebrow");
-    const toolTitle = document.getElementById("toolTitle");
-    const commandInput = document.getElementById("commandInput");
-    const openToolBtn = document.getElementById("openToolBtn");
-    const reloadBtn = document.getElementById("reloadBtn");
-    const copyPathBtn = document.getElementById("copyPathBtn");
-    const backBtn = document.getElementById("backBtn");
-    const nextBtn = document.getElementById("nextBtn");
-    const framePath = document.getElementById("framePath");
-    const toolFrame = document.getElementById("toolFrame");
-    const infoBtn = document.getElementById("infoBtn");
-    const drawer = document.getElementById("drawer");
-    const veil = document.getElementById("veil");
-    const closeDrawerBtn = document.getElementById("closeDrawerBtn");
-    const drawerTitle = document.getElementById("drawerTitle");
-    const drawerSummary = document.getElementById("drawerSummary");
-    const drawerBody = document.getElementById("drawerBody");
-    const quickPicker = document.getElementById("quickPicker");
+    const switchButtons = document.querySelectorAll("[data-demo]");
+    const demos = {
+      gallery: document.getElementById("galleryDemo"),
+      split: document.getElementById("splitDemo"),
+      command: document.getElementById("commandDemo")
+    };
+    const currentToolLink = document.getElementById("currentToolLink");
+    const workspaceLink = document.getElementById("workspaceLink");
 
-    function renderRail() {
-      railTools.innerHTML = tools.map(tool => `
-        <button class="rail-btn ${tool.id === activeTool.id ? "active" : ""}" type="button" data-tool="${tool.id}" title="${tool.name}">
-          <span class="rail-code">${tool.code}</span>
-          <span class="rail-label">${tool.rail}</span>
-        </button>
+    function getTool(id = activeToolId) {
+      return tools.find(tool => tool.id === id) || tools[2];
+    }
+
+    function iconMarkup(tool, className = "tool-icon") {
+      return `<span class="${className} ${tool.iconClass}">${tool.code}</span>`;
+    }
+
+    function renderGalleryCards() {
+      const container = document.querySelector("[data-tool-picker]");
+      container.innerHTML = tools.map(tool => `
+        <article class="tool-card ${tool.id === activeToolId ? "active" : ""}" data-tool="${tool.id}" tabindex="0">
+          ${iconMarkup(tool)}
+          <div class="card-copy">
+            <h2>${tool.shortName}</h2>
+            <p>${tool.card}</p>
+          </div>
+          <div class="card-foot">
+            <span>${tool.type}</span>
+            <span class="mini-status">${tool.code}</span>
+          </div>
+        </article>
       `).join("");
     }
 
-    function renderDrawer(tool) {
-      drawerTitle.textContent = tool.name;
-      drawerSummary.textContent = tool.summary;
-      drawerBody.innerHTML = `
-        <section class="drawer-section">
-          <h3>輸入</h3>
-          <ul class="list">${tool.inputs.map(item => `<li>${item}</li>`).join("")}</ul>
-        </section>
-        <section class="drawer-section">
-          <h3>輸出</h3>
-          <ul class="list">${tool.outputs.map(item => `<li>${item}</li>`).join("")}</ul>
-        </section>
-        <section class="drawer-section">
-          <h3>下一輪</h3>
-          <ul class="list">${tool.improvements.map(item => `<li>${item}</li>`).join("")}</ul>
-        </section>
-      `;
+    function renderSideTools() {
+      const container = document.querySelector("[data-side-picker]");
+      container.innerHTML = tools.map(tool => `
+        <article class="side-tool ${tool.id === activeToolId ? "active" : ""}" data-tool="${tool.id}" tabindex="0">
+          ${iconMarkup(tool, "side-icon")}
+          <span class="side-name">
+            <strong>${tool.shortName}</strong>
+            <span>${tool.type}</span>
+          </span>
+        </article>
+      `).join("");
     }
 
-    function selectTool(id, options = {}) {
-      const tool = tools.find(item => item.id === id) || tools[0];
-      activeTool = tool;
-      localStorage.setItem("semicon_hub_last_tool", tool.id);
-
-      statusBadge.className = `status ${tool.statusClass}`;
-      statusBadge.textContent = tool.statusClass === "ai" ? "AI" : tool.statusClass === "stable" ? "Stable" : "Review";
-      eyebrow.textContent = `${tool.category} / ${tool.group} / ${tool.version}`;
-      toolTitle.textContent = tool.name;
-      framePath.textContent = tool.path;
-      openToolBtn.href = tool.path;
-      toolFrame.src = tool.path;
-
-      renderRail();
-      renderDrawer(tool);
-      if (!options.keepPicker) closePicker();
+    function renderCommandCards() {
+      const container = document.querySelector("[data-command-picker]");
+      container.innerHTML = tools.map((tool, index) => `
+        <article class="command-card ${tool.id === activeToolId ? "active" : ""}" data-tool="${tool.id}" tabindex="0">
+          ${iconMarkup(tool)}
+          <div>
+            <h2>${tool.shortName}</h2>
+            <p>${tool.card}</p>
+          </div>
+          <div class="health-list">
+            <div class="health-item"><span>${tool.issues[0]}</span><i class="health-dot ${index === 0 ? "warn" : ""}"></i></div>
+            <div class="health-item"><span>${tool.issues[1]}</span><i class="health-dot ${index === 3 ? "warn" : ""}"></i></div>
+            <div class="health-item"><span>${tool.issues[2]}</span><i class="health-dot"></i></div>
+          </div>
+        </article>
+      `).join("");
     }
 
-    function openDrawer() {
-      drawerOpen = true;
-      drawer.classList.add("open");
-      veil.classList.add("show");
+    function setText(id, value) {
+      const node = document.getElementById(id);
+      if (node) node.textContent = value;
     }
 
-    function closeDrawer() {
-      drawerOpen = false;
-      drawer.classList.remove("open");
-      veil.classList.remove("show");
+    function updateDetails() {
+      const tool = getTool();
+      currentToolLink.href = tool.path;
+      workspaceLink.href = `workspace.html?tool=${encodeURIComponent(tool.id)}`;
+
+      setText("gallerySideTitle", tool.side);
+      setText("gallerySideText", tool.sideText);
+      setText("galleryMainTitle", tool.name);
+      setText("galleryMainDesc", tool.card);
+      setText("galleryIssueA", tool.issues[0]);
+      setText("galleryIssueB", tool.issues[2]);
+      setText("galleryPreviewText", tool.preview);
+
+      setText("splitTitle", tool.name);
+      setText("splitDesc", tool.card);
+      setText("splitInputHint", tool.sideText);
+      setText("splitFieldA", tool.fields[0]);
+      setText("splitFieldB", tool.fields[1]);
+      setText("splitRowA", tool.rows[0]);
+      setText("splitRowB", tool.rows[1]);
+      setText("splitCheckA", tool.checks[0]);
+      setText("splitCheckB", tool.checks[1]);
+      setText("splitPreviewText", tool.preview);
+      document.getElementById("splitOpenLink").href = tool.path;
+
+      setText("commandTitle", tool.name);
+      setText("commandDesc", tool.card);
+      setText("commandAbility", tool.ability);
+      setText("metricA", tool.metricA);
+      setText("metricB", tool.metricB);
+      setText("metricC", tool.metricC);
     }
 
-    function toggleDrawer() {
-      drawerOpen ? closeDrawer() : openDrawer();
+    function renderAll() {
+      renderGalleryCards();
+      renderSideTools();
+      renderCommandCards();
+      updateDetails();
     }
 
-    function normalized(value) {
-      return String(value || "").toLowerCase();
+    function selectTool(id) {
+      activeToolId = id;
+      renderAll();
     }
 
-    function getMatches() {
-      const q = normalized(commandInput.value).trim();
-      if (!q) return tools;
-      return tools.filter(tool => normalized([
-        tool.name,
-        tool.category,
-        tool.group,
-        tool.version,
-        tool.status,
-        tool.summary,
-        tool.keywords.join(" ")
-      ].join(" ")).includes(q));
+    function activateDemo(id) {
+      Object.entries(demos).forEach(([key, element]) => {
+        element.classList.toggle("active", key === id);
+      });
+      switchButtons.forEach(button => {
+        button.classList.toggle("active", button.dataset.demo === id);
+      });
     }
 
-    function renderPicker() {
-      const matches = getMatches();
-      if (!commandInput.value.trim()) {
-        closePicker();
-        return;
-      }
-
-      quickPicker.innerHTML = matches.length
-        ? matches.map(tool => `
-          <button class="quick-item ${tool.id === activeTool.id ? "active" : ""}" type="button" data-tool="${tool.id}">
-            <span class="quick-name">${tool.name}</span>
-            <span class="quick-meta">${tool.group} / ${tool.version} / ${tool.status}</span>
-          </button>
-        `).join("")
-        : `<div class="empty">沒有符合的工具</div>`;
-      quickPicker.classList.add("open");
-    }
-
-    function closePicker() {
-      quickPicker.classList.remove("open");
-    }
-
-    function moveTool(delta) {
-      const index = tools.findIndex(tool => tool.id === activeTool.id);
-      const next = tools[(index + delta + tools.length) % tools.length];
-      selectTool(next.id);
-    }
-
-    railTools.addEventListener("click", event => {
-      const button = event.target.closest("[data-tool]");
-      if (!button) return;
-      selectTool(button.dataset.tool);
+    switchButtons.forEach(button => {
+      button.addEventListener("click", () => activateDemo(button.dataset.demo));
     });
 
-    quickPicker.addEventListener("click", event => {
-      const button = event.target.closest("[data-tool]");
-      if (!button) return;
-      selectTool(button.dataset.tool);
-      commandInput.value = "";
-      closePicker();
-    });
-
-    commandInput.addEventListener("input", renderPicker);
-    commandInput.addEventListener("keydown", event => {
-      if (event.key === "Escape") {
-        commandInput.value = "";
-        closePicker();
-      }
-      if (event.key === "Enter") {
-        const first = getMatches()[0];
-        if (first) {
-          selectTool(first.id);
-          commandInput.value = "";
-          closePicker();
-        }
-      }
-    });
-
-    reloadBtn.addEventListener("click", () => {
-      toolFrame.src = activeTool.path;
-    });
-
-    copyPathBtn.addEventListener("click", async () => {
-      const path = new URL(activeTool.path, window.location.href).href;
-      try {
-        await navigator.clipboard.writeText(path);
-        const old = copyPathBtn.textContent;
-        copyPathBtn.textContent = "已複製";
-        setTimeout(() => copyPathBtn.textContent = old, 1200);
-      } catch (err) {
-        window.prompt("複製此路徑", path);
-      }
-    });
-
-    backBtn.addEventListener("click", () => moveTool(-1));
-    nextBtn.addEventListener("click", () => moveTool(1));
-    infoBtn.addEventListener("click", toggleDrawer);
-    closeDrawerBtn.addEventListener("click", closeDrawer);
-    veil.addEventListener("click", () => {
-      closeDrawer();
-      closePicker();
+    document.addEventListener("click", event => {
+      const card = event.target.closest("[data-tool]");
+      if (!card) return;
+      selectTool(card.dataset.tool);
     });
 
     document.addEventListener("keydown", event => {
-      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
-        event.preventDefault();
-        commandInput.focus();
-      }
-      if (event.key === "Escape") {
-        closeDrawer();
-        closePicker();
-      }
+      if (event.key !== "Enter" && event.key !== " ") return;
+      const card = event.target.closest("[data-tool]");
+      if (!card) return;
+      event.preventDefault();
+      selectTool(card.dataset.tool);
     });
 
-    const lastTool = localStorage.getItem("semicon_hub_last_tool");
-    selectTool(tools.some(tool => tool.id === lastTool) ? lastTool : tools[0].id);
+    renderAll();
   </script>
 </body>
 </html>
