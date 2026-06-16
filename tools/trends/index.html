@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SEMICON 主題產生器 v4.3</title>
+<title>SEMICON 主題產生器 v4.7</title>
 <style>
 :root{
   --pu:#800080;--pu-light:#f5eef5;--pu-mid:#ddc0dd;
@@ -264,6 +264,67 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 .issue-badge{background:#fff4f4;color:var(--danger);border:1px solid #f5c6cb;
   padding:2px 6px;border-radius:10px;font-size:10px;font-weight:700;}
 
+/* ── DATA WORKBENCH ── */
+.data-hub{background:var(--white);border:1px solid var(--bd);border-radius:var(--r);padding:12px;display:flex;flex-direction:column;gap:10px;}
+.data-hub-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
+.data-hub-title{font-size:13px;font-weight:700;color:var(--text);}
+.data-hub-sub{font-size:11px;color:var(--gray);line-height:1.5;max-width:520px;}
+.data-hub-grid{display:grid;grid-template-columns:1.4fr .9fr;gap:10px;}
+.data-hub-card{border:1px solid var(--bd);border-radius:var(--r-sm);padding:10px;background:#fafafa;}
+.data-hub-card h3{font-size:11px;font-weight:700;margin-bottom:6px;color:var(--text);}
+.data-hub-steps{list-style:none;display:flex;flex-direction:column;gap:6px;font-size:11px;color:var(--gray);line-height:1.45;}
+.data-hub-steps li{padding-left:16px;position:relative;}
+.data-hub-steps li::before{content:'•';position:absolute;left:0;color:var(--pu);}
+.sheet-textarea{width:100%;min-height:132px;border:1px solid var(--bd);border-radius:var(--r-sm);padding:8px 10px;font-size:11px;line-height:1.5;font-family:"Menlo","Monaco","Consolas",monospace;resize:vertical;outline:none;background:#fff;}
+.sheet-textarea:focus{border-color:var(--pu);}
+.editor-shell{display:grid;grid-template-columns:minmax(260px,300px) minmax(0,1fr);gap:10px;min-height:0;flex:1;}
+.nav-panel,.detail-panel{background:var(--white);border:1px solid var(--bd);border-radius:var(--r);min-height:0;}
+.nav-panel{display:flex;flex-direction:column;overflow:hidden;}
+.nav-head,.detail-head{padding:12px 14px;border-bottom:1px solid var(--bd);display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
+.nav-head-title,.detail-head-title{font-size:12px;font-weight:700;color:var(--text);}
+.nav-head-sub,.detail-head-sub{font-size:11px;color:var(--gray);line-height:1.45;}
+.theme-nav-list{padding:10px;display:flex;flex-direction:column;gap:8px;overflow:auto;min-height:0;}
+.theme-nav-item{width:100%;text-align:left;background:#fff;border:1px solid var(--bd);border-radius:8px;padding:10px;cursor:pointer;transition:border-color .16s,box-shadow .16s,background .16s;display:flex;flex-direction:column;gap:8px;}
+.theme-nav-item:hover{border-color:#d2bfd2;background:#fcf9fc;}
+.theme-nav-item.active{border-color:#cca0cc;box-shadow:0 0 0 2px rgba(128,0,128,.08);}
+.theme-nav-top{display:flex;align-items:flex-start;gap:8px;}
+.theme-nav-copy{min-width:0;flex:1;}
+.theme-nav-title{font-size:12px;font-weight:700;color:var(--text);line-height:1.35;word-break:break-word;}
+.theme-nav-en{font-size:10px;color:var(--gray);margin-top:2px;line-height:1.35;word-break:break-word;}
+.theme-nav-meta{display:flex;flex-wrap:wrap;gap:5px;}
+.meta-pill{display:inline-flex;align-items:center;border:1px solid var(--bd);border-radius:999px;padding:2px 7px;font-size:10px;color:var(--gray);background:#fafafa;}
+.detail-body{padding:14px;display:flex;flex-direction:column;gap:12px;overflow:auto;min-height:0;}
+.detail-toolbar{display:flex;gap:6px;flex-wrap:wrap;}
+.detail-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;}
+.summary-box{border:1px solid var(--bd);border-radius:8px;padding:8px 10px;background:#fafafa;}
+.summary-label{font-size:9px;text-transform:uppercase;letter-spacing:.8px;color:var(--gray);margin-bottom:4px;}
+.summary-value{font-size:13px;font-weight:700;color:var(--text);}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px;}
+.detail-col{display:flex;flex-direction:column;gap:8px;min-width:0;}
+.detail-card{border:1px solid var(--bd);border-radius:8px;padding:10px;background:#fff;}
+.detail-card-title{font-size:11px;font-weight:700;color:var(--text);margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.detail-field{display:flex;flex-direction:column;gap:4px;}
+.detail-field label{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--gray);font-weight:600;}
+.detail-field input,.detail-field textarea{width:100%;border:1px solid #ddd;border-radius:var(--r-sm);padding:7px 9px;font-size:12px;font-family:inherit;outline:none;transition:border-color .18s;background:#fff;}
+.detail-field textarea{min-height:76px;line-height:1.5;resize:vertical;}
+.detail-field input:focus,.detail-field textarea:focus{border-color:var(--pu);}
+.detail-list-editor{width:100%;min-height:108px;border:1px solid #ddd;border-radius:var(--r-sm);padding:8px 10px;font-size:11px;line-height:1.55;font-family:"Menlo","Monaco","Consolas",monospace;resize:vertical;outline:none;background:#fff;}
+.detail-list-editor:focus{border-color:var(--pu);}
+.detail-note{font-size:10px;color:var(--gray);line-height:1.45;margin-top:6px;}
+.toggle-chip{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--gray);font-weight:500;text-transform:none;letter-spacing:0;}
+.empty-detail{padding:22px;text-align:center;color:var(--gray);font-size:12px;}
+@media(max-width:1240px){
+  .editor-shell{grid-template-columns:1fr;}
+  .nav-panel{max-height:280px;}
+}
+@media(max-width:980px){
+  .workspace{flex-direction:column;}
+  .editor-pane,.preview-pane{width:100%;}
+  .editor-pane{max-height:none;}
+  .preview-pane{min-height:42vh;}
+  .data-hub-grid,.detail-grid,.detail-summary{grid-template-columns:1fr;}
+}
+
 /* ── MISC ── */
 .copied{background:var(--success)!important;border-color:var(--success)!important;}
 .loading-dots::after{content:'...';animation:dots 1.2s steps(4,end) infinite;}
@@ -277,7 +338,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 <header class="app-header">
   <div class="header-brand">
     <h1>SEMICON 主題產生器</h1>
-    <span class="version-badge">v4.3</span>
+    <span class="version-badge">v4.7</span>
   </div>
   <div class="header-actions">
     <span class="save-indicator" id="saveIndicator"></span>
@@ -286,7 +347,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
     <input type="file" id="workFileInput" accept=".json" style="display:none" onchange="importWorkFile(event)">
     <button class="icon-btn" onclick="showApiKeyModal()" title="設定 API Key">🔑</button>
     <button class="btn btn-outline btn-sm" onclick="clearStorage()" style="color:var(--danger);border-color:#f5c6cb;">🗑</button>
-    <button class="btn btn-outline btn-sm" onclick="toggleAll()">展開/收合</button>
+    <button class="btn btn-outline btn-sm" onclick="toggleAll()">專注模式</button>
     <button class="btn btn-success-outline btn-sm" onclick="copyBoth()">複製中文</button>
     <button class="btn btn-outline btn-sm" onclick="copyBoth('en')">Copy EN</button>
   </div>
@@ -298,12 +359,49 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   <!-- LEFT: EDITOR -->
   <div class="editor-pane">
 
+    <div class="data-hub">
+      <div class="data-hub-head">
+        <div>
+          <div class="data-hub-title">Excel / 工作表匯入工作台</div>
+          <div class="data-hub-sub">把資料集中在一份表，再貼進來更新。左側只負責檢查、修正、預覽，不再做十五次重複打底。</div>
+        </div>
+        <div class="detail-toolbar">
+          <a class="btn btn-outline btn-sm" href="templates/trend-table-import-template.xlsx" download>下載 Excel 範本</a>
+          <a class="btn btn-outline btn-sm" href="templates/trend-table-import-template.tsv" download>下載 TSV 範本</a>
+          <button class="btn btn-outline btn-sm" onclick="copyImportSchema()">複製欄位說明</button>
+        </div>
+      </div>
+      <div class="data-hub-grid">
+        <div class="data-hub-card">
+          <h3>貼上 Excel 區塊</h3>
+          <textarea class="sheet-textarea" id="sheetBatchInput" placeholder="直接從 Excel / Google Sheets 複製整塊區域貼到這裡。&#10;建議使用 TSV 範本欄位；也支援你目前的主題 / 主題介紹 / 關鍵字 / 對應專區 / 對應論壇模式。"></textarea>
+          <div class="batch-actions">
+            <button class="btn btn-outline btn-sm" onclick="document.getElementById('sheetFileInput').click()">載入 Excel / CSV</button>
+            <button class="btn btn-primary btn-sm" onclick="applySheetBatch()">套用貼上表</button>
+            <button class="btn btn-outline btn-sm" onclick="exportSheetBatch()">匯出目前資料表</button>
+            <button class="btn btn-outline btn-sm" onclick="document.getElementById('sheetBatchInput').value=''">清空</button>
+          </div>
+          <input type="file" id="sheetFileInput" accept=".xlsx,.xls,.csv,.tsv,.txt" style="display:none" onchange="importSheetFile(event)">
+          <div class="batch-note">專區 / 論壇建議在同一格內一行一筆，格式：<code>名稱 | URL</code>。若已拆成 Zone1 / Forum1 欄位也可直接讀取。</div>
+        </div>
+        <div class="data-hub-card">
+          <h3>建議工作流程</h3>
+          <ul class="data-hub-steps">
+            <li>先在 Excel 維護 15 個主題資料與連結。</li>
+            <li>整塊貼入這裡，先完成大部分內容同步。</li>
+            <li>再用下方主題清單逐一抽查，不是逐一重做。</li>
+            <li>AI 保留做補字、整理、翻譯，不拿來取代正式資料源。</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
     <!-- AI PANEL -->
     <div class="ai-panel optional" id="aiPanel">
       <div class="ai-panel-header" onclick="toggleAiPanel()">
         <span class="ai-panel-icon">🤖</span>
         <span class="ai-panel-title">AI 智慧匯入</span>
-        <span class="ai-panel-sub">選用：貼入網址或文字，自動填入欄位</span>
+        <span class="ai-panel-sub">用來補資料、整理文字，不必每個欄位手動貼</span>
         <span class="ai-panel-tag">Optional</span>
         <span class="ai-chevron">▼</span>
       </div>
@@ -316,7 +414,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
           <button class="ai-mode-btn active" id="modeUrl" onclick="setAiMode('url')">🔗 貼入網址</button>
           <button class="ai-mode-btn" id="modeText" onclick="setAiMode('text')">📋 貼入文字</button>
         </div>
-        <textarea class="ai-input-area" id="aiInput" placeholder="貼入 SEMICON Taiwan 的活動網址，或直接貼上論壇/展區相關文字內容…"></textarea>
+        <textarea class="ai-input-area" id="aiInput" placeholder="貼入 SEMICON Taiwan 的活動網址，或直接貼上論壇 / 展區 / 主題文字內容…"></textarea>
         <div class="ai-target-row">
           <label>匯入至：</label>
           <select id="aiTarget">
@@ -339,7 +437,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
       </div>
       <div class="publish-issues" id="publishIssues"></div>
       <details class="batch-tools">
-        <summary>批次編輯文字 / Icon</summary>
+        <summary>進階批次工具</summary>
         <div class="batch-body">
           <div class="batch-card">
             <div class="batch-card-title">主題文字表</div>
@@ -364,9 +462,27 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
       </details>
     </div>
 
-    <!-- THEME LIST -->
-    <div id="themeList"></div>
-    <button class="btn-dashed" onclick="addTheme()">＋ 新增主題區塊</button>
+    <div class="editor-shell">
+      <div class="nav-panel">
+        <div class="nav-head">
+          <div>
+            <div class="nav-head-title">主題清單</div>
+            <div class="nav-head-sub">先選主題，再集中編輯這一筆。</div>
+          </div>
+          <button class="btn btn-outline btn-sm" onclick="addTheme()">＋ 新增</button>
+        </div>
+        <div class="theme-nav-list" id="themeList"></div>
+      </div>
+      <div class="detail-panel">
+        <div class="detail-head">
+          <div>
+            <div class="detail-head-title">主題編輯區</div>
+            <div class="detail-head-sub">只顯示目前選取的主題，減少重複視覺干擾。</div>
+          </div>
+        </div>
+        <div class="detail-body" id="detailPanel"></div>
+      </div>
+    </div>
 
     <!-- ADVANCED SETTINGS -->
     <details class="adv-settings">
@@ -436,27 +552,28 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   </div>
 </div>
 
+<script src="assets/xlsx.full.min.js"></script>
 <script>
 // ════════════════════════════════════════════
 // DATA
 // ════════════════════════════════════════════
 const DEFAULT_ICON_BASE_URL = "https://semitwmkt.github.io/Trend_Table-Creator/assets/icons/";
 const DEFAULT_ICON_FILENAMES = [
-  "01-ai-computing.jpg",
-  "02-physical-ai.jpg",
-  "03-advanced-manufacturing.jpg",
-  "04-advanced-packaging.jpg",
-  "05-silicon-photonics.jpg",
-  "06-hbm.jpg",
-  "07-autonomous-fab.jpg",
-  "08-strategic-materials.jpg",
-  "09-advanced-testing-metrology.jpg",
-  "10-quantum.jpg",
-  "11-semiconductor-cybersecurity.jpg",
-  "12-startup.jpg",
-  "13-geostrategy.jpg",
-  "14-sustainability.jpg",
-  "15-workforce-development.jpg"
+  "01-ai-computing.png",
+  "02-physical-ai.png",
+  "03-advanced-manufacturing.png",
+  "04-advanced-packaging.png",
+  "05-silicon-photonics.png",
+  "06-hbm.png",
+  "07-autonomous-fab.png",
+  "08-strategic-materials.png",
+  "09-advanced-testing-metrology.png",
+  "10-quantum.png",
+  "11-semiconductor-cybersecurity.png",
+  "12-startup.png",
+  "13-geostrategy.png",
+  "14-sustainability.png",
+  "15-workforce-development.png"
 ];
 const DEFAULT_ICON_URLS = DEFAULT_ICON_FILENAMES.map(name => DEFAULT_ICON_BASE_URL + name);
 
@@ -480,6 +597,7 @@ let themes = [
 
 let themeSearchTerm = '';
 let showOnlyIssues = false;
+let selectedThemeIndex = 0;
 
 // ════════════════════════════════════════════
 // RENDER
@@ -489,6 +607,11 @@ function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').repla
 function themeLabel(i){
   const t = themes[i] || {};
   return `${String(i+1).padStart(2,'0')} ${t.title_zh || t.title_en || '未命名'}`;
+}
+
+function ensureSelectedTheme(){
+  if(!themes.length){selectedThemeIndex = -1;return;}
+  if(selectedThemeIndex < 0 || selectedThemeIndex >= themes.length)selectedThemeIndex = 0;
 }
 
 function themeSearchText(t,i){
@@ -557,17 +680,17 @@ function updateQuickNav(){
   jump.value = prev;
 }
 
-function openThemeBlock(i){
-  const block = document.querySelector(`.theme-block[data-theme-index="${i}"]`);
-  if(!block)return;
-  document.querySelectorAll('.theme-block').forEach(b=>b.classList.remove('open'));
-  block.classList.add('open');
-  block.scrollIntoView({behavior:'smooth',block:'start'});
+function selectTheme(i){
+  selectedThemeIndex = Number(i);
+  ensureSelectedTheme();
+  renderList();
+  renderDetailPanel();
 }
 
 function setThemeSearch(value){
   themeSearchTerm = value || '';
   renderList();
+  renderDetailPanel();
   updatePublishCheck();
 }
 
@@ -576,6 +699,7 @@ function toggleIssueFilter(){
   const btn = document.getElementById('issueToggle');
   if(btn)btn.classList.toggle('active', showOnlyIssues);
   renderList();
+  renderDetailPanel();
   updatePublishCheck();
 }
 
@@ -587,16 +711,18 @@ function quickJumpTo(value){
   const toggle = document.getElementById('issueToggle');
   if(search)search.value = '';
   if(toggle)toggle.classList.remove('active');
+  selectedThemeIndex = Number(value);
   renderList();
-  openThemeBlock(Number(value));
+  renderDetailPanel();
 }
 
 function jumpToIssue(i){
   themeSearchTerm = '';
   const search = document.getElementById('themeSearch');
   if(search)search.value = '';
+  selectedThemeIndex = Number(i);
   renderList();
-  openThemeBlock(i);
+  renderDetailPanel();
 }
 
 function renderPublishIssues(issues){
@@ -675,10 +801,14 @@ function applyBundledIcons(){
 function isBundledIconUrl(value, index){
   const url = (value || '').trim();
   const filename = DEFAULT_ICON_FILENAMES[index];
+  const legacyFilename = filename ? filename.replace(/\.png$/i, '.jpg') : '';
   if(!url || !filename)return false;
   return url === `assets/icons/${filename}` ||
     url.endsWith(`/assets/icons/${filename}`) ||
-    url.endsWith(`/tools/trends/assets/icons/${filename}`);
+    url.endsWith(`/tools/trends/assets/icons/${filename}`) ||
+    (legacyFilename && (url === `assets/icons/${legacyFilename}` ||
+      url.endsWith(`/assets/icons/${legacyFilename}`) ||
+      url.endsWith(`/tools/trends/assets/icons/${legacyFilename}`)));
 }
 
 function fillMissingIconsWithDefaults(){
@@ -722,10 +852,150 @@ function applyIconBatch(){
   alert('已套用 '+updated+' 個 icon URL。');
 }
 
+function renderThemeSummary(t,i,issueCount){
+  const meta = [];
+  if((t.sub_zh || '').trim())meta.push(`<span class="meta-pill">${esc(t.sub_zh)}</span>`);
+  meta.push(`<span class="meta-pill">展區 ${t.zones.length}</span>`);
+  meta.push(`<span class="meta-pill">論壇 ${t.forums.length}</span>`);
+  if((t.icon_url || '').trim())meta.push('<span class="meta-pill">Icon</span>');
+  return `
+    <button class="theme-nav-item ${i===selectedThemeIndex?'active':''}" onclick="selectTheme(${i})">
+      <div class="theme-nav-top">
+        <span class="th-badge">${String(i+1).padStart(2,'0')}</span>
+        <div class="theme-nav-copy">
+          <div class="theme-nav-title">${esc(t.title_zh || '未命名')}</div>
+          <div class="theme-nav-en">${esc(t.title_en || 'Untitled')}</div>
+        </div>
+        ${issueCount?`<span class="issue-badge">${issueCount}</span>`:''}
+      </div>
+      <div class="theme-nav-meta">${meta.join('')}</div>
+    </button>`;
+}
+
+function renderListEditorText(arr){
+  return (arr || []).map(item => {
+    const zh = (item.zh || '').trim();
+    const en = (item.en || '').trim();
+    const url = (item.url || '').trim();
+    return [zh, en, url].join(' | ').replace(/\s+\|\s+\|\s*$/, '').replace(/\s+\|\s*$/, '');
+  }).join('\n');
+}
+
+function parseListEditor(value){
+  return (value || '')
+    .split(/\r?\n/)
+    .map(line => line.trim())
+    .filter(Boolean)
+    .map(line => {
+      const parts = line.split('|').map(part => part.trim());
+      if(parts.length >= 3)return {zh:parts[0] || '', en:parts[1] || '', url:parts.slice(2).join(' | ') || ''};
+      if(parts.length === 2){
+        if(/^https?:\/\//i.test(parts[1]))return {zh:parts[0] || '', en:'', url:parts[1]};
+        return {zh:parts[0] || '', en:parts[1] || '', url:''};
+      }
+      return {zh:parts[0] || '', en:'', url:''};
+    });
+}
+
+function renderDetailPanel(){
+  const panel = document.getElementById('detailPanel');
+  if(!panel)return;
+  ensureSelectedTheme();
+  if(selectedThemeIndex < 0 || !themes[selectedThemeIndex]){
+    panel.innerHTML = '<div class="empty-detail">目前沒有可編輯的主題。</div>';
+    return;
+  }
+  const t = themes[selectedThemeIndex];
+  const issues = getPublishIssues().filter(issue=>issue.themeIndex===selectedThemeIndex).length;
+  panel.innerHTML = `
+    <div class="detail-toolbar">
+      <button class="btn btn-outline btn-sm" onclick="moveT(${selectedThemeIndex},-1)" ${selectedThemeIndex===0?'disabled':''}>上移</button>
+      <button class="btn btn-outline btn-sm" onclick="moveT(${selectedThemeIndex},1)" ${selectedThemeIndex===themes.length-1?'disabled':''}>下移</button>
+      <button class="btn btn-outline btn-sm" onclick="toggleAiFill(${selectedThemeIndex})">AI 補資料</button>
+      <button class="btn btn-danger btn-sm" onclick="delT(${selectedThemeIndex})">刪除此主題</button>
+    </div>
+
+    <div class="summary-box" style="background:#fcf9fc;">
+      <div class="summary-label">目前編輯</div>
+      <div class="summary-value">${esc(themeLabel(selectedThemeIndex))}</div>
+      <div class="detail-note" style="margin-top:6px;">這裡只顯示單一主題，讓我們把工作流程變成「選一筆、修一筆、看結果」，而不是一口氣面對十五份表單。</div>
+    </div>
+
+    <div class="detail-summary">
+      <div class="summary-box"><div class="summary-label">Issues</div><div class="summary-value">${issues}</div></div>
+      <div class="summary-box"><div class="summary-label">Zones</div><div class="summary-value">${t.zones.length}</div></div>
+      <div class="summary-box"><div class="summary-label">Forums</div><div class="summary-value">${t.forums.length}</div></div>
+      <div class="summary-box"><div class="summary-label">Icon</div><div class="summary-value">${(t.icon_url || '').trim() ? '已設定' : '未設定'}</div></div>
+    </div>
+
+    <div class="ai-fill-panel" id="aifill-${selectedThemeIndex}">
+      <div class="ai-fill-title">🤖 AI 補齊「${esc(t.title_zh || '未命名')}」</div>
+      <div class="ai-fill-row">
+        <textarea class="ai-fill-input" id="aifill-input-${selectedThemeIndex}" placeholder="貼入網址、論壇頁、展區頁，或一整段主題相關文字…"></textarea>
+        <div class="ai-fill-btns">
+          <button class="btn btn-ai btn-sm" onclick="runAiFillTheme(${selectedThemeIndex})">分析</button>
+          <button class="btn btn-outline btn-sm" onclick="toggleAiFill(${selectedThemeIndex})">取消</button>
+        </div>
+      </div>
+      <div class="ai-log" id="aifill-log-${selectedThemeIndex}"></div>
+    </div>
+
+    <div class="detail-grid">
+      <div class="detail-col">
+        <div class="detail-card">
+          <div class="detail-card-title">中文</div>
+          <div class="detail-field"><label>主標題</label><input value="${esc(t.title_zh)}" oninput="upd(${selectedThemeIndex},'title_zh',this.value)" onblur="refreshWorkbench()"></div>
+          <div class="detail-field"><label>關鍵字 / 副標</label><input value="${esc(t.sub_zh)}" oninput="upd(${selectedThemeIndex},'sub_zh',this.value)" onblur="refreshWorkbench()"></div>
+          <div class="detail-field"><label>主題介紹</label><textarea oninput="upd(${selectedThemeIndex},'desc_zh',this.value)" onblur="refreshWorkbench()">${esc(t.desc_zh)}</textarea></div>
+        </div>
+      </div>
+      <div class="detail-col">
+        <div class="detail-card">
+          <div class="detail-card-title">English</div>
+          <div class="detail-field"><label>Title</label><input value="${esc(t.title_en)}" oninput="upd(${selectedThemeIndex},'title_en',this.value)" onblur="refreshWorkbench()"></div>
+          <div class="detail-field"><label>Keywords / Subtitle</label><input value="${esc(t.sub_en)}" oninput="upd(${selectedThemeIndex},'sub_en',this.value)" onblur="refreshWorkbench()"></div>
+          <div class="detail-field"><label>Trend Intro</label><textarea oninput="upd(${selectedThemeIndex},'desc_en',this.value)" onblur="refreshWorkbench()">${esc(t.desc_en)}</textarea></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-card">
+      <div class="detail-card-title">Icon</div>
+      <div class="detail-field">
+        <label>Icon 圖片 URL（可留空）</label>
+        <input type="text" value="${esc(t.icon_url)}" oninput="upd(${selectedThemeIndex},'icon_url',this.value)" onblur="refreshWorkbench()" placeholder="https://example.com/icon.png">
+      </div>
+      <div class="detail-note">卡片上已改成右下角浮水印邏輯。沒有圖就留空，不會影響版型。</div>
+    </div>
+
+    <div class="detail-grid">
+      <div class="detail-col">
+        <div class="detail-card">
+          <div class="detail-card-title">
+            <span>展區 / 專區</span>
+            <label class="toggle-chip"><input type="checkbox" ${t.showZone?'checked':''} onchange="upd(${selectedThemeIndex},'showZone',this.checked);refreshWorkbench()"> 顯示此欄</label>
+          </div>
+          <textarea class="detail-list-editor" onblur="applyListEditor(${selectedThemeIndex},'zones',this.value)">${esc(renderListEditorText(t.zones))}</textarea>
+          <div class="detail-note">一行一筆，格式：<code>中文名稱 | English Name | URL</code>。若目前只有中文與連結，也可以先用 <code>中文名稱 | URL</code>。</div>
+        </div>
+      </div>
+      <div class="detail-col">
+        <div class="detail-card">
+          <div class="detail-card-title">
+            <span>論壇議題</span>
+            <label class="toggle-chip"><input type="checkbox" ${t.showForum?'checked':''} onchange="upd(${selectedThemeIndex},'showForum',this.checked);refreshWorkbench()"> 顯示此欄</label>
+          </div>
+          <textarea class="detail-list-editor" onblur="applyListEditor(${selectedThemeIndex},'forums',this.value)">${esc(renderListEditorText(t.forums))}</textarea>
+          <div class="detail-note">這裡也改成整段編輯，不再是一格一格的小表格。未來 Excel 更新時，這種格式也最好維持一致。</div>
+        </div>
+      </div>
+    </div>`;
+}
+
 function renderList(){
+  ensureSelectedTheme();
   const list = document.getElementById('themeList');
   list.innerHTML = '';
-  // Update AI target selector
   const sel = document.getElementById('aiTarget');
   const prev = sel.value;
   sel.innerHTML = '<option value="all">所有主題（自動對應）</option>';
@@ -740,164 +1010,55 @@ function renderList(){
 
   const term = themeSearchTerm.trim().toLowerCase();
   const issues = getPublishIssues();
-  let rendered = 0;
+  const visibleIndices = [];
   themes.forEach((t,i) => {
     if(!shouldRenderTheme(t,i,term,issues))return;
-    const id = String(i+1).padStart(2,'0');
+    visibleIndices.push(i);
     const issueCount = issues.filter(issue=>issue.themeIndex===i).length;
-    const block = document.createElement('div');
-    block.className = 'theme-block' + (rendered===0 ? ' open' : '');
-    block.dataset.themeIndex = i;
-    block.innerHTML = `
-      <div class="theme-header" onclick="toggleBlock(this)">
-        <div class="th-left">
-          <span class="th-badge">${id}</span>
-          <span class="th-title" id="tht-${i}">${t.title_zh||'未命名'}</span>
-          ${issueCount?`<span class="issue-badge">${issueCount}</span>`:''}
-        </div>
-        <div class="th-controls" onclick="event.stopPropagation()">
-          <button class="ctrl-btn ai-fill" onclick="toggleAiFill(${i})" title="AI 填入此主題">🤖</button>
-          <button class="ctrl-btn" onclick="moveT(${i},-1)" ${i===0?'disabled':''}>▲</button>
-          <button class="ctrl-btn" onclick="moveT(${i},1)" ${i===themes.length-1?'disabled':''}>▼</button>
-          <button class="ctrl-btn del" onclick="delT(${i})">✖</button>
-        </div>
-      </div>
-      <div class="theme-body">
-        <!-- AI fill panel -->
-        <div class="ai-fill-panel" id="aifill-${i}">
-          <div class="ai-fill-title">🤖 AI 填入「${t.title_zh}」</div>
-          <div class="ai-fill-row">
-            <textarea class="ai-fill-input" id="aifill-input-${i}" placeholder="貼入網址（如論壇頁面網址）或相關文字內容…"></textarea>
-            <div class="ai-fill-btns">
-              <button class="btn btn-ai btn-sm" onclick="runAiFillTheme(${i})">分析</button>
-              <button class="btn btn-outline btn-sm" onclick="toggleAiFill(${i})">取消</button>
-            </div>
-          </div>
-          <div class="ai-log" id="aifill-log-${i}"></div>
-        </div>
-
-        <!-- Icon URL -->
-        <div class="form-row" style="margin-bottom:10px;">
-          <div class="form-group">
-            <label>Icon 圖片 URL（SVG/PNG，可留空）</label>
-            <input type="text" value="${esc(t.icon_url)}" oninput="upd(${i},'icon_url',this.value)" placeholder="https://example.com/icons/theme-01.svg">
-          </div>
-        </div>
-        <span class="help-pill">💡 請設計師上傳 SVG 後將 URL 貼入此欄。留空不顯示圖示。</span>
-        <div style="margin-top:10px;"></div>
-
-        <!-- ZH / EN -->
-        <div class="lang-grid">
-          <div class="col-zh">
-            <span class="lang-header">🇹🇼 中文</span>
-            <div class="lang-field"><label>主標題</label><input value="${esc(t.title_zh)}" oninput="upd(${i},'title_zh',this.value);document.getElementById('tht-${i}').innerText=this.value||'未命名';document.querySelector('#aifill-${i} .ai-fill-title').textContent='🤖 AI 填入「'+(this.value||'未命名')+'」'"></div>
-            <div class="lang-field"><label>副標題</label><input value="${esc(t.sub_zh)}" oninput="upd(${i},'sub_zh',this.value)"></div>
-          </div>
-          <div class="col-en">
-            <span class="lang-header">🇺🇸 English</span>
-            <div class="lang-field"><label>Title</label><input value="${esc(t.title_en)}" oninput="upd(${i},'title_en',this.value)"></div>
-            <div class="lang-field"><label>Subtitle</label><input value="${esc(t.sub_en)}" oninput="upd(${i},'sub_en',this.value)"></div>
-          </div>
-        </div>
-        <hr class="divider">
-        <div class="item-section-head" style="border:none;padding-bottom:5px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gray);">主題介紹（抽屜右上角，可留空）</div>
-        <div class="lang-grid">
-          <div class="col-zh"><span class="lang-header">🇹🇼 中文介紹</span>
-            <div class="lang-field"><textarea placeholder="簡短描述此主題的核心方向…" oninput="upd(${i},'desc_zh',this.value)">${esc(t.desc_zh)}</textarea></div>
-          </div>
-          <div class="col-en"><span class="lang-header">🇺🇸 English Description</span>
-            <div class="lang-field"><textarea placeholder="Brief description of this theme…" oninput="upd(${i},'desc_en',this.value)">${esc(t.desc_en)}</textarea></div>
-          </div>
-        </div>
-        <hr class="divider">
-        <!-- Zones -->
-        <div class="item-section">
-          <div class="item-section-head">
-            展區 / 專區
-            <div style="display:flex;align-items:center;gap:8px;">
-              <label style="display:flex;align-items:center;gap:5px;font-size:11px;font-weight:400;color:var(--gray);text-transform:none;letter-spacing:0;cursor:pointer;">
-                <input type="checkbox" id="chkZone-${i}" ${t.showZone?'checked':''} onchange="upd(${i},'showZone',this.checked);toggleSection('zone-body-${i}',this.checked)"> 顯示此欄
-              </label>
-              <button class="btn btn-sm btn-outline" onclick="addItem(${i},'zones')">＋ 新增</button>
-            </div>
-          </div>
-          <div id="zone-body-${i}" style="${t.showZone?'':'display:none;'}">
-            <div class="item-col-labels"><span>中文名稱</span><span>English</span><span>URL</span><span></span></div>
-            <div id="zones-${i}">${renderRows(i,'zones')}</div>
-          </div>
-        </div>
-        <hr class="divider">
-        <!-- Forums -->
-        <div class="item-section">
-          <div class="item-section-head">
-            論壇議題
-            <div style="display:flex;align-items:center;gap:8px;">
-              <label style="display:flex;align-items:center;gap:5px;font-size:11px;font-weight:400;color:var(--gray);text-transform:none;letter-spacing:0;cursor:pointer;">
-                <input type="checkbox" id="chkForum-${i}" ${t.showForum?'checked':''} onchange="upd(${i},'showForum',this.checked);toggleSection('forum-body-${i}',this.checked)"> 顯示此欄
-              </label>
-              <button class="btn btn-sm btn-outline" onclick="addItem(${i},'forums')">＋ 新增</button>
-            </div>
-          </div>
-          <div id="forum-body-${i}" style="${t.showForum?'':'display:none;'}">
-            <div class="item-col-labels"><span>中文名稱</span><span>English</span><span>URL</span><span></span></div>
-            <div id="forums-${i}">${renderRows(i,'forums')}</div>
-          </div>
-        </div>
-      </div>`;
-    list.appendChild(block);
-    // bind oninput for preview on all inputs/textareas inside this block
-    block.querySelectorAll('input,textarea,select').forEach(el => {
-      el.addEventListener('input', schedulePreview);
-      el.addEventListener('change', schedulePreview);
-    });
-    rendered++;
+    list.insertAdjacentHTML('beforeend', renderThemeSummary(t,i,issueCount));
   });
-  if(!rendered){
+  if(!visibleIndices.length){
     list.innerHTML = '<div class="empty-filter">沒有符合目前搜尋或檢查條件的主題。</div>';
+  }else if(!visibleIndices.includes(selectedThemeIndex)){
+    selectedThemeIndex = visibleIndices[0];
   }
-}
-
-function renderRows(i,key){
-  const arr=themes[i][key];
-  if(!arr||arr.length===0) return `<div class="empty-note">（空，輸出顯示即將公布 / Coming soon）</div>`;
-  return arr.map((item,j)=>`<div class="item-row">
-    <input value="${esc(item.zh)}" oninput="updItem(${i},'${key}',${j},'zh',this.value)" placeholder="中文">
-    <input value="${esc(item.en)}" oninput="updItem(${i},'${key}',${j},'en',this.value)" placeholder="English">
-    <input class="url-inp" value="${esc(item.url)}" oninput="updItem(${i},'${key}',${j},'url',this.value)" placeholder="https://...">
-    <button class="item-del" onclick="delItem(${i},'${key}',${j})">✕</button>
-  </div>`).join('');
+  renderDetailPanel();
 }
 
 // ════════════════════════════════════════════
 // MUTATIONS
 // ════════════════════════════════════════════
+function refreshWorkbench(){renderList();updatePublishCheck();}
 function upd(i,k,v){themes[i][k]=v;schedulePreview();saveToStorage();}
 function updItem(i,l,j,k,v){themes[i][l][j][k]=v;schedulePreview();saveToStorage();}
-function addItem(i,key){
-  themes[i][key].push({zh:'',en:'',url:''});
-  document.getElementById(key+'-'+i).innerHTML=renderRows(i,key);
-  document.getElementById(key+'-'+i).querySelectorAll('input').forEach(el=>el.addEventListener('input',()=>{schedulePreview();saveToStorage();}));
-  schedulePreview();saveToStorage();
+function applyListEditor(i,key,value){
+  themes[i][key] = parseListEditor(value);
+  schedulePreview();
+  saveToStorage();
+  refreshWorkbench();
 }
-function delItem(i,key,j){themes[i][key].splice(j,1);document.getElementById(key+'-'+i).innerHTML=renderRows(i,key);schedulePreview();saveToStorage();}
 function addTheme(){
   themes.push({icon_url:'',title_zh:'新主題',title_en:'New Theme',sub_zh:'副標題',sub_en:'Subtitle',desc_zh:'',desc_en:'',showZone:false,showForum:false,zones:[],forums:[]});
+  selectedThemeIndex = themes.length - 1;
   renderList();schedulePreview();saveToStorage();
-  const blocks=document.querySelectorAll('.theme-block');
-  blocks.forEach(b=>b.classList.remove('open'));
-  const last=blocks[blocks.length-1];last.classList.add('open');
-  last.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
-function delT(i){if(confirm('確定刪除「'+themes[i].title_zh+'」？')){themes.splice(i,1);renderList();schedulePreview();saveToStorage();}}
+function delT(i){if(confirm('確定刪除「'+themes[i].title_zh+'」？')){themes.splice(i,1);if(selectedThemeIndex>=themes.length)selectedThemeIndex=themes.length-1;renderList();schedulePreview();saveToStorage();}}
 function moveT(i,dir){
   if(i+dir<0||i+dir>=themes.length)return;
   [themes[i],themes[i+dir]]=[themes[i+dir],themes[i]];
+  selectedThemeIndex = i + dir;
   renderList();schedulePreview();saveToStorage();
 }
-function toggleBlock(h){h.parentElement.classList.toggle('open');}
-function toggleSection(id,show){const el=document.getElementById(id);if(el)el.style.display=show?'':'none';}
 let allOpen=false;
-function toggleAll(){allOpen=!allOpen;document.querySelectorAll('.theme-block').forEach(b=>b.classList.toggle('open',allOpen));}
+function toggleAll(){
+  allOpen=!allOpen;
+  const hub = document.querySelector('.data-hub');
+  const ai = document.getElementById('aiPanel');
+  const adv = document.querySelector('.adv-settings');
+  if(hub)hub.style.display = allOpen ? 'none' : '';
+  if(ai)ai.style.display = allOpen ? 'none' : '';
+  if(adv)adv.open = !allOpen && adv.open;
+}
 
 // ════════════════════════════════════════════
 // AI PANEL TOGGLE
@@ -914,6 +1075,7 @@ function setAiMode(m){
 }
 function toggleAiFill(i){
   const p=document.getElementById('aifill-'+i);
+  if(!p)return;
   p.classList.toggle('show');
   if(p.classList.contains('show')) document.getElementById('aifill-input-'+i).focus();
 }
@@ -976,18 +1138,20 @@ ${sc} .st-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:1p
 @media(max-width:1180px){${sc} .st-grid{grid-template-columns:repeat(3,1fr);}}
 @media(max-width:768px){${sc} .st-grid{grid-template-columns:repeat(2,1fr);}}
 @media(max-width:480px){${sc} .st-grid{grid-template-columns:repeat(${mobileCols},1fr);}}
-${sc} .st-card{position:relative;background:#fff;padding:20px 18px 40px;min-height:236px;cursor:pointer;overflow:hidden;transition:background .18s ease;outline:none;-webkit-tap-highlight-color:transparent;}
-${sc} .st-num-wrap{display:inline-flex;align-items:center;justify-content:center;width:auto;min-width:46px;height:38px;padding:0 11px;border-radius:6px;background:#f5eef5;margin-bottom:12px;transition:background .15s;font-family:var(--fd);font-size:${s(16)};font-weight:800;color:var(--pu);white-space:nowrap;letter-spacing:-0.5px;line-height:1;}
+${sc} .st-card{position:relative;background:#fff;padding:20px 18px 44px;min-height:236px;cursor:pointer;overflow:hidden;transition:background .18s ease;outline:none;-webkit-tap-highlight-color:transparent;}
+${sc} .st-num-wrap{position:relative;z-index:1;display:inline-flex;align-items:center;justify-content:center;width:auto;min-width:46px;height:38px;padding:0 11px;border-radius:6px;background:#f5eef5;margin-bottom:12px;transition:background .15s;font-family:var(--fd);font-size:${s(16)};font-weight:800;color:var(--pu);white-space:nowrap;letter-spacing:-0.5px;line-height:1;}
 ${sc} .st-card:hover .st-num-wrap,${sc} .st-card.active .st-num-wrap{background:#ede0ed;}
-${sc} .st-card-icon-wrap{position:absolute;top:16px;right:16px;width:92px;height:92px;border-radius:10px;display:flex;align-items:center;justify-content:center;opacity:.2;transition:opacity .25s,transform .25s;pointer-events:none;overflow:hidden;}
-${sc} .st-card-icon-wrap img{width:100%;height:100%;object-fit:contain;object-position:center;filter:saturate(.9);}
-${sc} .st-card:hover .st-card-icon-wrap,${sc} .st-card.active .st-card-icon-wrap{opacity:.34;transform:scale(1.04);}
-${sc} .st-card-title{font-family:var(--fd);font-size:clamp(${s(14)},1.35vw,${s(17)});font-weight:800;color:var(--bk);line-height:1.16;letter-spacing:0;max-width:100%;word-break:normal;overflow-wrap:normal;hyphens:none;}
-${sc} .st-card-sub{margin-top:8px;font-size:${s(12)};color:var(--gr);line-height:1.45;max-width:100%;word-break:normal;overflow-wrap:normal;hyphens:none;}
+${sc} .st-card-icon-wrap{position:absolute;right:14px;bottom:20px;width:92px;height:92px;display:flex;align-items:center;justify-content:center;opacity:.08;transition:opacity .25s,transform .25s;pointer-events:none;overflow:hidden;z-index:0;}
+${sc} .st-card-icon-wrap img{width:100%;height:100%;object-fit:contain;object-position:center;}
+${sc} .st-card:hover .st-card-icon-wrap,${sc} .st-card.active .st-card-icon-wrap{opacity:.13;transform:scale(1.03);}
+${sc} .st-card-title{position:relative;z-index:1;font-family:var(--fd);font-size:clamp(${s(14)},1.35vw,${s(17)});font-weight:800;color:var(--bk);line-height:1.16;letter-spacing:0;max-width:100%;word-break:normal;overflow-wrap:break-word;hyphens:none;}
+${sc} .st-card-sub{position:relative;z-index:1;margin-top:8px;font-size:${s(12)};color:var(--gr);line-height:1.45;max-width:100%;word-break:normal;overflow-wrap:normal;hyphens:none;}
+${sc} .st-sub-term{white-space:nowrap;}
+${sc} .st-sub-sep{white-space:normal;}
 ${sc} .st-card-bar{position:absolute;bottom:0;left:0;right:0;height:2px;background:transparent;transition:background .25s;}
 ${sc} .st-card:hover .st-card-bar{background:rgba(0,0,0,.12);}
 ${sc} .st-card.active .st-card-bar{background:var(--pu);}
-${sc} .st-caret{position:absolute;bottom:16px;right:16px;}
+${sc} .st-caret{position:absolute;bottom:16px;right:16px;z-index:1;}
 ${sc} .st-caret svg{width:14px;height:14px;stroke:var(--gr);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .35s cubic-bezier(.4,0,.2,1),stroke .2s;display:block;}
 ${sc} .st-card.active .st-caret svg{transform:rotate(180deg);stroke:var(--pu);}
 ${sc} .st-drawer{grid-column:1/-1;background:#fff;overflow:hidden;max-height:0;transition:max-height .45s cubic-bezier(.4,0,.2,1);}
@@ -1025,6 +1189,17 @@ function resolvePreviewUrl(url){
   catch(e){return value;}
 }
 
+function formatSubline(sub){
+  const text = (sub || '').trim();
+  if(!text)return '';
+  const parts = text.split(/\s*·\s*/).filter(Boolean);
+  if(parts.length <= 1)return esc(text);
+  return parts.map((part, index)=>{
+    const sep = index < parts.length - 1 ? '<span class="st-sub-sep"> · </span>' : '';
+    return `<span class="st-sub-term">${esc(part)}</span>${sep}`;
+  }).join('');
+}
+
 function buildCards(lang, uid, forPreview) {
   const csText = lang==='zh'?document.getElementById('cs_zh').value:document.getElementById('cs_en').value;
   const gl1    = lang==='zh'?document.getElementById('gl1_zh').value:document.getElementById('gl1_en').value;
@@ -1050,7 +1225,7 @@ function buildCards(lang, uid, forPreview) {
 
     const iconUrl = forPreview ? resolvePreviewUrl(t.icon_url) : t.icon_url;
     const iconHtml = iconUrl
-      ? `<div class="st-card-icon-wrap"><img src="${esc(iconUrl)}" alt="${esc(title)}" loading="lazy"></div>`
+      ? `<div class="st-card-icon-wrap"><img src="${esc(iconUrl)}" alt="" loading="lazy" onerror="this.parentElement.style.display='none'"></div>`
       : '';
 
     const zoneHtml = buildDrawerList(t.zones);
@@ -1072,7 +1247,7 @@ function buildCards(lang, uid, forPreview) {
             <div class="st-num-wrap">${id}</div>
             ${iconHtml}
             <div class="st-card-title">${esc(title)}</div>
-            <div class="st-card-sub">${esc(sub)}</div>
+            <div class="st-card-sub">${formatSubline(sub)}</div>
             <div class="st-card-bar"></div>
             <span class="st-caret"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
             <div class="st-data">
@@ -1319,6 +1494,334 @@ async function runAiFillTheme(i){
 }
 
 // ════════════════════════════════════════════
+// EXCEL / SHEET IMPORT
+// ════════════════════════════════════════════
+const IMPORT_SCHEMA_TEXT = [
+  '建議欄位（TSV / Excel）：',
+  'No | Icon URL | Title ZH | Title EN | Sub ZH | Sub EN | Trend Intro ZH | Trend Intro EN | Keywords ZH | Keywords EN | Zone1 ZH | Zone1 EN | Zone1 URL | Forum1 ZH | Forum1 EN | Forum1 URL ...',
+  '',
+  '也支援目前工作表模式：',
+  'Segment | 主題 | 主題介紹 | 關鍵字 | 對應專區 | 對應論壇',
+  '',
+  '建議專區 / 論壇內容：',
+  '中文名稱 | English Name | URL',
+  '或先用：中文名稱 | URL'
+].join('\n');
+
+function copyImportSchema(){
+  const tmp = document.createElement('textarea');
+  tmp.value = IMPORT_SCHEMA_TEXT;
+  document.body.appendChild(tmp);
+  tmp.select();
+  document.execCommand('copy');
+  document.body.removeChild(tmp);
+  alert('已複製欄位說明。');
+}
+
+function normalizeHeader(value){
+  return String(value || '').trim().toLowerCase().replace(/\s+/g,' ');
+}
+
+function findHeaderIndex(headers, aliases){
+  const normalized = headers.map(normalizeHeader);
+  return normalized.findIndex(header => aliases.includes(header));
+}
+
+function collectIndexedGroups(headers, prefix){
+  const groups = {};
+  headers.forEach((header, index)=>{
+    const normalized = normalizeHeader(header);
+    const match = normalized.match(new RegExp(`^${prefix}\\s*(\\d+)\\s*(zh|en|url)$`, 'i')) || normalized.match(new RegExp(`^${prefix}(\\d+)\\s*(zh|en|url)$`, 'i'));
+    if(!match)return;
+    const groupIndex = Number(match[1]);
+    const field = match[2].toLowerCase();
+    groups[groupIndex] = groups[groupIndex] || {};
+    groups[groupIndex][field] = index;
+  });
+  return Object.keys(groups).map(Number).sort((a,b)=>a-b).map(key=>groups[key]);
+}
+
+function parseNamedLinkCell(value){
+  const text = String(value || '').trim();
+  if(!text)return null;
+  const parts = text.split('|').map(part => part.trim()).filter(Boolean);
+  if(parts.length >= 3)return {zh:parts[0], en:parts[1], url:parts.slice(2).join(' | ')};
+  if(parts.length === 2){
+    if(/^https?:\/\//i.test(parts[1]))return {zh:parts[0], en:'', url:parts[1]};
+    return {zh:parts[0], en:parts[1], url:''};
+  }
+  return {zh:text, en:'', url:''};
+}
+
+function pushUniqueItem(arr, item){
+  if(!item || !((item.zh || '').trim() || (item.en || '').trim() || (item.url || '').trim()))return;
+  const exists = arr.some(row =>
+    (row.zh || '').trim() === (item.zh || '').trim() &&
+    (row.en || '').trim() === (item.en || '').trim() &&
+    (row.url || '').trim() === (item.url || '').trim()
+  );
+  if(!exists)arr.push(item);
+}
+
+function buildSheetHeaders(zoneSlots, forumSlots){
+  const headers = ['No','Icon URL','Title ZH','Title EN','Sub ZH','Sub EN','Trend Intro ZH','Trend Intro EN','Keywords ZH','Keywords EN'];
+  for(let i=1;i<=zoneSlots;i++)headers.push(`Zone${i} ZH`,`Zone${i} EN`,`Zone${i} URL`);
+  for(let i=1;i<=forumSlots;i++)headers.push(`Forum${i} ZH`,`Forum${i} EN`,`Forum${i} URL`);
+  return headers;
+}
+
+function exportSheetBatch(){
+  const zoneSlots = Math.max(3, ...themes.map(theme => theme.zones.length || 0));
+  const forumSlots = Math.max(5, ...themes.map(theme => theme.forums.length || 0));
+  const headers = buildSheetHeaders(zoneSlots, forumSlots);
+  const rows = [headers];
+  themes.forEach((theme, index)=>{
+    const row = [
+      String(index + 1).padStart(2,'0'),
+      tsvCell(theme.icon_url),
+      tsvCell(theme.title_zh),
+      tsvCell(theme.title_en),
+      tsvCell(theme.sub_zh),
+      tsvCell(theme.sub_en),
+      tsvCell(theme.desc_zh),
+      tsvCell(theme.desc_en),
+      tsvCell(theme.sub_zh),
+      tsvCell(theme.sub_en)
+    ];
+    for(let i=0;i<zoneSlots;i++){
+      const item = theme.zones[i] || {};
+      row.push(tsvCell(item.zh), tsvCell(item.en), tsvCell(item.url));
+    }
+    for(let i=0;i<forumSlots;i++){
+      const item = theme.forums[i] || {};
+      row.push(tsvCell(item.zh), tsvCell(item.en), tsvCell(item.url));
+    }
+    rows.push(row);
+  });
+  const text = rows.map(row => row.join('\t')).join('\n');
+  const el = document.getElementById('sheetBatchInput');
+  if(el){
+    el.value = text;
+    el.focus();
+    el.select();
+  }
+}
+
+function rowsToTsv(rows){
+  return rows.map(row => row.map(cell => tsvCell(cell)).join('\t')).join('\n');
+}
+
+function parseCsvLine(line, delimiter){
+  const cells = [];
+  let current = '';
+  let inQuotes = false;
+  for(let i=0;i<line.length;i++){
+    const char = line[i];
+    if(char === '"'){
+      if(inQuotes && line[i + 1] === '"'){
+        current += '"';
+        i++;
+      }else{
+        inQuotes = !inQuotes;
+      }
+      continue;
+    }
+    if(char === delimiter && !inQuotes){
+      cells.push(current);
+      current = '';
+      continue;
+    }
+    current += char;
+  }
+  cells.push(current);
+  return cells;
+}
+
+function convertDelimitedTextToTsv(text){
+  const clean = String(text || '').replace(/\r/g, '').trim();
+  if(!clean)return '';
+  const lines = clean.split('\n').filter(line => line.trim() !== '');
+  if(!lines.length)return '';
+  const sample = lines[0];
+  const delimiter = sample.includes('\t') ? '\t' : ',';
+  if(delimiter === '\t')return lines.join('\n');
+  const rows = lines.map(line => parseCsvLine(line, delimiter));
+  return rowsToTsv(rows);
+}
+
+function workbookToTsv(workbook){
+  if(!workbook || !workbook.SheetNames || !workbook.SheetNames.length){
+    throw new Error('Excel 檔案裡沒有可讀取的工作表。');
+  }
+  const firstSheetName = workbook.SheetNames[0];
+  const sheet = workbook.Sheets[firstSheetName];
+  const rows = XLSX.utils.sheet_to_json(sheet, {
+    header: 1,
+    raw: false,
+    defval: ''
+  });
+  return rowsToTsv(rows);
+}
+
+async function importSheetFile(event){
+  const input = event.target;
+  const file = input.files && input.files[0];
+  if(!file)return;
+  try{
+    const lowerName = file.name.toLowerCase();
+    let tsv = '';
+    if(lowerName.endsWith('.xlsx') || lowerName.endsWith('.xls')){
+      if(typeof XLSX === 'undefined'){
+        throw new Error('Excel 解析器未載入，請重新整理頁面後再試一次。');
+      }
+      const buffer = await file.arrayBuffer();
+      const workbook = XLSX.read(buffer, {type:'array'});
+      tsv = workbookToTsv(workbook);
+    }else{
+      const text = await file.text();
+      tsv = convertDelimitedTextToTsv(text);
+    }
+    if(!tsv.trim())throw new Error('找不到可匯入的表格內容。');
+    const textarea = document.getElementById('sheetBatchInput');
+    textarea.value = tsv;
+    textarea.focus();
+    textarea.setSelectionRange(0, 0);
+    applySheetBatch();
+    alert(`已從檔案「${file.name}」載入資料。`);
+  }catch(error){
+    alert(`無法載入檔案：${error.message}`);
+  }finally{
+    input.value = '';
+  }
+}
+
+function applyTemplateSheet(rows, headers){
+  const noIndex = findHeaderIndex(headers, ['no','segment']);
+  const iconIndex = findHeaderIndex(headers, ['icon url','icon']);
+  const titleZhIndex = findHeaderIndex(headers, ['title zh','主題']);
+  const titleEnIndex = findHeaderIndex(headers, ['title en']);
+  const subZhIndex = findHeaderIndex(headers, ['sub zh','subtitle zh','keywords zh','關鍵字']);
+  const subEnIndex = findHeaderIndex(headers, ['sub en','subtitle en','keywords en']);
+  const descZhIndex = findHeaderIndex(headers, ['trend intro zh','description zh','主題介紹']);
+  const descEnIndex = findHeaderIndex(headers, ['trend intro en','description en']);
+  const zoneGroups = collectIndexedGroups(headers, 'zone');
+  const forumGroups = collectIndexedGroups(headers, 'forum');
+  let updated = 0;
+  rows.forEach((cols,rowIndex)=>{
+    const rawNo = noIndex >= 0 ? cols[noIndex] : '';
+    const idx = rawNo && Number.isFinite(parseInt(rawNo,10)) ? parseInt(rawNo,10) - 1 : rowIndex;
+    if(idx < 0 || idx >= themes.length)return;
+    const theme = themes[idx];
+    theme.zones = [];
+    theme.forums = [];
+    theme.showZone = false;
+    theme.showForum = false;
+    if(iconIndex >= 0 && cols[iconIndex])theme.icon_url = cols[iconIndex].trim();
+    if(titleZhIndex >= 0 && cols[titleZhIndex])theme.title_zh = cols[titleZhIndex].trim();
+    if(titleEnIndex >= 0 && cols[titleEnIndex])theme.title_en = cols[titleEnIndex].trim();
+    if(subZhIndex >= 0 && cols[subZhIndex])theme.sub_zh = cols[subZhIndex].trim();
+    if(subEnIndex >= 0 && cols[subEnIndex])theme.sub_en = cols[subEnIndex].trim();
+    if(descZhIndex >= 0 && cols[descZhIndex])theme.desc_zh = cols[descZhIndex].trim();
+    if(descEnIndex >= 0 && cols[descEnIndex])theme.desc_en = cols[descEnIndex].trim();
+    const zones = [];
+    zoneGroups.forEach(group => {
+      const item = {
+        zh: group.zh !== undefined ? (cols[group.zh] || '').trim() : '',
+        en: group.en !== undefined ? (cols[group.en] || '').trim() : '',
+        url: group.url !== undefined ? (cols[group.url] || '').trim() : ''
+      };
+      pushUniqueItem(zones, item);
+    });
+    const forums = [];
+    forumGroups.forEach(group => {
+      const item = {
+        zh: group.zh !== undefined ? (cols[group.zh] || '').trim() : '',
+        en: group.en !== undefined ? (cols[group.en] || '').trim() : '',
+        url: group.url !== undefined ? (cols[group.url] || '').trim() : ''
+      };
+      pushUniqueItem(forums, item);
+    });
+    theme.zones = zones;
+    theme.forums = forums;
+    theme.showZone = zones.length > 0;
+    theme.showForum = forums.length > 0;
+    updated++;
+  });
+  return updated;
+}
+
+function applyGroupedSheet(rows, headers){
+  const segmentIndex = findHeaderIndex(headers, ['segment','no']);
+  const titleIndex = findHeaderIndex(headers, ['主題','title zh']);
+  const introIndex = findHeaderIndex(headers, ['主題介紹','trend intro zh','description zh']);
+  const keywordIndex = findHeaderIndex(headers, ['關鍵字','keywords zh','sub zh']);
+  const zoneIndex = findHeaderIndex(headers, ['對應專區','zones','zone']);
+  const forumIndex = findHeaderIndex(headers, ['對應論壇','forums','forum']);
+  const iconIndex = findHeaderIndex(headers, ['icon url','icon']);
+  let currentThemeIndex = -1;
+  let touched = new Set();
+
+  rows.forEach(cols => {
+    const segment = segmentIndex >= 0 ? (cols[segmentIndex] || '').trim() : '';
+    const title = titleIndex >= 0 ? (cols[titleIndex] || '').trim() : '';
+    const intro = introIndex >= 0 ? (cols[introIndex] || '').trim() : '';
+    const keyword = keywordIndex >= 0 ? (cols[keywordIndex] || '').trim() : '';
+    const zoneText = zoneIndex >= 0 ? (cols[zoneIndex] || '').trim() : '';
+    const forumText = forumIndex >= 0 ? (cols[forumIndex] || '').trim() : '';
+    const iconText = iconIndex >= 0 ? (cols[iconIndex] || '').trim() : '';
+
+    if(segment && Number.isFinite(parseInt(segment,10)))currentThemeIndex = parseInt(segment,10) - 1;
+    else if(title){
+      const found = themes.findIndex(theme => theme.title_zh === title);
+      if(found >= 0)currentThemeIndex = found;
+    }
+    if(currentThemeIndex < 0 || currentThemeIndex >= themes.length)return;
+
+    const theme = themes[currentThemeIndex];
+    if(!touched.has(currentThemeIndex)){
+      theme.zones = [];
+      theme.forums = [];
+      theme.showZone = false;
+      theme.showForum = false;
+    }
+    if(title)theme.title_zh = title;
+    if(intro)theme.desc_zh = intro;
+    if(keyword)theme.sub_zh = keyword;
+    if(iconText)theme.icon_url = iconText;
+    if(zoneText){
+      const item = parseNamedLinkCell(zoneText);
+      if(item){pushUniqueItem(theme.zones, item);theme.showZone = true;}
+    }
+    if(forumText){
+      const item = parseNamedLinkCell(forumText);
+      if(item){pushUniqueItem(theme.forums, item);theme.showForum = true;}
+    }
+    touched.add(currentThemeIndex);
+  });
+  return touched.size;
+}
+
+function applySheetBatch(){
+  const el = document.getElementById('sheetBatchInput');
+  if(!el || !el.value.trim()){alert('請先貼上 Excel / 工作表內容。');return;}
+  const lines = el.value.replace(/\r/g,'').split('\n').filter(line => line.trim() !== '');
+  if(lines.length < 2){alert('至少需要標題列與一筆資料。');return;}
+  const headers = lines[0].split('\t');
+  const rows = lines.slice(1).map(line => line.split('\t'));
+  const normalizedHeaders = headers.map(normalizeHeader);
+  let updated = 0;
+  if(normalizedHeaders.some(header => /^zone\s*\d+\s*zh$/.test(header) || /^forum\s*\d+\s*zh$/.test(header))){
+    updated = applyTemplateSheet(rows, headers);
+  } else {
+    updated = applyGroupedSheet(rows, headers);
+  }
+  renderList();
+  schedulePreview();
+  saveToStorage();
+  alert(`已從工作表更新 ${updated} 個主題。`);
+}
+
+// ════════════════════════════════════════════
 // LOCALSTORAGE
 // ════════════════════════════════════════════
 const STORAGE_KEY = 'semicon_generator_v4';
@@ -1337,16 +1840,17 @@ function getWorkState(){
   return {
     schema: WORKFILE_SCHEMA,
     tool: 'Trend Table Generator',
-    version: 'v4.3',
+    version: 'v4.7',
     projectName: 'SEMICON Taiwan Trend Table',
     exportedAt: new Date().toISOString(),
-    data: { themes, globals: getGlobals() }
+    data: { themes, globals: getGlobals(), selectedThemeIndex }
   };
 }
 
 function applyWorkState(workfile){
   const data = workfile.data || workfile;
   if(data.themes&&Array.isArray(data.themes))themes=data.themes;
+  if(Number.isInteger(data.selectedThemeIndex))selectedThemeIndex=data.selectedThemeIndex;
   fillMissingIconsWithDefaults();
   applyGlobals(data.globals);
   renderList();
@@ -1357,7 +1861,7 @@ function applyWorkState(workfile){
 function saveToStorage(){
   try{
     const g=getGlobals();
-    localStorage.setItem(STORAGE_KEY,JSON.stringify({themes,globals:g}));
+    localStorage.setItem(STORAGE_KEY,JSON.stringify({themes,globals:g,selectedThemeIndex}));
     flashSave();
   }catch(e){}
 }
@@ -1367,6 +1871,7 @@ function loadFromStorage(){
     if(!raw)return false;
     const s=JSON.parse(raw);
     if(s.themes&&Array.isArray(s.themes))themes=s.themes;
+    if(Number.isInteger(s.selectedThemeIndex))selectedThemeIndex=s.selectedThemeIndex;
     fillMissingIconsWithDefaults();
     if(s.globals)applyGlobals(s.globals);
     return true;
