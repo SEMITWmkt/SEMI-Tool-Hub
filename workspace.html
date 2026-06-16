@@ -71,6 +71,11 @@
       letter-spacing: .08em;
       font-size: 13px;
       color: #fff;
+      text-decoration: none;
+    }
+
+    .mark:hover {
+      background: rgba(255, 255, 255, .07);
     }
 
     .tools {
@@ -587,7 +592,7 @@
 <body>
   <div class="shell">
     <aside class="rail" aria-label="Tool navigation">
-      <div class="mark">SEMI</div>
+      <a class="mark" href="index.html" aria-label="回到 SEMI Tool Hub 首頁">SEMI</a>
       <nav class="tools" id="railTools"></nav>
       <div class="rail-bottom">
         <button class="circle-btn" id="infoBtn" type="button" title="工具資訊">i</button>
@@ -608,8 +613,6 @@
           <button class="action-btn" id="reloadBtn" type="button">重載</button>
           <button class="action-btn" id="copyPathBtn" type="button">路徑</button>
           <a class="action-btn" href="index.html">首頁</a>
-          <a class="action-btn" href="uiux-demo.html" target="_blank" rel="noopener">UIUX Demo</a>
-          <a class="action-btn" href="uiux-unified-demo.html" target="_blank" rel="noopener">Unified Demo</a>
           <a class="action-btn primary" id="openToolBtn" href="#" target="_blank" rel="noopener">開新視窗</a>
         </div>
       </header>
