@@ -112,8 +112,20 @@
     background: #f9fafb; border: 1px solid var(--border); padding: 10px 12px;
     margin-bottom: 12px; font-size: 0.82rem; color: #374151;
   }
+  .summary-text {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
   .summary-main { font-weight: 800; color: var(--text-main); }
   .summary-sub { color: var(--muted); font-size: 0.76rem; }
+  .summary-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+  }
   .publish-state {
     flex-shrink: 0; border-radius: 999px; padding: 4px 9px; font-size: 0.68rem;
     line-height: 1.25; font-weight: 900; text-transform: uppercase; border: 1px solid transparent;
@@ -170,11 +182,108 @@
     background: #fffbeb; color: #7c4a03; font-size: 0.78rem; line-height: 1.45;
   }
   .sample-note.show { display: block; }
+  .mgmt-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+  .filter-chips {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .filter-chip {
+    border: 1px solid var(--border);
+    background: #fff;
+    color: #4b5563;
+    padding: 6px 10px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    cursor: pointer;
+  }
+  .filter-chip.active {
+    background: var(--text-main);
+    color: #fff;
+    border-color: var(--text-main);
+  }
+  .toolbar-copy {
+    color: var(--muted);
+    font-size: 0.74rem;
+    font-weight: 700;
+  }
+  .mgmt-item.focused {
+    border-color: #d8b4d8;
+    box-shadow: 0 0 0 2px rgba(128, 0, 128, 0.12);
+    background: #fcf7fc;
+  }
+  .queue-paste-zone {
+    border: 1px dashed #d8b4d8;
+    background: #fcf7fc;
+    padding: 12px 14px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    cursor: pointer;
+  }
+  .queue-paste-zone:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(128, 0, 128, 0.12);
+  }
+  .queue-paste-title {
+    font-size: 0.82rem;
+    font-weight: 900;
+    color: var(--text-main);
+  }
+  .queue-paste-copy {
+    color: var(--muted);
+    font-size: 0.74rem;
+    line-height: 1.45;
+    margin-top: 4px;
+  }
+  .queue-paste-target {
+    flex-shrink: 0;
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: #fff;
+    border: 1px solid #e9d5e9;
+    color: var(--primary);
+    font-size: 0.7rem;
+    font-weight: 900;
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .batch-intake {
+    margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border);
+  }
+  .batch-intake textarea {
+    height: 88px; min-height: 88px; resize: vertical; margin-bottom: 8px;
+  }
+  .batch-help {
+    color: var(--muted); font-size: 0.76rem; line-height: 1.45; margin: 0 0 8px;
+  }
   
   /* 行內編輯與控制區 */
   .mgmt-inline-ctrl { display: flex; gap: 8px; align-items: center; }
   .mgmt-inline-ctrl input[type="text"] { flex-grow: 1; padding: 4px 6px; font-size: 0.7rem; border: 1px solid var(--border); outline: none; background: #fff;}
   .mgmt-inline-ctrl input[type="text"]:focus { border-color: var(--primary); }
+  .mgmt-name-edit {
+    width: 100%; padding: 4px 6px; font-size: 0.72rem; font-weight: 700;
+    border: 1px solid var(--border); outline: none; background: #fff; color: #4b5563;
+  }
+  .mgmt-name-edit:focus { border-color: var(--primary); }
+  .mgmt-tier-select {
+    padding: 3px 5px; font-size: 0.68rem; font-weight: 800; color: var(--text-main);
+    border: 1px solid var(--border); background: #fff; outline: none;
+  }
+  .mgmt-tier-select:focus { border-color: var(--primary); }
   
   .mgmt-scale-ctrl { display: flex; align-items: center; gap: 5px; width: 100px; flex-shrink: 0;}
   .mgmt-scale-ctrl input[type="range"] { flex-grow: 1; height: 4px; cursor: pointer; padding: 0; }
@@ -212,6 +321,26 @@
   .box-header h2 { font-size: 1rem; margin: 0; display: flex; align-items: center; gap: 8px; }
   .badge-zh { background: #1e3a8a; color: white; padding: 2px 6px; font-size: 0.7rem; }
   .badge-en { background: #047857; color: white; padding: 2px 6px; font-size: 0.7rem; }
+  .collapsible-code {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .code-collapsed .code-body {
+    display: none;
+  }
+  .code-toggle {
+    background: transparent;
+    border: none;
+    color: #4b5563;
+    font-size: 0.76rem;
+    font-weight: 800;
+    cursor: pointer;
+    padding: 0;
+  }
+  .code-toggle:hover {
+    color: var(--text-main);
+  }
   
   .btn-copy { background: var(--text-main); color: #fff; padding: 6px 12px; font-size: 0.85rem; border: none; cursor: pointer; font-weight: bold;}
   .btn-copy:hover { background: #374151; }
@@ -221,6 +350,11 @@
   ::-webkit-scrollbar { width: 6px; height: 6px; }
   ::-webkit-scrollbar-thumb { background: #cbd5e1; }
   ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+  @media (max-width: 960px) {
+    .manage-container,
+    .code-output-section { grid-template-columns: 1fr; }
+  }
 </style>
 </head>
 <body>
@@ -288,6 +422,20 @@
       </div>
 
       <button class="btn-action btn-add" onclick="addSponsor()">+ 寫入列表</button>
+
+      <div class="batch-intake">
+        <div class="section-title">批次貼上名單 (先建立待補 Logo 清單)</div>
+        <p class="batch-help">可貼上 Excel、CSV 或文字列。支援：級別 / 公司名稱 / URL；缺 Logo 會保留在清單中，但不會輸出破圖。</p>
+        <textarea id="batchSponsorInput" placeholder="例如：&#10;Platinum	TSMC	https://www.tsmc.com&#10;金級, ASE, www.aseglobal.com&#10;Silver | Nova Systems | https://example.com"></textarea>
+        <button class="btn-action btn-add" onclick="importSponsorList()">解析名單並加入清單</button>
+      </div>
+
+      <div class="batch-intake">
+        <div class="section-title">貼上既有 Sponsor HTML</div>
+        <p class="batch-help">把後台目前的 sponsor 區塊整段貼進來，工具會盡量還原 tier、logo、連結、順序，讓你直接接著補新 logo，不用重建清單。</p>
+        <textarea id="existingHtmlInput" placeholder="把既有 sponsor HTML 貼在這裡"></textarea>
+        <button class="btn-action btn-add" onclick="importExistingHtml()">匯入既有 HTML</button>
+      </div>
     </div>
 
     <div class="panel-box" style="display: flex; flex-direction: column; padding-top: 15px;">
@@ -296,20 +444,45 @@
         <div>
           <!-- 核心新增：專案備份還原系統 -->
           <button class="btn-sys primary-light" onclick="loadSampleData()" title="載入示範資料">Sample</button>
-          <button class="btn-sys" onclick="exportData()" title="下載目前的工作檔">💾 Save work file</button>
-          <button class="btn-sys" onclick="document.getElementById('importFile').click()" title="載入之前儲存的工作檔">📂 Load work file</button>
+          <button class="btn-sys" onclick="exportData()" title="下載目前的工作檔">Save work file</button>
+          <button class="btn-sys" onclick="document.getElementById('importFile').click()" title="載入之前儲存的工作檔">Load work file</button>
           <input type="file" id="importFile" accept=".json" style="display:none;" onchange="importData(event)">
           <button class="btn-clear" onclick="clearAllData()">⚠ 清空</button>
         </div>
       </div>
+      <div class="form-group" style="margin-bottom: 12px;">
+        <label>工作檔名稱</label>
+        <input type="text" id="projectName" value="SEMICON Taiwan Sponsors" placeholder="例如：SEMICON Taiwan 2026 Sponsors">
+      </div>
       <div class="status-summary" id="statusSummary">
-        <div>
+        <div class="summary-text">
           <div class="summary-main">0 logos · 0 ready · 0 missing · 0 check</div>
           <div class="summary-sub">目前輸出清單狀態</div>
+          <div class="summary-sub" id="autosaveState">Autosaved draft ready</div>
+          <div class="summary-actions">
+            <button class="btn-sys" type="button" onclick="focusIssueQueue()">Focus issue queue</button>
+            <button class="btn-sys" type="button" onclick="switchTab('preview')">Open preview</button>
+          </div>
         </div>
         <span class="publish-state attention" id="publishState">Needs attention</span>
       </div>
       <div class="sample-note" id="sampleNote">已載入示範資料。正式使用前請清空或替換成實際贊助商 Logo。</div>
+      <div class="mgmt-toolbar">
+        <div class="filter-chips" id="filterChips">
+          <button class="filter-chip active" type="button" data-filter="all" onclick="setMgmtFilter('all')">All</button>
+          <button class="filter-chip" type="button" data-filter="missing" onclick="setMgmtFilter('missing')">Missing logo</button>
+          <button class="filter-chip" type="button" data-filter="check" onclick="setMgmtFilter('check')">Needs check</button>
+          <button class="filter-chip" type="button" data-filter="ready" onclick="setMgmtFilter('ready')">Ready</button>
+        </div>
+        <div class="toolbar-copy" id="filterSummary">顯示全部項目</div>
+      </div>
+      <div class="queue-paste-zone" id="queuePasteZone" tabindex="0" title="先選一筆 sponsor，再直接貼上圖片">
+        <div>
+          <div class="queue-paste-title">連續補 Logo</div>
+          <div class="queue-paste-copy" id="queuePasteCopy">先貼 sponsor 名單，再點這裡後直接 Ctrl+V。工具會把圖片寫進目前高亮項目，並自動跳到下一筆待補件。</div>
+        </div>
+        <div class="queue-paste-target" id="queuePasteTarget">尚未選擇項目</div>
+      </div>
       <div class="sponsor-list-mgmt" id="mgmtList">
         <div style="font-size: 0.8rem; color: #999; text-align: center; padding: 20px;">尚未加入任何資料</div>
       </div>
@@ -339,20 +512,32 @@
     </div>
 
     <div class="code-output-section">
-      <div class="code-box">
+      <div class="code-box collapsible-code code-collapsed" id="codeBoxZh">
         <div class="box-header">
           <h2><span class="badge-zh">中文版</span> 輸出代碼</h2>
-          <button class="btn-copy" onclick="copyCode('outputCodeZh')">複製中文 HTML</button>
+          <button class="code-toggle" type="button" onclick="toggleCodeBox('codeBoxZh', this)">展開代碼</button>
         </div>
-        <textarea id="outputCodeZh" readonly placeholder="請先新增資料..."></textarea>
+        <div class="code-body">
+          <div class="box-header" style="margin-bottom:8px;">
+            <div class="toolbar-copy">預設收合，避免日常編修時被 raw HTML 佔滿畫面。</div>
+            <button class="btn-copy" onclick="copyCode('outputCodeZh')">複製中文 HTML</button>
+          </div>
+          <textarea id="outputCodeZh" readonly placeholder="請先新增資料..."></textarea>
+        </div>
       </div>
 
-      <div class="code-box">
+      <div class="code-box collapsible-code code-collapsed" id="codeBoxEn">
         <div class="box-header">
           <h2><span class="badge-en">英文版</span> 輸出代碼</h2>
-          <button class="btn-copy" onclick="copyCode('outputCodeEn')">複製英文 HTML</button>
+          <button class="code-toggle" type="button" onclick="toggleCodeBox('codeBoxEn', this)">展開代碼</button>
         </div>
-        <textarea id="outputCodeEn" readonly placeholder="請先新增資料..."></textarea>
+        <div class="code-body">
+          <div class="box-header" style="margin-bottom:8px;">
+            <div class="toolbar-copy">需要貼 Drupal 時再打開；平常先用預覽做最後確認。</div>
+            <button class="btn-copy" onclick="copyCode('outputCodeEn')">複製英文 HTML</button>
+          </div>
+          <textarea id="outputCodeEn" readonly placeholder="請先新增資料..."></textarea>
+        </div>
       </div>
     </div>
 
@@ -363,8 +548,87 @@
   let sponsors = { platinum: [], gold: [], silver: [], special: [] };
   let draggedItemInfo = null;
   let currentPreviewLang = 'zh';
-  const TOOL_VERSION = 'v5.1.1';
+  let currentMgmtFilter = 'all';
+  let highlightedSponsorId = '';
+  const TOOL_VERSION = 'v5.2.0';
   const BACKUP_SCHEMA = 'semicon-sponsors-v1';
+  const CROP_WHITE_THRESHOLD = 245;
+  const CROP_ALPHA_THRESHOLD = 12;
+
+  function cleanText(value) {
+    return String(value || '').replace(/\u00A0/g, ' ').trim();
+  }
+
+  function escapeHtml(value) {
+    return String(value || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function escapeAttr(value) {
+    return escapeHtml(value);
+  }
+
+  function parseTextRow(line) {
+    const text = cleanText(line);
+    if (!text) return [];
+    if (text.includes('\t')) return text.split('\t').map(cleanText);
+    if (text.includes('|')) return text.split('|').map(cleanText);
+    if (text.includes(',')) return text.split(',').map(cleanText);
+    return text.split(/\s{2,}/).map(cleanText);
+  }
+
+  function normalizeUrl(value) {
+    let url = cleanText(value).replace(/[。；;，,]+$/g, '');
+    if (/^www\./i.test(url)) url = `https://${url}`;
+    if (/^[a-z0-9.-]+\.[a-z]{2,}(\/\S*)?$/i.test(url)) url = `https://${url}`;
+    return url;
+  }
+
+  function isUsableUrl(value) {
+    return /^https?:\/\/\S+/i.test(cleanText(value));
+  }
+
+  function looksLikeUrl(value) {
+    const text = cleanText(value);
+    return /^(https?:\/\/|www\.)/i.test(text) || /^[a-z0-9.-]+\.[a-z]{2,}(\/\S*)?$/i.test(text);
+  }
+
+  function normalizeTier(value) {
+    const text = cleanText(value).toLowerCase();
+    if (/白金|platinum|plat/.test(text)) return 'platinum';
+    if (/金級|gold/.test(text)) return 'gold';
+    if (/銀級|silver|silv/.test(text)) return 'silver';
+    if (/特別|策略|special|partner/.test(text)) return 'special';
+    return '';
+  }
+
+  function detectHeadingLanguage(text) {
+    return /[\u3040-\u30ff\u3400-\u9fff]/.test(text) ? 'zh' : 'en';
+  }
+
+  function updateTierTitleFromImport(tier, headingText) {
+    const text = cleanText(headingText);
+    if (!tier || !text) return;
+    const lang = detectHeadingLanguage(text);
+    const titleMap = {
+      platinum: { zh: 't_plat_zh', en: 't_plat_en' },
+      gold: { zh: 't_gold_zh', en: 't_gold_en' },
+      silver: { zh: 't_silv_zh', en: 't_silv_en' },
+      special: { zh: 't_spec_zh', en: 't_spec_en' }
+    };
+    const fieldId = titleMap[tier] && titleMap[tier][lang];
+    if (fieldId) document.getElementById(fieldId).value = text;
+  }
+
+  function isSponsorHeader(line) {
+    const text = cleanText(line).toLowerCase();
+    const hits = ['tier', '級別', 'sponsor', '贊助', 'company', '公司', 'url', 'website', 'link'];
+    return hits.filter(hit => text.includes(hit)).length >= 2;
+  }
 
   function toggleTierSettings() {
     const content = document.getElementById('tierSettingsContent');
@@ -406,6 +670,16 @@
     updatePreviewIframe();
   }
 
+  function getSponsorDisplayName(sponsor) {
+    return cleanText(sponsor && sponsor.name) || '未命名廠商';
+  }
+
+  function toggleCodeBox(boxId, btn) {
+    const box = document.getElementById(boxId);
+    const collapsed = box.classList.toggle('code-collapsed');
+    btn.innerText = collapsed ? '展開代碼' : '收合代碼';
+  }
+
   // --- 本地存儲與匯出匯入 ---
   const STORAGE_KEY = 'semicon_sponsor_state_v5';
 
@@ -414,7 +688,7 @@
       schema: BACKUP_SCHEMA,
       tool: 'Sponsors Logo HTML Generator',
       version: TOOL_VERSION,
-      projectName: 'SEMICON Taiwan Sponsors',
+      projectName: document.getElementById('projectName').value.trim() || 'SEMICON Taiwan Sponsors',
       exportedAt: new Date().toISOString(),
       sponsors: sponsors,
       titles: {
@@ -428,9 +702,16 @@
 
   function saveData() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(getSaveDataObject()));
+    const autosaveState = document.getElementById('autosaveState');
+    if (autosaveState) {
+      autosaveState.innerText = `Autosaved draft · ${new Date().toLocaleString('zh-TW', { hour12: false })}`;
+    }
   }
 
   function applyDataToUI(parsed) {
+    if (parsed.projectName) {
+      document.getElementById('projectName').value = parsed.projectName;
+    }
     if (parsed.sponsors) {
       const normalizedSponsors = { platinum: [], gold: [], silver: [], special: [] };
       for (let tier in normalizedSponsors) {
@@ -439,7 +720,7 @@
           id: s.id || Date.now().toString() + Math.random().toString(36).slice(2),
           name: s.name || '',
           image: s.image || '',
-          link: s.link || '',
+          link: normalizeUrl(s.link || ''),
           scale: s.scale === undefined ? 100 : s.scale
         }));
       }
@@ -512,6 +793,7 @@
     if (!s.image) return { key: 'missing', label: 'Missing', hint: '缺 Logo 圖片' };
     const hasName = s.name && s.name.trim() && s.name.trim() !== '未命名廠商';
     const hasLink = s.link && s.link.trim();
+    if (hasLink && !isUsableUrl(normalizeUrl(s.link))) return { key: 'check', label: 'Check', hint: '網址格式需確認' };
     if (!hasName || !hasLink) return { key: 'check', label: 'Check', hint: !hasName ? '建議補公司名稱' : '尚未填連結' };
     return { key: 'ready', label: 'Ready', hint: '可輸出' };
   }
@@ -537,6 +819,46 @@
     const needsAttention = counts.total === 0 || counts.missing > 0 || counts.check > 0;
     publishState.className = `publish-state ${needsAttention ? 'attention' : 'ready'}`;
     publishState.innerText = needsAttention ? 'Needs attention' : 'Ready to publish';
+    updateFilterLabels(counts);
+  }
+
+  function updateFilterLabels(counts) {
+    const map = {
+      all: `All (${counts.total})`,
+      missing: `Missing logo (${counts.missing})`,
+      check: `Needs check (${counts.check})`,
+      ready: `Ready (${counts.ready})`
+    };
+    document.querySelectorAll('#filterChips .filter-chip').forEach(btn => {
+      const key = btn.dataset.filter;
+      btn.innerText = map[key] || key;
+      btn.classList.toggle('active', key === currentMgmtFilter);
+    });
+    const filterSummary = document.getElementById('filterSummary');
+    const labels = {
+      all: '顯示全部項目',
+      missing: '只看還沒補 Logo 的項目',
+      check: '只看可輸出但還需要確認的項目',
+      ready: '只看目前可發布的項目'
+    };
+    filterSummary.innerText = labels[currentMgmtFilter] || labels.all;
+    updateQueuePasteState();
+  }
+
+  function updateQueuePasteState() {
+    const targetEl = document.getElementById('queuePasteTarget');
+    const copyEl = document.getElementById('queuePasteCopy');
+    const target = findSponsorById(highlightedSponsorId) || getDefaultPasteTarget();
+    if (target) {
+      highlightedSponsorId = target.sponsor.id;
+      targetEl.innerText = getSponsorDisplayName(target.sponsor);
+      copyEl.innerText = target.status.key === 'missing'
+        ? '這一筆正在等 Logo。點一下這裡後直接 Ctrl+V，貼完會自動跳下一筆缺件。'
+        : '這一筆已經有 Logo。你也可以直接貼上新圖覆蓋，其他內容會保留。';
+    } else {
+      targetEl.innerText = '尚未選擇項目';
+      copyEl.innerText = '先貼 sponsor 名單，或在清單中點選一筆項目，再來這裡直接貼 Logo。';
+    }
   }
 
   function makeSampleLogo(label, color) {
@@ -568,8 +890,51 @@
   const previewImage = document.getElementById('previewImage');
   const base64Input = document.getElementById('imageBase64');
   const fileInput = document.getElementById('fileInput');
+  const queuePasteZone = document.getElementById('queuePasteZone');
 
-  function processImageFile(file) {
+  function cropCanvasWhitespace(canvas, ctx) {
+    const width = canvas.width;
+    const height = canvas.height;
+    const imageData = ctx.getImageData(0, 0, width, height).data;
+    let minX = width;
+    let minY = height;
+    let maxX = -1;
+    let maxY = -1;
+
+    for (let y = 0; y < height; y += 1) {
+      for (let x = 0; x < width; x += 1) {
+        const idx = (y * width + x) * 4;
+        const alpha = imageData[idx + 3];
+        const red = imageData[idx];
+        const green = imageData[idx + 1];
+        const blue = imageData[idx + 2];
+        const isVisible = alpha > CROP_ALPHA_THRESHOLD;
+        const isNearWhite = red >= CROP_WHITE_THRESHOLD && green >= CROP_WHITE_THRESHOLD && blue >= CROP_WHITE_THRESHOLD;
+        if (isVisible && !isNearWhite) {
+          if (x < minX) minX = x;
+          if (y < minY) minY = y;
+          if (x > maxX) maxX = x;
+          if (y > maxY) maxY = y;
+        }
+      }
+    }
+
+    if (maxX === -1 || maxY === -1) return canvas;
+
+    const padding = 6;
+    const cropX = Math.max(0, minX - padding);
+    const cropY = Math.max(0, minY - padding);
+    const cropWidth = Math.min(width - cropX, (maxX - minX) + 1 + padding * 2);
+    const cropHeight = Math.min(height - cropY, (maxY - minY) + 1 + padding * 2);
+    const cropped = document.createElement('canvas');
+    const croppedCtx = cropped.getContext('2d');
+    cropped.width = cropWidth;
+    cropped.height = cropHeight;
+    croppedCtx.drawImage(canvas, cropX, cropY, cropWidth, cropHeight, 0, 0, cropWidth, cropHeight);
+    return cropped;
+  }
+
+  function compressImageFile(file, callback) {
     if (!file || !file.type.startsWith('image/')) { alert("請確保您提供的是圖片檔案。"); return; }
     const img = new Image();
     const url = URL.createObjectURL(file);
@@ -581,12 +946,33 @@
       if (width > height) { if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; } } 
       else { if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; } }
       canvas.width = width; canvas.height = height; ctx.drawImage(img, 0, 0, width, height);
-
-      const compressedBase64 = canvas.toDataURL('image/webp', 0.8);
-      previewImage.src = compressedBase64; previewImage.style.display = 'block'; base64Input.value = compressedBase64;
+      const croppedCanvas = cropCanvasWhitespace(canvas, ctx);
+      const compressedBase64 = croppedCanvas.toDataURL('image/webp', 0.86);
       URL.revokeObjectURL(url);
+      callback(compressedBase64);
     };
     img.src = url;
+  }
+
+  function processImageFile(file) {
+    compressImageFile(file, (compressedBase64) => {
+      previewImage.src = compressedBase64; previewImage.style.display = 'block'; base64Input.value = compressedBase64;
+    });
+  }
+
+  function pickSponsorLogo(tier, index) {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = function() {
+      if (input.files && input.files[0]) {
+        compressImageFile(input.files[0], (compressedBase64) => {
+          sponsors[tier][index].image = compressedBase64;
+          updateSystem();
+        });
+      }
+    };
+    input.click();
   }
 
   pasteZone.addEventListener('paste', function(e) {
@@ -612,12 +998,32 @@
     if (this.files && this.files.length > 0) processImageFile(this.files[0]);
     this.value = '';
   });
+  queuePasteZone.addEventListener('click', function() { queuePasteZone.focus(); });
+  queuePasteZone.addEventListener('paste', function(e) {
+    e.preventDefault();
+    const file = readPastedImageFile(e);
+    if (!file) {
+      alert('剪貼簿裡沒有圖片。請先複製 logo 圖片，再回到這個區塊貼上。');
+      return;
+    }
+    applyPastedLogoToHighlighted(file);
+  });
+
+  function readPastedImageFile(event) {
+    const items = (event.clipboardData || event.originalEvent.clipboardData).items;
+    for (let index in items) {
+      if (items[index].kind === 'file' && items[index].type.startsWith('image/')) {
+        return items[index].getAsFile();
+      }
+    }
+    return null;
+  }
 
   function addSponsor() {
     const tier = document.getElementById('inputTier').value;
     const name = document.getElementById('inputName').value.trim() || '未命名廠商';
     const image = document.getElementById('imageBase64').value;
-    const link = document.getElementById('inputLink').value.trim();
+    const link = normalizeUrl(document.getElementById('inputLink').value);
 
     if (!image) { alert("請先在上傳區填入 Logo 圖片！"); return; }
 
@@ -630,8 +1036,263 @@
     base64Input.value = '';
     previewImage.style.display = 'none';
     previewImage.src = '';
+    highlightedSponsorId = id;
     
     updateSystem();
+  }
+
+  function importSponsorList() {
+    const input = document.getElementById('batchSponsorInput');
+    const lines = input.value.split(/\r?\n/).filter(line => cleanText(line));
+    if (!lines.length) { alert('請先貼上贊助商名單。'); return; }
+
+    let added = 0;
+    let defaultTier = document.getElementById('inputTier').value || 'gold';
+    lines.forEach((line) => {
+      if (isSponsorHeader(line)) return;
+      const parts = parseTextRow(line).filter(Boolean);
+      if (!parts.length) return;
+
+      let tier = parts.map(normalizeTier).find(Boolean) || defaultTier;
+      const urlPart = parts.find(looksLikeUrl) || '';
+      const link = normalizeUrl(urlPart);
+      const nameParts = parts.filter(part => {
+        if (normalizeTier(part)) return false;
+        if (looksLikeUrl(part)) return false;
+        return true;
+      });
+      const name = cleanText(nameParts.join(' '));
+      if (!name) return;
+
+      sponsors[tier].push({
+        id: Date.now().toString() + Math.random().toString(36).slice(2),
+        name,
+        image: '',
+        link,
+        scale: 100
+      });
+      added += 1;
+    });
+
+    if (!added) {
+      alert('沒有解析到可加入的贊助商名稱。請確認資料至少包含公司名稱。');
+      return;
+    }
+
+    document.getElementById('sampleNote').classList.remove('show');
+    input.value = '';
+    currentMgmtFilter = 'missing';
+    highlightedSponsorId = '';
+    updateSystem();
+    alert(`已加入 ${added} 筆贊助商資料。缺 Logo 的項目會保留在清單中，但不會輸出破圖。`);
+  }
+
+  function normalizeImportedImageSrc(src) {
+    const text = cleanText(src);
+    if (!text) return '';
+    if (/^\/\//.test(text)) return `https:${text}`;
+    return text;
+  }
+
+  function parseScalePercent(styleText) {
+    const match = String(styleText || '').match(/scale\(([\d.]+)\)/i);
+    if (!match) return 100;
+    const value = Math.round(parseFloat(match[1]) * 100);
+    if (!Number.isFinite(value)) return 100;
+    return Math.min(150, Math.max(50, value));
+  }
+
+  function collectImportedSponsorsFromElements(elements, fallbackTier, bucket) {
+    elements.forEach((element, idx) => {
+      const img = element.matches('img') ? element : element.querySelector('img');
+      if (!img) return;
+      const tier = fallbackTier || 'gold';
+      const closestLink = img.closest('a[href]');
+      const image = normalizeImportedImageSrc(img.getAttribute('src'));
+      if (!image) return;
+      const name = cleanText(
+        img.getAttribute('alt')
+        || img.getAttribute('title')
+        || (closestLink && closestLink.getAttribute('title'))
+        || `Imported sponsor ${idx + 1}`
+      );
+      const link = normalizeUrl(closestLink ? closestLink.getAttribute('href') : '');
+      const scale = parseScalePercent(img.getAttribute('style'));
+      bucket[tier].push({
+        id: `imported-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+        name,
+        image,
+        link,
+        scale
+      });
+    });
+  }
+
+  function importExistingHtml() {
+    const input = document.getElementById('existingHtmlInput');
+    const raw = input.value.trim();
+    if (!raw) {
+      alert('請先貼上既有 sponsor HTML。');
+      return;
+    }
+
+    const currentCounts = getSponsorCounts();
+    if (currentCounts.total && !confirm('匯入既有 HTML 會取代目前清單。請先確認已儲存工作檔。')) return;
+
+    const doc = new DOMParser().parseFromString(raw, 'text/html');
+    const imported = { platinum: [], gold: [], silver: [], special: [] };
+    let importedCount = 0;
+
+    const spTiers = Array.from(doc.querySelectorAll('.sp-tier'));
+    if (spTiers.length) {
+      spTiers.forEach(section => {
+        const heading = cleanText((section.querySelector('.sp-title') || section.querySelector('h3'))?.textContent || '');
+        const tier = normalizeTier(`${heading} ${section.className}`) || 'gold';
+        updateTierTitleFromImport(tier, heading);
+        const cards = Array.from(section.querySelectorAll('.sp-card'));
+        collectImportedSponsorsFromElements(cards.length ? cards : Array.from(section.querySelectorAll('img')), tier, imported);
+      });
+    } else {
+      const headings = Array.from(doc.querySelectorAll('h3'));
+      if (headings.length) {
+        headings.forEach((heading, idx) => {
+          const text = cleanText(heading.textContent);
+          const tier = normalizeTier(`${text} ${heading.parentElement?.className || ''}`) || 'gold';
+          updateTierTitleFromImport(tier, text);
+          const scopeNodes = [];
+          let cursor = heading.nextElementSibling;
+          const nextHeading = headings[idx + 1] || null;
+          while (cursor && cursor !== nextHeading) {
+            scopeNodes.push(cursor);
+            cursor = cursor.nextElementSibling;
+          }
+          const candidates = scopeNodes.flatMap(node => Array.from(node.querySelectorAll('img')));
+          if (!candidates.length && heading.parentElement) {
+            collectImportedSponsorsFromElements(Array.from(heading.parentElement.querySelectorAll('img')), tier, imported);
+          } else {
+            collectImportedSponsorsFromElements(candidates, tier, imported);
+          }
+        });
+      } else {
+        const allImages = Array.from(doc.querySelectorAll('img'));
+        collectImportedSponsorsFromElements(allImages, document.getElementById('inputTier').value || 'gold', imported);
+      }
+    }
+
+    importedCount = Object.values(imported).reduce((sum, list) => sum + list.length, 0);
+    if (!importedCount) {
+      alert('沒有從這段 HTML 解析到 sponsor logo。請確認貼的是 sponsor 區塊，而不是整頁其他內容。');
+      return;
+    }
+
+    const importedMissingCount = Object.values(imported).flat().filter(row => !row.image).length;
+    sponsors = imported;
+    input.value = '';
+    document.getElementById('sampleNote').classList.remove('show');
+    currentMgmtFilter = importedMissingCount ? 'missing' : 'all';
+    highlightedSponsorId = '';
+    updateSystem();
+    focusIssueQueue();
+    alert(`已匯入 ${importedCount} 筆 sponsor。現在可以直接在清單上補新 logo 或調整大小。`);
+  }
+
+  function setMgmtFilter(filter) {
+    currentMgmtFilter = filter;
+    updateStatusSummary();
+    renderMgmtList();
+  }
+
+  function focusIssueQueue() {
+    const counts = getSponsorCounts();
+    if (counts.missing > 0) {
+      currentMgmtFilter = 'missing';
+    } else if (counts.check > 0) {
+      currentMgmtFilter = 'check';
+    } else {
+      currentMgmtFilter = 'ready';
+    }
+    const first = getFilteredSponsorItems()[0];
+    highlightedSponsorId = first ? first.sponsor.id : '';
+    updateStatusSummary();
+    renderMgmtList();
+    if (first) {
+      requestAnimationFrame(() => {
+        const target = document.querySelector(`[data-sponsor-id="${first.sponsor.id}"]`);
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+    }
+  }
+
+  function getFilteredSponsorItems(filter = currentMgmtFilter) {
+    const tiersOrder = ['platinum', 'gold', 'silver', 'special'];
+    const rows = [];
+    tiersOrder.forEach(tier => {
+      sponsors[tier].forEach((sponsor, index) => {
+        rows.push({ tier, sponsor, index, status: sponsorStatus(sponsor) });
+      });
+    });
+    if (filter === 'all') return rows;
+    return rows.filter(row => row.status.key === filter);
+  }
+
+  function findSponsorById(id) {
+    if (!id) return null;
+    const tiers = ['platinum', 'gold', 'silver', 'special'];
+    for (const tier of tiers) {
+      const index = sponsors[tier].findIndex(s => s.id === id);
+      if (index !== -1) {
+        const sponsor = sponsors[tier][index];
+        return { tier, index, sponsor, status: sponsorStatus(sponsor) };
+      }
+    }
+    return null;
+  }
+
+  function getDefaultPasteTarget() {
+    const filtered = getFilteredSponsorItems();
+    if (filtered.length) return filtered[0];
+    const allRows = getFilteredSponsorItems('all');
+    return allRows.find(row => row.status.key === 'missing')
+      || allRows.find(row => row.status.key === 'check')
+      || allRows[0]
+      || null;
+  }
+
+  function setHighlightedSponsor(id) {
+    highlightedSponsorId = id || '';
+    renderMgmtList();
+    updateQueuePasteState();
+  }
+
+  function advanceIssueQueue() {
+    const missingRows = getFilteredSponsorItems('all').filter(row => row.status.key === 'missing');
+    if (missingRows.length) {
+      highlightedSponsorId = missingRows[0].sponsor.id;
+      currentMgmtFilter = 'missing';
+      return;
+    }
+    const checkRows = getFilteredSponsorItems('all').filter(row => row.status.key === 'check');
+    if (checkRows.length) {
+      highlightedSponsorId = checkRows[0].sponsor.id;
+      currentMgmtFilter = 'check';
+      return;
+    }
+    const readyRows = getFilteredSponsorItems('all').filter(row => row.status.key === 'ready');
+    highlightedSponsorId = readyRows[0] ? readyRows[0].sponsor.id : '';
+    currentMgmtFilter = readyRows.length ? 'ready' : 'all';
+  }
+
+  function applyPastedLogoToHighlighted(file) {
+    const target = findSponsorById(highlightedSponsorId) || getDefaultPasteTarget();
+    if (!target) {
+      alert('目前沒有可貼上的 sponsor 項目。請先建立清單。');
+      return;
+    }
+    compressImageFile(file, (compressedBase64) => {
+      sponsors[target.tier][target.index].image = compressedBase64;
+      advanceIssueQueue();
+      updateSystem();
+    });
   }
 
   function removeSponsor(tier, index) { sponsors[tier].splice(index, 1); updateSystem(); }
@@ -657,11 +1318,23 @@
   }
 
   function updateSponsorLink(tier, index, val) {
-    sponsors[tier][index].link = val.trim();
+    sponsors[tier][index].link = normalizeUrl(val);
     updateSystem();
   }
 
-  const inputs = document.querySelectorAll('.grid-2col input');
+  function updateSponsorName(tier, index, val) {
+    sponsors[tier][index].name = cleanText(val);
+    updateSystem();
+  }
+
+  function updateSponsorTier(oldTier, index, newTier) {
+    if (!sponsors[oldTier] || !sponsors[newTier] || oldTier === newTier) return;
+    const movedItem = sponsors[oldTier].splice(index, 1)[0];
+    sponsors[newTier].push(movedItem);
+    updateSystem();
+  }
+
+  const inputs = document.querySelectorAll('.grid-2col input, #projectName');
   inputs.forEach(input => { input.addEventListener('input', updateSystem); });
 
   function updateSystem() {
@@ -674,15 +1347,16 @@
   function renderMgmtList() {
     const listEl = document.getElementById('mgmtList');
     listEl.innerHTML = '';
-    let hasData = false;
-    const tiersOrder = ['platinum', 'gold', 'silver', 'special'];
-    
-    tiersOrder.forEach(tier => {
-      sponsors[tier].forEach((s, index) => {
-        hasData = true;
+    const filteredItems = getFilteredSponsorItems();
+    const hasData = filteredItems.length > 0;
+
+    filteredItems.forEach(({ tier, sponsor: s, index, status }) => {
         const item = document.createElement('div');
         item.className = 'mgmt-item';
+        if (highlightedSponsorId && highlightedSponsorId === s.id) item.classList.add('focused');
         item.draggable = true;
+        item.dataset.sponsorId = s.id;
+        item.addEventListener('click', () => setHighlightedSponsor(s.id));
 
         item.ondragstart = (e) => {
           draggedItemInfo = { tier, index };
@@ -727,23 +1401,32 @@
           updateSystem();
         };
 
-        const status = sponsorStatus(s);
         const safeName = s.name || '未命名廠商';
-        const safeLink = s.link || '';
+        const safeLink = normalizeUrl(s.link || '');
+        const thumbHtml = s.image
+          ? `<img src="${s.image}" class="mgmt-thumb" alt="thumb">`
+          : `<div class="mgmt-thumb" style="display:flex;align-items:center;justify-content:center;color:#b91c1c;font-size:.65rem;font-weight:900;">No logo</div>`;
+        const tierSelect = `
+          <select class="mgmt-tier-select" onchange="updateSponsorTier('${tier}', ${index}, this.value)" title="更改贊助級別">
+            <option value="platinum" ${tier === 'platinum' ? 'selected' : ''}>PLATINUM</option>
+            <option value="gold" ${tier === 'gold' ? 'selected' : ''}>GOLD</option>
+            <option value="silver" ${tier === 'silver' ? 'selected' : ''}>SILVER</option>
+            <option value="special" ${tier === 'special' ? 'selected' : ''}>SPECIAL</option>
+          </select>`;
         item.innerHTML = `
           <div class="mgmt-drag-handle" title="按住拖拉進行排序">⋮⋮</div>
           <div class="mgmt-item-info">
-            <img src="${s.image}" class="mgmt-thumb" alt="thumb">
+            ${thumbHtml}
             <div class="mgmt-text">
               <div class="mgmt-topline">
-                <span class="mgmt-tier">${tier.toUpperCase()}</span>
+                ${tierSelect}
                 <span class="status-pill ${status.key}" title="${status.hint}">${status.label}</span>
-                ${status.key === 'check' ? `<span class="status-reason">${status.hint}</span>` : ''}
+                ${status.key !== 'ready' ? `<span class="status-reason">${escapeHtml(status.hint)}</span>` : ''}
               </div>
-              <span class="mgmt-name" title="${safeName}">${safeName}</span>
+              <input class="mgmt-name-edit" type="text" value="${escapeAttr(safeName)}" placeholder="公司名稱" onchange="updateSponsorName('${tier}', ${index}, this.value)" title="更改公司名稱">
               
               <div class="mgmt-inline-ctrl">
-                <input type="text" value="${safeLink}" placeholder="未填連結(點此補上)" onchange="updateSponsorLink('${tier}', ${index}, this.value)" title="隨時更新網址，離開輸入框即自動存檔">
+                <input type="text" value="${escapeAttr(safeLink)}" placeholder="未填連結(點此補上)" onchange="updateSponsorLink('${tier}', ${index}, this.value)" title="隨時更新網址，離開輸入框即自動存檔">
                 <div class="mgmt-scale-ctrl">
                   <input type="range" min="50" max="150" value="${s.scale}" oninput="updateSponsorScale('${tier}', ${index}, this.value)" title="即時視覺校準">
                   <span id="scale-val-${tier}-${index}">${s.scale}%</span>
@@ -757,17 +1440,20 @@
               <button class="btn-icon" onclick="moveUp('${tier}', ${index})" title="往上移一格">↑</button>
               <button class="btn-icon" onclick="moveDown('${tier}', ${index})" title="往下移一格">↓</button>
             </div>
+            <button class="btn-icon" onclick="pickSponsorLogo('${tier}', ${index})" title="替這筆資料補上或更換 Logo">Logo</button>
             <button class="btn-delete" onclick="removeSponsor('${tier}', ${index})">✕ 刪除</button>
           </div>
         `;
         listEl.appendChild(item);
-      });
     });
     if (!hasData) {
+      const emptyCopy = currentMgmtFilter === 'all'
+        ? '先貼上或上傳第一個贊助商 Logo。若只是想看輸出效果，可以載入示範資料。'
+        : '目前這個篩選條件下沒有項目。你可以切回全部，或繼續補齊其他清單。';
       listEl.innerHTML = `
         <div class="empty-state">
-          <div class="empty-state-title">尚未加入 Logo</div>
-          <p class="empty-state-copy">先貼上或上傳第一個贊助商 Logo。若只是想看輸出效果，可以載入示範資料。</p>
+          <div class="empty-state-title">${currentMgmtFilter === 'all' ? '尚未加入 Logo' : '這個佇列目前是空的'}</div>
+          <p class="empty-state-copy">${emptyCopy}</p>
           <div class="empty-actions">
             <button class="btn-sys primary-light" onclick="document.getElementById('pasteZone').focus()">Add logo</button>
             <button class="btn-sys" onclick="loadSampleData()">Load sample</button>
@@ -775,6 +1461,7 @@
         </div>
       `;
     }
+    updateQueuePasteState();
   }
 
   function generateBilingualHTML() {
@@ -786,12 +1473,12 @@
     };
 
     let hasData = false;
-    for (let t in sponsors) { if (sponsors[t].length > 0) hasData = true; }
+    for (let t in sponsors) { if (sponsors[t].some(s => s.image)) hasData = true; }
 
     if (!hasData) {
       document.getElementById('outputCodeZh').value = '';
       document.getElementById('outputCodeEn').value = '';
-      document.getElementById('previewIframe').srcdoc = "<div style='text-align:center; padding: 20px; color:#999; font-family:sans-serif;'>新增資料後即可預覽</div>";
+      document.getElementById('previewIframe').srcdoc = "<div style='text-align:center; padding: 20px; color:#999; font-family:sans-serif;'>目前沒有可輸出的 Logo。請先補上至少一張 Logo 圖片。</div>";
       return;
     }
 
@@ -832,25 +1519,28 @@
       const order = ['platinum', 'gold', 'silver', 'special'];
       
       order.forEach(tier => {
-        if (sponsors[tier].length > 0) {
-          const tierName = titles[tier][lang]; 
+        const publishableSponsors = sponsors[tier].filter(s => s.image);
+        if (publishableSponsors.length > 0) {
+          const tierName = escapeHtml(titles[tier][lang]);
           html += `  <!-- ${tierName} -->\n`;
           html += `  <div class="sp-tier">\n`;
           html += `    <h3 class="sp-title ${tier}">${tierName}</h3>\n`;
           html += `    <div class="sp-grid">\n`;
           
-          sponsors[tier].forEach(s => {
-            const hasLink = s.link && s.link !== '';
+          publishableSponsors.forEach(s => {
+            const normalizedLink = normalizeUrl(s.link);
+            const hasLink = normalizedLink && isUsableUrl(normalizedLink);
             const scaleFactor = (s.scale || 100) / 100; 
             const scaleStyle = scaleFactor !== 1 ? ` style="transform: scale(${scaleFactor});"` : '';
+            const sponsorName = escapeAttr(s.name || 'Sponsor');
 
             if (hasLink) {
-              html += `      <a href="${s.link}" target="_blank" class="sp-card has-link" title="${s.name}">\n`;
+              html += `      <a href="${escapeAttr(normalizedLink)}" target="_blank" rel="noopener noreferrer" class="sp-card has-link" title="${sponsorName}">\n`;
             } else {
-              html += `      <div class="sp-card" title="${s.name}">\n`;
+              html += `      <div class="sp-card" title="${sponsorName}">\n`;
             }
             
-            html += `        <img src="${s.image}" alt="${s.name}"${scaleStyle}>\n`;
+            html += `        <img src="${s.image}" alt="${sponsorName}"${scaleStyle}>\n`;
             
             if (hasLink) html += `      </a>\n`; else html += `      </div>\n`;
           });
