@@ -224,14 +224,108 @@
                 .replace(/'/g, '&#39;');
         }
 
+        function cleanCell(value) {
+            return String(value || '')
+                .replace(/\u00A0/g, ' ')
+                .replace(/[，、]+$/g, '')
+                .trim();
+        }
+
+        function parseDelimitedLine(line) {
+            const text = String(line || '').trim();
+            if (!text) return [];
+            if (text.includes('\t')) return text.split('\t').map(cleanCell);
+            if (text.includes('|')) return text.split('|').map(cleanCell);
+
+            const csvParts = [];
+            let current = '';
+            let inQuotes = false;
+            for (let i = 0; i < text.length; i += 1) {
+                const char = text[i];
+                if (char === '"') {
+                    if (inQuotes && text[i + 1] === '"') {
+                        current += '"';
+                        i += 1;
+                    } else {
+                        inQuotes = !inQuotes;
+                    }
+                } else if (char === ',' && !inQuotes) {
+                    csvParts.push(cleanCell(current));
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            csvParts.push(cleanCell(current));
+
+            if (csvParts.length > 1) return csvParts;
+            return text.split(/\s{2,}/).map(cleanCell);
+        }
+
         function normalizeKnownUrlTypo(url) {
-            return String(url || '').trim().replace('http://http:www.cotec.com.tw', 'http://www.cotec.com.tw');
+            let value = cleanCell(url)
+                .replace('http://http:www.cotec.com.tw', 'http://www.cotec.com.tw')
+                .replace(/[。；;，,]+$/g, '');
+            if (/^www\./i.test(value)) value = `https://${value}`;
+            if (/^[a-z0-9.-]+\.[a-z]{2,}(\/\S*)?$/i.test(value)) value = `https://${value}`;
+            return value;
         }
 
         function isValidUrl(url) {
             return /^https?:\/\/\S+/i.test(url);
         }
 
+        function looksLikeUrl(value) {
+            const text = cleanCell(value);
+            return /^(https?:\/\/|www\.)/i.test(text) || /^[a-z0-9.-]+\.[a-z]{2,}(\/\S*)?$/i.test(text);
+        }
+
+        function looksLikeBooth(value) {
+            const text = cleanCell(value);
+            return /^[A-Z]?\d{2,}[A-Z0-9-]*$/i.test(text) || /^[A-Z]{1,4}-?\d{2,}$/i.test(text);
+        }
+
+        function isHeaderRow(line) {
+            const text = String(line || '').toLowerCase();
+            const headerHits = ['company name', 'customer_name', '公司', '廠商', 'vendor', 'booth', '攤位', 'website', 'url'];
+            return headerHits.filter(hit => text.includes(hit)).length >= 2;
+        }
+
+        function normalizeHeader(value) {
+            return cleanCell(value).toLowerCase().replace(/[^a-z0-9\u4e00-\u9fff]+/g, '');
+        }
+
+        function getHeaderMap(parts) {
+            const map = {};
+            parts.forEach((part, index) => {
+                const header = normalizeHeader(part);
+                if (!header) return;
+                if (['companyname', 'customername', 'vendor', '廠商', '公司', '公司名稱'].includes(header)) map.company = index;
+                if (['website', 'url', 'web', '網址'].includes(header)) map.website = index;
+                if (['booth', 'boothno', 'boothnumber', '攤位', '攤位號碼'].includes(header)) map.booth = index;
+            });
+            return map;
+        }
+
+        function hasCountryApplicationHeader(parts) {
+            const normalized = parts.map(normalizeHeader);
+            return normalized.includes('companyname')
+                && (normalized.includes('contactperson') || normalized.includes('email'))
+                && (normalized.includes('website') || normalized.includes('url'));
+        }
+
+        function isMetaRow(line, parts) {
+            const text = String(line || '').toLowerCase();
+            if (text.includes('country pavilion co-exhibitor application form')) return true;
+            if (text.includes('semicon taiwan') && text.includes('korea')) return true;
+            if (parts.length <= 3 && parts.some(part => /^\(?[a-z\s]+\)?$/i.test(part)) && !parts.some(looksLikeUrl)) return true;
+            return false;
+        }
+
+        function shouldUseCountryFormat(rawData, format) {
+            if (format === 'country') return true;
+            return rawData.split(/\r?\n/).some(line => hasCountryApplicationHeader(parseDelimitedLine(line)));
+        }
         function getDisplayName(item, outputLang) {
             return outputLang === 'en'
                 ? (item.engName || item.localName)
@@ -241,19 +335,25 @@
         function parseVendorRows(rawData, format, sharedBooth, outputLang) {
             const rows = rawData.split(/\r?\n/);
             const parsedItems = [];
+            const useCountryFormat = shouldUseCountryFormat(rawData, format);
+            let countryHeaderMap = null;
 
             rows.forEach((line, index) => {
                 if (!line.trim()) return;
-                if (line.toLowerCase().includes('company name') || line.toLowerCase().includes('customer_name')) return;
-
-                const parts = line.split('\t').map(part => part.trim());
+                const parts = parseDelimitedLine(line);
+                if (isMetaRow(line, parts)) return;
+                if (hasCountryApplicationHeader(parts)) {
+                    countryHeaderMap = getHeaderMap(parts);
+                    return;
+                }
+                if (isHeaderRow(line)) return;
                 const issues = [];
                 let localName = '';
                 let engName = '';
                 let booth = '';
                 let url = '';
 
-                if (format === 'standard') {
+                if (!useCountryFormat) {
                     localName = parts[0] || '';
                     engName = parts[1] || '';
                     booth = parts[3] || '';
@@ -263,13 +363,34 @@
                         issues.push({ type: 'check', text: `欄位數不足：讀到 ${parts.length} 欄，預期至少 5 欄` });
                     }
                 } else {
-                    localName = parts[1] || '';
-                    engName = parts[1] || '';
-                    booth = sharedBooth || '';
-                    url = parts[6] || '';
+                    const companyIndex = Number.isInteger(countryHeaderMap?.company) ? countryHeaderMap.company : 1;
+                    const websiteIndex = Number.isInteger(countryHeaderMap?.website) ? countryHeaderMap.website : 6;
+                    const boothIndex = Number.isInteger(countryHeaderMap?.booth) ? countryHeaderMap.booth : -1;
 
-                    if (parts.length < 7) {
-                        issues.push({ type: 'check', text: `欄位數不足：讀到 ${parts.length} 欄，預期至少 7 欄` });
+                    localName = parts[companyIndex] || '';
+                    engName = parts[companyIndex] || '';
+                    booth = boothIndex >= 0 ? (parts[boothIndex] || sharedBooth || '') : (sharedBooth || '');
+                    url = parts[websiteIndex] || '';
+
+                    if (parts.length < Math.max(companyIndex, websiteIndex) + 1) {
+                        issues.push({ type: 'check', text: `欄位數不足：讀到 ${parts.length} 欄，預期至少 ${Math.max(companyIndex, websiteIndex) + 1} 欄` });
+                    }
+
+                    const inferredUrl = parts.find(looksLikeUrl);
+                    if ((!url || !looksLikeUrl(url)) && inferredUrl) {
+                        url = inferredUrl;
+                        issues.push({ type: 'check', text: '已從非預期欄位推測網址' });
+                    }
+                    if ((!booth || !looksLikeBooth(booth)) && !sharedBooth) {
+                        const inferredBooth = parts.find(looksLikeBooth);
+                        if (inferredBooth) {
+                            booth = inferredBooth;
+                            issues.push({ type: 'check', text: '已從非預期欄位推測攤位' });
+                        }
+                    }
+                    if (!localName) {
+                        localName = parts.find(part => part && !/^\d+$/.test(part) && !looksLikeUrl(part) && !/@/.test(part) && !/^\+?\d/.test(part)) || '';
+                        engName = localName;
                     }
                 }
 
