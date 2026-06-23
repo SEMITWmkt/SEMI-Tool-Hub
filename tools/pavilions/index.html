@@ -372,6 +372,42 @@
             return headerHits.filter(hit => text.includes(hit)).length >= 2;
         }
 
+        function normalizeHeader(value) {
+            return cleanCell(value).toLowerCase().replace(/[^a-z0-9\u4e00-\u9fff]+/g, '');
+        }
+
+        function getHeaderMap(parts) {
+            const map = {};
+            parts.forEach((part, index) => {
+                const header = normalizeHeader(part);
+                if (!header) return;
+                if (['companyname', 'customername', 'vendor', '廠商', '公司', '公司名稱'].includes(header)) map.company = index;
+                if (['website', 'url', 'web', '網址'].includes(header)) map.website = index;
+                if (['booth', 'boothno', 'boothnumber', '攤位', '攤位號碼'].includes(header)) map.booth = index;
+            });
+            return map;
+        }
+
+        function hasCountryApplicationHeader(parts) {
+            const normalized = parts.map(normalizeHeader);
+            return normalized.includes('companyname')
+                && (normalized.includes('contactperson') || normalized.includes('email'))
+                && (normalized.includes('website') || normalized.includes('url'));
+        }
+
+        function isMetaRow(line, parts) {
+            const text = String(line || '').toLowerCase();
+            if (text.includes('country pavilion co-exhibitor application form')) return true;
+            if (text.includes('semicon taiwan') && text.includes('korea')) return true;
+            if (parts.length <= 3 && parts.some(part => /^\(?[a-z\s]+\)?$/i.test(part)) && !parts.some(looksLikeUrl)) return true;
+            return false;
+        }
+
+        function shouldUseCountryFormat(rawData, format) {
+            if (format === 'country') return true;
+            return rawData.split(/\r?\n/).some(line => hasCountryApplicationHeader(parseDelimitedLine(line)));
+        }
+
         function getDisplayName(item, outputLang) {
             return outputLang === 'en'
                 ? (item.engName || item.localName)
@@ -381,19 +417,26 @@
         function parseVendorRows(rawData, format, sharedBooth, outputLang) {
             const rows = rawData.split(/\r?\n/);
             const parsedItems = [];
+            const useCountryFormat = shouldUseCountryFormat(rawData, format);
+            let countryHeaderMap = null;
 
             rows.forEach((line, index) => {
                 if (!line.trim()) return;
+                const parts = parseDelimitedLine(line);
+                if (isMetaRow(line, parts)) return;
+                if (hasCountryApplicationHeader(parts)) {
+                    countryHeaderMap = getHeaderMap(parts);
+                    return;
+                }
                 if (isHeaderRow(line)) return;
 
-                const parts = parseDelimitedLine(line);
                 const issues = [];
                 let localName = '';
                 let engName = '';
                 let booth = '';
                 let url = '';
 
-                if (format === 'standard') {
+                if (!useCountryFormat) {
                     localName = parts[0] || '';
                     engName = parts[1] || '';
                     booth = parts[3] || '';
@@ -423,19 +466,30 @@
                         engName = nameCandidates[1] || '';
                     }
                 } else {
-                    localName = parts[1] || '';
-                    engName = parts[1] || '';
-                    booth = sharedBooth || '';
-                    url = parts[6] || '';
+                    const companyIndex = Number.isInteger(countryHeaderMap?.company) ? countryHeaderMap.company : 1;
+                    const websiteIndex = Number.isInteger(countryHeaderMap?.website) ? countryHeaderMap.website : 6;
+                    const boothIndex = Number.isInteger(countryHeaderMap?.booth) ? countryHeaderMap.booth : -1;
 
-                    if (parts.length < 7) {
-                        issues.push({ type: 'check', text: `欄位數不足：讀到 ${parts.length} 欄，預期至少 7 欄` });
+                    localName = parts[companyIndex] || '';
+                    engName = parts[companyIndex] || '';
+                    booth = boothIndex >= 0 ? (parts[boothIndex] || sharedBooth || '') : (sharedBooth || '');
+                    url = parts[websiteIndex] || '';
+
+                    if (parts.length < Math.max(companyIndex, websiteIndex) + 1) {
+                        issues.push({ type: 'check', text: `欄位數不足：讀到 ${parts.length} 欄，預期至少 ${Math.max(companyIndex, websiteIndex) + 1} 欄` });
                     }
 
                     const inferredUrl = parts.find(looksLikeUrl);
                     if ((!url || !looksLikeUrl(url)) && inferredUrl) {
                         url = inferredUrl;
                         issues.push({ type: 'check', text: '已從非預期欄位推測網址' });
+                    }
+                    if ((!booth || !looksLikeBooth(booth)) && !sharedBooth) {
+                        const inferredBooth = parts.find(looksLikeBooth);
+                        if (inferredBooth) {
+                            booth = inferredBooth;
+                            issues.push({ type: 'check', text: '已從非預期欄位推測攤位' });
+                        }
                     }
                     if (!localName) {
                         localName = parts.find(part => part && !/^\d+$/.test(part) && !looksLikeUrl(part) && !/@/.test(part) && !/^\+?\d/.test(part)) || '';
