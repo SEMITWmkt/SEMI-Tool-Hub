@@ -1,85 +1,85 @@
-# Release Notes
+# SEMI Tool Hub — Release Notes
 
-This file records visible SEMI Tool Hub changes that have been published to `main`, plus pending branch candidates that still need review before release.
+> 給**使用者**看的更新紀錄。只記錄有感變更：新功能、行為改變、重大 bug 修復。
+> 工程細節（重構、變數改名、樣式微調）不寫這裡，那屬於 commit message。
 
-Use this together with `docs/version-map.md`:
+---
 
-- `release-notes.md` answers: what changed and when.
-- `version-map.md` answers: which source version each Hub tool represents.
+## [Unreleased]
 
-## 2026-06-24
+> 正在開發中，尚未同步進 Hub 的變更放這裡，上線時移到對應版本區塊。
 
-### Released to `main`
+---
 
-#### Hub Homepage
+## Hub v1.0.0 — 2026-06-24
 
-- Removed the SEMI trademark image from the homepage header and restored a neutral product mark.
-- Kept the hero support copy on one line for desktop layouts, with normal wrapping on narrower screens.
-- Moved Logo Prep Tool out of the primary tool grid and into a support utility area.
-- Kept the homepage focused on four primary work areas: Forum, Trend Table, Sponsors, and Pavilions.
+> **首次整合版本 Baseline**
 
-#### Trend Table Creator
+### 整合進 Hub 的工具
 
-- Updated the Trend Table workbench layout so the editor and preview areas are better balanced inside the Hub workspace.
-- Preserved the existing tool workflow while improving integrated workspace fit.
+- **Forum HTML Compiler v9.13** — ST26 論壇頁面 HTML 產生器
+- **Sponsors Logo Creator v5.2.0** — 贊助商 Logo 排版產生器
+- **Pavilions Vendor Creator v1.1** — 展館廠商頁面產生器
+- **Trend Table Creator v4.8** — 15 大主題互動表格產生器
+- **Logo Prep Tool v0.1**（輔助工具）— Logo 去背與尺寸前處理
 
-#### Logo Prep Tool
+---
 
-- Added Logo Prep Tool as a Hub-native support utility.
-- Supports PDF-compatible AI, PDF, SVG, and image inputs.
-- Exports transparent PNG files for sponsor logo preparation.
-- Added `docs/logo-prep-minimal-spec.md`.
+## Forum HTML Compiler
 
-#### Pavilions Vendor Creator
+### v9.13
+- 三步驟流程重構（資料輸入 → 設定 → 預覽輸出）
+- AI 解析整合（支援 Claude / OpenAI / Gemini，使用者自帶 API key）
+- Logo 管理全面翻新：canvas 去白邊、`object-fit` 輸出、比例滑桿（30–100%）
+- 各輸出區塊可獨立開關（theme、outline、day pass、group discount、footnote）
+- CSS 隔離修正（`.st26, .st26 *` 選擇器、防禦性 reset）
+- 修復 `renderPerson` / `addPerson` 命名衝突
+- 修復 `handleParse` 函式被覆蓋的 bug
+- 修復 Claude model name 錯誤
+- 修復 canvas taint（本地 data URL 不加 `crossOrigin`）
+- 修復 preview iframe 觸發 mobile CSS
 
-- Improved country pavilion vendor parsing.
-- Tightened booth/card output for CMS source use.
-- Kept the generated HTML compact for Drupal paste workflows.
+---
 
-#### Sponsors Logo Creator
+## Sponsors Logo Creator
 
-- Added continuity workflow improvements for recurring sponsor updates.
-- Supports continuing from existing sponsor data instead of rebuilding the entire section every time.
+### v5.2.0
+- `TOOL_VERSION` 常數建立，版本號統一管理
+- （待補：這版的使用者有感變更）
 
-### Branch Candidates
+---
 
-The `project-state-continuity` branch contains additional work that has not been fully accepted as a single release. Do not open a broad pull request until each item below is reviewed.
+## Pavilions Vendor Creator
 
-Candidate items visible in the branch comparison:
+### v1.1
+- （待補：資料驗證 / workfile 方向的更新內容）
 
-- Product and workflow documentation updates:
-  - `docs/data-resilience-scope.md`
-  - `docs/generator-ui-standard.md`
-  - `docs/project-state-standard.md`
-  - `docs/trial-runs-2026-06-08-data-resilience.md`
-- `README.md`, `docs/roadmap.md`, and `docs/version-map.md` edits.
-- Additional Pavilions changes in `tools/pavilions/index.html`.
-- Trend icon assets under `tools/trends/assets/icons/`.
-- `uiux-unified-demo.html`.
+---
 
-Recommended branch review order:
+## Trend Table Creator
 
-1. Review docs-only candidates first.
-2. Review Pavilions functional changes with sample data.
-3. Review Trend icon assets and whether they are needed in the published Hub.
-4. Decide whether `uiux-unified-demo.html` should stay as a reference artifact, move into docs, or be removed from release scope.
+### v4.8
+- （待補：相較 v4.7 的有感變更）
 
-## Earlier Published Milestones
+> Hub 顯示版本已統一為 v4.8。
 
-### Initial Hub Launch
+---
 
-- Published SEMI Tool Hub as the integrated launcher for Forum, Trend Table, Sponsors, and Pavilions tools.
-- Added `workspace.html` to load individual tools without merging their JavaScript and CSS into one page.
+## Logo Prep Tool
 
-### Unified Homepage Direction
+### v0.1
+- 初始版本，輔助工具，功能以 Logo 前處理為主
 
-- Promoted the unified homepage direction to `index.html`.
-- Established large tool cards as direct entry points into the Hub workspace.
-- Removed demo-only wording from the production homepage.
+---
 
-### Trend Table Excel-First Workflow
+## 寫作格式參考
 
-- Upgraded Trend Table Creator to an Excel-first workflow.
-- Added Trend Table README, usage guide, import schema, sample templates, and screenshots.
-- Added workbook parsing support through the local `xlsx.full.min.js` asset.
-
+```
+### vX.Y.Z — YYYY-MM-DD
+#### ✨ 新功能
+- 簡短描述，使用者視角，不要工程語言
+#### 🐛 修復
+- 修復了什麼問題，使用者之前遇到的症狀
+#### ⚠️ 行為變更
+- 原本怎樣，現在怎樣，使用者需要注意什麼
+```

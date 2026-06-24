@@ -1,42 +1,43 @@
-# Version Map
+# SEMI Tool Hub — Version Map
 
-This file records how each desktop/source tool is integrated into SEMI-Tool-Hub.
+> 這份文件記錄 Hub repo 內每個工具目前整合的版本，以及它來自哪個 source repo 的哪個狀態。
+> 每次把工具更新同步進 Hub 時，更新這裡。
 
-Last checked: 2026-06-08, Asia/Taipei.
+---
 
-## Tool Integration Status
+## 目前 Baseline（建立日期：2026-06-24）
 
-| Hub module | Source folder | Source repo | Source branch / commit | Hub integration status | Notes |
-|---|---|---|---|---|---|
-| `tools/logo-prep/index.html` | Hub-native | N/A | local working copy | Integrated v0.1 minimal utility slice | Adds a small pre-processing tool that reads PDF-compatible AI, PDF, SVG, and image files in-browser, trims whitespace, and exports transparent PNG for Sponsor Generator intake. |
-| `tools/sponsors/index.html` | `/Users/lun04/Desktop/Sponsors Logo HTML Creator` | `SEMITWmkt/Sponsors-Logo-HTML-Creator` | `main @ 72d03a6` | Integrated v5.2.0 + continuity workflow slice | Adds existing HTML restore, continuous paste-to-queue logo intake, whitespace auto-crop for logos, missing/check filters, and current-item focus so recurring sponsor updates can continue from published output instead of rebuilding the list. Source repo still needs sync after Hub validation. |
-| `tools/pavilions/index.html` | `/Users/lun04/Desktop/Pavilions Vendor HTML Creator` | `SEMITWmkt/Pavilions-Vendor-HTML-Creator` | `pavilions-v1.1-confidence` working copy | Integrated v1.1 confidence + data resilience + project state slice | Adds tolerant text parsing, URL normalization, inferred booth/URL, editable parsed review rows, local autosaved draft, and work file save/load for recurring edits. Source repo still needs sync after Hub validation. |
-| `tools/forum/index.html` | `/Users/lun04/Desktop/Fourm HTML Creator` | `SEMITWmkt/SEMI-AutoCompiler-FORUM` | `main @ f2d1ce5` | Integrated v9.11 + Hub layout fit | Synced from desktop source after user confirmed Forum is updated to v9.11. Hub module removes narrow centering for integrated use. |
-| `tools/trends/index.html` | `/Users/lun04/Desktop/Trend_Table Creator ` | `SEMITWmkt/Trend_Table-Creator` | `main @ 88f35b8` | Integrated + project state slice | Adds work file save/load and a compact publish check summary for missing text, URL, and icon items. Source folder has a trailing space in its name; use clean clone path later. |
+| 工具 | Hub 路徑 | Hub 內版本 | Source Repo | Source 版本 | 同步狀態 | 備註 |
+|---|---|---|---|---|---|---|
+| Forum HTML Compiler | `tools/forum/index.html` | v9.13 | `Forum HTML Creator` | v9.13 | ✅ 同步 | 最完整，版本概念一致 |
+| Sponsors Logo Creator | `tools/sponsors/index.html` | v5.2.0 | `Sponsors Logo HTML Creator` | v5.2.0 | ✅ 同步 | `TOOL_VERSION` 常數已建立 |
+| Pavilions Vendor Creator | `tools/pavilions/index.html` | v1.1 | `Pavilions Vendor HTML Creator` | v1.1 | ✅ 同步 | 資料驗證 / workfile 方向進行中 |
+| Trend Table Creator | `tools/trends/index.html` | v4.8 | `Trend_Table Creator` | v4.8 | ✅ 同步 | 已修正 Hub 首頁 / workspace metadata / 工具內版本顯示 |
+| Logo Prep Tool | `tools/logo-prep/index.html` | v0.1 | —（無獨立 repo） | v0.1 | ✅ | 輔助工具，不與四大工具同層管理 |
 
-## Integration Policy
+---
 
-- SEMI-Tool-Hub is the canonical integrated project.
-- Desktop source folders can remain during migration, but Hub modules should stay usable and current.
-- Do not copy `.git/`, `.DS_Store`, backups, or local-only files into `tools/`.
-- After every integration update, record source branch/commit, date, and verification notes.
+## 版本漂移待修清單
 
-## Recommended Clean Workspace Later
+- [x] **Trend Table Creator**：將 Hub 首頁、workspace metadata、工具內版本號統一為 `v4.8`
 
-The current desktop folder layout is workable, but a future clean workspace should make SEMI-Tool-Hub the root project and avoid spaces or trailing spaces in source paths.
+---
 
-Suggested structure:
+## 更新紀錄
 
-```text
-SEMI-Tool-Hub/
-  index.html
-  docs/
-  tools/
-    sponsors/
-    pavilions/
-    forum/
-    trends/
-  sources/ optional-migration-reference/
-```
+<!-- 每次同步時，在這裡補一行 -->
 
-Keep the current desktop folders in place until all remotes and local changes are accounted for.
+| 日期 | 工具 | Source 版本 → Hub 版本 | 說明 |
+|---|---|---|---|
+| 2026-06-24 | 全部 | — | Baseline 建立 |
+| 2026-06-24 | Trend Table Creator | v4.8 → v4.8 | 修正 Hub 顯示版本漂移，統一首頁、workspace metadata 與工具本體版本 |
+
+---
+
+## 使用方式
+
+1. **工具在 source repo 更新** → 先在那邊測試
+2. **同步進 Hub** → 複製 `index.html` 到對應 `tools/xxx/`
+3. **更新這份 version-map** → 填日期、版本號、說明
+4. **寫 release-notes** → 如果是使用者有感的變更
+5. **commit** → `sync: forum v9.14 → hub`
