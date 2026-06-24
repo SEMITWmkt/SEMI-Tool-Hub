@@ -19,6 +19,7 @@
       --brand: #111318;
       --brand-soft: #eef1f5;
       --forum: #2d64a1;
+      --prep: #245c93;
       --trend: #2f7955;
       --sponsor: #7a5a14;
       --pavilion: #9a4d28;
@@ -297,6 +298,44 @@
       bottom: 18px;
     }
 
+    .tool-watermark.prep .wm-a,
+    .tool-watermark.prep .wm-b {
+      width: 82px;
+      height: 62px;
+      border-radius: 18px;
+    }
+
+    .tool-watermark.prep .wm-a {
+      left: 22px;
+      top: 22px;
+    }
+
+    .tool-watermark.prep .wm-b {
+      right: 22px;
+      bottom: 24px;
+    }
+
+    .tool-watermark.prep .wm-c,
+    .tool-watermark.prep .wm-d {
+      width: 16px;
+      height: 16px;
+      border: 0;
+      background: rgba(17, 19, 24, .07);
+      clip-path: polygon(0 0, 100% 0, 100% 26%, 26% 26%, 26% 100%, 0 100%);
+      border-radius: 0;
+    }
+
+    .tool-watermark.prep .wm-c {
+      left: 50px;
+      bottom: 32px;
+      transform: rotate(180deg);
+    }
+
+    .tool-watermark.prep .wm-d {
+      right: 50px;
+      top: 34px;
+    }
+
     .tool-watermark.pavilion .wm-a,
     .tool-watermark.pavilion .wm-b,
     .tool-watermark.pavilion .wm-c {
@@ -367,6 +406,7 @@
     }
 
     .tool-id.forum { background: linear-gradient(135deg, #2d64a1, #4d7fc4); }
+    .tool-id.prep { background: linear-gradient(135deg, #245c93, #4b89cb); }
     .tool-id.trend { background: linear-gradient(135deg, #2f7955, #4c9a72); }
     .tool-id.sponsor { background: linear-gradient(135deg, #7a5a14, #b28a32); }
     .tool-id.pavilion { background: linear-gradient(135deg, #9a4d28, #c77247); }
@@ -517,7 +557,7 @@
       <div class="hero-copy">
         <div class="eyebrow">SEMICON Taiwan Website Operations</div>
         <h2>選擇工具，進入對應工作區，完成整理、檢查與發布。</h2>
-        <p>提供論壇、主題互動、贊助商與專區展商四個工作入口，協助網站編輯者更快完成內容更新。</p>
+        <p>提供論壇、主題互動、Logo 前置轉檔、贊助商與專區展商五個工作入口，協助網站編輯者更快完成內容更新。</p>
       </div>
     </section>
 
@@ -575,6 +615,32 @@
       </article>
 
       <article class="tool-card">
+        <a class="card-link" href="workspace.html?tool=logo-prep" aria-label="進入 Logo Prep Tool 工作區"></a>
+        <div class="tool-watermark prep" aria-hidden="true">
+          <span class="wm-a"></span>
+          <span class="wm-b"></span>
+          <span class="wm-c"></span>
+          <span class="wm-d"></span>
+        </div>
+        <div class="tool-head">
+          <div class="tool-id prep">LP</div>
+          <div class="tool-status ready">Active workflow</div>
+        </div>
+        <div class="tool-copy">
+          <h4>Logo Prep Tool</h4>
+          <p>把 PDF-compatible AI、PDF、SVG 或圖片快速轉成透明 PNG，並在輸出前自動裁掉多餘白邊。</p>
+        </div>
+        <div class="tool-meta">
+          <span class="meta-pill">v0.1</span>
+          <span class="meta-pill">AI to PNG</span>
+          <span class="meta-pill">Whitespace trim</span>
+        </div>
+        <div class="tool-foot">
+          <p>適合先把廠商 Logo 處理乾淨，再回 Sponsor Generator 進行排版與存檔。</p>
+        </div>
+      </article>
+
+      <article class="tool-card">
         <a class="card-link" href="workspace.html?tool=sponsors" aria-label="進入 Sponsors Logo Creator 工作區"></a>
         <div class="tool-watermark sponsor" aria-hidden="true">
           <span class="wm-a"></span>
@@ -591,7 +657,7 @@
           <p>處理贊助商級別、Logo、名稱與連結，產生固定格式的雙語 HTML。</p>
         </div>
         <div class="tool-meta">
-          <span class="meta-pill">v5.1.1</span>
+          <span class="meta-pill">v5.2.0</span>
           <span class="meta-pill">Sponsor visibility</span>
           <span class="meta-pill">Work file ready</span>
         </div>
