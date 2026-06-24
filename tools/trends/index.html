@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SEMICON 主題產生器 v4.7</title>
+<title>主題互動區塊產生器 v4.8</title>
 <style>
 :root{
   --pu:#800080;--pu-light:#f5eef5;--pu-mid:#ddc0dd;
@@ -20,17 +20,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 /* ── HEADER ── */
 .app-header{
   background:var(--white);border-bottom:1px solid var(--bd);
-  padding:0 20px;height:52px;display:flex;align-items:center;
+  padding:8px 20px;min-height:52px;display:flex;align-items:center;
   justify-content:space-between;flex-shrink:0;
   box-shadow:0 1px 4px rgba(0,0,0,.06);z-index:100;
+  gap:12px;
 }
 .header-brand{display:flex;align-items:center;gap:10px;}
 .header-brand h1{font-size:14px;font-weight:700;color:var(--pu);}
 .version-badge{background:var(--pu-light);color:var(--pu);
   font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;}
-.header-actions{display:flex;align-items:center;gap:8px;}
+.header-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;}
 .save-indicator{font-size:11px;color:var(--success);opacity:0;
   transition:opacity .4s;white-space:nowrap;min-width:80px;text-align:right;}
+.step-tabs{display:flex;align-items:center;gap:6px;border-left:1px solid var(--bd);padding-left:10px;margin-left:2px;}
 
 /* ── BUTTONS ── */
 .btn{background:var(--text);color:#fff;border:none;padding:7px 14px;
@@ -38,6 +40,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   transition:opacity .18s;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;}
 .btn:hover{opacity:.82;}
 .btn-primary{background:var(--pu);}
+.btn-step{background:#fff;border:1px solid var(--bd);color:var(--gray);}
+.btn-step.active{background:var(--pu);border-color:var(--pu);color:#fff;}
 .btn-outline{background:transparent;border:1px solid var(--bd);color:var(--text);}
 .btn-outline:hover{background:#efefef;opacity:1;}
 .btn-ai{background:var(--ai);color:#fff;}
@@ -55,9 +59,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 .icon-btn:hover{background:#f0f0f3;}
 
 /* ── WORKSPACE ── */
-.workspace{display:grid;grid-template-columns:minmax(700px,1.2fr) minmax(520px,.84fr);flex:1;min-height:0;}
+.workspace{display:grid;grid-template-columns:1fr;flex:1;min-height:0;}
+.workspace.step-edit .preview-pane{display:none;}
+.workspace.step-preview .editor-pane{display:none;}
+.workspace.step-preview .preview-pane{display:flex;}
 .editor-pane{min-width:0;border-right:1px solid var(--bd);overflow-y:auto;
-  background:#f7f7f9;padding:14px;display:flex;flex-direction:column;gap:10px;}
+  background:#f7f7f9;padding:12px;display:flex;flex-direction:column;gap:10px;}
 .preview-pane{min-width:0;display:flex;flex-direction:column;background:var(--white);}
 
 /* ── PREVIEW ── */
@@ -227,9 +234,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 
 /* ── REVIEW TOOLS ── */
 .review-tools{background:var(--white);border:1px solid var(--bd);border-radius:var(--r);
-  padding:10px;display:flex;flex-direction:column;gap:8px;}
+  padding:8px;display:flex;flex-direction:column;gap:7px;}
 .review-row{display:flex;gap:8px;align-items:center;}
-.batch-tools{border-top:1px dashed var(--bd);padding-top:8px;}
+.batch-tools{border-top:1px dashed var(--bd);padding-top:7px;}
 .batch-tools summary{list-style:none;cursor:pointer;font-size:11px;font-weight:700;
   text-transform:uppercase;letter-spacing:.8px;color:var(--gray);display:flex;
   align-items:center;gap:6px;user-select:none;}
@@ -265,21 +272,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   padding:2px 6px;border-radius:10px;font-size:10px;font-weight:700;}
 
 /* ── DATA WORKBENCH ── */
-.data-hub{background:var(--white);border:1px solid var(--bd);border-radius:var(--r);padding:12px;display:flex;flex-direction:column;gap:10px;}
+.data-hub{background:var(--white);border:1px solid var(--bd);border-radius:var(--r);padding:10px;display:flex;flex-direction:column;gap:8px;}
 .data-hub-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
 .data-hub-title{font-size:13px;font-weight:700;color:var(--text);}
-.data-hub-sub{font-size:11px;color:var(--gray);line-height:1.5;max-width:520px;}
-.data-hub-grid{display:grid;grid-template-columns:1.4fr .9fr;gap:10px;}
-.data-hub-card{border:1px solid var(--bd);border-radius:var(--r-sm);padding:10px;background:#fafafa;}
+.data-hub-sub{font-size:11px;color:var(--gray);line-height:1.45;max-width:680px;}
+.data-hub-grid{display:grid;grid-template-columns:1fr;gap:8px;}
+.data-hub-card{border:1px solid var(--bd);border-radius:var(--r-sm);padding:9px;background:#fafafa;}
 .data-hub-card h3{font-size:11px;font-weight:700;margin-bottom:6px;color:var(--text);}
+.data-hub-help{border:1px dashed var(--bd);border-radius:var(--r-sm);padding:8px 10px;background:#fff;}
+.data-hub-help summary{list-style:none;cursor:pointer;font-size:11px;font-weight:700;color:var(--gray);}
+.data-hub-help summary::-webkit-details-marker{display:none;}
 .data-hub-steps{list-style:none;display:flex;flex-direction:column;gap:6px;font-size:11px;color:var(--gray);line-height:1.45;}
 .data-hub-steps li{padding-left:16px;position:relative;}
 .data-hub-steps li::before{content:'•';position:absolute;left:0;color:var(--pu);}
-.sheet-textarea{width:100%;min-height:132px;border:1px solid var(--bd);border-radius:var(--r-sm);padding:8px 10px;font-size:11px;line-height:1.5;font-family:"Menlo","Monaco","Consolas",monospace;resize:vertical;outline:none;background:#fff;}
+.sheet-textarea{width:100%;min-height:92px;border:1px solid var(--bd);border-radius:var(--r-sm);padding:8px 10px;font-size:11px;line-height:1.5;font-family:"Menlo","Monaco","Consolas",monospace;resize:vertical;outline:none;background:#fff;}
 .sheet-textarea:focus{border-color:var(--pu);}
-.editor-shell{display:grid;grid-template-columns:minmax(260px,300px) minmax(0,1fr);gap:10px;min-height:0;flex:1;}
-.nav-panel,.detail-panel{background:var(--white);border:1px solid var(--bd);border-radius:var(--r);min-height:0;}
-.nav-panel{display:flex;flex-direction:column;overflow:hidden;}
+.editor-shell{display:grid;grid-template-columns:minmax(240px,280px) minmax(0,1fr);gap:10px;align-items:start;min-height:auto;flex:initial;}
+.nav-panel,.detail-panel{background:var(--white);border:1px solid var(--bd);border-radius:var(--r);min-height:auto;}
+.nav-panel{display:flex;flex-direction:column;overflow:hidden;position:sticky;top:0;max-height:calc(100vh - 86px);}
 .nav-head,.detail-head{padding:12px 14px;border-bottom:1px solid var(--bd);display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
 .nav-head-title,.detail-head-title{font-size:12px;font-weight:700;color:var(--text);}
 .nav-head-sub,.detail-head-sub{font-size:11px;color:var(--gray);line-height:1.45;}
@@ -293,15 +303,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 .theme-nav-en{font-size:10px;color:var(--gray);margin-top:2px;line-height:1.35;word-break:break-word;}
 .theme-nav-meta{display:flex;flex-wrap:wrap;gap:5px;}
 .meta-pill{display:inline-flex;align-items:center;border:1px solid var(--bd);border-radius:999px;padding:2px 7px;font-size:10px;color:var(--gray);background:#fafafa;}
-.detail-body{padding:14px;display:flex;flex-direction:column;gap:12px;overflow:auto;min-height:0;}
+.detail-body{padding:12px;display:flex;flex-direction:column;gap:10px;overflow:visible;min-height:auto;}
 .detail-toolbar{display:flex;gap:6px;flex-wrap:wrap;}
+.detail-current{border:1px solid var(--bd);border-radius:8px;padding:10px;background:#fcfbfd;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.detail-current-main{min-width:220px;flex:1;}
+.current-kicker{font-size:10px;text-transform:uppercase;letter-spacing:.9px;color:var(--gray);font-weight:700;margin-bottom:3px;}
+.current-title{font-size:17px;font-weight:800;color:var(--text);line-height:1.2;}
+.current-meta{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px;}
+.detail-current-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;}
 .detail-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;}
 .summary-box{border:1px solid var(--bd);border-radius:8px;padding:8px 10px;background:#fafafa;}
 .summary-label{font-size:9px;text-transform:uppercase;letter-spacing:.8px;color:var(--gray);margin-bottom:4px;}
 .summary-value{font-size:13px;font-weight:700;color:var(--text);}
 .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px;}
 .detail-col{display:flex;flex-direction:column;gap:8px;min-width:0;}
-.detail-card{border:1px solid var(--bd);border-radius:8px;padding:10px;background:#fff;}
+.detail-card{border:1px solid var(--bd);border-radius:8px;padding:9px;background:#fff;}
 .detail-card-title{font-size:11px;font-weight:700;color:var(--text);margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
 .detail-field{display:flex;flex-direction:column;gap:4px;}
 .detail-field label{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--gray);font-weight:600;}
@@ -310,7 +326,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 .detail-field input:focus,.detail-field textarea:focus{border-color:var(--pu);}
 .detail-list-editor{width:100%;min-height:108px;border:1px solid #ddd;border-radius:var(--r-sm);padding:8px 10px;font-size:11px;line-height:1.55;font-family:"Menlo","Monaco","Consolas",monospace;resize:vertical;outline:none;background:#fff;}
 .detail-list-editor:focus{border-color:var(--pu);}
-.detail-note{font-size:10px;color:var(--gray);line-height:1.45;margin-top:6px;}
+.detail-note{font-size:10px;color:var(--gray);line-height:1.45;margin-top:5px;}
 .toggle-chip{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--gray);font-weight:500;text-transform:none;letter-spacing:0;}
 .empty-detail{padding:22px;text-align:center;color:var(--gray);font-size:12px;}
 @media(max-width:1240px){
@@ -336,24 +352,27 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 <!-- ═══ HEADER ═══ -->
 <header class="app-header">
   <div class="header-brand">
-    <h1>SEMICON 主題產生器</h1>
-    <span class="version-badge">v4.7</span>
+    <h1>主題互動區塊產生器</h1>
+    <span class="version-badge">v4.8</span>
   </div>
   <div class="header-actions">
     <span class="save-indicator" id="saveIndicator"></span>
+    <div class="step-tabs" aria-label="工作步驟">
+      <button class="btn btn-step btn-sm active" id="stepEditBtn" onclick="setWorkspaceStep('edit')">1 資料編輯</button>
+      <button class="btn btn-step btn-sm" id="stepPreviewBtn" onclick="setWorkspaceStep('preview')">2 預覽輸出</button>
+    </div>
     <button class="btn btn-outline btn-sm" onclick="exportWorkFile()">Save work file</button>
     <button class="btn btn-outline btn-sm" onclick="document.getElementById('workFileInput').click()">Load work file</button>
     <input type="file" id="workFileInput" accept=".json" style="display:none" onchange="importWorkFile(event)">
     <button class="icon-btn" onclick="showApiKeyModal()" title="設定 API Key">🔑</button>
     <button class="btn btn-outline btn-sm" onclick="clearStorage()" style="color:var(--danger);border-color:#f5c6cb;">🗑</button>
     <button class="btn btn-outline btn-sm" onclick="toggleAll()">專注模式</button>
-    <button class="btn btn-success-outline btn-sm" onclick="copyBoth()">複製中文</button>
-    <button class="btn btn-outline btn-sm" onclick="copyBoth('en')">Copy EN</button>
+    <button class="btn btn-primary btn-sm" onclick="setWorkspaceStep('preview')">下一步：預覽輸出</button>
   </div>
 </header>
 
 <!-- ═══ WORKSPACE ═══ -->
-<div class="workspace">
+<div class="workspace step-edit" id="workspace">
 
   <!-- LEFT: EDITOR -->
   <div class="editor-pane">
@@ -362,7 +381,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
       <div class="data-hub-head">
         <div>
           <div class="data-hub-title">Excel / 工作表匯入工作台</div>
-          <div class="data-hub-sub">把資料集中在一份表，再貼進來更新。左側只負責檢查、修正、預覽，不再做十五次重複打底。</div>
+          <div class="data-hub-sub">把主題、介紹、關鍵字、連結集中在一份表，再貼進來更新。可用於 15 大趨勢，也可新增任意數量的自訂主題。</div>
         </div>
         <div class="detail-toolbar">
           <a class="btn btn-outline btn-sm" href="templates/trend-table-import-template.xlsx" download>下載 Excel 範本</a>
@@ -383,15 +402,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
           <input type="file" id="sheetFileInput" accept=".xlsx,.xls,.csv,.tsv,.txt" style="display:none" onchange="importSheetFile(event)">
           <div class="batch-note">專區 / 論壇建議在同一格內一行一筆，格式：<code>名稱 | URL</code>。若已拆成 Zone1 / Forum1 欄位也可直接讀取。</div>
         </div>
-        <div class="data-hub-card">
-          <h3>建議工作流程</h3>
+        <details class="data-hub-help">
+          <summary>工作流程提示</summary>
           <ul class="data-hub-steps">
-            <li>先在 Excel 維護 15 個主題資料與連結。</li>
+            <li>先在 Excel 維護所有主題資料與連結。</li>
             <li>整塊貼入這裡，先完成大部分內容同步。</li>
-            <li>再用下方主題清單逐一抽查，不是逐一重做。</li>
+            <li>再用下方主題清單抽查重點，不是逐一重做。</li>
             <li>AI 保留做補字、整理、翻譯，不拿來取代正式資料源。</li>
           </ul>
-        </div>
+        </details>
       </div>
     </div>
 
@@ -413,7 +432,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
           <button class="ai-mode-btn active" id="modeUrl" onclick="setAiMode('url')">🔗 貼入網址</button>
           <button class="ai-mode-btn" id="modeText" onclick="setAiMode('text')">📋 貼入文字</button>
         </div>
-        <textarea class="ai-input-area" id="aiInput" placeholder="貼入 SEMICON Taiwan 的活動網址，或直接貼上論壇 / 展區 / 主題文字內容…"></textarea>
+        <textarea class="ai-input-area" id="aiInput" placeholder="貼入活動網址、頁面網址，或直接貼上論壇 / 展區 / 主題文字內容…"></textarea>
         <div class="ai-target-row">
           <label>匯入至：</label>
           <select id="aiTarget">
@@ -466,7 +485,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
         <div class="nav-head">
           <div>
             <div class="nav-head-title">主題清單</div>
-            <div class="nav-head-sub">先選主題，再集中編輯這一筆。</div>
+            <div class="nav-head-sub">可新增、刪除、排序，不限定 15 筆。</div>
           </div>
           <button class="btn btn-outline btn-sm" onclick="addTheme()">＋ 新增</button>
         </div>
@@ -907,24 +926,23 @@ function renderDetailPanel(){
   const t = themes[selectedThemeIndex];
   const issues = getPublishIssues().filter(issue=>issue.themeIndex===selectedThemeIndex).length;
   panel.innerHTML = `
-    <div class="detail-toolbar">
-      <button class="btn btn-outline btn-sm" onclick="moveT(${selectedThemeIndex},-1)" ${selectedThemeIndex===0?'disabled':''}>上移</button>
-      <button class="btn btn-outline btn-sm" onclick="moveT(${selectedThemeIndex},1)" ${selectedThemeIndex===themes.length-1?'disabled':''}>下移</button>
-      <button class="btn btn-outline btn-sm" onclick="toggleAiFill(${selectedThemeIndex})">AI 補資料</button>
-      <button class="btn btn-danger btn-sm" onclick="delT(${selectedThemeIndex})">刪除此主題</button>
-    </div>
-
-    <div class="summary-box" style="background:#fcf9fc;">
-      <div class="summary-label">目前編輯</div>
-      <div class="summary-value">${esc(themeLabel(selectedThemeIndex))}</div>
-      <div class="detail-note" style="margin-top:6px;">這裡只顯示單一主題，讓我們把工作流程變成「選一筆、修一筆、看結果」，而不是一口氣面對十五份表單。</div>
-    </div>
-
-    <div class="detail-summary">
-      <div class="summary-box"><div class="summary-label">Issues</div><div class="summary-value">${issues}</div></div>
-      <div class="summary-box"><div class="summary-label">Zones</div><div class="summary-value">${t.zones.length}</div></div>
-      <div class="summary-box"><div class="summary-label">Forums</div><div class="summary-value">${t.forums.length}</div></div>
-      <div class="summary-box"><div class="summary-label">Icon</div><div class="summary-value">${(t.icon_url || '').trim() ? '已設定' : '未設定'}</div></div>
+    <div class="detail-current">
+      <div class="detail-current-main">
+        <div class="current-kicker">目前編輯</div>
+        <div class="current-title">${esc(themeLabel(selectedThemeIndex))}</div>
+        <div class="current-meta">
+          <span class="meta-pill">${issues ? `${issues} 項需檢查` : '無檢查提醒'}</span>
+          <span class="meta-pill">展區 ${t.zones.length}</span>
+          <span class="meta-pill">論壇 ${t.forums.length}</span>
+          <span class="meta-pill">${(t.icon_url || '').trim() ? 'Icon 已設定' : 'Icon 未設定'}</span>
+        </div>
+      </div>
+      <div class="detail-current-actions">
+        <button class="btn btn-outline btn-sm" onclick="moveT(${selectedThemeIndex},-1)" ${selectedThemeIndex===0?'disabled':''}>上移</button>
+        <button class="btn btn-outline btn-sm" onclick="moveT(${selectedThemeIndex},1)" ${selectedThemeIndex===themes.length-1?'disabled':''}>下移</button>
+        <button class="btn btn-outline btn-sm" onclick="toggleAiFill(${selectedThemeIndex})">AI 補資料</button>
+        <button class="btn btn-danger btn-sm" onclick="delT(${selectedThemeIndex})">刪除</button>
+      </div>
     </div>
 
     <div class="ai-fill-panel" id="aifill-${selectedThemeIndex}">
@@ -1069,7 +1087,7 @@ function setAiMode(m){
   document.getElementById('modeUrl').classList.toggle('active',m==='url');
   document.getElementById('modeText').classList.toggle('active',m==='text');
   document.getElementById('aiInput').placeholder = m==='url'
-    ? '貼入 SEMICON Taiwan 的活動網址，例如 https://www.semicontaiwan.org/...'
+    ? '貼入活動頁、論壇頁、展區頁網址，或任何可分析的公開頁面網址…'
     : '貼上論壇介紹、展區說明等相關文字內容…';
 }
 function toggleAiFill(i){
@@ -1084,6 +1102,21 @@ function toggleAiFill(i){
 // ════════════════════════════════════════════
 let previewTimer=null;
 let prevLang='zh';
+let workspaceStep='edit';
+
+function setWorkspaceStep(step){
+  workspaceStep = step === 'preview' ? 'preview' : 'edit';
+  const workspace = document.getElementById('workspace');
+  const editBtn = document.getElementById('stepEditBtn');
+  const previewBtn = document.getElementById('stepPreviewBtn');
+  if(workspace){
+    workspace.classList.toggle('step-edit', workspaceStep === 'edit');
+    workspace.classList.toggle('step-preview', workspaceStep === 'preview');
+  }
+  if(editBtn)editBtn.classList.toggle('active', workspaceStep === 'edit');
+  if(previewBtn)previewBtn.classList.toggle('active', workspaceStep === 'preview');
+  if(workspaceStep === 'preview')updatePreview();
+}
 
 function schedulePreview(){
   clearTimeout(previewTimer);
@@ -1133,18 +1166,18 @@ function buildOutputCSS(scale, sc, mobileCols) {
 ${sc}{--fd:'DM Sans','PingFang TC','Heiti TC','Microsoft JhengHei',Arial,sans-serif;--fb:'DM Sans','PingFang TC','Heiti TC','Microsoft JhengHei',Arial,sans-serif;--bk:#1d1d1f;--gr:#6e6e73;--li:#fff;--bd:rgba(0,0,0,0.1);--pu:#800080;}
 ${sc} *{box-sizing:border-box;margin:0;padding:0;}
 ${sc}{font-family:var(--fb);background:var(--li);padding:16px 0;max-width:1400px;margin:0 auto;}
-${sc} .st-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:1px;background:var(--bd);border:1px solid var(--bd);}
+${sc} .st-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--bd);border:1px solid var(--bd);}
 @media(max-width:1180px){${sc} .st-grid{grid-template-columns:repeat(3,1fr);}}
 @media(max-width:768px){${sc} .st-grid{grid-template-columns:repeat(2,1fr);}}
 @media(max-width:480px){${sc} .st-grid{grid-template-columns:repeat(${mobileCols},1fr);}}
-${sc} .st-card{position:relative;background:#fff;padding:20px 18px 44px;min-height:236px;cursor:pointer;overflow:hidden;transition:background .18s ease;outline:none;-webkit-tap-highlight-color:transparent;}
-${sc} .st-num-wrap{position:relative;z-index:1;display:inline-flex;align-items:center;justify-content:center;width:auto;min-width:46px;height:38px;padding:0 11px;border-radius:6px;background:#f5eef5;margin-bottom:12px;transition:background .15s;font-family:var(--fd);font-size:${s(16)};font-weight:800;color:var(--pu);white-space:nowrap;letter-spacing:-0.5px;line-height:1;}
+${sc} .st-card{position:relative;background:#fff;padding:22px 20px 48px;min-height:242px;cursor:pointer;overflow:hidden;transition:background .18s ease;outline:none;-webkit-tap-highlight-color:transparent;}
+${sc} .st-num-wrap{position:relative;z-index:2;display:inline-flex;align-items:center;justify-content:center;width:auto;min-width:64px;height:42px;padding:0 14px;border-radius:10px;background:#f5eef5;margin-bottom:14px;transition:background .15s;font-family:var(--fd);font-size:${s(16)};font-weight:800;color:var(--pu);white-space:nowrap;letter-spacing:0;line-height:1;}
 ${sc} .st-card:hover .st-num-wrap,${sc} .st-card.active .st-num-wrap{background:#ede0ed;}
-${sc} .st-card-icon-wrap{position:absolute;right:14px;bottom:20px;width:92px;height:92px;display:flex;align-items:center;justify-content:center;opacity:.08;transition:opacity .25s,transform .25s;pointer-events:none;overflow:hidden;z-index:0;}
+${sc} .st-card-icon-wrap{position:absolute;right:16px;bottom:18px;width:94px;height:94px;display:flex;align-items:center;justify-content:center;opacity:.09;transition:opacity .25s,transform .25s;pointer-events:none;overflow:hidden;z-index:0;}
 ${sc} .st-card-icon-wrap img{width:100%;height:100%;object-fit:contain;object-position:center;}
 ${sc} .st-card:hover .st-card-icon-wrap,${sc} .st-card.active .st-card-icon-wrap{opacity:.13;transform:scale(1.03);}
-${sc} .st-card-title{position:relative;z-index:1;font-family:var(--fd);font-size:clamp(${s(14)},1.35vw,${s(17)});font-weight:800;color:var(--bk);line-height:1.16;letter-spacing:0;max-width:100%;word-break:normal;overflow-wrap:break-word;hyphens:none;}
-${sc} .st-card-sub{position:relative;z-index:1;margin-top:8px;font-size:${s(12)};color:var(--gr);line-height:1.45;max-width:100%;word-break:normal;overflow-wrap:normal;hyphens:none;}
+${sc} .st-card-title{position:relative;z-index:2;font-family:var(--fd);font-size:clamp(${s(14)},1.28vw,${s(18)});font-weight:800;color:var(--bk);line-height:1.16;letter-spacing:0;max-width:74%;word-break:normal;overflow-wrap:break-word;hyphens:none;}
+${sc} .st-card-sub{position:relative;z-index:2;margin-top:8px;font-size:${s(12)};color:var(--gr);line-height:1.45;max-width:74%;word-break:normal;overflow-wrap:normal;hyphens:none;}
 ${sc} .st-sub-term{white-space:nowrap;}
 ${sc} .st-sub-sep{white-space:normal;}
 ${sc} .st-card-bar{position:absolute;bottom:0;left:0;right:0;height:2px;background:transparent;transition:background .25s;}
@@ -1177,6 +1210,9 @@ ${sc} .st-close{position:absolute;top:20px;right:20px;width:28px;height:28px;bac
 ${sc} .st-close:hover{background:rgba(0,0,0,.1);}
 ${sc} .st-close svg{width:10px;height:10px;stroke:var(--bk);fill:none;stroke-width:2;stroke-linecap:round;display:block;}
 ${sc} .st-data{display:none;}
+@media(max-width:1180px){${sc} .st-card-title,${sc} .st-card-sub{max-width:78%;}${sc} .st-card-icon-wrap{width:84px;height:84px;opacity:.075;}}
+@media(max-width:768px){${sc} .st-card{min-height:222px;padding:20px 18px 46px;}${sc} .st-card-title,${sc} .st-card-sub{max-width:76%;}${sc} .st-card-icon-wrap{right:12px;bottom:18px;width:74px;height:74px;opacity:.07;}}
+@media(max-width:480px){${sc} .st-card{min-height:214px;}${sc} .st-card-title,${sc} .st-card-sub{max-width:100%;padding-right:64px;}${sc} .st-card-icon-wrap{width:62px;height:62px;opacity:.065;}}
 </style>`;
 }
 
@@ -1302,8 +1338,8 @@ function buildHTML(lang, forPreview=false) {
   const cards = buildCards(lang,uid,forPreview);
   const js    = buildOutputJS(uid);
   const comment = lang==='zh'
-    ? '<!-- SEMICON Taiwan 2026 | 互動展區選單 — 中文版 -->'
-    : '<!-- SEMICON Taiwan 2026 | Interactive Theme Blocks — English -->';
+    ? '<!-- 主題互動區塊 | 中文版 -->'
+    : '<!-- Interactive Theme Blocks | English -->';
   const drawer = `        <div class="st-drawer" id="${uid}-d">
             <div class="st-drawer-inner">
                 <button class="st-close"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
@@ -1409,7 +1445,7 @@ const SYSTEM_SINGLE = `你是一個資料解析助理。根據使用者提供的
 const SYSTEM_ALL = `你是一個資料解析助理。根據使用者提供的網址或文字，提取所有可辨識的半導體主題的展區與論壇資訊。
 只回傳 JSON，不要加說明或 markdown。格式如下：
 {"themes":[{"index":1,"title_zh":"","title_en":"","zones":[{"zh":"","en":"","url":""}],"forums":[{"zh":"","en":"","url":""}]}]}
-index 對應主題編號（1-15）。只列出有找到資訊的主題。如果某欄位找不到，留空字串。`;
+index 對應主題編號。只列出有找到資訊的主題。如果某欄位找不到，留空字串。`;
 
 function showLog(elId, msg, type=''){
   const el=document.getElementById(elId);
@@ -1838,9 +1874,9 @@ function applyGlobals(g){
 function getWorkState(){
   return {
     schema: WORKFILE_SCHEMA,
-    tool: 'Trend Table Generator',
-    version: 'v4.7',
-    projectName: 'SEMICON Taiwan Trend Table',
+    tool: 'Interactive Theme Block Generator',
+    version: 'v4.8',
+    projectName: 'Theme Block Project',
     exportedAt: new Date().toISOString(),
     data: { themes, globals: getGlobals(), selectedThemeIndex }
   };
@@ -1883,7 +1919,7 @@ function exportWorkFile(){
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');
   a.href=url;
-  a.download=`semicon_trends_workfile_${new Date().toISOString().slice(0,10)}.json`;
+  a.download=`theme_blocks_workfile_${new Date().toISOString().slice(0,10)}.json`;
   a.click();
   URL.revokeObjectURL(url);
 }
