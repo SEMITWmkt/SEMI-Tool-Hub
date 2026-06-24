@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ST26 論壇 HTML 產生器 v9.11</title>
+<title>ST26 論壇 HTML 產生器 v9.13</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -190,7 +190,7 @@ textarea.inp{resize:vertical}
   <div>
     <div class="hdr-eye">SEMI Taiwan · ST26</div>
     <div class="hdr-name">論壇 HTML 產生器</div>
-    <div class="hdr-ver">v9.11 · 三步驟流程 · AI 輔助 · CMS 版面修正</div>
+    <div class="hdr-ver">v9.13 · 三步驟流程 · AI 輔助 · Excel 彈性解析</div>
   </div>
   <div class="hdr-badge">✦ AI 輔助版</div>
 </div>
@@ -596,6 +596,10 @@ let selectedForum = null;
 let zhHTML = '', enHTML = '';
 let currentLang = 'zh', currentView = 'desktop';
 let lid = 0;
+const FORUM_DRAFT_PREFIX = 'st26v9_';
+const FORUM_DRAFT_MARKER_SCHEMA = 'st26-forum-draft-ref-v1';
+const FORUM_DRAFT_DB = 'semicon-tool-hub-forum-drafts';
+const FORUM_DRAFT_STORE = 'drafts';
 
 // ─────────────────────────── Navigation ───────────────────────────
 function goStep(n) {
@@ -691,41 +695,121 @@ function parsePrice(s){
   return isNaN(n)?null:n;
 }
 
+function normalizeHeader(s) {
+  return String(s || '').toLowerCase()
+    .replace(/[　\s_()（）\-/–—:：.]/g, '')
+    .trim();
+}
+
+function findHeaderIndex(cells, aliases) {
+  const normalized = cells.map(normalizeHeader);
+  const targets = aliases.map(normalizeHeader);
+  for(let i = 0; i < normalized.length; i++) {
+    if(targets.includes(normalized[i])) return i;
+  }
+  for(let i = 0; i < normalized.length; i++) {
+    if(targets.some(t => t && normalized[i].includes(t))) return i;
+  }
+  return -1;
+}
+
+function isExcelHeaderRow(cells) {
+  const n = cells.map(normalizeHeader);
+  return n.some(v => v === 'forum' || v === 'forumname') &&
+    n.some(v => v === 'time' || v === '時間') &&
+    n.some(v => v === '論壇名稱' || v === '中文論壇名稱');
+}
+
+function buildExcelHeaderMap(cells) {
+  const normalized = cells.map(normalizeHeader);
+  const map = {
+    regTime: findHeaderIndex(cells, ['Registration', '報名時間', '報到時間']),
+    frmTime: findHeaderIndex(cells, ['Time', '時間']),
+    nameEn:  findHeaderIndex(cells, ['Forum', 'Forum Name', '英文名稱', '英文論壇名稱']),
+    nameZh:  findHeaderIndex(cells, ['論壇名稱', '中文名稱', '中文論壇名稱']),
+    venueEn: findHeaderIndex(cells, ['Venue', 'Venue EN', '英文地點']),
+    venueZh: findHeaderIndex(cells, ['中文地點', '地點中文', 'Venue ZH']),
+    theme:   findHeaderIndex(cells, ['Theme', '主題']),
+    urlZh:   findHeaderIndex(cells, ['中文連結', '中文報名連結', 'ZH Link', 'Chinese Link']),
+    urlEn:   findHeaderIndex(cells, ['英文連結', '英文報名連結', 'EN Link', 'English Link'])
+  };
+  const after = Math.max(
+    map.urlZh, map.urlEn, map.theme, map.venueZh, map.venueEn,
+    map.nameZh, map.nameEn, map.frmTime, map.regTime
+  ) + 1;
+  const priceHeaderStart = normalized.findIndex((v, i) =>
+    i >= after && ['semimember','nonmember','student','學生票'].includes(v)
+  );
+  map.priceStart = priceHeaderStart >= 0 ? priceHeaderStart : Math.max(0, after);
+  return map;
+}
+
+function mergeExcelHeaderMap(next, prev) {
+  if(!prev) return next;
+  const merged = { ...next };
+  ['regTime','frmTime','nameEn','nameZh','venueEn','venueZh','theme','urlZh','urlEn'].forEach(k => {
+    if(merged[k] < 0 && prev[k] >= 0) merged[k] = prev[k];
+  });
+  return merged;
+}
+
+function readExcelCell(cells, idx) {
+  return idx >= 0 && idx < cells.length ? String(cells[idx] || '').trim() : '';
+}
+
+function rowToForum(cells, map) {
+  const regTime = readExcelCell(cells, map.regTime);
+  const frmTime = readExcelCell(cells, map.frmTime);
+  const nameEn  = readExcelCell(cells, map.nameEn);
+  const nameZh  = readExcelCell(cells, map.nameZh);
+  const venueEn = readExcelCell(cells, map.venueEn);
+  const venueZh = readExcelCell(cells, map.venueZh);
+  const theme   = readExcelCell(cells, map.theme);
+  if(!nameEn || !frmTime) return null;
+
+  const lw = nameEn.toLowerCase().trim();
+  const skip = new Set(['forum','registration','monday','tuesday','wednesday','thursday','friday','semicon','program','glance']);
+  if(skip.has(lw) || skip.has(lw.split(' ')[0])) return null;
+  if(/monday|tuesday|wednesday|thursday|friday/i.test(nameEn)) return null;
+  if(/semicon taiwan \d{4}/i.test(nameEn)) return null;
+
+  const rawUrlZh = readExcelCell(cells, map.urlZh);
+  const rawUrlEn = readExcelCell(cells, map.urlEn);
+  const urlZh = safeUrl(rawUrlZh) ? rawUrlZh : '';
+  const urlEn = safeUrl(rawUrlEn) ? rawUrlEn : '';
+  const p0 = map.priceStart;
+  const prices = {
+    seb_mem:parsePrice(cells[p0]),   seb_non:parsePrice(cells[p0+1]),
+    eb_mem: parsePrice(cells[p0+2]), eb_non: parsePrice(cells[p0+3]),
+    reg_mem:parsePrice(cells[p0+4]), reg_non:parsePrice(cells[p0+5]),
+    os_mem: parsePrice(cells[p0+6]), os_non: parsePrice(cells[p0+7]),
+    student:parsePrice(cells[p0+8])
+  };
+  const hasPrices = Object.values(prices).some(v => v !== null);
+  return {regTime,frmTime,nameEn,nameZh,venueEn,venueZh,theme,prices,hasPrices,urlZh,urlEn};
+}
+
 function parseExcel(raw) {
   const lines = raw.split(/\r?\n/).filter(l=>l.trim());
   const delim = (lines[0].match(/\t/g)||[]).length >= (lines[0].match(/,/g)||[]).length ? '\t' : ',';
-  const skip = new Set(['forum','registration','monday','tuesday','wednesday','thursday','friday','semicon','program','glance']);
   const parsed = [];
+  let headerMap = null;
 
   for(const line of lines) {
     const c = parseCSVLine(line, delim);
-    if(c.length < 10) continue;
-    const off = (!c[0] && (c[1]||c[3])) ? 1 : 0;
-    const regTime=c[0+off], frmTime=c[1+off];
-    const nameEn=c[2+off], nameZh=c[3+off];
-    const venueEn=c[4+off]||'', venueZh=c[5+off]||'';
-    const theme=c[6+off]||'';
-    if(!nameEn||!frmTime) continue;
-    const lw=nameEn.toLowerCase().trim();
-    if(skip.has(lw)||skip.has(lw.split(' ')[0])) continue;
-    if(/monday|tuesday|wednesday|thursday|friday/i.test(nameEn)) continue;
-    if(/semicon taiwan \d{4}/i.test(nameEn)) continue;
-    const urlZh=c[7+off]?c[7+off].trim():'';
-    const urlEn=c[8+off]?c[8+off].trim():'';
-    const p0=9+off;
-    const prices={
-      seb_mem:parsePrice(c[p0]),   seb_non:parsePrice(c[p0+1]),
-      eb_mem: parsePrice(c[p0+2]), eb_non: parsePrice(c[p0+3]),
-      reg_mem:parsePrice(c[p0+4]), reg_non:parsePrice(c[p0+5]),
-      os_mem: parsePrice(c[p0+6]), os_non: parsePrice(c[p0+7]),
-      student:parsePrice(c[p0+8])
-    };
-    const hasPrices=Object.values(prices).some(v=>v!==null);
-    parsed.push({regTime,frmTime,nameEn,nameZh,venueEn,venueZh,theme,prices,hasPrices,urlZh,urlEn});
+    if(c.length < 6) continue;
+    if(isExcelHeaderRow(c)) {
+      headerMap = mergeExcelHeaderMap(buildExcelHeaderMap(c), headerMap);
+      continue;
+    }
+
+    const activeMap = headerMap || buildExcelHeaderMap(['Registration','Time','Forum','論壇名稱','Venue','中文地點','Theme','中文連結','英文連結']);
+    const forum = rowToForum(c, activeMap);
+    if(forum) parsed.push(forum);
   }
 
   if(!parsed.length) {
-    showErr('parse-err','❌ 解析失敗：找不到符合公版結構的資料列，請確認複製的是「ST26_官網連結」資料表。');
+    showErr('parse-err','❌ 解析失敗：找不到符合公版結構的資料列。請確認貼上的資料包含標題列，例如 Registration、Time、Forum、論壇名稱、Venue、中文地點。');
     return;
   }
 
@@ -1407,10 +1491,133 @@ function getLogos(sectionId) {
 }
 
 // ─────────────────────────── Draft System ───────────────────────────
+function openForumDraftDb() {
+  return new Promise((resolve, reject) => {
+    if(!window.indexedDB) {
+      reject(new Error('IndexedDB unavailable'));
+      return;
+    }
+    const req = indexedDB.open(FORUM_DRAFT_DB, 1);
+    req.onupgradeneeded = () => {
+      const db = req.result;
+      if(!db.objectStoreNames.contains(FORUM_DRAFT_STORE)) {
+        db.createObjectStore(FORUM_DRAFT_STORE);
+      }
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error || new Error('IndexedDB open failed'));
+  });
+}
+
+async function withForumDraftStore(mode, run) {
+  const db = await openForumDraftDb();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(FORUM_DRAFT_STORE, mode);
+    const store = tx.objectStore(FORUM_DRAFT_STORE);
+    let settled = false;
+    const finishResolve = (value) => {
+      if(settled) return;
+      settled = true;
+      resolve(value);
+    };
+    const finishReject = (error) => {
+      if(settled) return;
+      settled = true;
+      reject(error);
+    };
+    tx.oncomplete = () => {
+      db.close();
+      if(!settled) finishResolve(undefined);
+    };
+    tx.onerror = () => {
+      db.close();
+      finishReject(tx.error || new Error('IndexedDB transaction failed'));
+    };
+    tx.onabort = () => {
+      db.close();
+      finishReject(tx.error || new Error('IndexedDB transaction aborted'));
+    };
+    try {
+      Promise.resolve(run(store, finishResolve, finishReject)).catch(finishReject);
+    } catch(error) {
+      finishReject(error);
+    }
+  });
+}
+
+async function saveForumDraftPayload(key, draft) {
+  await withForumDraftStore('readwrite', (store, resolve, reject) => {
+    const req = store.put(draft, key);
+    req.onsuccess = () => resolve();
+    req.onerror = () => reject(req.error || new Error('IndexedDB put failed'));
+  });
+}
+
+async function loadForumDraftPayload(key) {
+  return withForumDraftStore('readonly', (store, resolve, reject) => {
+    const req = store.get(key);
+    req.onsuccess = () => resolve(req.result || null);
+    req.onerror = () => reject(req.error || new Error('IndexedDB get failed'));
+  });
+}
+
+async function deleteForumDraftPayload(key) {
+  await withForumDraftStore('readwrite', (store, resolve, reject) => {
+    const req = store.delete(key);
+    req.onsuccess = () => resolve();
+    req.onerror = () => reject(req.error || new Error('IndexedDB delete failed'));
+  });
+}
+
+function buildDraftMarker(draft) {
+  const hasFileLogo = ['org','coorg','sponsor'].some(section =>
+    (draft.logos?.[section] || []).some(logo => !logo.isUrl)
+  );
+  return {
+    schema: FORUM_DRAFT_MARKER_SCHEMA,
+    version: 'v9.13',
+    savedAt: new Date().toISOString(),
+    nameEn: draft.nameEn || '',
+    hasFileLogo
+  };
+}
+
+function readDraftMarker(key) {
+  const raw = localStorage.getItem(key);
+  if(!raw) return null;
+  try {
+    return JSON.parse(raw);
+  } catch(e) {
+    return null;
+  }
+}
+
+async function migrateLegacyDrafts() {
+  const keys = [];
+  for(let i=0; i<localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if(key && key.startsWith(FORUM_DRAFT_PREFIX)) keys.push(key);
+  }
+
+  for(const key of keys) {
+    const raw = localStorage.getItem(key);
+    if(!raw) continue;
+    let parsed;
+    try {
+      parsed = JSON.parse(raw);
+    } catch(e) {
+      continue;
+    }
+    if(!parsed || parsed.schema === FORUM_DRAFT_MARKER_SCHEMA) continue;
+    await saveForumDraftPayload(key, parsed);
+    localStorage.setItem(key, JSON.stringify(buildDraftMarker(parsed)));
+  }
+}
+
 function getDraftKey() {
   const name = getVal('name-en') || (selectedForum?.nameEn) || '';
   if(!name) return null;
-  return 'st26v9_' + btoa(unescape(encodeURIComponent(name))).substring(0,24);
+  return FORUM_DRAFT_PREFIX + btoa(unescape(encodeURIComponent(name))).substring(0,24);
 }
 
 function checkDraft() {
@@ -1420,14 +1627,16 @@ function checkDraft() {
   }
 }
 
-function saveDraft() {
+async function saveDraft() {
   const key = getDraftKey();
   if(!key) { alert('請先填入場次名稱再儲存草稿'); return; }
 
-  // For URL-based logos, save the URL. For file-based, save the base64 but warn about size.
+  // For URL-based logos, keep the URL. For uploaded files, keep the trimmed image instead of the original file payload.
   const serializeLogos = (sectionId) =>
     Array.from(document.querySelectorAll('#'+sectionId+' .logo-card')).map(c => ({
-      origSrc: c.dataset.origSrc || '',
+      origSrc: c.dataset.isUrl === '1'
+        ? (c.dataset.origSrc || '')
+        : (c.dataset.trimmedSrc || c.dataset.origSrc || ''),
       isUrl:   c.dataset.isUrl === '1',
       isCo:    c.dataset.isCo === '1',
       scale:   parseInt(c.dataset.scale || 80)
@@ -1455,28 +1664,36 @@ function saveDraft() {
   };
 
   try {
-    localStorage.setItem(key, JSON.stringify(draft));
-    const hasFileLogo = ['org','coorg','sponsor'].some(t =>
-      draft.logos[t].some(l => !l.isUrl && l.origSrc.startsWith('data:'))
-    );
+    await migrateLegacyDrafts();
+    await saveForumDraftPayload(key, draft);
+    localStorage.setItem(key, JSON.stringify(buildDraftMarker(draft)));
+    const marker = buildDraftMarker(draft);
+    const hasFileLogo = marker.hasFileLogo;
     if(hasFileLogo) {
-      alert('✅ 草稿已儲存！\n提示：本機上傳的 Logo 已一併儲存，但若圖片較多可能佔用較多空間。建議改用圖片 URL 以節省空間。');
+      alert('✅ 草稿已儲存！\n提示：本機上傳的 Logo 會改存於瀏覽器較大的草稿儲存空間，不再直接塞進 localStorage。');
     } else {
       alert('✅ 草稿已儲存！');
     }
   } catch(e) {
-    alert('儲存失敗：瀏覽器空間不足，請先清除草稿，或改用圖片 URL 取代本機上傳。');
+    alert('儲存失敗：瀏覽器儲存空間不足或不可用。請先清除舊草稿，或改用圖片 URL 取代本機上傳。');
   }
 }
 
-function loadDraft() {
+async function loadDraft() {
   const key = getDraftKey();
   if(!key) return;
-  const raw = localStorage.getItem(key);
-  if(!raw) return;
+  if(!localStorage.getItem(key)) return;
 
   try {
-    const d = JSON.parse(raw);
+    await migrateLegacyDrafts();
+    const marker = readDraftMarker(key);
+    const d = marker?.schema === FORUM_DRAFT_MARKER_SCHEMA
+      ? await loadForumDraftPayload(key)
+      : marker;
+    if(!d) {
+      alert('載入失敗：找不到草稿內容，可能已被清除。');
+      return;
+    }
     const fieldMap = {
       nameZh:'name-zh', nameEn:'name-en', venueZh:'venue-zh', venueEn:'venue-en',
       themeZh:'theme-zh', themeEn:'theme-en', outlineZh:'outline-zh', outlineEn:'outline-en',
@@ -1522,14 +1739,21 @@ function loadDraft() {
   }
 }
 
-function clearDrafts() {
+async function clearDrafts() {
   if(!confirm('確定要清除所有 ST26 草稿紀錄嗎？此動作無法復原。')) return;
   const keys = [];
   for(let i=0; i<localStorage.length; i++) {
     const k = localStorage.key(i);
-    if(k && k.startsWith('st26v9_')) keys.push(k);
+    if(k && k.startsWith(FORUM_DRAFT_PREFIX)) keys.push(k);
   }
-  keys.forEach(k => localStorage.removeItem(k));
+  for(const key of keys) {
+    localStorage.removeItem(key);
+    try {
+      await deleteForumDraftPayload(key);
+    } catch(e) {
+      // If IndexedDB cleanup fails, still remove the visible marker so users can continue.
+    }
+  }
   document.getElementById('draft-banner').classList.remove('show');
   alert('已清除 '+keys.length+' 筆草稿。');
 }
@@ -1576,7 +1800,7 @@ function showLoading(txt, sub) {
 function hideLoading() { document.getElementById('loading-ov').classList.remove('show'); }
 
 // ─────────────────────────── Build HTML Functions ───────────────────────────
-const OUT_CSS = `<style>
+const OUT_CSS = `<style><!--
 .st26,.st26 *{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased}
 .st26{font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue","Noto Sans TC",Arial,sans-serif;color:#1d1d1f;padding:0 0 32px;line-height:1.6}
 .st26-anchor-nav{display:flex;gap:12px;margin:16px 0 24px;flex-wrap:wrap}
@@ -1599,10 +1823,10 @@ details[open] .st26-theme-line::after{transform:rotate(180deg)}
 .st26-outline p:last-child{margin-bottom:0}
 .st26-outline a,.st26-pricing-remark a,.st26-partner-orgs a{color:#673BB8;text-decoration:none;font-weight:700}
 .st26-outline a:hover,.st26-pricing-remark a:hover,.st26-partner-orgs a:hover{text-decoration:underline}
-.st26-org{display:grid;grid-template-columns:repeat(3,1fr);align-items:start;gap:20px 24px;padding:16px 0;border-top:1px solid #e5e5ea;border-bottom:1px solid #e5e5ea;margin:20px 0}
-.st26-org-item{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1}
-.st26-org-role{font-size:13px;font-weight:700;color:#86868b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
-.st26-org-name{font-size:15px;font-weight:600;color:#333;line-height:1.5}
+.st26-org{display:grid;grid-template-columns:1fr;gap:8px;padding:16px 0;border-top:1px solid #e5e5ea;border-bottom:1px solid #e5e5ea;margin:20px 0}
+.st26-org-item{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:12px;align-items:start;min-width:0}
+.st26-org-role{font-size:13px;font-weight:700;color:#86868b;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
+.st26-org-name{font-size:15px;font-weight:600;color:#333;line-height:1.55;min-width:0}
 .st26-org-name a{color:#673BB8;text-decoration:none;font-weight:600}
 .st26-org-name a:hover{text-decoration:underline}
 .st26-logo-row{display:grid;grid-template-columns:max-content minmax(0,1fr);align-items:start;column-gap:12px;padding:8px 0;border-bottom:1px solid #f5f5f7}
@@ -1652,8 +1876,8 @@ details[open] .st26-theme-line::after{transform:rotate(180deg)}
 .st26-discount{margin-top:16px;padding:14px 18px;background:#edf7e3;border-left:4px solid #55A51C;border-radius:0 6px 6px 0;font-size:14px;font-weight:600;color:#2d5a0e;line-height:1.6}
 .st26-note{margin-top:10px;font-size:13px;color:#888;line-height:1.5}
 @media(max-width:768px){
-  .st26-org{grid-template-columns:1fr;gap:16px}
-  .st26-org-item{min-width:100%}
+  .st26-org{grid-template-columns:1fr;gap:12px}
+  .st26-org-item{grid-template-columns:1fr;gap:4px;min-width:100%}
   .st26-dp{flex-direction:column;align-items:flex-start}
   .st26-dp-grid{width:100%;display:grid;grid-template-columns:1fr;gap:12px}
   .st26-dp-item{align-items:center;flex-direction:row;justify-content:space-between;width:100%;border-bottom:1px solid #eee;padding-bottom:8px}
@@ -1671,7 +1895,7 @@ details[open] .st26-theme-line::after{transform:rotate(180deg)}
   .st26-pr-col3{border-bottom:none;padding-bottom:0}
   .st26-pr-label{display:block;font-size:13px;color:#86868b;font-weight:700}
 }
-</style>`;
+--></style>`;
 
 function isPartnerMode() {
   return document.getElementById('opt-partner')?.checked || false;
