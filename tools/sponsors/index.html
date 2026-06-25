@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SEMICON 贊助商 HTML 產生器 V5.1.1</title>
+<title>SEMICON 贊助商 HTML 產生器 V5.2.1</title>
 <style>
   :root {
     --primary: #800080;
@@ -269,6 +269,59 @@
   .batch-help {
     color: var(--muted); font-size: 0.76rem; line-height: 1.45; margin: 0 0 8px;
   }
+  .restore-intake {
+    border: 1px solid #e9d5e9;
+    background: #fcf7fc;
+    padding: 14px;
+    margin-top: 16px;
+  }
+  .restore-intake .section-title {
+    border-bottom-color: #ead7ea;
+  }
+  .restore-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .restore-summary {
+    display: none;
+    border: 1px solid #bbf7d0;
+    background: #ecfdf5;
+    color: #065f46;
+    padding: 9px 10px;
+    margin: 8px 0;
+    font-size: 0.76rem;
+    line-height: 1.45;
+    font-weight: 700;
+  }
+  .restore-summary.show {
+    display: block;
+  }
+  .future-url-restore {
+    border-top: 1px dashed #d8b4d8;
+    margin-top: 10px;
+    padding-top: 10px;
+  }
+  .future-url-row {
+    display: flex;
+    gap: 8px;
+  }
+  .future-url-row input {
+    flex: 1;
+    padding: 9px 10px;
+    border: 1px solid #e5e7eb;
+    background: #fff;
+    color: #9ca3af;
+    font-size: 0.82rem;
+  }
+  .future-url-row button {
+    flex-shrink: 0;
+  }
+  .btn-disabled {
+    background: #e5e7eb;
+    color: #6b7280;
+    cursor: not-allowed;
+  }
   
   /* 行內編輯與控制區 */
   .mgmt-inline-ctrl { display: flex; gap: 8px; align-items: center; }
@@ -360,7 +413,7 @@
 <body>
 
 <div class="app-header">
-  <h1>贊助商 Logo HTML 產生器 V5.1.1</h1>
+  <h1>贊助商 Logo HTML 產生器 V5.2.1</h1>
   <div class="tabs">
     <button class="tab-btn active" onclick="switchTab('manage')">1. 資料設定與管理</button>
     <button class="tab-btn" onclick="switchTab('preview')">2. 即時預覽與輸出</button>
@@ -430,11 +483,21 @@
         <button class="btn-action btn-add" onclick="importSponsorList()">解析名單並加入清單</button>
       </div>
 
-      <div class="batch-intake">
-        <div class="section-title">貼上既有 Sponsor HTML</div>
-        <p class="batch-help">把後台目前的 sponsor 區塊整段貼進來，工具會盡量還原 tier、logo、連結、順序，讓你直接接著補新 logo，不用重建清單。</p>
-        <textarea id="existingHtmlInput" placeholder="把既有 sponsor HTML 貼在這裡"></textarea>
-        <button class="btn-action btn-add" onclick="importExistingHtml()">匯入既有 HTML</button>
+      <div class="restore-intake">
+        <div class="section-title">從線上 HTML 接續工作</div>
+        <p class="batch-help">只要目前線上頁面還有 sponsor 區塊，就可以從後台複製那段 HTML 貼回來。工具會還原 tier、logo、連結與順序，再讓你新增白金級贊助商。</p>
+        <textarea id="existingHtmlInput" placeholder="把目前線上的 sponsor 區塊 HTML 貼在這裡"></textarea>
+        <div id="restoreImportSummary" class="restore-summary"></div>
+        <div class="restore-actions">
+          <button class="btn-action btn-add" onclick="importExistingHtml()">還原成可編輯清單</button>
+        </div>
+        <div class="future-url-restore" aria-label="未來功能">
+          <p class="batch-help">下一版方向：直接輸入線上網址自動抓 sponsor 區塊。今天先用貼上 HTML，避免被登入權限或 CORS 卡住。</p>
+          <div class="future-url-row">
+            <input type="text" value="https://..." disabled>
+            <button class="btn-action btn-disabled" disabled>未開放</button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -550,7 +613,7 @@
   let currentPreviewLang = 'zh';
   let currentMgmtFilter = 'all';
   let highlightedSponsorId = '';
-  const TOOL_VERSION = 'v5.2.0';
+  const TOOL_VERSION = 'v5.2.1';
   const BACKUP_SCHEMA = 'semicon-sponsors-v1';
   const CROP_WHITE_THRESHOLD = 245;
   const CROP_ALPHA_THRESHOLD = 12;
@@ -622,6 +685,36 @@
     };
     const fieldId = titleMap[tier] && titleMap[tier][lang];
     if (fieldId) document.getElementById(fieldId).value = text;
+  }
+
+  function tierLabel(tier) {
+    const labels = {
+      platinum: '白金級',
+      gold: '金級',
+      silver: '銀級',
+      special: '特別贊助'
+    };
+    return labels[tier] || tier;
+  }
+
+  function summarizeImportedSponsors(imported) {
+    return Object.keys(imported)
+      .map(tier => ({ tier, count: imported[tier].length }))
+      .filter(item => item.count > 0)
+      .map(item => `${tierLabel(item.tier)} ${item.count} 筆`)
+      .join('、');
+  }
+
+  function setRestoreImportSummary(message) {
+    const summary = document.getElementById('restoreImportSummary');
+    if (!summary) return;
+    if (!message) {
+      summary.classList.remove('show');
+      summary.innerText = '';
+      return;
+    }
+    summary.innerText = message;
+    summary.classList.add('show');
   }
 
   function isSponsorHeader(line) {
@@ -736,6 +829,7 @@
       document.getElementById('t_spec_zh').value = parsed.titles.spec_zh || '官方策略合作夥伴';
       document.getElementById('t_spec_en').value = parsed.titles.spec_en || 'Official Strategic Partners';
     }
+    setRestoreImportSummary('');
     updateSystem();
   }
 
@@ -785,6 +879,7 @@
       sponsors = { platinum: [], gold: [], silver: [], special: [] };
       localStorage.removeItem(STORAGE_KEY);
       document.getElementById('sampleNote').classList.remove('show');
+      setRestoreImportSummary('');
       updateSystem();
     }
   }
@@ -883,6 +978,7 @@
       ]
     };
     document.getElementById('sampleNote').classList.add('show');
+    setRestoreImportSummary('');
     updateSystem();
   }
 
@@ -1080,6 +1176,7 @@
     }
 
     document.getElementById('sampleNote').classList.remove('show');
+    setRestoreImportSummary('');
     input.value = '';
     currentMgmtFilter = 'missing';
     highlightedSponsorId = '';
@@ -1133,6 +1230,7 @@
     const raw = input.value.trim();
     if (!raw) {
       alert('請先貼上既有 sponsor HTML。');
+      setRestoreImportSummary('');
       return;
     }
 
@@ -1182,10 +1280,12 @@
     importedCount = Object.values(imported).reduce((sum, list) => sum + list.length, 0);
     if (!importedCount) {
       alert('沒有從這段 HTML 解析到 sponsor logo。請確認貼的是 sponsor 區塊，而不是整頁其他內容。');
+      setRestoreImportSummary('');
       return;
     }
 
     const importedMissingCount = Object.values(imported).flat().filter(row => !row.image).length;
+    const importBreakdown = summarizeImportedSponsors(imported);
     sponsors = imported;
     input.value = '';
     document.getElementById('sampleNote').classList.remove('show');
@@ -1193,7 +1293,8 @@
     highlightedSponsorId = '';
     updateSystem();
     focusIssueQueue();
-    alert(`已匯入 ${importedCount} 筆 sponsor。現在可以直接在清單上補新 logo 或調整大小。`);
+    setRestoreImportSummary(`已還原 ${importedCount} 筆 sponsor：${importBreakdown}。現在可以新增白金級贊助商，或直接在右側清單補 logo / 調整大小。`);
+    alert(`已匯入 ${importedCount} 筆 sponsor。現在可以直接新增白金級贊助商，或在清單上補新 logo / 調整大小。`);
   }
 
   function setMgmtFilter(filter) {

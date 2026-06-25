@@ -11,7 +11,7 @@ The current product direction is intentionally narrow: help website editors prep
 | Forum Generator | 論壇頁資料、Logo、價格與報名資訊的中英文 HTML 產生器 | Integrated; needs source drift review |
 | Theme / Trend Generator | 主題卡片、展區與論壇議題互動 HTML 產生器 | Integrated |
 | Logo Prep Tool | PDF-compatible AI、PDF、SVG 與圖片去白邊轉 PNG 工具 | Integrated v0.1 |
-| Sponsors Logo Generator | 贊助商 Logo 分級、排序、備份與中英文輸出 | Integrated v5.2.0 |
+| Sponsors Logo Generator | 贊助商 Logo 分級、排序、備份與中英文輸出 | Integrated v5.2.1 |
 | Pavilions Vendor Generator | 專區展商名單與攤位資料 HTML 產生器 | Integrated v1.1 confidence slice |
 
 ## Current Architecture

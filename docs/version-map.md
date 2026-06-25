@@ -10,7 +10,7 @@
 | 工具 | Hub 路徑 | Hub 內版本 | Source Repo | Source 版本 | 同步狀態 | 備註 |
 |---|---|---|---|---|---|---|
 | Forum HTML Compiler | `tools/forum/index.html` | v9.13 | `Forum HTML Creator` | v9.13 | ✅ 同步 | 最完整，版本概念一致 |
-| Sponsors Logo Creator | `tools/sponsors/index.html` | v5.2.0 | `Sponsors Logo HTML Creator` | v5.2.0 | ✅ 同步 | `TOOL_VERSION` 常數已建立 |
+| Sponsors Logo Creator | `tools/sponsors/index.html` | v5.2.1 | `Sponsors Logo HTML Creator` | v5.2.0 | Hub ahead | 強化貼上線上 HTML 還原流程，source repo 待回同步 |
 | Pavilions Vendor Creator | `tools/pavilions/index.html` | v1.1 | `Pavilions Vendor HTML Creator` | v1.1 | ✅ 同步 | 資料驗證 / workfile 方向進行中 |
 | Trend Table Creator | `tools/trends/index.html` | v4.8 | `Trend_Table Creator` | v4.8 | ✅ 同步 | 已修正 Hub 首頁 / workspace metadata / 工具內版本顯示 |
 | Logo Prep Tool | `tools/logo-prep/index.html` | v0.1 | —（無獨立 repo） | v0.1 | ✅ | 輔助工具，不與四大工具同層管理 |
@@ -31,6 +31,7 @@
 |---|---|---|---|
 | 2026-06-24 | 全部 | — | Baseline 建立 |
 | 2026-06-24 | Trend Table Creator | v4.8 → v4.8 | 修正 Hub 顯示版本漂移，統一首頁、workspace metadata 與工具本體版本 |
+| 2026-06-25 | Sponsors Logo Creator | v5.2.1 → v5.2.1 | 將「貼上既有 HTML」改為線上 HTML 接續工作流，補匯入摘要並保留未來網址抓取入口 |
 
 ---
 
