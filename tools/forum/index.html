@@ -95,6 +95,7 @@ textarea.inp{resize:vertical}
 .price-tbl th:first-child{text-align:left}
 .price-tbl td{padding:7px 10px;border-bottom:1px solid #f0edf9;text-align:right}
 .price-tbl td:first-child{text-align:left;font-weight:600}
+.free-price-note{font-size:12px;color:#166534;font-weight:700;display:block;margin-top:6px;padding:8px 10px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px}
 
 /* People rows */
 .person-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
@@ -838,6 +839,8 @@ function onForumSelect() {
   const pd = document.getElementById('prev-price');
   if(!f.hasPrices) {
     pd.innerHTML = '<span style="font-size:12px;color:#92400e;font-weight:600;display:block;margin-top:6px">此為無票價場次（免費 / Partner Program）</span>';
+  } else if(hasOnlyZeroPrices(f)) {
+    pd.innerHTML = '<span class="free-price-note">免費場次，不顯示票價表</span>';
   } else {
     const rows = [
       ['Super Early-Bird (5/20–6/17)',f.prices.seb_mem,f.prices.seb_non],
@@ -865,6 +868,11 @@ function onForumSelect() {
 }
 
 function fmtP(p){ if(p===null)return null; return 'NT$ '+Number(p).toLocaleString(); }
+
+function hasOnlyZeroPrices(f) {
+  const values = Object.values(f?.prices || {});
+  return !!(f?.hasPrices && values.some(v => v !== null) && values.every(v => v === null || Number(v) === 0));
+}
 
 // ─────────────────────────── AI Parser ───────────────────────────
 async function parseWithAI(raw) {
@@ -1865,6 +1873,7 @@ details[open] .st26-theme-line::after{transform:rotate(180deg)}
 .st26-pdate{font-size:12px;font-weight:700;color:#673BB8;margin-top:2px}
 .st26-price{font-size:16px;font-weight:800;font-variant-numeric:tabular-nums}
 .st26-tbc{font-size:14px;font-weight:700;color:#86868b}
+.st26-free-note{display:inline-flex;align-items:center;padding:9px 14px;border-radius:100px;background:#edf7e3;color:#2d5a0e;font-size:14px;font-weight:800}
 .st26-dp{display:flex;align-items:center;gap:16px;padding:12px 16px;border:1px solid #e5e5ea;border-radius:8px;background:#fafafa;margin-top:12px;flex-wrap:wrap}
 .st26-dp-lbl{min-width:100px}
 .st26-dp-t{font-size:14px;font-weight:700;color:#555}
@@ -2122,8 +2131,9 @@ function pCell(v) {
 
 function buildPricingBlock(f, regUrlZh, regUrlEn, remarkZh, remarkEn, lang) {
   const partnerMode = isPartnerMode();
-  const showDayPass  = !partnerMode && document.getElementById('opt-daypass')?.checked !== false;
-  const showDiscount = !partnerMode && document.getElementById('opt-discount')?.checked !== false;
+  const freePricing = hasOnlyZeroPrices(f);
+  const showDayPass  = !partnerMode && !freePricing && document.getElementById('opt-daypass')?.checked !== false;
+  const showDiscount = !partnerMode && !freePricing && document.getElementById('opt-discount')?.checked !== false;
   const showFootnote = document.getElementById('opt-footnote')?.checked !== false;
 
   const activeUrl = safeUrl(lang==='zh' ? (regUrlZh||regUrlEn||'') : (regUrlEn||regUrlZh||''));
@@ -2148,7 +2158,11 @@ function buildPricingBlock(f, regUrlZh, regUrlEn, remarkZh, remarkEn, lang) {
     :'* The organizer reserves the right to adjust or change the agenda. The final agenda is subject to the on-site arrangement.';
   const btnHTML = activeUrl ? '<a class="st26-btn" href="'+esc(activeUrl)+'" target="_blank" rel="noopener noreferrer">'+btnLabel+' <span class="st26-btn-arr">→</span></a>' : '';
 
-  const priceTableHTML = (!f||!f.hasPrices) ? '' : (() => {
+  const freePriceHTML = freePricing
+    ? '\n<div class="st26-free-note">'+(lang==='zh'?'免費參加':'Free Admission')+'</div>\n'
+    : '';
+
+  const priceTableHTML = (!f||!f.hasPrices||freePricing) ? '' : (() => {
     const p = f.prices;
     const r1 = lang==='zh'?'超早鳥優惠':'Super Early-Bird';
     const r2 = lang==='zh'?'早鳥優惠':'Early-Bird';
@@ -2163,7 +2177,7 @@ function buildPricingBlock(f, regUrlZh, regUrlEn, remarkZh, remarkEn, lang) {
     const tblRows = rows.map(([n,d,m,nm]) =>
       '  <div class="st26-pr-row">\n    <div class="st26-pr-col1"><div class="st26-pname">'+n+'</div><div class="st26-pdate">'+d+'</div></div>\n    <div class="st26-pr-col2"><span class="st26-pr-label">'+colMem+'</span><div>'+pCell(m)+'</div></div>\n    <div class="st26-pr-col3"><span class="st26-pr-label">'+colNon+'</span><div>'+pCell(nm)+'</div></div>\n  </div>'
     ).join('\n');
-    const stuCell = p.student ? '<span class="st26-price">NT$ '+Number(p.student).toLocaleString()+'</span>' : '<span class="st26-tbc">—</span>';
+    const stuCell = p.student !== null ? '<span class="st26-price">NT$ '+Number(p.student).toLocaleString()+'</span>' : '<span class="st26-tbc">—</span>';
     return '<div class="st26-pr-wrap">\n  <div class="st26-pr-head">\n    <div>'+colPeriod+'</div>\n    <div>'+colMem+'</div>\n    <div>'+colNon+'</div>\n  </div>\n'+tblRows+'\n  <div class="st26-pr-row">\n    <div class="st26-pr-col1"><div class="st26-pname">'+stuRowName+'</div><div class="st26-pdate" style="color:#1d1d1f">'+stuRowDate+'</div></div>\n    <div class="st26-pr-col2" style="width:100%;grid-column:2/4;justify-content:flex-end;gap:12px;border:none">\n      <div style="font-size:12px;font-weight:700;color:#86868b">'+stuNote+'</div>\n      <div>'+stuCell+'</div>\n    </div>\n  </div>\n</div>';
   })();
 
@@ -2174,7 +2188,7 @@ function buildPricingBlock(f, regUrlZh, regUrlEn, remarkZh, remarkEn, lang) {
   const footnoteHTML = showFootnote ? '<div class="st26-note">'+note+'</div>' : '';
 
   return '\n<div class="st26-ph">  <div class="st26-ph-title">'+phTitle+'</div>  '+btnHTML+'</div>\n'
-    + remarkHTML + priceTableHTML + dayPassHTML + discountHTML + footnoteHTML;
+    + remarkHTML + freePriceHTML + priceTableHTML + dayPassHTML + discountHTML + footnoteHTML;
 }
 
 function buildFullHTML(lang) {
