@@ -1840,6 +1840,9 @@ details[open] .st26-theme-line::after{transform:rotate(180deg)}
 .st26-outline{padding:16px 20px;background:#f9f8ff;border-left:4px solid #673BB8;border-radius:0 6px 6px 0;margin-top:4px;margin-bottom:16px;font-size:16px;color:#444;line-height:1.8}
 .st26-outline p{margin-bottom:10px}
 .st26-outline p:last-child{margin-bottom:0}
+.st26-outline ul,.st26-pricing-remark ul{margin:8px 0 10px 20px;padding:0}
+.st26-outline li,.st26-pricing-remark li{margin:4px 0}
+.st26-outline strong,.st26-pricing-remark strong{font-weight:800;color:#1d1d1f}
 .st26-outline a,.st26-pricing-remark a,.st26-partner-orgs a{color:#673BB8;text-decoration:none;font-weight:700}
 .st26-outline a:hover,.st26-pricing-remark a:hover,.st26-partner-orgs a:hover{text-decoration:underline}
 .st26-org{display:grid;grid-template-columns:1fr;gap:8px;padding:16px 0;border-top:1px solid #e5e5ea;border-bottom:1px solid #e5e5ea;margin:20px 0}
@@ -1947,12 +1950,16 @@ function renderPlainWithLinks(text) {
 
 function renderInlineRichText(text) {
   const raw = String(text || '');
-  const re = /\[([^\]]+)\]\(([^)]+)\)/g;
+  const re = /(\*\*([^*]+)\*\*)|\[([^\]]+)\]\(([^)]+)\)/g;
   let out = '', last = 0, m;
   while((m = re.exec(raw)) !== null) {
     out += renderPlainWithLinks(raw.slice(last, m.index));
-    const href = safeUrl(m[2].trim());
-    out += href ? '<a href="'+esc(href)+'" target="_blank" rel="noopener noreferrer">'+esc(m[1].trim())+'</a>' : esc(m[0]);
+    if(m[2]) {
+      out += '<strong>'+renderPlainWithLinks(m[2].trim())+'</strong>';
+    } else {
+      const href = safeUrl(m[4].trim());
+      out += href ? '<a href="'+esc(href)+'" target="_blank" rel="noopener noreferrer">'+renderInlineRichText(m[3].trim())+'</a>' : esc(m[0]);
+    }
     last = m.index + m[0].length;
   }
   return out + renderPlainWithLinks(raw.slice(last));
@@ -1960,7 +1967,13 @@ function renderInlineRichText(text) {
 
 function renderParagraphs(text) {
   return String(text || '').split(/\n\n+/).map(p=>p.trim()).filter(Boolean)
-    .map(p=>'    <p>'+renderInlineRichText(p).replace(/\n/g,'<br>')+'</p>').join('\n');
+    .map(block => {
+      const lines = block.split(/\n/).map(line => line.trim()).filter(Boolean);
+      if(lines.length && lines.every(line => /^[-*]\s+/.test(line))) {
+        return '    <ul>\n' + lines.map(line => '      <li>'+renderInlineRichText(line.replace(/^[-*]\s+/, ''))+'</li>').join('\n') + '\n    </ul>';
+      }
+      return '    <p>'+renderInlineRichText(block).replace(/\n/g,'<br>')+'</p>';
+    }).join('\n');
 }
 
 function parsePipeRows(raw, expected) {
