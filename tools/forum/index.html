@@ -483,6 +483,10 @@ textarea.inp{resize:vertical}
       <input type="checkbox" id="opt-free" style="width:15px;height:15px;accent-color:var(--brand);cursor:pointer">
       免費參加（不顯示票價表、Day Pass 與團報優惠）
     </label>
+    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:700;color:#333;margin-top:8px">
+      <input type="checkbox" id="opt-pricing" checked style="width:15px;height:15px;accent-color:var(--brand);cursor:pointer">
+      顯示票價表
+    </label>
     <div class="grid2" style="margin-top:12px">
       <div class="field">
         <label class="lbl">中文相關連結（選填）</label>
@@ -881,6 +885,10 @@ function hasOnlyZeroPrices(f) {
 
 function isFreeAdmission() {
   return document.getElementById('opt-free')?.checked || hasOnlyZeroPrices(selectedForum);
+}
+
+function shouldShowPricingTable() {
+  return document.getElementById('opt-pricing')?.checked !== false;
 }
 
 // ─────────────────────────── AI Parser ───────────────────────────
@@ -1666,6 +1674,7 @@ async function saveDraft() {
     outlineZh: getVal('outline-zh'), outlineEn: getVal('outline-en'),
     partnerMode: document.getElementById('opt-partner')?.checked || false,
     freeAdmission: document.getElementById('opt-free')?.checked || false,
+    showPricing: document.getElementById('opt-pricing')?.checked !== false,
     partnerOrgsZh: getVal('partner-orgs-zh'), partnerOrgsEn: getVal('partner-orgs-en'),
     advisedName: getVal('advised-name'), advisedUrl: getVal('advised-url'),
     chairs: getPeople('chairs-wrap'), mods: getPeople('mods-wrap'),
@@ -1750,6 +1759,7 @@ async function loadDraft() {
       selectedForum.hasPrices = d.forumPrices.hasPrices;
     }
     setChecked('opt-free', d.freeAdmission !== undefined ? !!d.freeAdmission : hasOnlyZeroPrices(selectedForum));
+    setChecked('opt-pricing', d.showPricing !== undefined ? !!d.showPricing : true);
 
     document.getElementById('draft-banner').classList.remove('show');
     goStep(2);
@@ -2156,8 +2166,9 @@ function pCell(v) {
 function buildPricingBlock(f, regUrlZh, regUrlEn, remarkZh, remarkEn, lang) {
   const partnerMode = isPartnerMode();
   const freePricing = isFreeAdmission();
-  const showDayPass  = !partnerMode && !freePricing && document.getElementById('opt-daypass')?.checked !== false;
-  const showDiscount = !partnerMode && !freePricing && document.getElementById('opt-discount')?.checked !== false;
+  const showPricing = shouldShowPricingTable();
+  const showDayPass  = showPricing && !partnerMode && !freePricing && document.getElementById('opt-daypass')?.checked !== false;
+  const showDiscount = showPricing && !partnerMode && !freePricing && document.getElementById('opt-discount')?.checked !== false;
   const showFootnote = document.getElementById('opt-footnote')?.checked !== false;
 
   const activeUrl = safeUrl(lang==='zh' ? (regUrlZh||regUrlEn||'') : (regUrlEn||regUrlZh||''));
@@ -2186,7 +2197,7 @@ function buildPricingBlock(f, regUrlZh, regUrlEn, remarkZh, remarkEn, lang) {
     ? '\n<div class="st26-free-note">'+(lang==='zh'?'免費參加':'Free Admission')+'</div>\n'
     : '';
 
-  const priceTableHTML = (!f||!f.hasPrices||freePricing) ? '' : (() => {
+  const priceTableHTML = (!showPricing||!f||!f.hasPrices||freePricing) ? '' : (() => {
     const p = f.prices;
     const r1 = lang==='zh'?'超早鳥優惠':'Super Early-Bird';
     const r2 = lang==='zh'?'早鳥優惠':'Early-Bird';
