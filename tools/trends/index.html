@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>主題互動區塊產生器 v4.9</title>
+<title>主題互動區塊產生器 v4.9.1</title>
 <style>
 :root{
   --pu:#800080;--pu-light:#f5eef5;--pu-mid:#ddc0dd;
@@ -256,9 +256,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 .review-select{width:190px;}
 .review-search:focus,.review-select:focus{border-color:var(--pu);}
 .issue-toggle.active{background:var(--pu-light);border-color:#cca0cc;color:var(--pu);}
-.publish-issues{border-top:1px dashed var(--bd);padding-top:8px;display:none;}
+.publish-issues{display:none;}
 .publish-issues.show{display:block;}
-.publish-summary{font-size:11px;color:var(--gray);margin-bottom:6px;}
+.publish-check-details{border-top:1px dashed var(--bd);padding-top:8px;}
+.publish-check-details summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;
+  min-height:32px;border:1px solid var(--bd);border-radius:8px;background:#fff;padding:7px 9px;font-size:11px;font-weight:800;color:var(--text);}
+.publish-check-details summary::-webkit-details-marker{display:none;}
+.publish-check-title{display:flex;align-items:center;gap:7px;min-width:0;}
+.publish-check-title::before{content:'▸';font-size:10px;color:var(--gray);transition:transform .16s;}
+.publish-check-details[open] .publish-check-title::before{transform:rotate(90deg);}
+.publish-check-meta{display:flex;align-items:center;gap:5px;flex-wrap:wrap;justify-content:flex-end;}
+.issue-count-pill{display:inline-flex;align-items:center;border-radius:999px;border:1px solid var(--bd);padding:2px 7px;font-size:10px;font-weight:800;white-space:nowrap;background:#fafafa;color:var(--gray);}
+.issue-count-pill.danger{border-color:#f1c8cd;background:#fff8f9;color:var(--danger);}
+.issue-count-pill.warn{border-color:#ead8a7;background:#fffaf0;color:#7a6000;}
+.publish-summary{font-size:11px;color:var(--gray);margin:7px 0 6px;}
+.publish-ready{border:1px solid #cfe3d6;background:#f6fbf8;color:#2f6c45;border-radius:8px;padding:8px 10px;font-size:11px;font-weight:700;}
 .issue-list{display:flex;flex-direction:column;gap:4px;max-height:160px;overflow:auto;}
 .issue-item{border:1px solid #f1d4d7;background:#fff9f9;color:#8a1f2d;
   border-radius:var(--r-sm);padding:6px 8px;font-size:11px;line-height:1.35;
@@ -296,11 +308,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 .status-card.warn{border-color:#ead8a7;background:#fffaf0;}
 .status-card.warn strong{color:#7a6000;}
 .editor-shell{display:grid;grid-template-columns:minmax(240px,280px) minmax(0,1fr);gap:10px;align-items:start;min-height:auto;flex:initial;}
+.editor-shell.nav-collapsed{grid-template-columns:72px minmax(0,1fr);}
 .nav-panel,.detail-panel{background:var(--white);border:1px solid var(--bd);border-radius:var(--r);min-height:auto;}
 .nav-panel{display:flex;flex-direction:column;overflow:hidden;position:sticky;top:0;max-height:calc(100vh - 86px);}
 .nav-head,.detail-head{padding:12px 14px;border-bottom:1px solid var(--bd);display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
 .nav-head-title,.detail-head-title{font-size:12px;font-weight:700;color:var(--text);}
 .nav-head-sub,.detail-head-sub{font-size:11px;color:var(--gray);line-height:1.45;}
+.nav-head-actions{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.nav-collapse-btn{width:29px;height:29px;font-size:15px;font-weight:900;}
 .theme-nav-list{padding:10px;display:flex;flex-direction:column;gap:8px;overflow:auto;min-height:0;}
 .theme-nav-item{width:100%;text-align:left;background:#fff;border:1px solid var(--bd);border-radius:8px;padding:10px;cursor:pointer;transition:border-color .16s,box-shadow .16s,background .16s;display:flex;flex-direction:column;gap:8px;}
 .theme-nav-item:hover{border-color:#d2bfd2;background:#fcf9fc;}
@@ -311,6 +326,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 .theme-nav-en{font-size:10px;color:var(--gray);margin-top:2px;line-height:1.35;word-break:break-word;}
 .theme-nav-meta{display:flex;flex-wrap:wrap;gap:5px;}
 .meta-pill{display:inline-flex;align-items:center;border:1px solid var(--bd);border-radius:999px;padding:2px 7px;font-size:10px;color:var(--gray);background:#fafafa;}
+.editor-shell.nav-collapsed .nav-panel{min-width:0;}
+.editor-shell.nav-collapsed .nav-head{padding:10px 8px;align-items:center;justify-content:center;}
+.editor-shell.nav-collapsed .nav-head > div,
+.editor-shell.nav-collapsed .nav-head-actions .btn{display:none;}
+.editor-shell.nav-collapsed .nav-head-actions{display:flex;}
+.editor-shell.nav-collapsed .nav-collapse-btn{display:inline-flex;}
+.editor-shell.nav-collapsed .theme-nav-list{padding:8px 7px;gap:6px;}
+.editor-shell.nav-collapsed .theme-nav-item{position:relative;padding:8px 4px;align-items:center;gap:0;}
+.editor-shell.nav-collapsed .theme-nav-copy,
+.editor-shell.nav-collapsed .theme-nav-meta{display:none;}
+.editor-shell.nav-collapsed .theme-nav-top{justify-content:center;width:100%;}
+.editor-shell.nav-collapsed .th-badge{width:38px;height:30px;font-size:12px;border-radius:8px;}
+.editor-shell.nav-collapsed .issue-badge{position:absolute;right:3px;top:3px;padding:0 4px;font-size:9px;line-height:15px;background:#fff;}
+.editor-shell.nav-collapsed .empty-filter{padding:10px 4px;font-size:10px;writing-mode:vertical-rl;line-height:1.3;}
 .detail-body{padding:12px;display:flex;flex-direction:column;gap:10px;overflow:visible;min-height:auto;}
 .detail-toolbar{display:flex;gap:6px;flex-wrap:wrap;}
 .detail-current{border:1px solid var(--bd);border-radius:8px;padding:10px;background:#fcfbfd;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
@@ -373,7 +402,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 <header class="app-header">
     <div class="header-brand">
       <h1>主題互動區塊產生器</h1>
-    <span class="version-badge">v4.9</span>
+    <span class="version-badge">v4.9.1</span>
   </div>
   <div class="header-actions">
     <span class="save-indicator" id="saveIndicator"></span>
@@ -509,7 +538,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
             <div class="nav-head-title">主題清單</div>
             <div class="nav-head-sub">可新增、刪除、排序，不限定 15 筆。</div>
           </div>
-          <button class="btn btn-outline btn-sm" onclick="addTheme()">＋ 新增</button>
+          <div class="nav-head-actions">
+            <button class="btn btn-outline btn-sm" onclick="addTheme()">＋ 新增</button>
+            <button class="icon-btn nav-collapse-btn" id="navCollapseBtn" onclick="toggleThemeListCollapsed()" title="收合主題清單" aria-label="收合主題清單">‹</button>
+          </div>
         </div>
         <div class="theme-nav-list" id="themeList"></div>
       </div>
@@ -638,6 +670,7 @@ let themes = [
 let themeSearchTerm = '';
 let showOnlyIssues = false;
 let selectedThemeIndex = 0;
+let themeListCollapsed = false;
 
 // ════════════════════════════════════════════
 // RENDER
@@ -756,6 +789,22 @@ function quickJumpTo(value){
   renderDetailPanel();
 }
 
+function applyThemeListCollapse(){
+  const shell = document.querySelector('.editor-shell');
+  const btn = document.getElementById('navCollapseBtn');
+  if(shell)shell.classList.toggle('nav-collapsed', themeListCollapsed);
+  if(btn){
+    btn.textContent = themeListCollapsed ? '›' : '‹';
+    btn.title = themeListCollapsed ? '展開主題清單' : '收合主題清單';
+    btn.setAttribute('aria-label', btn.title);
+  }
+}
+
+function toggleThemeListCollapsed(){
+  themeListCollapsed = !themeListCollapsed;
+  applyThemeListCollapse();
+}
+
 function jumpToIssue(i){
   themeSearchTerm = '';
   const search = document.getElementById('themeSearch');
@@ -768,11 +817,13 @@ function jumpToIssue(i){
 function renderPublishIssues(issues){
   const panel = document.getElementById('publishIssues');
   if(!panel)return;
-  panel.classList.toggle('show', issues.length > 0);
+  panel.classList.add('show');
   if(!issues.length){
-    panel.innerHTML = '';
+    panel.innerHTML = '<div class="publish-ready">發布前檢查：目前沒有必修缺漏。</div>';
     return;
   }
+  const errorCount = issues.filter(issue=>issue.severity !== 'warn').length;
+  const warnCount = issues.length - errorCount;
   const firstIssues = issues.slice(0, 12).map(issue=>`
     <button class="issue-item ${issue.severity==='warn'?'warn':''}" onclick="jumpToIssue(${issue.themeIndex})">
       <span>${esc(themeLabel(issue.themeIndex))} - ${esc(issue.message)}</span>
@@ -780,9 +831,18 @@ function renderPublishIssues(issues){
     </button>`).join('');
   const more = issues.length > 12 ? `<div class="publish-summary">另外還有 ${issues.length - 12} 個項目，請先處理上方項目。</div>` : '';
   panel.innerHTML = `
-    <div class="publish-summary">發布前檢查：點擊項目可跳到對應主題。Icon URL 為選填，不列入缺漏。</div>
-    <div class="issue-list">${firstIssues}</div>
-    ${more}`;
+    <details class="publish-check-details" ${showOnlyIssues ? 'open' : ''}>
+      <summary>
+        <span class="publish-check-title">發布前檢查</span>
+        <span class="publish-check-meta">
+          <span class="issue-count-pill danger">${errorCount} 必修</span>
+          ${warnCount ? `<span class="issue-count-pill warn">${warnCount} 提醒</span>` : ''}
+        </span>
+      </summary>
+      <div class="publish-summary">點擊項目可跳到對應主題。Icon URL 為選填，不列入缺漏。</div>
+      <div class="issue-list">${firstIssues}</div>
+      ${more}
+    </details>`;
 }
 
 function renderStatusStrip(issues){
@@ -1116,6 +1176,7 @@ function renderDetailPanel(){
 
 function renderList(){
   ensureSelectedTheme();
+  applyThemeListCollapse();
   const list = document.getElementById('themeList');
   list.innerHTML = '';
   const sel = document.getElementById('aiTarget');
@@ -2056,7 +2117,7 @@ function getWorkState(){
   return {
     schema: WORKFILE_SCHEMA,
     tool: 'Interactive Theme Block Generator',
-    version: 'v4.9',
+    version: 'v4.9.1',
     projectName: 'Theme Block Project',
     exportedAt: new Date().toISOString(),
     data: { themes, globals: getGlobals(), selectedThemeIndex }
