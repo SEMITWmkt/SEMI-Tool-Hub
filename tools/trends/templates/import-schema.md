@@ -7,13 +7,47 @@ The tool also accepts a grouped worksheet layout closer to the current working E
 
 - `Segment`
 - `主題`
+- `英文主題`
 - `主題介紹`
+- `英文主題介紹`
 - `關鍵字`
+- `英文關鍵字`
 - `對應專區`
+- `英文對應專區`
+- `對應專區連結`
 - `對應論壇`
+- `英文對應論壇`
+- `對應論壇連結`
 
 For grouped sheets, each extra row under the same theme can add one more zone or forum entry.
-Recommended cell format for `對應專區` / `對應論壇`:
+
+Recommended grouped-sheet link methods:
+
+1. Preferred: keep names and links in separate columns.
+
+```text
+對應論壇: 大師論壇
+英文對應論壇: CEO Summit
+對應論壇連結: https://example.com/forum
+```
+
+2. Multiple items in one theme can use line breaks. Keep the Chinese, English, and URL lines aligned by order.
+
+```text
+對應論壇:
+1.大師論壇
+2.半導體先進製程科技論壇
+
+英文對應論壇:
+1.CEO Summit
+2.Semiconductor Advanced Process Technology Forum
+
+對應論壇連結:
+https://example.com/forum-1
+https://example.com/forum-2
+```
+
+3. You can also put the link in the same cell:
 
 - `中文名稱 | URL`
 - or `中文名稱 | English Name | URL`
@@ -21,8 +55,8 @@ Recommended cell format for `對應專區` / `對應論壇`:
 Example grouped rows:
 
 ```text
-1	AI算力	算力需求迎來指數型爆發...	AI半導體・ASIC・熱管理	AI半導體技術特區 | AI Semiconductor Technology Zone | https://example.com/zone	大師論壇 | Masters Forum | https://example.com/forum
-1	AI算力			半導體封裝專區 | Semiconductor Packaging Zone | https://example.com/zone-2	半導體先進製程科技論壇 | Advanced Process Forum | https://example.com/forum-2
+1	AI算力	AI Computing	算力需求迎來指數型爆發...		AI半導體・ASIC・熱管理	AI Semiconductor・ASIC・Thermal	AI半導體技術特區	AI Semiconductor Technology Zone	https://example.com/zone	大師論壇	CEO Summit	https://example.com/forum
+1	AI算力					半導體封裝專區	Semiconductor Packaging Zone	https://example.com/zone-2	半導體先進製程科技論壇	Advanced Process Forum	https://example.com/forum-2
 ```
 
 Rules for grouped sheets:
@@ -31,6 +65,8 @@ Rules for grouped sheets:
 - The first encountered row for a theme clears that theme's old zones/forums before rebuilding.
 - Later rows with the same theme keep appending zones/forums.
 - Empty cells are allowed on continuation rows.
+- Leading numbering such as `1.` or `2.` in zone/forum cells is removed during import.
+- If an `.xlsx` cell has a single built-in hyperlink, the importer tries to read it as `Name | URL`. For multiple links, use separate URL columns or line breaks instead of relying on Excel's cell hyperlink.
 
 ## Core Fields
 

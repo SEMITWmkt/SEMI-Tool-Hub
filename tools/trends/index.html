@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>主題互動區塊產生器 v4.8</title>
+<title>主題互動區塊產生器 v4.9</title>
 <style>
 :root{
   --pu:#800080;--pu-light:#f5eef5;--pu-mid:#ddc0dd;
@@ -272,21 +272,29 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   padding:2px 6px;border-radius:10px;font-size:10px;font-weight:700;}
 
 /* ── DATA WORKBENCH ── */
-.data-hub{background:var(--white);border:1px solid var(--bd);border-radius:var(--r);padding:10px;display:flex;flex-direction:column;gap:8px;}
+.data-hub{background:var(--white);border:1px solid var(--bd);border-radius:var(--r);padding:12px;display:flex;flex-direction:column;gap:10px;}
 .data-hub-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
-.data-hub-title{font-size:13px;font-weight:700;color:var(--text);}
+.data-hub-title{font-size:14px;font-weight:800;color:var(--text);}
 .data-hub-sub{font-size:11px;color:var(--gray);line-height:1.45;max-width:680px;}
-.data-hub-grid{display:grid;grid-template-columns:1fr;gap:8px;}
-.data-hub-card{border:1px solid var(--bd);border-radius:var(--r-sm);padding:9px;background:#fafafa;}
-.data-hub-card h3{font-size:11px;font-weight:700;margin-bottom:6px;color:var(--text);}
+.data-hub-grid{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:10px;align-items:start;}
+.data-hub-card{border:1px solid var(--bd);border-radius:var(--r-sm);padding:10px;background:#fbfbfc;}
+.data-hub-card h3{font-size:12px;font-weight:800;margin-bottom:7px;color:var(--text);}
 .data-hub-help{border:1px dashed var(--bd);border-radius:var(--r-sm);padding:8px 10px;background:#fff;}
 .data-hub-help summary{list-style:none;cursor:pointer;font-size:11px;font-weight:700;color:var(--gray);}
 .data-hub-help summary::-webkit-details-marker{display:none;}
 .data-hub-steps{list-style:none;display:flex;flex-direction:column;gap:6px;font-size:11px;color:var(--gray);line-height:1.45;}
 .data-hub-steps li{padding-left:16px;position:relative;}
 .data-hub-steps li::before{content:'•';position:absolute;left:0;color:var(--pu);}
-.sheet-textarea{width:100%;min-height:92px;border:1px solid var(--bd);border-radius:var(--r-sm);padding:8px 10px;font-size:11px;line-height:1.5;font-family:"Menlo","Monaco","Consolas",monospace;resize:vertical;outline:none;background:#fff;}
+.sheet-textarea{width:100%;min-height:82px;max-height:190px;border:1px solid var(--bd);border-radius:var(--r-sm);padding:8px 10px;font-size:11px;line-height:1.5;font-family:"Menlo","Monaco","Consolas",monospace;resize:vertical;outline:none;background:#fff;}
 .sheet-textarea:focus{border-color:var(--pu);}
+.status-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;}
+.status-card{border:1px solid var(--bd);border-radius:8px;background:#fff;padding:9px 10px;min-width:0;}
+.status-card strong{display:block;font-size:17px;line-height:1.1;color:var(--text);}
+.status-card span{display:block;font-size:10px;line-height:1.35;color:var(--gray);margin-top:4px;}
+.status-card.danger{border-color:#f1c8cd;background:#fff8f9;}
+.status-card.danger strong{color:var(--danger);}
+.status-card.warn{border-color:#ead8a7;background:#fffaf0;}
+.status-card.warn strong{color:#7a6000;}
 .editor-shell{display:grid;grid-template-columns:minmax(240px,280px) minmax(0,1fr);gap:10px;align-items:start;min-height:auto;flex:initial;}
 .nav-panel,.detail-panel{background:var(--white);border:1px solid var(--bd);border-radius:var(--r);min-height:auto;}
 .nav-panel{display:flex;flex-direction:column;overflow:hidden;position:sticky;top:0;max-height:calc(100vh - 86px);}
@@ -324,8 +332,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 .detail-field input,.detail-field textarea{width:100%;border:1px solid #ddd;border-radius:var(--r-sm);padding:7px 9px;font-size:12px;font-family:inherit;outline:none;transition:border-color .18s;background:#fff;}
 .detail-field textarea{min-height:76px;line-height:1.5;resize:vertical;}
 .detail-field input:focus,.detail-field textarea:focus{border-color:var(--pu);}
-.detail-list-editor{width:100%;min-height:108px;border:1px solid #ddd;border-radius:var(--r-sm);padding:8px 10px;font-size:11px;line-height:1.55;font-family:"Menlo","Monaco","Consolas",monospace;resize:vertical;outline:none;background:#fff;}
-.detail-list-editor:focus{border-color:var(--pu);}
+.link-table{display:flex;flex-direction:column;gap:6px;}
+.link-table-head,.link-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1.1fr) 30px;gap:6px;align-items:center;}
+.link-table-head span{font-size:9px;text-transform:uppercase;letter-spacing:.8px;color:#8b8b92;font-weight:800;}
+.link-row input{width:100%;border:1px solid #ddd;border-radius:var(--r-sm);padding:7px 8px;font-size:12px;font-family:inherit;outline:none;background:#fff;min-width:0;}
+.link-row input:focus{border-color:var(--pu);}
+.link-row input.url-input{font-family:"Menlo","Monaco","Consolas",monospace;font-size:11px;color:#075a9c;}
+.link-row-remove{border:1px solid #f0c6cc;background:#fff;color:var(--danger);border-radius:var(--r-sm);height:31px;cursor:pointer;font-weight:800;}
+.link-row-remove:hover{background:#fff4f5;}
+.link-table-empty{border:1px dashed var(--bd);border-radius:var(--r-sm);padding:10px;color:var(--gray);font-size:11px;background:#fafafa;}
+.link-table-actions{display:flex;justify-content:space-between;gap:8px;margin-top:8px;align-items:center;flex-wrap:wrap;}
+.link-table-hint{font-size:10px;color:var(--gray);line-height:1.45;}
 .detail-note{font-size:10px;color:var(--gray);line-height:1.45;margin-top:5px;}
 .toggle-chip{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--gray);font-weight:500;text-transform:none;letter-spacing:0;}
 .empty-detail{padding:22px;text-align:center;color:var(--gray);font-size:12px;}
@@ -337,7 +354,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   .workspace{grid-template-columns:1fr;}
   .editor-pane{max-height:none;}
   .preview-pane{min-height:42vh;}
-  .data-hub-grid,.detail-grid,.detail-summary{grid-template-columns:1fr;}
+  .data-hub-grid,.detail-grid,.detail-summary,.status-strip{grid-template-columns:1fr;}
+  .link-table-head{display:none;}
+  .link-row{grid-template-columns:1fr 1fr;}
+  .link-row input.url-input{grid-column:1 / -1;}
 }
 
 /* ── MISC ── */
@@ -351,9 +371,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 
 <!-- ═══ HEADER ═══ -->
 <header class="app-header">
-  <div class="header-brand">
-    <h1>主題互動區塊產生器</h1>
-    <span class="version-badge">v4.8</span>
+    <div class="header-brand">
+      <h1>主題互動區塊產生器</h1>
+    <span class="version-badge">v4.9</span>
   </div>
   <div class="header-actions">
     <span class="save-indicator" id="saveIndicator"></span>
@@ -400,17 +420,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
             <button class="btn btn-outline btn-sm" onclick="document.getElementById('sheetBatchInput').value=''">清空</button>
           </div>
           <input type="file" id="sheetFileInput" accept=".xlsx,.xls,.csv,.tsv,.txt" style="display:none" onchange="importSheetFile(event)">
-          <div class="batch-note">專區 / 論壇建議在同一格內一行一筆，格式：<code>名稱 | URL</code>。若已拆成 Zone1 / Forum1 欄位也可直接讀取。</div>
+          <div class="batch-note">建議欄位：中文名稱、English Name、URL 分開維護；若同格多筆，請用換行對齊。</div>
         </div>
-        <details class="data-hub-help">
-          <summary>工作流程提示</summary>
-          <ul class="data-hub-steps">
-            <li>先在 Excel 維護所有主題資料與連結。</li>
-            <li>整塊貼入這裡，先完成大部分內容同步。</li>
-            <li>再用下方主題清單抽查重點，不是逐一重做。</li>
-            <li>AI 保留做補字、整理、翻譯，不拿來取代正式資料源。</li>
-          </ul>
-        </details>
+        <div>
+          <div class="status-strip" id="statusStrip"></div>
+          <details class="data-hub-help" style="margin-top:8px;">
+            <summary>工作流程提示</summary>
+            <ul class="data-hub-steps">
+              <li>Excel 是資料源，工具只做匯入、抽查與輸出。</li>
+              <li>先看摘要數字，再處理紅色缺漏項目。</li>
+              <li>展區與論壇支援中英名稱和 URL，不需逐格重建。</li>
+            </ul>
+          </details>
+        </div>
       </div>
     </div>
 
@@ -763,6 +785,32 @@ function renderPublishIssues(issues){
     ${more}`;
 }
 
+function renderStatusStrip(issues){
+  const strip = document.getElementById('statusStrip');
+  if(!strip)return;
+  const errors = issues.filter(issue=>issue.severity!=='warn');
+  const warnings = issues.filter(issue=>issue.severity==='warn');
+  const missingUrl = errors.filter(issue=>/缺 URL/.test(issue.message)).length;
+  const missingEnglish = errors.filter(issue=>/缺英文/.test(issue.message)).length;
+  strip.innerHTML = `
+    <div class="status-card">
+      <strong>${themes.length}</strong>
+      <span>目前主題</span>
+    </div>
+    <div class="status-card ${errors.length?'danger':''}">
+      <strong>${errors.length}</strong>
+      <span>必修缺漏</span>
+    </div>
+    <div class="status-card ${missingUrl?'warn':''}">
+      <strong>${missingUrl}</strong>
+      <span>缺連結 URL</span>
+    </div>
+    <div class="status-card ${missingEnglish?'warn':''}">
+      <strong>${missingEnglish}</strong>
+      <span>缺英文名稱</span>
+    </div>`;
+}
+
 function tsvCell(value){
   return String(value || '').replace(/\r?\n/g, ' ').replace(/\t/g, ' ');
 }
@@ -915,6 +963,65 @@ function parseListEditor(value){
     });
 }
 
+function listItemValue(i,key,j,field,value){
+  if(!themes[i][key])themes[i][key] = [];
+  if(!themes[i][key][j])themes[i][key][j] = {zh:'',en:'',url:''};
+  themes[i][key][j][field] = value;
+  if(key === 'zones')themes[i].showZone = true;
+  if(key === 'forums')themes[i].showForum = true;
+  schedulePreview();
+  saveToStorage();
+}
+
+function addListItem(i,key){
+  if(!themes[i][key])themes[i][key] = [];
+  themes[i][key].push({zh:'',en:'',url:''});
+  if(key === 'zones')themes[i].showZone = true;
+  if(key === 'forums')themes[i].showForum = true;
+  renderDetailPanel();
+  schedulePreview();
+  saveToStorage();
+}
+
+function removeListItem(i,key,j){
+  if(!themes[i][key])return;
+  themes[i][key].splice(j,1);
+  if(key === 'zones')themes[i].showZone = themes[i][key].length > 0;
+  if(key === 'forums')themes[i].showForum = themes[i][key].length > 0;
+  renderDetailPanel();
+  schedulePreview();
+  saveToStorage();
+}
+
+function renderLinkedItemTable(i,key,label){
+  const rows = themes[i][key] || [];
+  const empty = rows.length
+    ? ''
+    : `<div class="link-table-empty">目前沒有${esc(label)}。可從 Excel 匯入，或按下方新增一筆。</div>`;
+  const rowHtml = rows.map((item,j)=>`
+    <div class="link-row">
+      <input value="${esc(item.zh || '')}" placeholder="中文名稱" oninput="listItemValue(${i},'${key}',${j},'zh',this.value)">
+      <input value="${esc(item.en || '')}" placeholder="English Name" oninput="listItemValue(${i},'${key}',${j},'en',this.value)">
+      <input class="url-input" value="${esc(item.url || '')}" placeholder="https://..." oninput="listItemValue(${i},'${key}',${j},'url',this.value)">
+      <button class="link-row-remove" onclick="removeListItem(${i},'${key}',${j})" title="刪除">×</button>
+    </div>`).join('');
+  return `
+    <div class="link-table">
+      <div class="link-table-head">
+        <span>中文名稱</span>
+        <span>English Name</span>
+        <span>URL</span>
+        <span></span>
+      </div>
+      ${empty}
+      ${rowHtml}
+      <div class="link-table-actions">
+        <button class="btn btn-outline btn-sm" onclick="addListItem(${i},'${key}')">＋ 新增${esc(label)}</button>
+        <span class="link-table-hint">Excel 可用獨立欄位匯入：中文 / English / URL。</span>
+      </div>
+    </div>`;
+}
+
 function renderDetailPanel(){
   const panel = document.getElementById('detailPanel');
   if(!panel)return;
@@ -992,8 +1099,7 @@ function renderDetailPanel(){
             <span>展區 / 專區</span>
             <label class="toggle-chip"><input type="checkbox" ${t.showZone?'checked':''} onchange="upd(${selectedThemeIndex},'showZone',this.checked);refreshWorkbench()"> 顯示此欄</label>
           </div>
-          <textarea class="detail-list-editor" onblur="applyListEditor(${selectedThemeIndex},'zones',this.value)">${esc(renderListEditorText(t.zones))}</textarea>
-          <div class="detail-note">一行一筆，格式：<code>中文名稱 | English Name | URL</code>。若目前只有中文與連結，也可以先用 <code>中文名稱 | URL</code>。</div>
+          ${renderLinkedItemTable(selectedThemeIndex,'zones','展區')}
         </div>
       </div>
       <div class="detail-col">
@@ -1002,8 +1108,7 @@ function renderDetailPanel(){
             <span>論壇議題</span>
             <label class="toggle-chip"><input type="checkbox" ${t.showForum?'checked':''} onchange="upd(${selectedThemeIndex},'showForum',this.checked);refreshWorkbench()"> 顯示此欄</label>
           </div>
-          <textarea class="detail-list-editor" onblur="applyListEditor(${selectedThemeIndex},'forums',this.value)">${esc(renderListEditorText(t.forums))}</textarea>
-          <div class="detail-note">這裡也改成整段編輯，不再是一格一格的小表格。未來 Excel 更新時，這種格式也最好維持一致。</div>
+          ${renderLinkedItemTable(selectedThemeIndex,'forums','論壇')}
         </div>
       </div>
     </div>`;
@@ -1138,6 +1243,7 @@ function updatePublishCheck(){
   const warnings = issues.length - errors;
   const el=document.getElementById('publishCheck');
   if(!el)return;
+  renderStatusStrip(issues);
   renderPublishIssues(issues);
   if(!issues.length){
     el.textContent='Ready';
@@ -1536,11 +1642,12 @@ const IMPORT_SCHEMA_TEXT = [
   'No | Icon URL | Title ZH | Title EN | Sub ZH | Sub EN | Trend Intro ZH | Trend Intro EN | Keywords ZH | Keywords EN | Zone1 ZH | Zone1 EN | Zone1 URL | Forum1 ZH | Forum1 EN | Forum1 URL ...',
   '',
   '也支援目前工作表模式：',
-  'Segment | 主題 | 主題介紹 | 關鍵字 | 對應專區 | 對應論壇',
+  'Segment | 主題 | 英文主題 | 主題介紹 | 關鍵字 | 英文關鍵字 | 對應專區 | 英文對應專區 | 對應專區連結 | 對應論壇 | 英文對應論壇 | 對應論壇連結',
   '',
   '建議專區 / 論壇內容：',
-  '中文名稱 | English Name | URL',
-  '或先用：中文名稱 | URL'
+  '做法 A：中文、英文、連結各放一欄；多筆資料可在同一格用換行對齊。',
+  '做法 B：同一格直接寫：中文名稱 | English Name | URL',
+  '做法 C：每一筆專區 / 論壇拆成一列，同一個 Segment 會自動合併。'
 ].join('\n');
 
 function copyImportSchema(){
@@ -1576,16 +1683,53 @@ function collectIndexedGroups(headers, prefix){
   return Object.keys(groups).map(Number).sort((a,b)=>a-b).map(key=>groups[key]);
 }
 
-function parseNamedLinkCell(value){
+function splitCellLines(value){
+  return String(value || '')
+    .replace(/\r/g, '\n')
+    .split('\n')
+    .map(line => line.trim())
+    .filter(Boolean);
+}
+
+function cleanListName(value){
+  return String(value || '').trim().replace(/^\d+\s*[\.\、．]\s*/, '').trim();
+}
+
+function cellAt(cols, index){
+  return index >= 0 ? (cols[index] || '').trim() : '';
+}
+
+function normalizeUrl(value){
   const text = String(value || '').trim();
-  if(!text)return null;
+  if(!text)return '';
+  if(/^https?:\/\//i.test(text))return text;
+  if(/^www\./i.test(text))return `https://${text}`;
+  return text;
+}
+
+function parseNamedLinkCell(value, fallbackEn='', fallbackUrl=''){
+  const text = String(value || '').trim();
+  if(!text && !fallbackEn && !fallbackUrl)return null;
   const parts = text.split('|').map(part => part.trim()).filter(Boolean);
-  if(parts.length >= 3)return {zh:parts[0], en:parts[1], url:parts.slice(2).join(' | ')};
+  if(parts.length >= 3)return {zh:cleanListName(parts[0]), en:cleanListName(parts[1]), url:normalizeUrl(parts.slice(2).join(' | '))};
   if(parts.length === 2){
-    if(/^https?:\/\//i.test(parts[1]))return {zh:parts[0], en:'', url:parts[1]};
-    return {zh:parts[0], en:parts[1], url:''};
+    if(/^(https?:\/\/|www\.)/i.test(parts[1]))return {zh:cleanListName(parts[0]), en:cleanListName(fallbackEn), url:normalizeUrl(parts[1])};
+    return {zh:cleanListName(parts[0]), en:cleanListName(parts[1]), url:normalizeUrl(fallbackUrl)};
   }
-  return {zh:text, en:'', url:''};
+  return {zh:cleanListName(text), en:cleanListName(fallbackEn), url:normalizeUrl(fallbackUrl)};
+}
+
+function parseLinkedItems(zhValue, enValue='', urlValue=''){
+  const zhLines = splitCellLines(zhValue);
+  const enLines = splitCellLines(enValue);
+  const urlLines = splitCellLines(urlValue);
+  const max = Math.max(zhLines.length, enLines.length, urlLines.length);
+  const items = [];
+  for(let i=0;i<max;i++){
+    const item = parseNamedLinkCell(zhLines[i] || '', enLines[i] || '', urlLines[i] || '');
+    if(item)pushUniqueItem(items, item);
+  }
+  return items;
 }
 
 function pushUniqueItem(arr, item){
@@ -1684,17 +1828,34 @@ function convertDelimitedTextToTsv(text){
   return rowsToTsv(rows);
 }
 
+function worksheetCellText(cell){
+  if(!cell)return '';
+  const text = cell.w !== undefined ? String(cell.w) : (cell.v !== undefined ? String(cell.v) : '');
+  const link = cell.l && (cell.l.Target || cell.l.target);
+  if(link && text && !text.includes(link))return `${text} | ${link}`;
+  if(link && !text)return link;
+  return text;
+}
+
 function workbookToTsv(workbook){
   if(!workbook || !workbook.SheetNames || !workbook.SheetNames.length){
     throw new Error('Excel 檔案裡沒有可讀取的工作表。');
   }
   const firstSheetName = workbook.SheetNames[0];
   const sheet = workbook.Sheets[firstSheetName];
-  const rows = XLSX.utils.sheet_to_json(sheet, {
-    header: 1,
-    raw: false,
-    defval: ''
-  });
+  const range = XLSX.utils.decode_range(sheet['!ref'] || 'A1:A1');
+  const rows = [];
+  for(let row = range.s.r; row <= range.e.r; row++){
+    const values = [];
+    let hasValue = false;
+    for(let col = range.s.c; col <= range.e.c; col++){
+      const cell = sheet[XLSX.utils.encode_cell({r:row,c:col})];
+      const value = worksheetCellText(cell);
+      if(String(value).trim())hasValue = true;
+      values.push(value);
+    }
+    if(hasValue)rows.push(values);
+  }
   return rowsToTsv(rows);
 }
 
@@ -1734,11 +1895,11 @@ function applyTemplateSheet(rows, headers){
   const noIndex = findHeaderIndex(headers, ['no','segment']);
   const iconIndex = findHeaderIndex(headers, ['icon url','icon']);
   const titleZhIndex = findHeaderIndex(headers, ['title zh','主題']);
-  const titleEnIndex = findHeaderIndex(headers, ['title en']);
+  const titleEnIndex = findHeaderIndex(headers, ['title en','英文主題']);
   const subZhIndex = findHeaderIndex(headers, ['sub zh','subtitle zh','keywords zh','關鍵字']);
-  const subEnIndex = findHeaderIndex(headers, ['sub en','subtitle en','keywords en']);
+  const subEnIndex = findHeaderIndex(headers, ['sub en','subtitle en','keywords en','英文關鍵字']);
   const descZhIndex = findHeaderIndex(headers, ['trend intro zh','description zh','主題介紹']);
-  const descEnIndex = findHeaderIndex(headers, ['trend intro en','description en']);
+  const descEnIndex = findHeaderIndex(headers, ['trend intro en','description en','英文主題介紹']);
   const zoneGroups = collectIndexedGroups(headers, 'zone');
   const forumGroups = collectIndexedGroups(headers, 'forum');
   let updated = 0;
@@ -1788,26 +1949,43 @@ function applyTemplateSheet(rows, headers){
 function applyGroupedSheet(rows, headers){
   const segmentIndex = findHeaderIndex(headers, ['segment','no']);
   const titleIndex = findHeaderIndex(headers, ['主題','title zh']);
+  const titleEnIndex = findHeaderIndex(headers, ['英文主題','title en']);
   const introIndex = findHeaderIndex(headers, ['主題介紹','trend intro zh','description zh']);
+  const introEnIndex = findHeaderIndex(headers, ['英文主題介紹','trend intro en','description en']);
   const keywordIndex = findHeaderIndex(headers, ['關鍵字','keywords zh','sub zh']);
+  const keywordEnIndex = findHeaderIndex(headers, ['英文關鍵字','keywords en','sub en']);
   const zoneIndex = findHeaderIndex(headers, ['對應專區','zones','zone']);
+  const zoneEnIndex = findHeaderIndex(headers, ['英文對應專區','zones en','zone en']);
+  const zoneUrlIndex = findHeaderIndex(headers, ['對應專區連結','專區連結','zone url','zones url']);
   const forumIndex = findHeaderIndex(headers, ['對應論壇','forums','forum']);
+  const forumEnIndex = findHeaderIndex(headers, ['英文對應論壇','forums en','forum en']);
+  const forumUrlIndex = findHeaderIndex(headers, ['對應論壇連結','論壇連結','forum url','forums url']);
   const iconIndex = findHeaderIndex(headers, ['icon url','icon']);
   let currentThemeIndex = -1;
   let touched = new Set();
 
   rows.forEach(cols => {
-    const segment = segmentIndex >= 0 ? (cols[segmentIndex] || '').trim() : '';
-    const title = titleIndex >= 0 ? (cols[titleIndex] || '').trim() : '';
-    const intro = introIndex >= 0 ? (cols[introIndex] || '').trim() : '';
-    const keyword = keywordIndex >= 0 ? (cols[keywordIndex] || '').trim() : '';
-    const zoneText = zoneIndex >= 0 ? (cols[zoneIndex] || '').trim() : '';
-    const forumText = forumIndex >= 0 ? (cols[forumIndex] || '').trim() : '';
-    const iconText = iconIndex >= 0 ? (cols[iconIndex] || '').trim() : '';
+    const segment = cellAt(cols, segmentIndex);
+    const title = cellAt(cols, titleIndex);
+    const titleEn = cellAt(cols, titleEnIndex);
+    const intro = cellAt(cols, introIndex);
+    const introEn = cellAt(cols, introEnIndex);
+    const keyword = cellAt(cols, keywordIndex);
+    const keywordEn = cellAt(cols, keywordEnIndex);
+    const zoneText = cellAt(cols, zoneIndex);
+    const zoneEnText = cellAt(cols, zoneEnIndex);
+    const zoneUrlText = cellAt(cols, zoneUrlIndex);
+    const forumText = cellAt(cols, forumIndex);
+    const forumEnText = cellAt(cols, forumEnIndex);
+    const forumUrlText = cellAt(cols, forumUrlIndex);
+    const iconText = cellAt(cols, iconIndex);
 
     if(segment && Number.isFinite(parseInt(segment,10)))currentThemeIndex = parseInt(segment,10) - 1;
     else if(title){
       const found = themes.findIndex(theme => theme.title_zh === title);
+      if(found >= 0)currentThemeIndex = found;
+    }else if(titleEn){
+      const found = themes.findIndex(theme => theme.title_en === titleEn);
       if(found >= 0)currentThemeIndex = found;
     }
     if(currentThemeIndex < 0 || currentThemeIndex >= themes.length)return;
@@ -1820,17 +1998,20 @@ function applyGroupedSheet(rows, headers){
       theme.showForum = false;
     }
     if(title)theme.title_zh = title;
+    if(titleEn)theme.title_en = titleEn;
     if(intro)theme.desc_zh = intro;
+    if(introEn)theme.desc_en = introEn;
     if(keyword)theme.sub_zh = keyword;
+    if(keywordEn)theme.sub_en = keywordEn;
     if(iconText)theme.icon_url = iconText;
-    if(zoneText){
-      const item = parseNamedLinkCell(zoneText);
-      if(item){pushUniqueItem(theme.zones, item);theme.showZone = true;}
-    }
-    if(forumText){
-      const item = parseNamedLinkCell(forumText);
-      if(item){pushUniqueItem(theme.forums, item);theme.showForum = true;}
-    }
+    parseLinkedItems(zoneText, zoneEnText, zoneUrlText).forEach(item => {
+      pushUniqueItem(theme.zones, item);
+      theme.showZone = true;
+    });
+    parseLinkedItems(forumText, forumEnText, forumUrlText).forEach(item => {
+      pushUniqueItem(theme.forums, item);
+      theme.showForum = true;
+    });
     touched.add(currentThemeIndex);
   });
   return touched.size;
@@ -1875,7 +2056,7 @@ function getWorkState(){
   return {
     schema: WORKFILE_SCHEMA,
     tool: 'Interactive Theme Block Generator',
-    version: 'v4.8',
+    version: 'v4.9',
     projectName: 'Theme Block Project',
     exportedAt: new Date().toISOString(),
     data: { themes, globals: getGlobals(), selectedThemeIndex }
