@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>主題互動區塊產生器 v4.9.1</title>
+<title>主題互動區塊產生器 v4.10.1</title>
 <style>
 :root{
   --pu:#800080;--pu-light:#f5eef5;--pu-mid:#ddc0dd;
@@ -362,7 +362,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 .detail-field textarea{min-height:76px;line-height:1.5;resize:vertical;}
 .detail-field input:focus,.detail-field textarea:focus{border-color:var(--pu);}
 .link-table{display:flex;flex-direction:column;gap:6px;}
-.link-table-head,.link-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1.1fr) 30px;gap:6px;align-items:center;}
+.link-table-head,.link-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1.05fr) minmax(0,1.05fr) 30px;gap:6px;align-items:center;}
 .link-table-head span{font-size:9px;text-transform:uppercase;letter-spacing:.8px;color:#8b8b92;font-weight:800;}
 .link-row input{width:100%;border:1px solid #ddd;border-radius:var(--r-sm);padding:7px 8px;font-size:12px;font-family:inherit;outline:none;background:#fff;min-width:0;}
 .link-row input:focus{border-color:var(--pu);}
@@ -387,6 +387,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   .link-table-head{display:none;}
   .link-row{grid-template-columns:1fr 1fr;}
   .link-row input.url-input{grid-column:1 / -1;}
+  .link-row-remove{grid-column:1 / -1;}
 }
 
 /* ── MISC ── */
@@ -402,7 +403,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 <header class="app-header">
     <div class="header-brand">
       <h1>主題互動區塊產生器</h1>
-    <span class="version-badge">v4.9.1</span>
+    <span class="version-badge">v4.10.1</span>
   </div>
   <div class="header-actions">
     <span class="save-indicator" id="saveIndicator"></span>
@@ -441,7 +442,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
       <div class="data-hub-grid">
         <div class="data-hub-card">
           <h3>貼上 Excel 區塊</h3>
-          <textarea class="sheet-textarea" id="sheetBatchInput" placeholder="直接從 Excel / Google Sheets 複製整塊區域貼到這裡。&#10;建議使用 TSV 範本欄位；也支援你目前的主題 / 主題介紹 / 關鍵字 / 對應專區 / 對應論壇模式。"></textarea>
+          <textarea class="sheet-textarea" id="sheetBatchInput" placeholder="直接從 Excel / Google Sheets 複製整塊區域貼到這裡。&#10;也可以貼入目前已上線的中文 / 英文 HTML，工具會抓回標題、介紹、展區、論壇與連結。"></textarea>
           <div class="batch-actions">
             <button class="btn btn-outline btn-sm" onclick="document.getElementById('sheetFileInput').click()">載入 Excel / CSV</button>
             <button class="btn btn-primary btn-sm" onclick="applySheetBatch()">套用貼上表</button>
@@ -449,7 +450,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
             <button class="btn btn-outline btn-sm" onclick="document.getElementById('sheetBatchInput').value=''">清空</button>
           </div>
           <input type="file" id="sheetFileInput" accept=".xlsx,.xls,.csv,.tsv,.txt" style="display:none" onchange="importSheetFile(event)">
-          <div class="batch-note">建議欄位：中文名稱、English Name、URL 分開維護；若同格多筆，請用換行對齊。</div>
+          <div class="batch-note">建議欄位：中文名稱、English Name、中文 URL、English URL 分開維護；若貼入既有 HTML，工具會依語系回填。</div>
         </div>
         <div>
           <div class="status-strip" id="statusStrip"></div>
@@ -691,9 +692,39 @@ function themeSearchText(t,i){
   const rows = []
     .concat(t.zones || [])
     .concat(t.forums || [])
-    .map(item => `${item.zh || ''} ${item.en || ''} ${item.url || ''}`)
+    .map(item => `${item.zh || ''} ${item.en || ''} ${item.url || ''} ${item.url_zh || ''} ${item.url_en || ''}`)
     .join(' ');
   return `${themeLabel(i)} ${t.title_zh || ''} ${t.title_en || ''} ${t.sub_zh || ''} ${t.sub_en || ''} ${t.desc_zh || ''} ${t.desc_en || ''} ${rows}`.toLowerCase();
+}
+
+function itemUrl(item, lang){
+  if(!item)return '';
+  return (lang === 'zh'
+    ? (item.url_zh || item.url || '')
+    : (item.url_en || item.url || '')
+  ).trim();
+}
+
+function normalizeLinkItem(item){
+  const row = item || {};
+  const legacyUrl = (row.url || '').trim();
+  return {
+    zh: row.zh || '',
+    en: row.en || '',
+    url_zh: (row.url_zh || legacyUrl || '').trim(),
+    url_en: (row.url_en || legacyUrl || '').trim()
+  };
+}
+
+function normalizeLinkItems(items){
+  return (items || []).map(normalizeLinkItem);
+}
+
+function normalizeThemeLinks(){
+  themes.forEach(theme => {
+    theme.zones = normalizeLinkItems(theme.zones);
+    theme.forums = normalizeLinkItems(theme.forums);
+  });
 }
 
 function addIssue(issues, themeIndex, message, meta, severity='error'){
@@ -707,15 +738,20 @@ function checkContentRows(issues, t, themeIndex, key, label){
   }
   rows.forEach((item,j)=>{
     const rowMeta = `${label} ${j+1}`;
-    const hasAny = !!((item.zh || '').trim() || (item.en || '').trim() || (item.url || '').trim());
+    const zhUrl = itemUrl(item, 'zh');
+    const enUrl = itemUrl(item, 'en');
+    const hasAny = !!((item.zh || '').trim() || (item.en || '').trim() || zhUrl || enUrl);
     if(!hasAny){
       addIssue(issues, themeIndex, `${rowMeta} 是空白列`, rowMeta);
       return;
     }
     if(!(item.zh || '').trim())addIssue(issues, themeIndex, `${rowMeta} 缺中文名稱`, rowMeta);
     if(!(item.en || '').trim())addIssue(issues, themeIndex, `${rowMeta} 缺英文名稱`, rowMeta);
-    if(((item.zh || '').trim() || (item.en || '').trim()) && !(item.url || '').trim()){
-      addIssue(issues, themeIndex, `${rowMeta} 缺 URL`, rowMeta);
+    if((item.zh || '').trim() && !zhUrl){
+      addIssue(issues, themeIndex, `${rowMeta} 缺中文 URL`, rowMeta);
+    }
+    if((item.en || '').trim() && !enUrl){
+      addIssue(issues, themeIndex, `${rowMeta} 缺英文 URL`, rowMeta);
     }
   });
 }
@@ -1002,8 +1038,9 @@ function renderListEditorText(arr){
   return (arr || []).map(item => {
     const zh = (item.zh || '').trim();
     const en = (item.en || '').trim();
-    const url = (item.url || '').trim();
-    return [zh, en, url].join(' | ').replace(/\s+\|\s+\|\s*$/, '').replace(/\s+\|\s*$/, '');
+    const urlZh = itemUrl(item, 'zh');
+    const urlEn = itemUrl(item, 'en');
+    return [zh, en, urlZh, urlEn].join(' | ').replace(/(?:\s+\|\s*)+$/, '');
   }).join('\n');
 }
 
@@ -1014,18 +1051,19 @@ function parseListEditor(value){
     .filter(Boolean)
     .map(line => {
       const parts = line.split('|').map(part => part.trim());
-      if(parts.length >= 3)return {zh:parts[0] || '', en:parts[1] || '', url:parts.slice(2).join(' | ') || ''};
+      if(parts.length >= 4)return {zh:parts[0] || '', en:parts[1] || '', url_zh:parts[2] || '', url_en:parts.slice(3).join(' | ') || ''};
+      if(parts.length >= 3)return {zh:parts[0] || '', en:parts[1] || '', url_zh:parts[2] || '', url_en:parts[2] || ''};
       if(parts.length === 2){
-        if(/^https?:\/\//i.test(parts[1]))return {zh:parts[0] || '', en:'', url:parts[1]};
-        return {zh:parts[0] || '', en:parts[1] || '', url:''};
+        if(/^(https?:\/\/|www\.)/i.test(parts[1]))return {zh:parts[0] || '', en:'', url_zh:parts[1], url_en:parts[1]};
+        return {zh:parts[0] || '', en:parts[1] || '', url_zh:'', url_en:''};
       }
-      return {zh:parts[0] || '', en:'', url:''};
+      return {zh:parts[0] || '', en:'', url_zh:'', url_en:''};
     });
 }
 
 function listItemValue(i,key,j,field,value){
   if(!themes[i][key])themes[i][key] = [];
-  if(!themes[i][key][j])themes[i][key][j] = {zh:'',en:'',url:''};
+  if(!themes[i][key][j])themes[i][key][j] = {zh:'',en:'',url_zh:'',url_en:''};
   themes[i][key][j][field] = value;
   if(key === 'zones')themes[i].showZone = true;
   if(key === 'forums')themes[i].showForum = true;
@@ -1035,7 +1073,7 @@ function listItemValue(i,key,j,field,value){
 
 function addListItem(i,key){
   if(!themes[i][key])themes[i][key] = [];
-  themes[i][key].push({zh:'',en:'',url:''});
+  themes[i][key].push({zh:'',en:'',url_zh:'',url_en:''});
   if(key === 'zones')themes[i].showZone = true;
   if(key === 'forums')themes[i].showForum = true;
   renderDetailPanel();
@@ -1062,7 +1100,8 @@ function renderLinkedItemTable(i,key,label){
     <div class="link-row">
       <input value="${esc(item.zh || '')}" placeholder="中文名稱" oninput="listItemValue(${i},'${key}',${j},'zh',this.value)">
       <input value="${esc(item.en || '')}" placeholder="English Name" oninput="listItemValue(${i},'${key}',${j},'en',this.value)">
-      <input class="url-input" value="${esc(item.url || '')}" placeholder="https://..." oninput="listItemValue(${i},'${key}',${j},'url',this.value)">
+      <input class="url-input" value="${esc(itemUrl(item,'zh'))}" placeholder="中文 URL" oninput="listItemValue(${i},'${key}',${j},'url_zh',this.value)">
+      <input class="url-input" value="${esc(itemUrl(item,'en'))}" placeholder="English URL" oninput="listItemValue(${i},'${key}',${j},'url_en',this.value)">
       <button class="link-row-remove" onclick="removeListItem(${i},'${key}',${j})" title="刪除">×</button>
     </div>`).join('');
   return `
@@ -1070,14 +1109,15 @@ function renderLinkedItemTable(i,key,label){
       <div class="link-table-head">
         <span>中文名稱</span>
         <span>English Name</span>
-        <span>URL</span>
+        <span>中文 URL</span>
+        <span>English URL</span>
         <span></span>
       </div>
       ${empty}
       ${rowHtml}
       <div class="link-table-actions">
         <button class="btn btn-outline btn-sm" onclick="addListItem(${i},'${key}')">＋ 新增${esc(label)}</button>
-        <span class="link-table-hint">Excel 可用獨立欄位匯入：中文 / English / URL。</span>
+        <span class="link-table-hint">Excel 可用獨立欄位匯入：中文 / English / 中文 URL / English URL。</span>
       </div>
     </div>`;
 }
@@ -1176,6 +1216,7 @@ function renderDetailPanel(){
 
 function renderList(){
   ensureSelectedTheme();
+  normalizeThemeLinks();
   applyThemeListCollapse();
   const list = document.getElementById('themeList');
   list.innerHTML = '';
@@ -1367,10 +1408,11 @@ ${sc} .st-d-grid{display:grid;gap:32px;align-items:start;}
 @media(max-width:600px){${sc} .st-d-grid{grid-template-columns:1fr!important;gap:20px;}}
 ${sc} .st-d-label{font-size:${s(10)};font-weight:500;letter-spacing:2.5px;text-transform:uppercase;color:var(--gr);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--bd);display:block;}
 ${sc} .st-d-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:12px;}
-${sc} .st-d-list li{font-size:${s(13)};color:var(--bk);line-height:1.7;padding:0;display:grid;grid-template-columns:10px 1fr;column-gap:8px;align-items:start;}
-${sc} .st-list-marker{width:6px;height:1px;background:var(--pu);display:block;margin-top:.85em;}
-${sc} .st-list-text{display:block;min-width:0;}
-${sc} .st-d-list li a{color:var(--pu);text-decoration:none;transition:opacity .2s;}
+${sc} .st-d-list li{font-size:${s(13)};color:var(--bk);line-height:1.7;padding:0;display:flex;gap:8px;align-items:flex-start;min-width:0;}
+${sc} .st-d-list li::before{content:"";flex:0 0 6px;width:6px;height:1px;background:var(--pu);margin-top:.85em;}
+${sc} .st-list-marker{display:none;}
+${sc} .st-list-text{display:block;min-width:0;flex:1 1 auto;}
+${sc} .st-d-list li a{color:var(--pu);text-decoration:none;transition:opacity .2s;min-width:0;display:block;}
 ${sc} .st-d-list li a:hover{opacity:.7;text-decoration:underline;}
 ${sc} .st-cs{font-size:${s(12)};color:var(--gr);font-style:italic;padding:4px 0;}
 ${sc} .st-close{position:absolute;top:20px;right:20px;width:28px;height:28px;background:rgba(0,0,0,.05);border:none;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s;}
@@ -1411,8 +1453,9 @@ function buildCards(lang, uid, forPreview) {
     const rows = (arr || []).map(item => {
       const tx = lang==='zh' ? item.zh : item.en;
       if(!tx)return '';
-      const content = item.url
-        ? `<a href="${esc(item.url)}" target="_blank" rel="noopener">${esc(tx)}</a>`
+      const url = itemUrl(item, lang);
+      const content = url
+        ? `<a href="${esc(url)}" target="_blank" rel="noopener">${esc(tx)}</a>`
         : esc(tx);
       return `<li><span class="st-list-marker" aria-hidden="true"></span><span class="st-list-text">${content}</span></li>`;
     }).filter(Boolean);
@@ -1604,14 +1647,14 @@ const SYSTEM_SINGLE = `你是一個資料解析助理。根據使用者提供的
   "sub_en":"Tech keywords, separated by ·",
   "desc_zh":"一到兩句中文描述",
   "desc_en":"One to two sentences in English",
-  "zones":[{"zh":"中文名稱","en":"English name","url":"https://...或留空字串"}],
-  "forums":[{"zh":"中文名稱","en":"English name","url":"https://...或留空字串"}]
+  "zones":[{"zh":"中文名稱","en":"English name","url_zh":"中文頁網址或留空","url_en":"English page URL or empty"}],
+  "forums":[{"zh":"中文名稱","en":"English name","url_zh":"中文頁網址或留空","url_en":"English page URL or empty"}]
 }
 如果找不到某欄位的資訊，留空字串。`;
 
 const SYSTEM_ALL = `你是一個資料解析助理。根據使用者提供的網址或文字，提取所有可辨識的半導體主題的展區與論壇資訊。
 只回傳 JSON，不要加說明或 markdown。格式如下：
-{"themes":[{"index":1,"title_zh":"","title_en":"","zones":[{"zh":"","en":"","url":""}],"forums":[{"zh":"","en":"","url":""}]}]}
+{"themes":[{"index":1,"title_zh":"","title_en":"","zones":[{"zh":"","en":"","url_zh":"","url_en":""}],"forums":[{"zh":"","en":"","url_zh":"","url_en":""}]}]}
 index 對應主題編號。只列出有找到資訊的主題。如果某欄位找不到，留空字串。`;
 
 function showLog(elId, msg, type=''){
@@ -1700,14 +1743,14 @@ async function runAiFillTheme(i){
 // ════════════════════════════════════════════
 const IMPORT_SCHEMA_TEXT = [
   '建議欄位（TSV / Excel）：',
-  'No | Icon URL | Title ZH | Title EN | Sub ZH | Sub EN | Trend Intro ZH | Trend Intro EN | Keywords ZH | Keywords EN | Zone1 ZH | Zone1 EN | Zone1 URL | Forum1 ZH | Forum1 EN | Forum1 URL ...',
+  'No | Icon URL | Title ZH | Title EN | Sub ZH | Sub EN | Trend Intro ZH | Trend Intro EN | Keywords ZH | Keywords EN | Zone1 ZH | Zone1 EN | Zone1 URL ZH | Zone1 URL EN | Forum1 ZH | Forum1 EN | Forum1 URL ZH | Forum1 URL EN ...',
   '',
   '也支援目前工作表模式：',
-  'Segment | 主題 | 英文主題 | 主題介紹 | 關鍵字 | 英文關鍵字 | 對應專區 | 英文對應專區 | 對應專區連結 | 對應論壇 | 英文對應論壇 | 對應論壇連結',
+  'Segment | 主題 | 英文主題 | 主題介紹 | 關鍵字 | 英文關鍵字 | 對應專區 | 英文對應專區 | 中文對應專區連結 | 英文對應專區連結 | 對應論壇 | 英文對應論壇 | 中文對應論壇連結 | 英文對應論壇連結',
   '',
   '建議專區 / 論壇內容：',
-  '做法 A：中文、英文、連結各放一欄；多筆資料可在同一格用換行對齊。',
-  '做法 B：同一格直接寫：中文名稱 | English Name | URL',
+  '做法 A：中文、英文、中文連結、英文連結各放一欄；多筆資料可在同一格用換行對齊。',
+  '做法 B：同一格直接寫：中文名稱 | English Name | 中文 URL | English URL',
   '做法 C：每一筆專區 / 論壇拆成一列，同一個 Segment 會自動合併。'
 ].join('\n');
 
@@ -1734,10 +1777,13 @@ function collectIndexedGroups(headers, prefix){
   const groups = {};
   headers.forEach((header, index)=>{
     const normalized = normalizeHeader(header);
-    const match = normalized.match(new RegExp(`^${prefix}\\s*(\\d+)\\s*(zh|en|url)$`, 'i')) || normalized.match(new RegExp(`^${prefix}(\\d+)\\s*(zh|en|url)$`, 'i'));
+    const match = normalized.match(new RegExp(`^${prefix}\\s*(\\d+)\\s*(zh|en|url zh|url en|zh url|en url|url)$`, 'i')) || normalized.match(new RegExp(`^${prefix}(\\d+)\\s*(zh|en|url zh|url en|zh url|en url|url)$`, 'i'));
     if(!match)return;
     const groupIndex = Number(match[1]);
-    const field = match[2].toLowerCase();
+    const rawField = match[2].toLowerCase();
+    const field = rawField === 'url zh' || rawField === 'zh url' ? 'url_zh'
+      : rawField === 'url en' || rawField === 'en url' ? 'url_en'
+      : rawField;
     groups[groupIndex] = groups[groupIndex] || {};
     groups[groupIndex][field] = index;
   });
@@ -1768,45 +1814,69 @@ function normalizeUrl(value){
   return text;
 }
 
-function parseNamedLinkCell(value, fallbackEn='', fallbackUrl=''){
+function splitNameAndUrl(value){
   const text = String(value || '').trim();
-  if(!text && !fallbackEn && !fallbackUrl)return null;
+  if(!text)return {name:'', url:''};
   const parts = text.split('|').map(part => part.trim()).filter(Boolean);
-  if(parts.length >= 3)return {zh:cleanListName(parts[0]), en:cleanListName(parts[1]), url:normalizeUrl(parts.slice(2).join(' | '))};
-  if(parts.length === 2){
-    if(/^(https?:\/\/|www\.)/i.test(parts[1]))return {zh:cleanListName(parts[0]), en:cleanListName(fallbackEn), url:normalizeUrl(parts[1])};
-    return {zh:cleanListName(parts[0]), en:cleanListName(parts[1]), url:normalizeUrl(fallbackUrl)};
+  const urlIndex = parts.findIndex(part => /^(https?:\/\/|www\.)/i.test(part));
+  if(urlIndex >= 0){
+    const url = normalizeUrl(parts[urlIndex]);
+    const name = parts.filter((_, index) => index !== urlIndex).join(' | ');
+    return {name: cleanListName(name), url};
   }
-  return {zh:cleanListName(text), en:cleanListName(fallbackEn), url:normalizeUrl(fallbackUrl)};
+  return {name: cleanListName(text), url:''};
 }
 
-function parseLinkedItems(zhValue, enValue='', urlValue=''){
+function parseNamedLinkCell(value, fallbackEn='', fallbackUrlZh='', fallbackUrlEn=''){
+  const text = String(value || '').trim();
+  if(!text && !fallbackEn && !fallbackUrlZh && !fallbackUrlEn)return null;
+  const parts = text.split('|').map(part => part.trim()).filter(Boolean);
+  const enParsed = splitNameAndUrl(fallbackEn);
+  if(parts.length >= 4)return {zh:cleanListName(parts[0]), en:cleanListName(parts[1]), url_zh:normalizeUrl(parts[2]), url_en:normalizeUrl(parts.slice(3).join(' | '))};
+  if(parts.length >= 3){
+    const sharedUrl = normalizeUrl(parts.slice(2).join(' | '));
+    return {zh:cleanListName(parts[0]), en:cleanListName(parts[1]), url_zh:sharedUrl, url_en:sharedUrl};
+  }
+  if(parts.length === 2){
+    if(/^(https?:\/\/|www\.)/i.test(parts[1])){
+      const sharedUrl = normalizeUrl(parts[1]);
+      return {zh:cleanListName(parts[0]), en:enParsed.name, url_zh:sharedUrl, url_en:enParsed.url || sharedUrl};
+    }
+    return {zh:cleanListName(parts[0]), en:cleanListName(parts[1]), url_zh:normalizeUrl(fallbackUrlZh), url_en:normalizeUrl(fallbackUrlEn || fallbackUrlZh)};
+  }
+  return {zh:cleanListName(text), en:enParsed.name, url_zh:normalizeUrl(fallbackUrlZh), url_en:normalizeUrl(fallbackUrlEn || enParsed.url || fallbackUrlZh)};
+}
+
+function parseLinkedItems(zhValue, enValue='', urlZhValue='', urlEnValue=''){
   const zhLines = splitCellLines(zhValue);
   const enLines = splitCellLines(enValue);
-  const urlLines = splitCellLines(urlValue);
-  const max = Math.max(zhLines.length, enLines.length, urlLines.length);
+  const urlZhLines = splitCellLines(urlZhValue);
+  const urlEnLines = splitCellLines(urlEnValue);
+  const max = Math.max(zhLines.length, enLines.length, urlZhLines.length, urlEnLines.length);
   const items = [];
   for(let i=0;i<max;i++){
-    const item = parseNamedLinkCell(zhLines[i] || '', enLines[i] || '', urlLines[i] || '');
+    const item = parseNamedLinkCell(zhLines[i] || '', enLines[i] || '', urlZhLines[i] || '', urlEnLines[i] || '');
     if(item)pushUniqueItem(items, item);
   }
   return items;
 }
 
 function pushUniqueItem(arr, item){
-  if(!item || !((item.zh || '').trim() || (item.en || '').trim() || (item.url || '').trim()))return;
+  const normalized = normalizeLinkItem(item);
+  if(!((normalized.zh || '').trim() || (normalized.en || '').trim() || itemUrl(normalized,'zh') || itemUrl(normalized,'en')))return;
   const exists = arr.some(row =>
-    (row.zh || '').trim() === (item.zh || '').trim() &&
-    (row.en || '').trim() === (item.en || '').trim() &&
-    (row.url || '').trim() === (item.url || '').trim()
+    (row.zh || '').trim() === (normalized.zh || '').trim() &&
+    (row.en || '').trim() === (normalized.en || '').trim() &&
+    itemUrl(row,'zh') === itemUrl(normalized,'zh') &&
+    itemUrl(row,'en') === itemUrl(normalized,'en')
   );
-  if(!exists)arr.push(item);
+  if(!exists)arr.push(normalized);
 }
 
 function buildSheetHeaders(zoneSlots, forumSlots){
   const headers = ['No','Icon URL','Title ZH','Title EN','Sub ZH','Sub EN','Trend Intro ZH','Trend Intro EN','Keywords ZH','Keywords EN'];
-  for(let i=1;i<=zoneSlots;i++)headers.push(`Zone${i} ZH`,`Zone${i} EN`,`Zone${i} URL`);
-  for(let i=1;i<=forumSlots;i++)headers.push(`Forum${i} ZH`,`Forum${i} EN`,`Forum${i} URL`);
+  for(let i=1;i<=zoneSlots;i++)headers.push(`Zone${i} ZH`,`Zone${i} EN`,`Zone${i} URL ZH`,`Zone${i} URL EN`);
+  for(let i=1;i<=forumSlots;i++)headers.push(`Forum${i} ZH`,`Forum${i} EN`,`Forum${i} URL ZH`,`Forum${i} URL EN`);
   return headers;
 }
 
@@ -1830,11 +1900,11 @@ function exportSheetBatch(){
     ];
     for(let i=0;i<zoneSlots;i++){
       const item = theme.zones[i] || {};
-      row.push(tsvCell(item.zh), tsvCell(item.en), tsvCell(item.url));
+      row.push(tsvCell(item.zh), tsvCell(item.en), tsvCell(itemUrl(item,'zh')), tsvCell(itemUrl(item,'en')));
     }
     for(let i=0;i<forumSlots;i++){
       const item = theme.forums[i] || {};
-      row.push(tsvCell(item.zh), tsvCell(item.en), tsvCell(item.url));
+      row.push(tsvCell(item.zh), tsvCell(item.en), tsvCell(itemUrl(item,'zh')), tsvCell(itemUrl(item,'en')));
     }
     rows.push(row);
   });
@@ -1982,19 +2052,23 @@ function applyTemplateSheet(rows, headers){
     if(descEnIndex >= 0 && cols[descEnIndex])theme.desc_en = cols[descEnIndex].trim();
     const zones = [];
     zoneGroups.forEach(group => {
+      const sharedUrl = group.url !== undefined ? (cols[group.url] || '').trim() : '';
       const item = {
         zh: group.zh !== undefined ? (cols[group.zh] || '').trim() : '',
         en: group.en !== undefined ? (cols[group.en] || '').trim() : '',
-        url: group.url !== undefined ? (cols[group.url] || '').trim() : ''
+        url_zh: group.url_zh !== undefined ? (cols[group.url_zh] || '').trim() : sharedUrl,
+        url_en: group.url_en !== undefined ? (cols[group.url_en] || '').trim() : sharedUrl
       };
       pushUniqueItem(zones, item);
     });
     const forums = [];
     forumGroups.forEach(group => {
+      const sharedUrl = group.url !== undefined ? (cols[group.url] || '').trim() : '';
       const item = {
         zh: group.zh !== undefined ? (cols[group.zh] || '').trim() : '',
         en: group.en !== undefined ? (cols[group.en] || '').trim() : '',
-        url: group.url !== undefined ? (cols[group.url] || '').trim() : ''
+        url_zh: group.url_zh !== undefined ? (cols[group.url_zh] || '').trim() : sharedUrl,
+        url_en: group.url_en !== undefined ? (cols[group.url_en] || '').trim() : sharedUrl
       };
       pushUniqueItem(forums, item);
     });
@@ -2017,9 +2091,13 @@ function applyGroupedSheet(rows, headers){
   const keywordEnIndex = findHeaderIndex(headers, ['英文關鍵字','keywords en','sub en']);
   const zoneIndex = findHeaderIndex(headers, ['對應專區','zones','zone']);
   const zoneEnIndex = findHeaderIndex(headers, ['英文對應專區','zones en','zone en']);
+  const zoneUrlZhIndex = findHeaderIndex(headers, ['中文對應專區連結','對應專區中文連結','對應專區連結 zh','專區中文連結','zone url zh','zones url zh','zone zh url']);
+  const zoneUrlEnIndex = findHeaderIndex(headers, ['英文對應專區連結','對應專區英文連結','對應專區連結 en','專區英文連結','zone url en','zones url en','zone en url']);
   const zoneUrlIndex = findHeaderIndex(headers, ['對應專區連結','專區連結','zone url','zones url']);
   const forumIndex = findHeaderIndex(headers, ['對應論壇','forums','forum']);
   const forumEnIndex = findHeaderIndex(headers, ['英文對應論壇','forums en','forum en']);
+  const forumUrlZhIndex = findHeaderIndex(headers, ['中文對應論壇連結','對應論壇中文連結','對應論壇連結 zh','論壇中文連結','forum url zh','forums url zh','forum zh url']);
+  const forumUrlEnIndex = findHeaderIndex(headers, ['英文對應論壇連結','對應論壇英文連結','對應論壇連結 en','論壇英文連結','forum url en','forums url en','forum en url']);
   const forumUrlIndex = findHeaderIndex(headers, ['對應論壇連結','論壇連結','forum url','forums url']);
   const iconIndex = findHeaderIndex(headers, ['icon url','icon']);
   let currentThemeIndex = -1;
@@ -2036,9 +2114,13 @@ function applyGroupedSheet(rows, headers){
     const zoneText = cellAt(cols, zoneIndex);
     const zoneEnText = cellAt(cols, zoneEnIndex);
     const zoneUrlText = cellAt(cols, zoneUrlIndex);
+    const zoneUrlZhText = cellAt(cols, zoneUrlZhIndex) || zoneUrlText;
+    const zoneUrlEnText = cellAt(cols, zoneUrlEnIndex) || zoneUrlText;
     const forumText = cellAt(cols, forumIndex);
     const forumEnText = cellAt(cols, forumEnIndex);
     const forumUrlText = cellAt(cols, forumUrlIndex);
+    const forumUrlZhText = cellAt(cols, forumUrlZhIndex) || forumUrlText;
+    const forumUrlEnText = cellAt(cols, forumUrlEnIndex) || forumUrlText;
     const iconText = cellAt(cols, iconIndex);
 
     if(segment && Number.isFinite(parseInt(segment,10)))currentThemeIndex = parseInt(segment,10) - 1;
@@ -2065,11 +2147,11 @@ function applyGroupedSheet(rows, headers){
     if(keyword)theme.sub_zh = keyword;
     if(keywordEn)theme.sub_en = keywordEn;
     if(iconText)theme.icon_url = iconText;
-    parseLinkedItems(zoneText, zoneEnText, zoneUrlText).forEach(item => {
+    parseLinkedItems(zoneText, zoneEnText, zoneUrlZhText, zoneUrlEnText).forEach(item => {
       pushUniqueItem(theme.zones, item);
       theme.showZone = true;
     });
-    parseLinkedItems(forumText, forumEnText, forumUrlText).forEach(item => {
+    parseLinkedItems(forumText, forumEnText, forumUrlZhText, forumUrlEnText).forEach(item => {
       pushUniqueItem(theme.forums, item);
       theme.showForum = true;
     });
@@ -2078,10 +2160,110 @@ function applyGroupedSheet(rows, headers){
   return touched.size;
 }
 
+function cleanImportedText(value){
+  return String(value || '').replace(/\s+/g, ' ').trim();
+}
+
+function parseOutputListItems(col, lang){
+  return Array.from(col.querySelectorAll('.st-d-list li')).map(li => {
+    const anchor = li.querySelector('a');
+    const textEl = anchor || li.querySelector('.st-list-text') || li;
+    const text = cleanImportedText(textEl.textContent);
+    const url = anchor ? anchor.getAttribute('href') || '' : '';
+    if(!text && !url)return null;
+    return lang === 'zh'
+      ? {zh:text, en:'', url_zh:url, url_en:''}
+      : {zh:'', en:text, url_zh:'', url_en:url};
+  }).filter(Boolean);
+}
+
+function detectOutputLang(html, root){
+  if(/Interactive Theme Blocks\s*\|\s*English/i.test(html))return 'en';
+  if(/主題互動區塊\s*\|\s*中文版/i.test(html))return 'zh';
+  const sample = cleanImportedText(root.querySelector('.st-card-title')?.textContent || '');
+  return /[\u4e00-\u9fff]/.test(sample) ? 'zh' : 'en';
+}
+
+function applyExistingHtmlBatch(html){
+  const chunks = String(html || '')
+    .split(/(?=<!--\s*(?:主題互動區塊|Interactive Theme Blocks)\s*\|)/i)
+    .map(chunk => chunk.trim())
+    .filter(Boolean);
+  const sources = chunks.length ? chunks : [html];
+  let updated = 0;
+  sources.forEach(source => {
+    if(!/st-card/.test(source))return;
+    const doc = new DOMParser().parseFromString(source, 'text/html');
+    const lang = detectOutputLang(source, doc);
+    const cards = Array.from(doc.querySelectorAll('.st-card'));
+    cards.forEach((card, index) => {
+      if(index >= themes.length)return;
+      const theme = themes[index];
+      const title = cleanImportedText(card.querySelector('.st-card-title')?.textContent || '');
+      const sub = cleanImportedText(card.querySelector('.st-card-sub')?.textContent || '');
+      const desc = cleanImportedText(card.querySelector('.st-d-desc:not(.st-d-desc-empty)')?.textContent || '');
+      const icon = card.querySelector('.st-card-icon-wrap img')?.getAttribute('src') || '';
+      if(lang === 'zh'){
+        if(title)theme.title_zh = title;
+        if(sub)theme.sub_zh = sub;
+        if(desc)theme.desc_zh = desc;
+      }else{
+        if(title)theme.title_en = title;
+        if(sub)theme.sub_en = sub;
+        if(desc)theme.desc_en = desc;
+      }
+      if(icon)theme.icon_url = icon;
+
+      const cols = Array.from(card.querySelectorAll('.st-d-grid > div'));
+      const zoneItems = cols[0] ? parseOutputListItems(cols[0], lang) : [];
+      const forumItems = cols[1] ? parseOutputListItems(cols[1], lang) : [];
+      if(zoneItems.length){
+        if(lang === 'zh'){
+          theme.zones = [];
+          zoneItems.forEach(item => pushUniqueItem(theme.zones, item));
+        }else{
+          zoneItems.forEach((item, rowIndex) => {
+            if(!theme.zones[rowIndex])theme.zones[rowIndex] = {zh:'',en:'',url_zh:'',url_en:''};
+            theme.zones[rowIndex].en = item.en;
+            theme.zones[rowIndex].url_en = item.url_en;
+          });
+          theme.zones = normalizeLinkItems(theme.zones);
+        }
+        theme.showZone = true;
+      }
+      if(forumItems.length){
+        if(lang === 'zh'){
+          theme.forums = [];
+          forumItems.forEach(item => pushUniqueItem(theme.forums, item));
+        }else{
+          forumItems.forEach((item, rowIndex) => {
+            if(!theme.forums[rowIndex])theme.forums[rowIndex] = {zh:'',en:'',url_zh:'',url_en:''};
+            theme.forums[rowIndex].en = item.en;
+            theme.forums[rowIndex].url_en = item.url_en;
+          });
+          theme.forums = normalizeLinkItems(theme.forums);
+        }
+        theme.showForum = true;
+      }
+      updated++;
+    });
+  });
+  return updated;
+}
+
 function applySheetBatch(){
   const el = document.getElementById('sheetBatchInput');
-  if(!el || !el.value.trim()){alert('請先貼上 Excel / 工作表內容。');return;}
-  const lines = el.value.replace(/\r/g,'').split('\n').filter(line => line.trim() !== '');
+  if(!el || !el.value.trim()){alert('請先貼上 Excel / 工作表內容，或目前已上線的 HTML。');return;}
+  const raw = el.value.trim();
+  if(/<[^>]+class=["'][^"']*st-card/.test(raw) || /<!--\s*(?:主題互動區塊|Interactive Theme Blocks)\s*\|/i.test(raw)){
+    const updated = applyExistingHtmlBatch(raw);
+    renderList();
+    schedulePreview();
+    saveToStorage();
+    alert(`已從既有 HTML 抓回 ${updated} 個主題。`);
+    return;
+  }
+  const lines = raw.replace(/\r/g,'').split('\n').filter(line => line.trim() !== '');
   if(lines.length < 2){alert('至少需要標題列與一筆資料。');return;}
   const headers = lines[0].split('\t');
   const rows = lines.slice(1).map(line => line.split('\t'));
@@ -2117,7 +2299,7 @@ function getWorkState(){
   return {
     schema: WORKFILE_SCHEMA,
     tool: 'Interactive Theme Block Generator',
-    version: 'v4.9.1',
+    version: 'v4.10.1',
     projectName: 'Theme Block Project',
     exportedAt: new Date().toISOString(),
     data: { themes, globals: getGlobals(), selectedThemeIndex }
