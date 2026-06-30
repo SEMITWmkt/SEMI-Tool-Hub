@@ -88,15 +88,41 @@ textarea.inp{resize:vertical}
 /* Legacy restore preview */
 .restore-preview{display:none;margin-top:12px;border:1px solid var(--border);border-radius:8px;background:#fff;overflow:hidden}
 .restore-preview.show{display:block}
-.restore-head{padding:10px 12px;background:#faf8ff;border-bottom:1px solid var(--border);font-size:12px;font-weight:800;color:var(--brand)}
-.restore-grid{display:grid;grid-template-columns:1fr 1fr;gap:0}
-.restore-item{padding:11px 12px;border-right:1px solid #f5f5f7;border-bottom:1px solid #f5f5f7;min-width:0}
-.restore-item:nth-child(2n){border-right:none}
+.restore-head{padding:12px 14px;background:#faf8ff;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
+.restore-title{font-size:12px;font-weight:800;color:var(--brand)}
+.restore-sub{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.5}
+.restore-badges{display:flex;gap:6px;flex-wrap:wrap}
+.restore-badge{font-size:10px;font-weight:800;border-radius:100px;padding:4px 8px;background:#f5f5f7;color:#555;white-space:nowrap}
+.restore-badge.review{background:#fffbeb;color:#92400e;border:1px solid #fde68a}
+.restore-section{padding:12px 14px;border-bottom:1px solid #f5f5f7}
+.restore-section:last-child{border-bottom:none}
+.restore-section-title{font-size:10px;font-weight:800;color:var(--brand);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px}
+.restore-summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.restore-metric{border:1px solid #f0edf9;border-radius:8px;background:#faf8ff;padding:9px 10px}
+.restore-metric-label{font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.restore-metric-value{font-size:18px;font-weight:800;color:#1d1d1f;margin-top:2px}
+.restore-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.restore-item{padding:11px 12px;border:1px solid #f5f5f7;border-radius:8px;min-width:0;background:#fff}
+.restore-item:nth-child(2n){border-right:1px solid #f5f5f7}
 .restore-label{font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
 .restore-value{font-size:12px;color:#333;line-height:1.55;white-space:pre-wrap;word-break:break-word}
-.restore-wide{grid-column:1/-1;border-right:none}
-.restore-warnings{padding:10px 12px;background:#fffbeb;border-top:1px solid #fde68a}
+.restore-wide{grid-column:1/-1}
+.restore-note{font-size:11px;color:#92400e;margin-top:5px;font-weight:700}
+.restore-logo-group{border:1px solid #f0edf9;border-radius:8px;background:#fff;margin-bottom:8px;padding:11px 12px}
+.restore-logo-group:last-child{margin-bottom:0}
+.restore-logo-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap}
+.restore-logo-label{font-size:12px;font-weight:800;color:#1d1d1f}
+.restore-logo-count{font-size:10px;font-weight:800;color:var(--muted);background:#f5f5f7;border-radius:100px;padding:3px 8px;white-space:nowrap}
+.restore-logo-summary{font-size:12px;color:#555;line-height:1.5;margin-top:6px}
+.restore-action-note{font-size:12px;color:#92400e;font-weight:800;margin-top:6px}
+.restore-tech{margin-top:8px}
+.restore-tech summary{font-size:11px;font-weight:800;color:var(--brand);cursor:pointer}
+.restore-tech pre{white-space:pre-wrap;word-break:break-word;font-size:11px;line-height:1.5;background:#f7f7f9;border-radius:6px;padding:8px;margin-top:6px;color:#555}
+.restore-warnings{padding:10px 12px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px}
 .restore-warnings div{font-size:12px;color:#92400e;line-height:1.55;margin:3px 0}
+.restore-not-restored{display:grid;gap:7px}
+.restore-not-restored div{font-size:12px;color:#555;line-height:1.5}
+.restore-not-restored strong{color:#1d1d1f}
 
 /* Draft banner */
 .draft-banner{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:12px 16px;margin-bottom:14px;display:none;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
@@ -207,6 +233,7 @@ textarea.inp{resize:vertical}
   .copy-row{grid-template-columns:1fr}
   .readiness-list{grid-template-columns:1fr}
   .readiness-item{border-right:none;grid-template-columns:82px 1fr}
+  .restore-summary-grid{grid-template-columns:1fr 1fr}
   .restore-grid{grid-template-columns:1fr}
   .restore-item{border-right:none}
   .panel{padding:20px 16px}
@@ -1155,6 +1182,12 @@ function cleanLegacyText(text) {
   return String(text || '').replace(/\s+/g, ' ').trim();
 }
 
+function truncateText(text, maxLength) {
+  const value = String(text || '');
+  if(value.length <= maxLength) return { text: value, truncated: false };
+  return { text: value.slice(0, maxLength).trimEnd() + '...', truncated: true };
+}
+
 function cleanLegacyLabeledText(text, labels) {
   let value = cleanLegacyText(text);
   labels.forEach(label => {
@@ -1183,6 +1216,24 @@ function legacyOutlineToText(outlineEl) {
   return blocks.join('\n\n');
 }
 
+function summarizeLogoSrc(src) {
+  const raw = String(src || '');
+  const preview = truncateText(raw, 80).text;
+  let type = 'unknown';
+  if(/^data:image\//i.test(raw)) {
+    type = 'base64 / data:image';
+  } else if(/^https?:\/\//i.test(raw)) {
+    type = 'external URL';
+  } else if(raw.startsWith('/')) {
+    type = 'relative URL';
+  }
+  return {
+    type,
+    length: raw.length,
+    preview
+  };
+}
+
 function parseLegacyForumHTML(html) {
   const doc = new DOMParser().parseFromString(String(html || ''), 'text/html');
   const themeEl = doc.querySelector('.st26-theme-line, .st26-theme-static');
@@ -1196,14 +1247,10 @@ function parseLegacyForumHTML(html) {
       .filter(Boolean)
   })).filter(row => row.label || row.srcs.length);
   const logoSrcs = logoRows.flatMap(row => row.srcs);
-  const warnings = [
-    '頁面標題可能在 Drupal body HTML 外層，這版不會還原 title。',
-    '票價表不在第一版還原範圍，請回 Step 2 人工確認。',
-    '指導單位、主席與主持人不在第一版還原範圍，請人工確認。'
-  ];
+  const warnings = [];
 
   if(logoSrcs.some(src => /^data:image\//i.test(src))) {
-    warnings.unshift('偵測到 base64 / data:image Logo，建議改用 Drupal file URL。');
+    warnings.push('偵測到 base64 / data:image Logo，建議改用 Drupal file URL。');
   }
   if(!doc.querySelector('.st26')) {
     warnings.push('未偵測到 .st26 外層，請確認貼入的是 Forum HTML Compiler 產生的 body HTML。');
@@ -1235,27 +1282,90 @@ function handleLegacyRestorePreview() {
 function renderLegacyRestorePreview(data) {
   const preview = document.getElementById('legacy-restore-preview');
   if(!preview) return;
+  const detectedFields = [data.theme, data.venue, data.registrationUrl, data.outline].filter(Boolean).length;
+  const logoSections = data.logoRows.length;
+  const totalLogos = data.logoRows.reduce((sum, row) => sum + row.srcs.length, 0);
+  const warningCount = data.warnings.length;
   const field = (label, value, wide) =>
     '<div class="restore-item '+(wide ? 'restore-wide' : '')+'"><div class="restore-label">'+esc(label)+'</div><div class="restore-value">'+esc(value || '—')+'</div></div>';
+  const outlinePreview = truncateText(data.outline, 1000);
+  const outlineText = outlinePreview.text || '—';
+  const metric = (label, value) =>
+    '<div class="restore-metric"><div class="restore-metric-label">'+esc(label)+'</div><div class="restore-metric-value">'+esc(String(value))+'</div></div>';
+  const sourceTypeSummary = (srcs) => {
+    const counts = srcs.reduce((acc, src) => {
+      const type = summarizeLogoSrc(src).type;
+      acc[type] = (acc[type] || 0) + 1;
+      return acc;
+    }, {});
+    return Object.entries(counts).map(([type, count]) =>
+      count + ' ' + type + ' logo' + (count === 1 ? '' : 's')
+    ).join(' · ');
+  };
   const logos = data.logoRows.length
     ? data.logoRows.map(row => {
-      const lines = row.srcs.length ? row.srcs.map(src => '• ' + src).join('\n') : '—';
-      return (row.label || 'Logo section') + '\n' + lines;
-    }).join('\n\n')
-    : '—';
-  const warnings = data.warnings.map(w => '<div>⚠ '+esc(w)+'</div>').join('');
+      const hasBase64 = row.srcs.some(src => /^data:image\//i.test(src));
+      const summaries = row.srcs.map((src, idx) => {
+        const info = summarizeLogoSrc(src);
+        return [
+          'Logo '+(idx + 1)+': '+info.type,
+          'length: '+info.length+' chars',
+          'preview: '+info.preview
+        ].filter(Boolean).join('\n  ');
+      });
+      return '<div class="restore-logo-group">' +
+        '<div class="restore-logo-top">' +
+          '<div class="restore-logo-label">'+esc(row.label || 'Logo section')+'</div>' +
+          '<div class="restore-logo-count">'+row.srcs.length+' logo'+(row.srcs.length === 1 ? '' : 's')+'</div>' +
+        '</div>' +
+        '<div class="restore-logo-summary">'+esc(sourceTypeSummary(row.srcs) || 'No logo source found')+'</div>' +
+        (hasBase64 ? '<div class="restore-action-note">Replace with Drupal file URLs before publishing.</div>' : '') +
+        '<details class="restore-tech"><summary>Show technical details</summary><pre>'+esc(summaries.join('\n\n') || '—')+'</pre></details>' +
+      '</div>';
+    }).join('')
+    : '<div class="restore-logo-group"><div class="restore-logo-summary">No logo sections detected.</div></div>';
+  const warnings = data.warnings.length
+    ? '<div class="restore-warnings">'+data.warnings.map(w => '<div>⚠ '+esc(w)+'</div>').join('')+'</div>'
+    : '<div class="ok-box" style="font-size:12px;margin:0">No restore warnings detected.</div>';
 
   preview.classList.add('show');
   preview.innerHTML =
-    '<div class="restore-head">解析結果（預覽，不會套用到表單）</div>' +
-    '<div class="restore-grid">' +
-      field('Theme', data.theme, false) +
-      field('Venue', data.venue, false) +
-      field('Registration URL', data.registrationUrl, true) +
-      field('Outline', data.outline, true) +
-      field('Logo Sections / Image URLs', logos, true) +
+    '<div class="restore-head">' +
+      '<div><div class="restore-title">Restore Preview</div><div class="restore-sub">Structured review only. Nothing is applied to the form.</div></div>' +
+      '<div class="restore-badges"><span class="restore-badge">Preview only</span><span class="restore-badge review">Needs review</span></div>' +
     '</div>' +
-    '<div class="restore-warnings">'+warnings+'</div>';
+    '<div class="restore-section">' +
+      '<div class="restore-section-title">A. Restore Summary</div>' +
+      '<div class="restore-summary-grid">' +
+        metric('Detected fields', detectedFields) +
+        metric('Logo sections', logoSections) +
+        metric('Total logos', totalLogos) +
+        metric('Warnings', warningCount) +
+      '</div>' +
+    '</div>' +
+    '<div class="restore-section">' +
+      '<div class="restore-section-title">B. Restored Fields</div>' +
+      '<div class="restore-grid">' +
+        field('Theme', data.theme, false) +
+        field('Venue', data.venue, false) +
+        field('Registration URL', data.registrationUrl, true) +
+        field('Outline', outlineText, true) +
+      '</div>' +
+      (outlinePreview.truncated ? '<div class="restore-note">Preview shortened. Full outline remains available in parsed data for later implementation.</div>' : '') +
+    '</div>' +
+    '<div class="restore-section">' +
+      '<div class="restore-section-title">C. Logo Review</div>' +
+      logos +
+      warnings +
+    '</div>' +
+    '<div class="restore-section">' +
+      '<div class="restore-section-title">D. Not Restored in This Version</div>' +
+      '<div class="restore-not-restored">' +
+        '<div><strong>Page title</strong> - may live outside Drupal body HTML.</div>' +
+        '<div><strong>Pricing table</strong> - requires manual confirmation in this version.</div>' +
+        '<div><strong>Chair / Moderator / Advised by</strong> - requires manual confirmation in this version.</div>' +
+      '</div>' +
+    '</div>';
 }
 
 // ─────────────────────────── Handle Parse → Step 2 ───────────────────────────
