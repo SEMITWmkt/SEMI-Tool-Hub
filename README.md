@@ -38,6 +38,9 @@ The desktop tool folders are treated as source material during migration. The Hu
 |---|---|
 | [Product Brief](docs/product-brief.md) | Product framing for problem statement, personas, user story, flow, scope, criteria, metrics, risks, and roadmap. |
 | [Product Principles](docs/product-principles.md) | Decision rules for what to build, avoid, and defer. |
+| [Tool Status](docs/tool-status.md) | Central status map for each integrated tool, including owner thread, known issues, next action, and Drupal QA state. |
+| [Tool Contracts](docs/tool-contracts.md) | Integration contract for each tool: input, output, CSS scope, storage, QA requirement, and risks. |
+| [Drupal QA Checklist](docs/qa/README.md) | Standard QA evidence checklist for backend paste, desktop/mobile frontend review, links, screenshots, and known issues. |
 | [Project State Standard](docs/project-state-standard.md) | Shared Save/Load work file model so recurring updates do not require manual HTML edits. |
 | [Generator UI Standard](docs/generator-ui-standard.md) | Shared shell, labels, and visual direction for all generators. |
 | [Data Resilience Scope](docs/data-resilience-scope.md) | Vendor and sponsor parsing scope for messy source data and fixed publishing output. |
