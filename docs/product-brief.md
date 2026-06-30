@@ -74,7 +74,7 @@ As a SEMICON Taiwan website editor, I want one workbench that guides me to the r
 ## Acceptance Criteria
 
 - Each tool can be launched from the Hub.
-- Forum v9.11 remains available without changing the team’s familiar workflow.
+- Forum v9.13 remains available inside the Hub without changing the team’s familiar workflow.
 - Each tool has a clear purpose statement and publishing responsibility.
 - The Hub does not display fake controls that imply unavailable features.
 - Pavilions v1.1 shows source-data validation before output.

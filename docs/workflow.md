@@ -53,7 +53,20 @@ Every meaningful release should have at least five trial runs:
 - Do not copy `.git/`, `.DS_Store`, backups, or local-only files into Hub.
 - Record integration source and status in `docs/version-map.md`.
 - If Hub differs from a desktop source folder unexpectedly, mark it as drift and decide which version is correct.
+- When syncing an independent tool into Hub, copy the source feature baseline first, then reapply only documented Hub-specific layout or shell adaptations.
+
+## Source Sync Checklist
+
+Use this checklist when an independent tool project has a newer version than the Hub module.
+
+1. Confirm the independent source version and latest meaningful change.
+2. Compare the source tool with the Hub copy before editing.
+3. Sync the feature baseline into `tools/{module}/`.
+4. Reapply only necessary Hub adaptations, such as iframe layout fit or launcher metadata.
+5. Update `README.md`, `docs/version-map.md`, and any launcher version labels.
+6. Smoke test the Hub entry and the direct tool URL.
+7. Record any remaining intentional differences.
 
 ## Current Next Step
 
-Run Hub-level smoke tests after the Pavilions v1.1 integration, then review Forum because its Hub module currently differs from the desktop source folder.
+Run Hub-level smoke tests after source syncs, then continue standardizing work-file controls, publish checks, preview, and copy flows across all generators.

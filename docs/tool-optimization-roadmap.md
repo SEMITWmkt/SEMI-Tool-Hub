@@ -20,6 +20,8 @@ This backlog is ordered by user-facing impact and implementation risk.
 
 3. Forum Generator
    - Add JSON project export/import.
+   - Preserve parsed forum baseline inside the work file.
+   - Show parsed forum review summary before Step 2 editing.
    - Collapse AI settings by default.
    - Add minimum-input mode for simple forum pages.
    - Add Drupal paste checklist on the output step.

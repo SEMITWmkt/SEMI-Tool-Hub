@@ -9,17 +9,19 @@
 
 | 工具 | Hub 路徑 | Hub 內版本 | Source Repo | Source 版本 | 同步狀態 | 備註 |
 |---|---|---|---|---|---|---|
-| Forum HTML Compiler | `tools/forum/index.html` | v9.13 | `Forum HTML Creator` | v9.13 | ✅ 同步 | 最完整，版本概念一致 |
+| Forum HTML Compiler | `tools/forum/index.html` | v9.13 | `Forum HTML Creator` | v9.13 | Hub branch ahead | v9.13 後續新增 pricing / outline 控制，尚未 bump 工具版本 |
 | Sponsors Logo Creator | `tools/sponsors/index.html` | v5.2.1 | `Sponsors Logo HTML Creator` | v5.2.0 | Hub ahead | 強化貼上線上 HTML 還原流程，source repo 待回同步 |
-| Pavilions Vendor Creator | `tools/pavilions/index.html` | v1.1 | `Pavilions Vendor HTML Creator` | v1.1 | ✅ 同步 | 資料驗證 / workfile 方向進行中 |
-| Trend Table Creator | `tools/trends/index.html` | v4.8 | `Trend_Table Creator` | v4.8 | ✅ 同步 | 已修正 Hub 首頁 / workspace metadata / 工具內版本顯示 |
+| Pavilions Vendor Creator | `tools/pavilions/index.html` | v1.1 | `Pavilions Vendor HTML Creator` | v1.1 | Working copy ahead | 本機工作區已調整 CMS source 輸出壓縮，待測試與 commit |
+| Trend Table Creator | `tools/trends/index.html` | v4.11 | `Trend_Table Creator` | v4.11 | Metadata aligned; QA pending | 2026-06-30 confirmed tool file title, UI badge, workfile metadata, Hub card, workspace metadata, and version-map all use `v4.11`. Remaining risk is Drupal QA / output rendering / template QA, not version drift. |
 | Logo Prep Tool | `tools/logo-prep/index.html` | v0.1 | —（無獨立 repo） | v0.1 | ✅ | 輔助工具，不與四大工具同層管理 |
 
 ---
 
 ## 版本漂移待修清單
 
-- [x] **Trend Table Creator**：將 Hub 首頁、workspace metadata、工具內版本號統一為 `v4.8`
+- [x] **Trend Table Creator v4.8**：將 Hub 首頁、workspace metadata、工具內版本號統一為 `v4.8`
+- [x] **Trend Table Creator v4.9**：將 Hub 首頁、workspace metadata、工具內版本號統一為 `v4.9`
+- [x] **Trend Table Creator v4.11**：以 `tools/trends/index.html` 為實際版本來源，已統一 README、Hub 首頁、workspace metadata、工具檔與 version-map。先前 `v4.8` / `v4.10.1` / `v4.9` 漂移已在 metadata 層解決；本次未更動功能。
 
 ---
 
@@ -32,6 +34,10 @@
 | 2026-06-24 | 全部 | — | Baseline 建立 |
 | 2026-06-24 | Trend Table Creator | v4.8 → v4.8 | 修正 Hub 顯示版本漂移，統一首頁、workspace metadata 與工具本體版本 |
 | 2026-06-25 | Sponsors Logo Creator | v5.2.1 → v5.2.1 | 將「貼上既有 HTML」改為線上 HTML 接續工作流，補匯入摘要並保留未來網址抓取入口 |
+| 2026-06-29 | Forum HTML Compiler | v9.13 → v9.13 | 新增手動免費入場、pricing 顯示控制與 outline 格式控制；尚未 bump 版本號 |
+| 2026-06-29 | Trend Table Creator | v4.8 → v4.9 | 強化 grouped sheet 匯入、Excel hyperlink 讀取、展區 / 論壇連結欄位與狀態摘要 |
+| 2026-06-29 | Pavilions Vendor Creator | v1.1 → v1.1 | 本機工作區調整輸出為更適合 CMS source 的壓縮 HTML；待測試與 commit |
+| 2026-06-30 | Trend Table Creator | v4.9 → v4.11 | Metadata-only version drift resolution. `tools/trends/index.html` is the source of truth; README, Hub card, workspace metadata, and version-map now all show `v4.11`. |
 
 ---
 
