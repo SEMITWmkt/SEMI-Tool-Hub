@@ -2045,6 +2045,7 @@ details[open] .st26-theme-line::after{transform:rotate(180deg)}
   .st26-logo-row{display:block;padding:8px 0}
   .st26-logo-label{width:100%;padding-top:0;margin-bottom:6px;font-size:12px}
   .st26-logo-wrap{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;min-height:50px}
+  .st26-logo-wrap.st26-logo-wrap-two{grid-template-columns:repeat(2,minmax(0,1fr))}
   .st26-logo-item{height:50px}
   .st26-partner-org-row{grid-template-columns:1fr;gap:2px}
   .st26-partner-org-role{font-size:12px}
@@ -2273,16 +2274,23 @@ function buildOrgBlock(advisedName, advisedUrl, chairs, mods, lang, partnerMode)
 
 function buildLogoSection(label, logos) {
   if(!logos.length) return '';
-  const imgs = logos.map(l => {
+  const validLogos = logos.map(l => {
     const scale = Math.max(30, Math.min(100, parseInt(l.scale || 80)));
     const maxH = Math.round(54 * (scale / 100));
     const src = safeUrl(l.src, true);
-    if(!src) return '';
+    if(!src) return null;
     const itemClass = l.isCo ? 'st26-logo-item st26-logo-item-wide' : 'st26-logo-item';
-    return `    <span class="${itemClass}" style="--logo-max-w:${scale}%;--logo-max-h:${maxH}px"><img src="${esc(src)}" alt="Logo"></span>`;
-  }).filter(Boolean).join('\n');
+    return {
+      html: `    <span class="${itemClass}" style="--logo-max-w:${scale}%;--logo-max-h:${maxH}px"><img src="${esc(src)}" alt="Logo"></span>`,
+      isCo: l.isCo
+    };
+  }).filter(Boolean);
+  const imgs = validLogos.map(l => l.html).join('\n');
   if(!imgs) return '';
-  return `<div class="st26-logo-row">\n  <div class="st26-logo-label">${esc(label)}</div>\n  <div class="st26-logo-wrap">\n${imgs}\n  </div>\n</div>`;
+  const wrapClass = validLogos.length === 2 && validLogos.every(l => !l.isCo)
+    ? 'st26-logo-wrap st26-logo-wrap-two'
+    : 'st26-logo-wrap';
+  return `<div class="st26-logo-row">\n  <div class="st26-logo-label">${esc(label)}</div>\n  <div class="${wrapClass}">\n${imgs}\n  </div>\n</div>`;
 }
 
 function pCell(v) {
