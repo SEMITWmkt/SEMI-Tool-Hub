@@ -454,6 +454,9 @@ textarea.inp{resize:vertical}
     <div class="hint-box" style="margin-bottom:14px;font-size:12px">
       上傳或貼入圖片 URL 後，系統自動去除多餘白邊並置中。用<strong>拉桿</strong>微調 Logo 在格子內的大小比例。輸出後電腦版一排五個、手機版一排四個；標題與 Logo 採緊湊扁平排版，勾選「聯名 Logo」會佔用兩格寬。
     </div>
+    <div class="warn-box" style="font-size:12px">
+      上線發布建議優先使用 <strong>Drupal file URL</strong>。本機上傳的 Logo 可能會以 <strong>base64 / data:image</strong> 輸出，適合臨時預覽或小圖；長期維護請先將 Logo 上傳至 Drupal file / media library，再把最終圖片 URL 貼回工具。
+    </div>
     <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">主辦單位 Organizer</div>
     <div class="logo-grid" id="logo-org"></div>
     <button class="btn btn-ghost btn-sm" onclick="addLogoCard('logo-org')">＋ 新增 Logo</button>
