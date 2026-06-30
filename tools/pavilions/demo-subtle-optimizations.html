@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pavilions Vendor Card Demo</title>
+    <style>
+        :root {
+            --bg: #f6f4ef;
+            --panel: #fffdf9;
+            --text: #1f2430;
+            --muted: #69707d;
+            --line: #d9d4ca;
+            --purple: #6a43bf;
+            --purple-deep: #5832aa;
+            --purple-soft: #efe8ff;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: "Arial", "Helvetica Neue", Helvetica, sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at top left, #fcfbf7 0, #f6f4ef 42%, #f1ede4 100%);
+        }
+
+        .page {
+            max-width: 1480px;
+            margin: 0 auto;
+            padding: 36px 28px 56px;
+        }
+
+        .hero {
+            margin-bottom: 28px;
+        }
+
+        .hero h1 {
+            margin: 0 0 10px;
+            font-size: 34px;
+            line-height: 1.08;
+        }
+
+        .hero p {
+            margin: 0;
+            max-width: 920px;
+            font-size: 16px;
+            line-height: 1.6;
+            color: var(--muted);
+        }
+
+        .comparison {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 22px;
+        }
+
+        .variant {
+            background: rgba(255, 253, 249, 0.88);
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            padding: 22px;
+            box-shadow: 0 12px 34px rgba(79, 64, 38, 0.08);
+        }
+
+        .variant h2 {
+            margin: 0 0 8px;
+            font-size: 20px;
+        }
+
+        .variant p {
+            margin: 0 0 18px;
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.55;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px 16px;
+        }
+
+        .card-current,
+        .card-proposed {
+            min-width: 0;
+        }
+
+        .card-current {
+            display: flex;
+            align-items: stretch;
+            overflow: hidden;
+            border: 2px solid var(--purple);
+            border-radius: 10px;
+            background: #fff;
+            color: #333;
+            text-decoration: none;
+        }
+
+        .card-current .booth {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 136px;
+            padding: 0 18px;
+            background: var(--purple);
+            color: #fff;
+            font-size: 21px;
+            font-weight: 700;
+            line-height: 1;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        }
+
+        .card-current .name {
+            display: flex;
+            align-items: center;
+            padding: 18px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            line-height: 1.35;
+        }
+
+        .card-proposed {
+            display: grid;
+            grid-template-columns: 132px minmax(0, 1fr);
+            border: 2px solid var(--purple);
+            border-radius: 10px;
+            overflow: hidden;
+            background: #fff;
+        }
+
+        .card-proposed .booth {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 12px 14px;
+            background: linear-gradient(180deg, var(--purple) 0%, var(--purple-deep) 100%);
+            color: #fff;
+        }
+
+        .card-proposed .booth-label {
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            opacity: 0.86;
+            text-transform: uppercase;
+        }
+
+        .card-proposed .booth-code {
+            font-size: 22px;
+            font-weight: 800;
+            line-height: 1;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        }
+
+        .card-proposed .body {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 16px 18px 16px 20px;
+        }
+
+        .card-proposed .company {
+            min-width: 0;
+        }
+
+        .card-proposed .company-name {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 700;
+            line-height: 1.3;
+            color: #23252b;
+        }
+
+        .card-proposed .company-note {
+            margin-top: 6px;
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .card-proposed .link {
+            flex-shrink: 0;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            border: 1px solid #d9cff5;
+            border-radius: 999px;
+            background: var(--purple-soft);
+            color: var(--purple-deep);
+            font-size: 12px;
+            font-weight: 700;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .card-proposed .link.missing {
+            border-color: #e4dfd3;
+            background: #f5f1e8;
+            color: #7d7461;
+            cursor: default;
+            pointer-events: none;
+        }
+
+        .notes {
+            margin-top: 22px;
+            padding-top: 18px;
+            border-top: 1px dashed var(--line);
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 1100px) {
+            .comparison,
+            .cards {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 760px) {
+            .page {
+                padding: 24px 16px 40px;
+            }
+
+            .hero h1 {
+                font-size: 28px;
+            }
+
+            .card-current .booth,
+            .card-proposed {
+                min-width: 0;
+            }
+
+            .card-proposed {
+                grid-template-columns: 110px minmax(0, 1fr);
+            }
+
+            .card-proposed .body {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .card-proposed .company-name {
+                font-size: 17px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="page">
+        <section class="hero">
+            <h1>Pavilions Vendor Card Demo</h1>
+            <p>這份 demo 保留目前的兩欄卡片結構與色塊邏輯，只測試小幅優化。重點是把公司名稱再拉出來，同時把網站改成次要動作，避免整張卡都在暗示點擊。</p>
+        </section>
+
+        <section class="comparison">
+            <article class="variant">
+                <h2>目前版</h2>
+                <p>資訊很乾淨，但整張卡是連結，公司名稱和網站的視覺層級混在一起。若網址不是主要任務，卡片的互動感可以再收斂一點。</p>
+                <div class="cards">
+                    <a class="card-current" href="#">
+                        <span class="booth">K3285</span>
+                        <span class="name">A SUN PHOTONICS CO., LTD.</span>
+                    </a>
+                    <a class="card-current" href="#">
+                        <span class="booth">K3290</span>
+                        <span class="name">AEM Singapore Pte. Ltd.</span>
+                    </a>
+                    <a class="card-current" href="#">
+                        <span class="booth">K3184</span>
+                        <span class="name">AMIDA Technology, Inc.</span>
+                    </a>
+                    <a class="card-current" href="#">
+                        <span class="booth">K2040</span>
+                        <span class="name">ARKTEK CO., LTD.</span>
+                    </a>
+                </div>
+                <div class="notes">適合：不改現行 HTML 結構、快速延續既有版型。</div>
+            </article>
+
+            <article class="variant">
+                <h2>小幅優化版</h2>
+                <p>仍然保留左側攤位色塊和右側公司名稱，只做三件事：公司名稱更醒目、網站降成次要資訊、沒有網址時不再做成可點擊狀態。</p>
+                <div class="cards">
+                    <div class="card-proposed">
+                        <div class="booth">
+                            <div class="booth-label">Booth</div>
+                            <div class="booth-code">K3285</div>
+                        </div>
+                        <div class="body">
+                            <div class="company">
+                                <p class="company-name">A SUN PHOTONICS CO., LTD.</p>
+                                <div class="company-note">Testing Pavilion exhibitor</div>
+                            </div>
+                            <a class="link" href="https://example.com" target="_blank" rel="noopener noreferrer">Website</a>
+                        </div>
+                    </div>
+                    <div class="card-proposed">
+                        <div class="booth">
+                            <div class="booth-label">Booth</div>
+                            <div class="booth-code">K3290</div>
+                        </div>
+                        <div class="body">
+                            <div class="company">
+                                <p class="company-name">AEM Singapore Pte. Ltd.</p>
+                                <div class="company-note">Testing Pavilion exhibitor</div>
+                            </div>
+                            <a class="link" href="https://example.com" target="_blank" rel="noopener noreferrer">Website</a>
+                        </div>
+                    </div>
+                    <div class="card-proposed">
+                        <div class="booth">
+                            <div class="booth-label">Booth</div>
+                            <div class="booth-code">K3184</div>
+                        </div>
+                        <div class="body">
+                            <div class="company">
+                                <p class="company-name">AMIDA Technology, Inc.</p>
+                                <div class="company-note">Testing Pavilion exhibitor</div>
+                            </div>
+                            <span class="link missing">No website</span>
+                        </div>
+                    </div>
+                    <div class="card-proposed">
+                        <div class="booth">
+                            <div class="booth-label">Booth</div>
+                            <div class="booth-code">K2040</div>
+                        </div>
+                        <div class="body">
+                            <div class="company">
+                                <p class="company-name">ARKTEK CO., LTD.</p>
+                                <div class="company-note">Testing Pavilion exhibitor</div>
+                            </div>
+                            <a class="link" href="https://example.com" target="_blank" rel="noopener noreferrer">Website</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="notes">適合：保留現有骨架，但把「公司名稱 + 攤位」拉成主視覺，網站降成補充動作。</div>
+            </article>
+        </section>
+    </main>
+</body>
+</html>

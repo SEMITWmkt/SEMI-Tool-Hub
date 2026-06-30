@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trend Table Layout Demos</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&display=swap');
+
+:root{
+  --bg:#f5f4f7;
+  --panel:#ffffff;
+  --text:#1d1d1f;
+  --muted:#6e6e73;
+  --line:rgba(0,0,0,.1);
+  --purple:#800080;
+  --purple-soft:#f5eef5;
+  --radius:16px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{min-height:100%;}
+body{
+  font-family:'DM Sans','PingFang TC','Microsoft JhengHei',Arial,sans-serif;
+  background:linear-gradient(180deg,#faf9fb 0%,#f2f0f5 100%);
+  color:var(--text);
+}
+
+.page{
+  max-width:1680px;
+  margin:0 auto;
+  padding:32px 24px 80px;
+}
+
+.hero{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  gap:20px;
+  margin-bottom:24px;
+}
+
+.hero-copy h1{
+  font-size:clamp(28px,3vw,42px);
+  line-height:1.05;
+  letter-spacing:0;
+  margin-bottom:8px;
+}
+
+.hero-copy p{
+  color:var(--muted);
+  font-size:15px;
+  line-height:1.65;
+  max-width:760px;
+}
+
+.toolbar{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:10px;
+  margin-bottom:24px;
+}
+
+.lang-toggle{
+  display:inline-flex;
+  padding:4px;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:999px;
+  box-shadow:0 8px 24px rgba(0,0,0,.04);
+}
+
+.lang-toggle button,
+.jump-links a{
+  font:inherit;
+}
+
+.lang-toggle button{
+  border:none;
+  background:transparent;
+  color:var(--muted);
+  cursor:pointer;
+  padding:9px 16px;
+  border-radius:999px;
+  font-size:13px;
+  font-weight:700;
+  transition:all .18s ease;
+}
+
+.lang-toggle button.active{
+  background:var(--purple);
+  color:#fff;
+}
+
+.hint{
+  color:var(--muted);
+  font-size:12px;
+}
+
+.jump-links{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+
+.jump-links a{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:8px 12px;
+  background:#fff;
+  color:var(--text);
+  text-decoration:none;
+  border:1px solid var(--line);
+  border-radius:999px;
+  font-size:12px;
+  font-weight:700;
+  transition:all .18s ease;
+}
+
+.jump-links a:hover{
+  border-color:rgba(128,0,128,.25);
+  color:var(--purple);
+}
+
+.demo-section{
+  background:rgba(255,255,255,.72);
+  border:1px solid rgba(255,255,255,.8);
+  box-shadow:0 22px 50px rgba(26,26,31,.07);
+  border-radius:24px;
+  backdrop-filter:blur(16px);
+  padding:22px;
+  margin-bottom:28px;
+}
+
+.demo-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:18px;
+  margin-bottom:18px;
+}
+
+.demo-title{
+  font-size:22px;
+  line-height:1.1;
+  margin-bottom:6px;
+}
+
+.demo-desc{
+  color:var(--muted);
+  font-size:14px;
+  line-height:1.6;
+  max-width:760px;
+}
+
+.demo-specs{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  justify-content:flex-end;
+}
+
+.spec-pill{
+  display:inline-flex;
+  align-items:center;
+  padding:7px 11px;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:999px;
+  color:var(--muted);
+  font-size:11px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.06em;
+  white-space:nowrap;
+}
+
+.demo-shell{
+  border:1px solid var(--line);
+  background:#fff;
+  border-radius:18px;
+  overflow:hidden;
+}
+
+.demo{
+  --cols-desktop:4;
+  --cols-medium:3;
+  --cols-tablet:2;
+  --cols-mobile:1;
+  --card-min:236px;
+  --card-pad-x:18px;
+  --card-pad-top:20px;
+  --card-pad-bottom:46px;
+  --title-min:14px;
+  --title-fluid:1.35vw;
+  --title-max:17px;
+  --sub-size:12px;
+  --icon-size:88px;
+  --icon-right:14px;
+  --icon-bottom:18px;
+  --icon-top:auto;
+  --icon-opacity:.09;
+  --icon-scale:1;
+  --drawer-left:3px;
+  --drawer-pad-x:48px;
+  --drawer-pad-y:40px;
+  --drawer-label-case:uppercase;
+  --drawer-label-spacing:.25em;
+  --drawer-label-size:10px;
+  --title-max-width:100%;
+}
+
+.demo-grid{
+  display:grid;
+  grid-template-columns:repeat(var(--cols-desktop),minmax(0,1fr));
+  gap:1px;
+  background:var(--line);
+}
+
+@media (max-width:1280px){
+  .demo-grid{grid-template-columns:repeat(var(--cols-medium),minmax(0,1fr));}
+}
+
+@media (max-width:860px){
+  .page{padding:24px 16px 64px;}
+  .hero{flex-direction:column;align-items:flex-start;}
+  .demo-head{flex-direction:column;}
+  .demo-specs{justify-content:flex-start;}
+  .demo-grid{grid-template-columns:repeat(var(--cols-tablet),minmax(0,1fr));}
+}
+
+@media (max-width:560px){
+  .demo-grid{grid-template-columns:repeat(var(--cols-mobile),minmax(0,1fr));}
+}
+
+.tt-card{
+  position:relative;
+  min-height:var(--card-min);
+  padding:var(--card-pad-top) var(--card-pad-x) var(--card-pad-bottom);
+  background:#fff;
+  cursor:pointer;
+  overflow:hidden;
+  transition:background .2s ease;
+  outline:none;
+}
+
+.tt-card:hover{
+  background:#fcfbfd;
+}
+
+.tt-card.active{
+  background:#fff;
+}
+
+.tt-num{
+  position:relative;
+  z-index:2;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:64px;
+  height:42px;
+  padding:0 14px;
+  border-radius:10px;
+  background:var(--purple-soft);
+  color:var(--purple);
+  font-size:16px;
+  font-weight:800;
+  margin-bottom:14px;
+}
+
+.tt-title,
+.tt-sub,
+.tt-caret,
+.tt-bar{
+  position:relative;
+  z-index:2;
+}
+
+.tt-title{
+  font-size:clamp(var(--title-min),var(--title-fluid),var(--title-max));
+  line-height:1.14;
+  font-weight:800;
+  max-width:var(--title-max-width);
+  word-break:normal;
+  overflow-wrap:break-word;
+}
+
+.tt-sub{
+  margin-top:8px;
+  color:var(--muted);
+  font-size:var(--sub-size);
+  line-height:1.48;
+}
+
+.tt-sub-term{white-space:nowrap;}
+.tt-sub-sep{white-space:normal;}
+
+.tt-icon{
+  position:absolute;
+  right:var(--icon-right);
+  bottom:var(--icon-bottom);
+  top:var(--icon-top);
+  width:var(--icon-size);
+  height:var(--icon-size);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  opacity:var(--icon-opacity);
+  pointer-events:none;
+  z-index:1;
+  transform:scale(var(--icon-scale));
+  transform-origin:center;
+  transition:opacity .2s ease, transform .2s ease;
+}
+
+.tt-icon img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  object-position:center;
+}
+
+.tt-card:hover .tt-icon,
+.tt-card.active .tt-icon{
+  opacity:calc(var(--icon-opacity) + .04);
+  transform:scale(calc(var(--icon-scale) * 1.03));
+}
+
+.tt-caret{
+  position:absolute;
+  right:16px;
+  bottom:16px;
+  width:14px;
+  height:14px;
+}
+
+.tt-caret svg{
+  width:100%;
+  height:100%;
+  stroke:var(--muted);
+  fill:none;
+  stroke-width:2;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  transition:transform .32s ease, stroke .18s ease;
+}
+
+.tt-card.active .tt-caret svg{
+  transform:rotate(180deg);
+  stroke:var(--purple);
+}
+
+.tt-bar{
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:0;
+  height:2px;
+  background:transparent;
+  transition:background .18s ease;
+}
+
+.tt-card:hover .tt-bar{background:rgba(0,0,0,.12);}
+.tt-card.active .tt-bar{background:var(--purple);}
+
+.tt-drawer{
+  grid-column:1 / -1;
+  background:#fff;
+  overflow:hidden;
+  max-height:0;
+  transition:max-height .44s cubic-bezier(.4,0,.2,1);
+}
+
+.tt-drawer.open{
+  max-height:1080px;
+  border-bottom:1px solid var(--line);
+}
+
+.tt-drawer-inner{
+  position:relative;
+  border-left:var(--drawer-left) solid var(--purple);
+  padding:var(--drawer-pad-y) var(--drawer-pad-x);
+}
+
+.tt-close{
+  position:absolute;
+  top:18px;
+  right:18px;
+  width:30px;
+  height:30px;
+  border:none;
+  border-radius:999px;
+  cursor:pointer;
+  background:rgba(0,0,0,.05);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.tt-close svg{
+  width:12px;
+  height:12px;
+  stroke:var(--text);
+  fill:none;
+  stroke-width:2;
+  stroke-linecap:round;
+}
+
+.tt-close:hover{background:rgba(0,0,0,.1);}
+
+.tt-drawer-header{
+  display:grid;
+  grid-template-columns:2fr 3fr;
+  gap:40px;
+  align-items:start;
+  margin-bottom:32px;
+}
+
+.tt-eye{
+  color:var(--purple);
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.24em;
+  text-transform:uppercase;
+  margin-bottom:10px;
+}
+
+.tt-drawer-title{
+  font-size:clamp(26px,3vw,38px);
+  line-height:1.02;
+  font-weight:800;
+}
+
+.tt-drawer-desc{
+  color:var(--muted);
+  font-size:14px;
+  line-height:1.82;
+  padding-top:8px;
+}
+
+.tt-drawer-grid{
+  display:grid;
+  grid-template-columns:1fr 1.3fr;
+  gap:32px;
+  align-items:start;
+}
+
+.tt-label{
+  display:block;
+  margin-bottom:12px;
+  padding-bottom:8px;
+  border-bottom:1px solid var(--line);
+  color:var(--muted);
+  font-size:var(--drawer-label-size);
+  font-weight:700;
+  letter-spacing:var(--drawer-label-spacing);
+  text-transform:var(--drawer-label-case);
+}
+
+.tt-list{
+  list-style:none;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+.tt-list li{
+  display:grid;
+  grid-template-columns:10px 1fr;
+  align-items:start;
+  gap:8px;
+  font-size:14px;
+  line-height:1.65;
+}
+
+.tt-marker{
+  width:6px;
+  height:1px;
+  background:var(--purple);
+  margin-top:.85em;
+}
+
+.tt-list a{
+  color:var(--purple);
+  text-decoration:none;
+}
+
+.tt-list a:hover{
+  text-decoration:underline;
+}
+
+.tt-empty{
+  color:var(--muted);
+  font-style:italic;
+  font-size:13px;
+}
+
+@media (max-width:860px){
+  .tt-drawer-inner{
+    padding:28px 20px;
+  }
+  .tt-drawer-header,
+  .tt-drawer-grid{
+    grid-template-columns:1fr;
+    gap:20px;
+  }
+}
+
+.footnote{
+  margin-top:6px;
+  color:var(--muted);
+  font-size:12px;
+}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="hero">
+    <div class="hero-copy">
+      <h1>Trend Table Demo Board</h1>
+      <p id="heroText">先看版型，不先動正式工具。這一頁保留「點擊卡片後展開趨勢內容」的互動，讓我們只專注比較欄數、留白跟 icon 的位置。</p>
+    </div>
+    <div class="jump-links">
+      <a href="#demo-balanced">Demo A</a>
+      <a href="#demo-compact">Demo B</a>
+      <a href="#demo-spacious">Demo C</a>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <div class="lang-toggle" role="tablist" aria-label="Language toggle">
+      <button id="langZh" class="active" type="button">中文</button>
+      <button id="langEn" type="button">English</button>
+    </div>
+    <div id="toolbarHint" class="hint">目前顯示中文。點卡片可以展開內容，方便一起看密度與資訊量。</div>
+  </div>
+
+  <section class="demo-section" id="demo-balanced">
+    <div class="demo-head">
+      <div>
+        <h2 class="demo-title">Demo A | 4 欄平衡版</h2>
+        <p class="demo-desc" id="desc-balanced">這版是我目前最推薦的方向。四欄密度比五欄穩，右下角 icon 只當淡浮水印，不跟標題搶位置，也比較適合中英文一起承受。</p>
+      </div>
+      <div class="demo-specs">
+        <span class="spec-pill">4 cols desktop</span>
+        <span class="spec-pill">watermark icon</span>
+        <span class="spec-pill">recommended baseline</span>
+      </div>
+    </div>
+    <div class="demo-shell">
+      <div class="demo"
+           data-demo="balanced"
+           data-cols-desktop="4"
+           data-cols-medium="3"
+           data-cols-tablet="2"
+           data-cols-mobile="1"
+           data-card-min="242"
+           data-card-pad-x="20"
+           data-card-pad-top="22"
+           data-card-pad-bottom="48"
+           data-title-min="14px"
+           data-title-fluid="1.28vw"
+           data-title-max="18px"
+           data-sub-size="12px"
+           data-icon-size="94"
+           data-icon-right="16"
+           data-icon-bottom="18"
+           data-icon-opacity=".09"
+           data-icon-scale="1"
+           data-title-width="72%">
+        <div class="demo-grid"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo-section" id="demo-compact">
+    <div class="demo-head">
+      <div>
+        <h2 class="demo-title">Demo B | 5 欄緊湊版</h2>
+        <p class="demo-desc" id="desc-compact">這版故意保留五欄，讓我們直接確認「會不會太擠」。icon 更小、更淡，整體會最接近你現在擔心的高密度狀態。</p>
+      </div>
+      <div class="demo-specs">
+        <span class="spec-pill">5 cols desktop</span>
+        <span class="spec-pill">compact density</span>
+        <span class="spec-pill">stress test</span>
+      </div>
+    </div>
+    <div class="demo-shell">
+      <div class="demo"
+           data-demo="compact"
+           data-cols-desktop="5"
+           data-cols-medium="3"
+           data-cols-tablet="2"
+           data-cols-mobile="1"
+           data-card-min="230"
+           data-card-pad-x="18"
+           data-card-pad-top="20"
+           data-card-pad-bottom="46"
+           data-title-min="13px"
+           data-title-fluid="1.15vw"
+           data-title-max="16px"
+           data-sub-size="11.5px"
+           data-icon-size="76"
+           data-icon-right="12"
+           data-icon-bottom="18"
+           data-icon-opacity=".07"
+           data-icon-scale=".98"
+           data-title-width="100%">
+        <div class="demo-grid"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo-section" id="demo-spacious">
+    <div class="demo-head">
+      <div>
+        <h2 class="demo-title">Demo C | 3 欄舒展版</h2>
+        <p class="demo-desc" id="desc-spacious">這版把卡片空間拉開，適合英文標題比較長、論壇資訊比較重的狀況。icon 仍在右下角，但尺寸更大，偏視覺提味的展示方式。</p>
+      </div>
+      <div class="demo-specs">
+        <span class="spec-pill">3 cols desktop</span>
+        <span class="spec-pill">more breathing room</span>
+        <span class="spec-pill">english-friendly</span>
+      </div>
+    </div>
+    <div class="demo-shell">
+      <div class="demo"
+           data-demo="spacious"
+           data-cols-desktop="3"
+           data-cols-medium="2"
+           data-cols-tablet="1"
+           data-cols-mobile="1"
+           data-card-min="264"
+           data-card-pad-x="24"
+           data-card-pad-top="22"
+           data-card-pad-bottom="52"
+           data-title-min="16px"
+           data-title-fluid="1.45vw"
+           data-title-max="22px"
+           data-sub-size="13px"
+           data-icon-size="110"
+           data-icon-right="18"
+           data-icon-bottom="16"
+           data-icon-opacity=".09"
+           data-icon-scale="1.04"
+           data-title-width="68%"
+           data-drawer-pad-x="52"
+           data-drawer-pad-y="42">
+        <div class="demo-grid"></div>
+      </div>
+    </div>
+  </section>
+
+  <p class="footnote" id="footnoteText">註：這裡的趨勢介紹若原資料尚未填寫，會先用示意文補位，目的是讓我們先準確看版型承載能力。</p>
+</div>
+
+<script>
+const ICONS = [
+  '../assets/icons/01-ai-computing.png',
+  '../assets/icons/02-physical-ai.png',
+  '../assets/icons/03-advanced-manufacturing.png',
+  '../assets/icons/04-advanced-packaging.png',
+  '../assets/icons/05-silicon-photonics.png',
+  '../assets/icons/06-hbm.png',
+  '../assets/icons/07-autonomous-fab.png',
+  '../assets/icons/08-strategic-materials.png',
+  '../assets/icons/09-advanced-testing-metrology.png',
+  '../assets/icons/10-quantum.png',
+  '../assets/icons/11-semiconductor-cybersecurity.png',
+  '../assets/icons/12-startup.png',
+  '../assets/icons/13-geostrategy.png',
+  '../assets/icons/14-sustainability.png',
+  '../assets/icons/15-workforce-development.png'
+];
+
+const THEMES = [
+  {icon_url:ICONS[0],title_zh:'AI 算力',title_en:'AI Computing',sub_zh:'AI Accelerator · AI EDA · ASIC',sub_en:'AI Accelerator · AI EDA · ASIC',desc_zh:'',desc_en:'',showZone:true,showForum:true,zones:[{zh:'AI 半導體技術特區',en:'AI Semiconductor Technology Zone',url:''}],forums:[{zh:'AI Computing Forum（AI 算力技術論壇）',en:'AI Computing Forum',url:''},{zh:'IC Forum（先進製程全面 AI 化）',en:'IC Forum — Full AI Integration in Advanced Process',url:''}]},
+  {icon_url:ICONS[1],title_zh:'實體 AI',title_en:'Physical AI',sub_zh:'Robotics · Agentic AI · Digital Twins',sub_en:'Robotics · Agentic AI · Digital Twins',desc_zh:'',desc_en:'',showZone:true,showForum:true,zones:[{zh:'晶圓智造特區',en:'Wafer Intelligence Zone',url:''}],forums:[{zh:'高科技智慧製造論壇',en:'Hi-Tech Smart Manufacturing Forum',url:''},{zh:'微機電暨感測器論壇',en:'MEMS & Sensor Forum',url:''}]},
+  {icon_url:ICONS[2],title_zh:'先進製程',title_en:'Advanced Manufacturing',sub_zh:'2nm GAA · BSPDN · Next-Gen Node',sub_en:'2nm GAA · BSPDN · Next-Gen Node',desc_zh:'',desc_en:'',showZone:false,showForum:true,zones:[],forums:[{zh:'半導體先進製程科技論壇',en:'Semiconductor Advanced Process Technology Forum',url:''},{zh:'策略材料高峰論壇',en:'Strategic Materials Summit',url:''}]},
+  {icon_url:ICONS[3],title_zh:'先進封裝',title_en:'Advanced Packaging',sub_zh:'3DIC · Fan-Out · Chiplet',sub_en:'3DIC · Fan-Out · Chiplet',desc_zh:'',desc_en:'',showZone:true,showForum:true,zones:[{zh:'3DIC 先進封裝專區',en:'3DIC Advanced Packaging Zone',url:''},{zh:'面板級扇出封裝專區',en:'Fan-Out Panel-Level Packaging Zone',url:''},{zh:'小晶片專區',en:'Chiplet Zone',url:''}],forums:[{zh:'異質整合國際高峰論壇系列活動',en:'Heterogeneous Integration Summit Series',url:''},{zh:'3DIC 全球高峰論壇',en:'3DIC Global Summit',url:''}]},
+  {icon_url:ICONS[4],title_zh:'矽光子',title_en:'Silicon Photonics',sub_zh:'CPO · 800G/1.6T · Photonic Computing',sub_en:'CPO · 800G/1.6T · Photonic Computing',desc_zh:'',desc_en:'',showZone:true,showForum:true,zones:[{zh:'矽光子專區',en:'Silicon Photonics Zone',url:''},{zh:'功率暨化合物半導體概念區',en:'Power & Compound Semiconductor Concept Zone',url:''}],forums:[{zh:'矽光子論壇',en:'Silicon Photonics Forum',url:''},{zh:'矽光子國際論壇',en:'Silicon Photonics International Forum',url:''}]},
+  {icon_url:ICONS[5],title_zh:'高頻寬記憶體',title_en:'High Bandwidth Memory',sub_zh:'HBM4 · CXL · 3D DRAM',sub_en:'HBM4 · CXL · 3D DRAM',desc_zh:'',desc_en:'',showZone:false,showForum:true,zones:[],forums:[{zh:'記憶體高峰論壇',en:'Memory Summit',url:''},{zh:'HIGS（HBM4 先進封裝）',en:'HIGS Forum — HBM4 Advanced Packaging',url:''}]},
+  {icon_url:ICONS[6],title_zh:'自主晶圓廠',title_en:'Autonomous Fab',sub_zh:'Lights-out Fab · Digital Twin · AI Fab',sub_en:'Lights-out Fab · Digital Twin · AI Fab',desc_zh:'',desc_en:'',showZone:true,showForum:true,zones:[{zh:'高科技智慧製造特展',en:'Hi-Tech Smart Manufacturing Exhibition',url:''},{zh:'晶圓智造特區',en:'Wafer Intelligence Zone',url:''}],forums:[{zh:'微機電暨感測器論壇',en:'MEMS & Sensor Forum',url:''},{zh:'高科技智慧製造論壇',en:'Hi-Tech Smart Manufacturing Forum',url:''}]},
+  {icon_url:ICONS[7],title_zh:'策略材料',title_en:'Strategic Materials',sub_zh:'SiC · GaN · EUV 光阻',sub_en:'SiC · GaN · EUV Photoresist',desc_zh:'',desc_en:'',showZone:true,showForum:true,zones:[{zh:'化合物半導體概念區',en:'Compound Semiconductor Concept Zone',url:''},{zh:'材料專區',en:'Materials Zone',url:''}],forums:[{zh:'功率暨化合物半導體論壇',en:'Power & Compound Semiconductor Forum',url:''},{zh:'策略材料高峰論壇',en:'Strategic Materials Summit',url:''}]},
+  {icon_url:ICONS[8],title_zh:'測試及量測',title_en:'Advanced Testing & Metrology',sub_zh:'SLT Shift Left · Virtual Metrology',sub_en:'SLT Shift Left · Virtual Metrology',desc_zh:'',desc_en:'',showZone:true,showForum:true,zones:[{zh:'測試專區',en:'Test Zone',url:''}],forums:[{zh:'先進測試論壇',en:'Advanced Test Forum',url:''},{zh:'半導體先進檢測與計量國際論壇',en:'Semiconductor Advanced Inspection & Metrology International Forum',url:''}]},
+  {icon_url:ICONS[9],title_zh:'量子',title_en:'Quantum',sub_zh:'Post-Silicon · Quantum Computing',sub_en:'Post-Silicon · Quantum Computing',desc_zh:'',desc_en:'',showZone:true,showForum:true,zones:[{zh:'量子技術特區',en:'Quantum Technology Zone',url:''}],forums:[{zh:'合作論壇：量子台灣論壇 – 量子電腦',en:'Partner Forum: Quantum Taiwan — Quantum Computing',url:''},{zh:'合作論壇：量子台灣論壇 – 關鍵支援技術生態系',en:'Partner Forum: Quantum Taiwan — Key Support Technology Ecosystem',url:''}]},
+  {icon_url:ICONS[10],title_zh:'半導體資安',title_en:'Semiconductor Cybersecurity',sub_zh:'Hardware Security · Zero Trust · AI Security',sub_en:'Hardware Security · Zero Trust · AI Security',desc_zh:'',desc_en:'',showZone:true,showForum:true,zones:[{zh:'半導體資安專區',en:'Semiconductor Cybersecurity Zone',url:''}],forums:[{zh:'半導體資安趨勢高峰論壇',en:'Semiconductor Cybersecurity Trend Summit',url:''}]},
+  {icon_url:ICONS[11],title_zh:'新創',title_en:'Startup & Innovation',sub_zh:'Chip Startup · Pre-IPO · Investment',sub_en:'Chip Startup · Pre-IPO · Investment',desc_zh:'',desc_en:'',showZone:true,showForum:false,zones:[{zh:'晶片新創特區',en:'Chip Startup Zone',url:''}],forums:[]},
+  {icon_url:ICONS[12],title_zh:'地緣戰略',title_en:'Geostrategy',sub_zh:'Supply Chain · Country Pavilions · Geopolitics',sub_en:'Supply Chain · Country Pavilions · Geopolitics',desc_zh:'',desc_en:'',showZone:true,showForum:true,zones:[{zh:'國家專區（18 國）',en:'Country Pavilions (18 Nations)',url:''}],forums:[{zh:'CEO Forum',en:'CEO Forum',url:''},{zh:'Market Trend Forum',en:'Market Trend Forum',url:''}]},
+  {icon_url:ICONS[13],title_zh:'永續',title_en:'Sustainability',sub_zh:'Net-Zero · ESG · Green Fab',sub_en:'Net-Zero · ESG · Green Fab',desc_zh:'',desc_en:'',showZone:true,showForum:true,zones:[{zh:'綠色製造概念區',en:'Green Manufacturing Concept Zone',url:''},{zh:'智慧能源管理專區',en:'Smart Energy Management Zone',url:''}],forums:[{zh:'半導體永續力國際論壇',en:'Semiconductor Sustainability International Forum',url:''}]},
+  {icon_url:ICONS[14],title_zh:'人才培育',title_en:'Workforce Development',sub_zh:'Education · Emerging Talent · Pipeline',sub_en:'Education · Emerging Talent · Pipeline',desc_zh:'',desc_en:'',showZone:false,showForum:true,zones:[],forums:[{zh:'SEMI 半導體新銳沙龍',en:'SEMI Emerging Talent Salon',url:''},{zh:'SEMI 半導體新銳獎頒獎典禮 & 科技大師論壇',en:'SEMI Emerging Talent Award Ceremony & Tech Master Forum',url:''}]}
+];
+
+const UI_COPY = {
+  zh: {
+    heroText: '先看版型，不先動正式工具。這一頁保留「點擊卡片後展開趨勢內容」的互動，讓我們只專注比較欄數、留白跟 icon 的位置。',
+    toolbarHint: '目前顯示中文。點卡片可以展開內容，方便一起看密度與資訊量。',
+    descBalanced: '這版是我目前最推薦的方向。四欄密度比五欄穩，右下角 icon 只當淡浮水印，不跟標題搶位置，也比較適合中英文一起承受。',
+    descCompact: '這版故意保留五欄，讓我們直接確認「會不會太擠」。icon 更小、更淡，整體會最接近你現在擔心的高密度狀態。',
+    descSpacious: '這版把卡片空間拉開，適合英文標題比較長、論壇資訊比較重的狀況。icon 仍在右下角，但尺寸更大，偏視覺提味的展示方式。',
+    footnoteText: '註：這裡的趨勢介紹若原資料尚未填寫，會先用示意文補位，目的是讓我們先準確看版型承載能力。',
+    drawerPrefix: '主題',
+    zoneLabel: '展區 / 專區',
+    forumLabel: '論壇議題',
+    emptyText: '目前先留空，可在正式資料匯入後補上。',
+    descFallback: theme => `聚焦 ${theme.sub_zh} 等關鍵方向，並可向下延伸至對應專區與論壇，這裡先用來檢查版型對資訊量的承載是否舒服。`
+  },
+  en: {
+    heroText: 'Let’s compare layout directions first without touching the production tool. This page keeps the click-to-expand behavior so we can focus on density, whitespace, and icon placement.',
+    toolbarHint: 'English mode is on. Click any card to expand the content and check spacing, wrapping, and icon balance.',
+    descBalanced: 'This is the direction I currently recommend most. Four columns feel steadier than five, and the icon stays as a subtle lower-right watermark so it does not compete with the title.',
+    descCompact: 'This version intentionally keeps five columns so we can judge whether it really feels too tight. The icon is smaller and lighter, making this the densest stress-test option.',
+    descSpacious: 'This version opens the cards up for longer English titles and heavier forum content. The icon still sits in the lower-right corner, but with a larger visual presence.',
+    footnoteText: 'Note: if a trend intro is still empty in the source data, this demo fills it with placeholder copy so we can evaluate layout capacity first.',
+    drawerPrefix: 'Theme',
+    zoneLabel: 'Exhibition Zones',
+    forumLabel: 'Forum Topics',
+    emptyText: 'Left empty for now and ready for the final data import.',
+    descFallback: theme => `Focuses on ${theme.sub_en} and expands into the related exhibition zones and forums. This placeholder copy is here only to help us judge layout capacity and readability.`
+  }
+};
+
+let currentLang = 'zh';
+
+function esc(value){
+  return String(value || '').replace(/[&<>"']/g, ch => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  })[ch]);
+}
+
+function formatSubline(sub){
+  const text = (sub || '').trim();
+  if(!text) return '';
+  const parts = text.split(/\s*·\s*/).filter(Boolean);
+  if(parts.length <= 1) return esc(text);
+  return parts.map((part, index) => {
+    const sep = index < parts.length - 1 ? '<span class="tt-sub-sep"> · </span>' : '';
+    return `<span class="tt-sub-term">${esc(part)}</span>${sep}`;
+  }).join('');
+}
+
+function buildList(items, lang){
+  const copy = UI_COPY[lang];
+  const rows = (items || []).map(item => {
+    const text = lang === 'zh' ? item.zh : item.en;
+    if(!text) return '';
+    const body = item.url
+      ? `<a href="${esc(item.url)}" target="_blank" rel="noopener">${esc(text)}</a>`
+      : esc(text);
+    return `<li><span class="tt-marker" aria-hidden="true"></span><span>${body}</span></li>`;
+  }).filter(Boolean);
+  return rows.length ? `<ul class="tt-list">${rows.join('')}</ul>` : `<div class="tt-empty">${esc(copy.emptyText)}</div>`;
+}
+
+function getDesc(theme, lang){
+  const text = lang === 'zh' ? theme.desc_zh : theme.desc_en;
+  if((text || '').trim()) return text.trim();
+  return UI_COPY[lang].descFallback(theme);
+}
+
+function buildCard(theme, index, lang){
+  const id = String(index + 1).padStart(2, '0');
+  const title = lang === 'zh' ? theme.title_zh : theme.title_en;
+  const sub = lang === 'zh' ? theme.sub_zh : theme.sub_en;
+  const desc = getDesc(theme, lang);
+  const zoneLabel = UI_COPY[lang].zoneLabel;
+  const forumLabel = UI_COPY[lang].forumLabel;
+  const zoneHtml = theme.showZone ? `<div><span class="tt-label">${esc(zoneLabel)}</span>${buildList(theme.zones, lang)}</div>` : '';
+  const forumHtml = theme.showForum ? `<div><span class="tt-label">${esc(forumLabel)}</span>${buildList(theme.forums, lang)}</div>` : '';
+  const drawerColumns = zoneHtml && forumHtml ? `${zoneHtml}${forumHtml}` : (zoneHtml || forumHtml);
+  const drawerGrid = drawerColumns ? `<div class="tt-drawer-grid">${drawerColumns}</div>` : '';
+  return `
+    <div class="tt-card" tabindex="0" data-index="${index}">
+      <div class="tt-num">${id}</div>
+      <div class="tt-icon"><img src="${esc(theme.icon_url)}" alt="" loading="lazy" onerror="this.parentElement.style.display='none'"></div>
+      <div class="tt-title">${esc(title)}</div>
+      <div class="tt-sub">${formatSubline(sub)}</div>
+      <span class="tt-caret" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>
+      </span>
+      <div class="tt-bar"></div>
+      <template>
+        <div class="tt-drawer-header">
+          <div>
+            <div class="tt-eye">${esc(UI_COPY[lang].drawerPrefix)} ${id}</div>
+            <div class="tt-drawer-title">${esc(title)}</div>
+          </div>
+          <div class="tt-drawer-desc">${esc(desc)}</div>
+        </div>
+        ${drawerGrid}
+      </template>
+    </div>
+  `;
+}
+
+function applyDemoVariables(demo){
+  const map = {
+    colsDesktop: '--cols-desktop',
+    colsMedium: '--cols-medium',
+    colsTablet: '--cols-tablet',
+    colsMobile: '--cols-mobile',
+    cardMin: '--card-min',
+    cardPadX: '--card-pad-x',
+    cardPadTop: '--card-pad-top',
+    cardPadBottom: '--card-pad-bottom',
+    titleMin: '--title-min',
+    titleFluid: '--title-fluid',
+    titleMax: '--title-max',
+    subSize: '--sub-size',
+    iconSize: '--icon-size',
+    iconRight: '--icon-right',
+    iconBottom: '--icon-bottom',
+    iconOpacity: '--icon-opacity',
+    iconScale: '--icon-scale',
+    titleWidth: '--title-max-width',
+    drawerPadX: '--drawer-pad-x',
+    drawerPadY: '--drawer-pad-y'
+  };
+
+  Object.entries(map).forEach(([dataKey, cssVar]) => {
+    const raw = demo.dataset[dataKey];
+    if(!raw) return;
+    const needsPx = ['cardMin','cardPadX','cardPadTop','cardPadBottom','iconSize','iconRight','iconBottom','drawerPadX','drawerPadY'].includes(dataKey);
+    demo.style.setProperty(cssVar, needsPx ? `${raw}px` : raw);
+  });
+}
+
+function initDrawer(grid){
+  const cards = Array.from(grid.querySelectorAll('.tt-card'));
+  const drawer = document.createElement('div');
+  drawer.className = 'tt-drawer';
+  drawer.innerHTML = `
+    <div class="tt-drawer-inner">
+      <button class="tt-close" type="button" aria-label="Close">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+      <div class="tt-drawer-body"></div>
+    </div>
+  `;
+  const drawerBody = drawer.querySelector('.tt-drawer-body');
+  const closeBtn = drawer.querySelector('.tt-close');
+  let activeCard = null;
+
+  function closeDrawer(){
+    drawer.classList.remove('open');
+    if(activeCard) activeCard.classList.remove('active');
+    activeCard = null;
+  }
+
+  function openDrawer(card){
+    const sameCard = activeCard === card;
+    closeDrawer();
+    if(sameCard) return;
+
+    activeCard = card;
+    activeCard.classList.add('active');
+    const tpl = card.querySelector('template');
+    drawerBody.innerHTML = tpl ? tpl.innerHTML : '';
+
+    const firstTop = cards[0] ? cards[0].offsetTop : 0;
+    let cols = 0;
+    for(const c of cards){
+      if(c.offsetTop === firstTop) cols += 1;
+      else break;
+    }
+    if(!cols) cols = 1;
+    const row = Math.floor(cards.indexOf(card) / cols);
+    const lastIndex = Math.min((row + 1) * cols - 1, cards.length - 1);
+    grid.insertBefore(drawer, cards[lastIndex].nextSibling);
+
+    requestAnimationFrame(() => {
+      drawer.classList.add('open');
+      drawer.scrollIntoView({behavior:'smooth', block:'nearest'});
+    });
+  }
+
+  cards.forEach(card => {
+    card.addEventListener('click', () => openDrawer(card));
+    card.addEventListener('keydown', event => {
+      if(event.key === 'Enter' || event.key === ' '){
+        event.preventDefault();
+        openDrawer(card);
+      }
+    });
+  });
+
+  closeBtn.addEventListener('click', closeDrawer);
+}
+
+function renderDemos(){
+  const copy = UI_COPY[currentLang];
+  document.documentElement.lang = currentLang === 'zh' ? 'zh-Hant' : 'en';
+  document.getElementById('langZh').classList.toggle('active', currentLang === 'zh');
+  document.getElementById('langEn').classList.toggle('active', currentLang === 'en');
+  document.getElementById('heroText').textContent = copy.heroText;
+  document.getElementById('toolbarHint').textContent = copy.toolbarHint;
+  document.getElementById('desc-balanced').textContent = copy.descBalanced;
+  document.getElementById('desc-compact').textContent = copy.descCompact;
+  document.getElementById('desc-spacious').textContent = copy.descSpacious;
+  document.getElementById('footnoteText').textContent = copy.footnoteText;
+
+  document.querySelectorAll('.demo').forEach(demo => {
+    applyDemoVariables(demo);
+    const grid = demo.querySelector('.demo-grid');
+    grid.innerHTML = THEMES.map((theme, index) => buildCard(theme, index, currentLang)).join('');
+    initDrawer(grid);
+  });
+}
+
+document.getElementById('langZh').addEventListener('click', () => {
+  currentLang = 'zh';
+  renderDemos();
+});
+
+document.getElementById('langEn').addEventListener('click', () => {
+  currentLang = 'en';
+  renderDemos();
+});
+
+renderDemos();
+</script>
+</body>
+</html>

@@ -154,6 +154,21 @@ textarea.inp{resize:vertical}
 .preview-iframe{width:100%;border:1px solid #e5e5ea;border-radius:4px;background:#fff;display:block;box-shadow:0 2px 8px rgba(0,0,0,.05)}
 .preview-iframe.mobile{max-width:375px;height:667px;border-radius:24px;border:8px solid #1d1d1f;box-shadow:0 12px 32px rgba(0,0,0,.2)}
 
+.readiness-panel{border:1px solid var(--border);border-radius:var(--r);background:#fff;margin-bottom:18px;overflow:hidden}
+.readiness-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border);background:#faf8ff;flex-wrap:wrap}
+.readiness-title{font-size:13px;font-weight:800;color:var(--brand)}
+.readiness-sub{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.5}
+.readiness-pill{font-size:11px;font-weight:800;border-radius:100px;padding:5px 10px;background:#f5f5f7;color:#555;white-space:nowrap}
+.readiness-list{display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:1px solid #f5f5f7}
+.readiness-item{display:grid;grid-template-columns:88px 1fr;gap:10px;padding:11px 14px;border-right:1px solid #f5f5f7;border-bottom:1px solid #f5f5f7;align-items:start}
+.readiness-item:nth-child(2n){border-right:none}
+.readiness-status{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;border-radius:100px;padding:4px 7px;text-align:center;white-space:nowrap}
+.readiness-status.ok{background:#edf7e3;color:#2d5a0e}
+.readiness-status.warning{background:#fffbeb;color:#92400e}
+.readiness-status.review{background:#fff0f0;color:var(--err)}
+.readiness-msg{font-size:12px;color:#333;line-height:1.5}
+.readiness-msg strong{display:block;font-size:12px;color:#1d1d1f;margin-bottom:1px}
+
 .copy-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
 .copy-big{padding:18px;border-radius:10px;border:none;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:3px}
 .copy-big .main{font-size:14px;font-weight:800}
@@ -177,6 +192,8 @@ textarea.inp{resize:vertical}
 @media(max-width:640px){
   .grid2{grid-template-columns:1fr}
   .copy-row{grid-template-columns:1fr}
+  .readiness-list{grid-template-columns:1fr}
+  .readiness-item{border-right:none;grid-template-columns:82px 1fr}
   .panel{padding:20px 16px}
   .stepbar{overflow-x:auto}
   .stepbar-item{min-width:80px;font-size:11px}
@@ -437,6 +454,9 @@ textarea.inp{resize:vertical}
     <div class="hint-box" style="margin-bottom:14px;font-size:12px">
       上傳或貼入圖片 URL 後，系統自動去除多餘白邊並置中。用<strong>拉桿</strong>微調 Logo 在格子內的大小比例。輸出後電腦版一排五個、手機版一排四個；標題與 Logo 採緊湊扁平排版，勾選「聯名 Logo」會佔用兩格寬。
     </div>
+    <div class="warn-box" style="font-size:12px">
+      上線發布建議優先使用 <strong>Drupal file URL</strong>。本機上傳的 Logo 可能會以 <strong>base64 / data:image</strong> 輸出，適合臨時預覽或小圖；長期維護請先將 Logo 上傳至 Drupal file / media library，再把最終圖片 URL 貼回工具。
+    </div>
     <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">主辦單位 Organizer</div>
     <div class="logo-grid" id="logo-org"></div>
     <button class="btn btn-ghost btn-sm" onclick="addLogoCard('logo-org')">＋ 新增 Logo</button>
@@ -554,6 +574,17 @@ textarea.inp{resize:vertical}
     <div class="preview-cont">
       <iframe id="preview-frame" class="preview-iframe" style="min-height:400px"></iframe>
     </div>
+  </div>
+
+  <div class="readiness-panel" id="readiness-panel">
+    <div class="readiness-head">
+      <div>
+        <div class="readiness-title">發布前檢查 Drupal Readiness Check</div>
+        <div class="readiness-sub">此區只提示上架風險，不會阻擋複製，也不會改變輸出的 HTML。</div>
+      </div>
+      <div class="readiness-pill" id="readiness-summary">Not checked</div>
+    </div>
+    <div class="readiness-list" id="readiness-list"></div>
   </div>
 
   <div class="copy-row">
@@ -1167,6 +1198,7 @@ function handleGenerate() {
   enHTML = buildFullHTML('en');
   document.getElementById('code-zh').value = zhHTML;
   document.getElementById('code-en').value = enHTML;
+  updateReadinessCheck();
 
   const alreadyOnStep3 = document.getElementById('panel-3').classList.contains('active');
   if(alreadyOnStep3) {
@@ -1186,6 +1218,101 @@ function handleGenerate() {
     goStep(3);
     updatePreview('zh');
   }
+}
+
+function updateReadinessCheck() {
+  const list = document.getElementById('readiness-list');
+  const summary = document.getElementById('readiness-summary');
+  if(!list || !summary) return;
+
+  const allLogos = ['logo-org','logo-coorg','logo-sponsor'].flatMap(getLogos);
+  const hasDataLogo = allLogos.some(l => /^data:image\//i.test(l.src || l.origSrc || '')) ||
+    /data:image\//i.test(zhHTML + enHTML);
+  const zhTitle = getVal('name-zh');
+  const enTitle = getVal('name-en');
+  const zhTheme = getVal('theme-zh');
+  const enTheme = getVal('theme-en');
+  const zhVenue = getVal('venue-zh');
+  const enVenue = getVal('venue-en');
+  const zhReg = safeUrl(getVal('reg-url-zh'));
+  const enReg = safeUrl(getVal('reg-url-en'));
+  const pricingEnabled = shouldShowPricingTable() && !isFreeAdmission();
+  const priceValues = selectedForum?.prices ? Object.values(selectedForum.prices) : [];
+  const hasPricingData = !!(selectedForum?.hasPrices && priceValues.some(v => v !== null));
+  const hasMissingPrice = pricingEnabled && (!hasPricingData || priceValues.some(v => v === null));
+  const hasDetailsTheme = /<details class="st26-details">/.test(zhHTML + enHTML);
+
+  const checks = [
+    {
+      title: 'Logo 圖片來源',
+      state: hasDataLogo ? 'review' : 'ok',
+      text: hasDataLogo
+        ? '偵測到 base64 / data:image Logo。貼入 Drupal 前請確認後台允許並可正常儲存。'
+        : '未偵測到 base64 Logo，圖片來源較適合長期維護。'
+    },
+    {
+      title: '中文報名連結',
+      state: zhReg ? 'ok' : 'warning',
+      text: zhReg ? '中文版 CTA 有有效連結。' : '中文版報名連結尚未填寫或格式無效。'
+    },
+    {
+      title: '英文報名連結',
+      state: enReg ? 'ok' : 'warning',
+      text: enReg ? '英文版 CTA 有有效連結。' : '英文版報名連結尚未填寫或格式無效。'
+    },
+    {
+      title: '中文標題 / 主題',
+      state: zhTitle && zhTheme ? 'ok' : 'warning',
+      text: zhTitle && zhTheme ? '中文場次名稱與主題皆已填寫。' : '中文場次名稱或中文主題缺少內容。'
+    },
+    {
+      title: '英文標題 / 主題',
+      state: enTitle && enTheme ? 'ok' : 'warning',
+      text: enTitle && enTheme ? '英文場次名稱與主題皆已填寫。' : '英文場次名稱或英文主題缺少內容。'
+    },
+    {
+      title: '中文場地',
+      state: zhVenue ? 'ok' : 'warning',
+      text: zhVenue ? '中文場地已填寫。' : '中文場地尚未填寫，前台地點顯示可能不完整。'
+    },
+    {
+      title: '英文場地',
+      state: enVenue ? 'ok' : 'warning',
+      text: enVenue ? '英文場地已填寫。' : '英文場地尚未填寫，英文頁地點可能缺漏。'
+    },
+    {
+      title: '票價資料',
+      state: !pricingEnabled || !hasMissingPrice ? 'ok' : 'review',
+      text: !pricingEnabled
+        ? '票價表未啟用或免費參加，不需檢查票價表。'
+        : hasMissingPrice
+          ? '票價表已啟用，但部分價格資料缺漏，發布前請人工確認。'
+          : '票價表已啟用且有可輸出的票價資料。'
+    },
+    {
+      title: '主題展開區塊',
+      state: hasDetailsTheme ? 'review' : 'ok',
+      text: hasDetailsTheme
+        ? '輸出包含 details / summary 互動區塊，請在 Drupal 前台測試展開行為。'
+        : '未偵測到 details / summary 主題互動區塊。'
+    }
+  ];
+
+  const stateLabel = { ok:'OK', warning:'Warning', review:'Needs review' };
+  list.innerHTML = checks.map(c =>
+    '<div class="readiness-item">' +
+      '<div class="readiness-status '+c.state+'">'+stateLabel[c.state]+'</div>' +
+      '<div class="readiness-msg"><strong>'+esc(c.title)+'</strong>'+esc(c.text)+'</div>' +
+    '</div>'
+  ).join('');
+
+  const reviewCount = checks.filter(c => c.state === 'review').length;
+  const warningCount = checks.filter(c => c.state === 'warning').length;
+  summary.textContent = reviewCount
+    ? 'Needs review · '+reviewCount+' item'+(reviewCount > 1 ? 's' : '')
+    : warningCount
+      ? 'Warning · '+warningCount+' item'+(warningCount > 1 ? 's' : '')
+      : 'OK · ready to copy';
 }
 
 function switchLang(lang, btn) {
@@ -1918,6 +2045,7 @@ details[open] .st26-theme-line::after{transform:rotate(180deg)}
   .st26-logo-row{display:block;padding:8px 0}
   .st26-logo-label{width:100%;padding-top:0;margin-bottom:6px;font-size:12px}
   .st26-logo-wrap{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;min-height:50px}
+  .st26-logo-wrap.st26-logo-wrap-two{grid-template-columns:repeat(2,minmax(0,1fr))}
   .st26-logo-item{height:50px}
   .st26-partner-org-row{grid-template-columns:1fr;gap:2px}
   .st26-partner-org-role{font-size:12px}
@@ -2146,16 +2274,23 @@ function buildOrgBlock(advisedName, advisedUrl, chairs, mods, lang, partnerMode)
 
 function buildLogoSection(label, logos) {
   if(!logos.length) return '';
-  const imgs = logos.map(l => {
+  const validLogos = logos.map(l => {
     const scale = Math.max(30, Math.min(100, parseInt(l.scale || 80)));
     const maxH = Math.round(54 * (scale / 100));
     const src = safeUrl(l.src, true);
-    if(!src) return '';
+    if(!src) return null;
     const itemClass = l.isCo ? 'st26-logo-item st26-logo-item-wide' : 'st26-logo-item';
-    return `    <span class="${itemClass}" style="--logo-max-w:${scale}%;--logo-max-h:${maxH}px"><img src="${esc(src)}" alt="Logo"></span>`;
-  }).filter(Boolean).join('\n');
+    return {
+      html: `    <span class="${itemClass}" style="--logo-max-w:${scale}%;--logo-max-h:${maxH}px"><img src="${esc(src)}" alt="Logo"></span>`,
+      isCo: l.isCo
+    };
+  }).filter(Boolean);
+  const imgs = validLogos.map(l => l.html).join('\n');
   if(!imgs) return '';
-  return `<div class="st26-logo-row">\n  <div class="st26-logo-label">${esc(label)}</div>\n  <div class="st26-logo-wrap">\n${imgs}\n  </div>\n</div>`;
+  const wrapClass = validLogos.length === 2 && validLogos.every(l => !l.isCo)
+    ? 'st26-logo-wrap st26-logo-wrap-two'
+    : 'st26-logo-wrap';
+  return `<div class="st26-logo-row">\n  <div class="st26-logo-label">${esc(label)}</div>\n  <div class="${wrapClass}">\n${imgs}\n  </div>\n</div>`;
 }
 
 function pCell(v) {

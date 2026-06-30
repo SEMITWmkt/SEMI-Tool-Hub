@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>主題互動區塊產生器 v4.10.1</title>
+<title>主題互動區塊產生器 v4.11</title>
 <style>
 :root{
   --pu:#800080;--pu-light:#f5eef5;--pu-mid:#ddc0dd;
@@ -372,6 +372,27 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 .link-table-empty{border:1px dashed var(--bd);border-radius:var(--r-sm);padding:10px;color:var(--gray);font-size:11px;background:#fafafa;}
 .link-table-actions{display:flex;justify-content:space-between;gap:8px;margin-top:8px;align-items:center;flex-wrap:wrap;}
 .link-table-hint{font-size:10px;color:var(--gray);line-height:1.45;}
+.group-stack{display:flex;flex-direction:column;gap:12px;}
+.content-group{border:1px solid var(--bd);border-radius:8px;background:#fff;overflow:hidden;}
+.content-group summary{list-style:none;cursor:pointer;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;background:#fcfbfd;}
+.content-group summary::-webkit-details-marker{display:none;}
+.content-group summary::before{content:'›';font-size:16px;line-height:1;color:var(--pu);transition:transform .16s ease;}
+.content-group[open] summary::before{transform:rotate(90deg);}
+.content-group-summary{display:flex;align-items:center;gap:10px;min-width:0;flex:1;}
+.content-group-summary-copy{min-width:0;display:flex;flex-direction:column;gap:2px;}
+.content-group-summary-title{font-size:12px;font-weight:800;color:var(--text);line-height:1.3;word-break:break-word;}
+.content-group-summary-sub{font-size:10px;color:var(--gray);line-height:1.35;}
+.content-group-summary-meta{display:flex;flex-wrap:wrap;gap:6px;}
+.content-group-panel{padding:0 12px 12px;display:flex;flex-direction:column;gap:12px;}
+.content-group-head{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;gap:8px;align-items:end;}
+.content-group-head label{display:flex;flex-direction:column;gap:4px;font-size:10px;color:var(--gray);text-transform:uppercase;letter-spacing:.8px;font-weight:700;}
+.content-group-head input{width:100%;border:1px solid #ddd;border-radius:var(--r-sm);padding:7px 9px;font-size:12px;font-family:inherit;outline:none;background:#fff;}
+.content-group-head input:focus{border-color:var(--pu);}
+.content-group-remove{border:1px solid #f0c6cc;background:#fff;color:var(--danger);border-radius:var(--r-sm);height:31px;padding:0 10px;cursor:pointer;font-weight:800;}
+.content-group-remove:hover{background:#fff4f5;}
+.content-group-body{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.content-group-section-title{font-size:11px;font-weight:800;color:var(--text);margin-bottom:8px;}
+.group-actions{display:flex;gap:8px;justify-content:flex-start;flex-wrap:wrap;}
 .detail-note{font-size:10px;color:var(--gray);line-height:1.45;margin-top:5px;}
 .toggle-chip{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--gray);font-weight:500;text-transform:none;letter-spacing:0;}
 .empty-detail{padding:22px;text-align:center;color:var(--gray);font-size:12px;}
@@ -388,6 +409,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   .link-row{grid-template-columns:1fr 1fr;}
   .link-row input.url-input{grid-column:1 / -1;}
   .link-row-remove{grid-column:1 / -1;}
+  .content-group summary{padding:11px 12px;}
+  .content-group-summary{align-items:flex-start;}
+  .content-group-summary-meta{display:none;}
+  .content-group-head{grid-template-columns:1fr;}
+  .content-group-body{grid-template-columns:1fr;}
 }
 
 /* ── MISC ── */
@@ -403,7 +429,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 <header class="app-header">
     <div class="header-brand">
       <h1>主題互動區塊產生器</h1>
-    <span class="version-badge">v4.10.1</span>
+    <span class="version-badge">v4.11</span>
   </div>
   <div class="header-actions">
     <span class="save-indicator" id="saveIndicator"></span>
@@ -671,7 +697,7 @@ let themes = [
 let themeSearchTerm = '';
 let showOnlyIssues = false;
 let selectedThemeIndex = 0;
-let themeListCollapsed = false;
+let themeListCollapsed = true;
 
 // ════════════════════════════════════════════
 // RENDER
@@ -689,12 +715,14 @@ function ensureSelectedTheme(){
 }
 
 function themeSearchText(t,i){
+  const groups = themeGroups(t);
   const rows = []
-    .concat(t.zones || [])
-    .concat(t.forums || [])
+    .concat(groups.flatMap(group => group.zones || []))
+    .concat(groups.flatMap(group => group.forums || []))
     .map(item => `${item.zh || ''} ${item.en || ''} ${item.url || ''} ${item.url_zh || ''} ${item.url_en || ''}`)
     .join(' ');
-  return `${themeLabel(i)} ${t.title_zh || ''} ${t.title_en || ''} ${t.sub_zh || ''} ${t.sub_en || ''} ${t.desc_zh || ''} ${t.desc_en || ''} ${rows}`.toLowerCase();
+  const groupLabels = groups.map(group => `${group.label_zh || ''} ${group.label_en || ''}`).join(' ');
+  return `${themeLabel(i)} ${t.title_zh || ''} ${t.title_en || ''} ${t.sub_zh || ''} ${t.sub_en || ''} ${t.desc_zh || ''} ${t.desc_en || ''} ${groupLabels} ${rows}`.toLowerCase();
 }
 
 function itemUrl(item, lang){
@@ -705,14 +733,30 @@ function itemUrl(item, lang){
   ).trim();
 }
 
+function inferEnglishUrl(url){
+  const value = normalizeUrl(url || '');
+  if(!value)return '';
+  let next = value
+    .replace(/\/zh-tw(?=\/|$)/i, '/en')
+    .replace(/\/zh_tw(?=\/|$)/i, '/en')
+    .replace(/\/zh(?=\/|$)/i, '/en')
+    .replace(/([?&](?:lang|locale)=)zh-tw\b/i, '$1en')
+    .replace(/([?&](?:lang|locale)=)zh_tw\b/i, '$1en')
+    .replace(/([?&](?:lang|locale)=)zh\b/i, '$1en');
+  if(next === value)next = value.replace(/\bzh-tw\b/i, 'en').replace(/\bzh_tw\b/i, 'en').replace(/\bzh\b/i, 'en');
+  return next;
+}
+
 function normalizeLinkItem(item){
   const row = item || {};
   const legacyUrl = (row.url || '').trim();
+  const urlZh = (row.url_zh || legacyUrl || '').trim();
+  const urlEn = (row.url_en || '').trim() || (urlZh ? inferEnglishUrl(urlZh) : legacyUrl);
   return {
     zh: row.zh || '',
     en: row.en || '',
-    url_zh: (row.url_zh || legacyUrl || '').trim(),
-    url_en: (row.url_en || legacyUrl || '').trim()
+    url_zh: urlZh,
+    url_en: urlEn
   };
 }
 
@@ -720,11 +764,74 @@ function normalizeLinkItems(items){
   return (items || []).map(normalizeLinkItem);
 }
 
+function createDefaultGroup(theme){
+  return {
+    label_zh: '',
+    label_en: '',
+    showZone: theme ? theme.showZone !== false : true,
+    showForum: theme ? theme.showForum !== false : true,
+    zones: normalizeLinkItems(theme ? theme.zones : []),
+    forums: normalizeLinkItems(theme ? theme.forums : [])
+  };
+}
+
+function normalizeGroup(group){
+  const row = group || {};
+  return {
+    label_zh: row.label_zh || row.zh || row.title_zh || '',
+    label_en: row.label_en || row.en || row.title_en || '',
+    showZone: row.showZone !== false,
+    showForum: row.showForum !== false,
+    zones: normalizeLinkItems(row.zones || []),
+    forums: normalizeLinkItems(row.forums || [])
+  };
+}
+
+function normalizeTheme(theme){
+  if(!theme)return theme;
+  if(Array.isArray(theme.groups) && theme.groups.length){
+    theme.groups = theme.groups.map(normalizeGroup);
+    if((theme.title_zh === '策略材料' || theme.title_en === 'Strategic Materials') && theme.groups.length === 1 && !theme.groups[0].label_zh && !theme.groups[0].label_en && theme.groups[0].zones.length > 1 && theme.groups[0].forums.length > 1){
+      const zones = theme.groups[0].zones;
+      const forums = theme.groups[0].forums;
+      theme.groups = [
+        {label_zh:'化合物半導體',label_en:'Compound Semiconductor',showZone:true,showForum:true,zones:zones.slice(0,1),forums:forums.slice(0,1)},
+        {label_zh:'材料',label_en:'Materials',showZone:true,showForum:true,zones:zones.slice(1),forums:forums.slice(1)}
+      ].map(normalizeGroup);
+    }
+  }else if((theme.title_zh === '策略材料' || theme.title_en === 'Strategic Materials') && (theme.zones || []).length > 1 && (theme.forums || []).length > 1){
+    const zones = normalizeLinkItems(theme.zones);
+    const forums = normalizeLinkItems(theme.forums);
+    theme.groups = [
+      {label_zh:'化合物半導體',label_en:'Compound Semiconductor',showZone:true,showForum:true,zones:zones.slice(0,1),forums:forums.slice(0,1)},
+      {label_zh:'材料',label_en:'Materials',showZone:true,showForum:true,zones:zones.slice(1),forums:forums.slice(1)}
+    ].map(normalizeGroup);
+  }else{
+    theme.groups = [createDefaultGroup(theme)];
+  }
+  theme.zones = normalizeLinkItems(theme.groups.flatMap(group => group.zones || []));
+  theme.forums = normalizeLinkItems(theme.groups.flatMap(group => group.forums || []));
+  theme.showZone = theme.groups.some(group => group.showZone && (group.zones || []).length);
+  theme.showForum = theme.groups.some(group => group.showForum && (group.forums || []).length);
+  return theme;
+}
+
 function normalizeThemeLinks(){
   themes.forEach(theme => {
-    theme.zones = normalizeLinkItems(theme.zones);
-    theme.forums = normalizeLinkItems(theme.forums);
+    normalizeTheme(theme);
   });
+}
+
+function themeGroups(theme){
+  return normalizeTheme(theme).groups || [];
+}
+
+function themeZones(theme){
+  return themeGroups(theme).flatMap(group => group.zones || []);
+}
+
+function themeForums(theme){
+  return themeGroups(theme).flatMap(group => group.forums || []);
 }
 
 function addIssue(issues, themeIndex, message, meta, severity='error'){
@@ -732,28 +839,75 @@ function addIssue(issues, themeIndex, message, meta, severity='error'){
 }
 
 function checkContentRows(issues, t, themeIndex, key, label){
-  const rows = t[key] || [];
-  if(t[key === 'zones' ? 'showZone' : 'showForum'] && rows.length === 0){
-    addIssue(issues, themeIndex, `${label}已顯示，但沒有資料列`, label, 'warn');
-  }
-  rows.forEach((item,j)=>{
-    const rowMeta = `${label} ${j+1}`;
-    const zhUrl = itemUrl(item, 'zh');
-    const enUrl = itemUrl(item, 'en');
-    const hasAny = !!((item.zh || '').trim() || (item.en || '').trim() || zhUrl || enUrl);
-    if(!hasAny){
-      addIssue(issues, themeIndex, `${rowMeta} 是空白列`, rowMeta);
-      return;
+  const groups = themeGroups(t);
+  groups.forEach((group, groupIndex)=>{
+    const rows = group[key] || [];
+    const groupName = group.label_zh || group.label_en || (groups.length > 1 ? `群組 ${groupIndex + 1}` : '');
+    const rowPrefix = groupName ? `${groupName} - ${label}` : label;
+    if(group[key === 'zones' ? 'showZone' : 'showForum'] && rows.length === 0){
+      addIssue(issues, themeIndex, `${rowPrefix}已顯示，但沒有資料列`, rowPrefix, 'warn');
     }
-    if(!(item.zh || '').trim())addIssue(issues, themeIndex, `${rowMeta} 缺中文名稱`, rowMeta);
-    if(!(item.en || '').trim())addIssue(issues, themeIndex, `${rowMeta} 缺英文名稱`, rowMeta);
-    if((item.zh || '').trim() && !zhUrl){
-      addIssue(issues, themeIndex, `${rowMeta} 缺中文 URL`, rowMeta);
-    }
-    if((item.en || '').trim() && !enUrl){
-      addIssue(issues, themeIndex, `${rowMeta} 缺英文 URL`, rowMeta);
-    }
+    rows.forEach((item,j)=>{
+      const rowMeta = `${rowPrefix} ${j+1}`;
+      const zhUrl = itemUrl(item, 'zh');
+      const enUrl = itemUrl(item, 'en');
+      const hasAny = !!((item.zh || '').trim() || (item.en || '').trim() || zhUrl || enUrl);
+      if(!hasAny){
+        addIssue(issues, themeIndex, `${rowMeta} 是空白列`, rowMeta);
+        return;
+      }
+      if(!(item.zh || '').trim())addIssue(issues, themeIndex, `${rowMeta} 缺中文名稱`, rowMeta);
+      if(!(item.en || '').trim())addIssue(issues, themeIndex, `${rowMeta} 缺英文名稱`, rowMeta);
+      if((item.zh || '').trim() && !zhUrl){
+        addIssue(issues, themeIndex, `${rowMeta} 缺中文 URL`, rowMeta);
+      }
+      if((item.en || '').trim() && !enUrl){
+        addIssue(issues, themeIndex, `${rowMeta} 缺英文 URL`, rowMeta);
+      }
+    });
   });
+}
+
+function syncLegacyLinkFields(theme){
+  normalizeTheme(theme);
+}
+
+function linkCount(theme, key){
+  return themeGroups(theme).reduce((sum, group) => sum + ((group[key] || []).length), 0);
+}
+
+function activeGroupCount(theme){
+  return themeGroups(theme).filter(group =>
+    (group.zones || []).length || (group.forums || []).length || group.label_zh || group.label_en
+  ).length;
+}
+
+function ensureGroup(themeIndex, groupIndex){
+  const theme = themes[themeIndex];
+  normalizeTheme(theme);
+  while(theme.groups.length <= groupIndex){
+    theme.groups.push(createDefaultGroup({showZone:true,showForum:true,zones:[],forums:[]}));
+  }
+  return theme.groups[groupIndex];
+}
+
+function replaceThemeLinks(theme, zones, forums){
+  theme.groups = [{
+    label_zh: '',
+    label_en: '',
+    showZone: Array.isArray(zones) ? zones.length > 0 : theme.showZone !== false,
+    showForum: Array.isArray(forums) ? forums.length > 0 : theme.showForum !== false,
+    zones: Array.isArray(zones) ? normalizeLinkItems(zones) : themeZones(theme),
+    forums: Array.isArray(forums) ? normalizeLinkItems(forums) : themeForums(theme)
+  }];
+  syncLegacyLinkFields(theme);
+}
+
+function replaceThemeGroups(theme, groups){
+  if(!Array.isArray(groups) || !groups.length)return false;
+  theme.groups = groups.map(normalizeGroup);
+  syncLegacyLinkFields(theme);
+  return true;
 }
 
 function getPublishIssues(){
@@ -1015,10 +1169,12 @@ function applyIconBatch(){
 }
 
 function renderThemeSummary(t,i,issueCount){
+  normalizeTheme(t);
   const meta = [];
   if((t.sub_zh || '').trim())meta.push(`<span class="meta-pill">${esc(t.sub_zh)}</span>`);
-  meta.push(`<span class="meta-pill">展區 ${t.zones.length}</span>`);
-  meta.push(`<span class="meta-pill">論壇 ${t.forums.length}</span>`);
+  meta.push(`<span class="meta-pill">群組 ${activeGroupCount(t)}</span>`);
+  meta.push(`<span class="meta-pill">展區 ${linkCount(t,'zones')}</span>`);
+  meta.push(`<span class="meta-pill">論壇 ${linkCount(t,'forums')}</span>`);
   if((t.icon_url || '').trim())meta.push('<span class="meta-pill">Icon</span>');
   return `
     <button class="theme-nav-item ${i===selectedThemeIndex?'active':''}" onclick="selectTheme(${i})">
@@ -1061,48 +1217,93 @@ function parseListEditor(value){
     });
 }
 
-function listItemValue(i,key,j,field,value){
-  if(!themes[i][key])themes[i][key] = [];
-  if(!themes[i][key][j])themes[i][key][j] = {zh:'',en:'',url_zh:'',url_en:''};
-  themes[i][key][j][field] = value;
-  if(key === 'zones')themes[i].showZone = true;
-  if(key === 'forums')themes[i].showForum = true;
+function groupValue(i,g,field,value){
+  const group = ensureGroup(i,g);
+  group[field] = value;
+  syncLegacyLinkFields(themes[i]);
   schedulePreview();
   saveToStorage();
 }
 
-function addListItem(i,key){
-  if(!themes[i][key])themes[i][key] = [];
-  themes[i][key].push({zh:'',en:'',url_zh:'',url_en:''});
-  if(key === 'zones')themes[i].showZone = true;
-  if(key === 'forums')themes[i].showForum = true;
+function groupToggle(i,g,field,value){
+  const group = ensureGroup(i,g);
+  group[field] = value;
+  syncLegacyLinkFields(themes[i]);
+  schedulePreview();
+  saveToStorage();
+}
+
+function listItemValue(i,g,key,j,field,value){
+  const group = ensureGroup(i,g);
+  if(!group[key])group[key] = [];
+  if(!group[key][j])group[key][j] = {zh:'',en:'',url_zh:'',url_en:''};
+  group[key][j][field] = value;
+  if(field === 'url_zh' && !group[key][j].url_en)group[key][j].url_en = inferEnglishUrl(value);
+  if(key === 'zones')group.showZone = true;
+  if(key === 'forums')group.showForum = true;
+  syncLegacyLinkFields(themes[i]);
+  schedulePreview();
+  saveToStorage();
+}
+
+function addContentGroup(i){
+  normalizeTheme(themes[i]);
+  themes[i].groups.push({label_zh:'',label_en:'',showZone:true,showForum:true,zones:[],forums:[]});
   renderDetailPanel();
   schedulePreview();
   saveToStorage();
 }
 
-function removeListItem(i,key,j){
-  if(!themes[i][key])return;
-  themes[i][key].splice(j,1);
-  if(key === 'zones')themes[i].showZone = themes[i][key].length > 0;
-  if(key === 'forums')themes[i].showForum = themes[i][key].length > 0;
+function removeContentGroup(i,g){
+  normalizeTheme(themes[i]);
+  if(themes[i].groups.length <= 1){
+    alert('至少需要保留一組內容群組。');
+    return;
+  }
+  themes[i].groups.splice(g,1);
+  syncLegacyLinkFields(themes[i]);
   renderDetailPanel();
   schedulePreview();
   saveToStorage();
 }
 
-function renderLinkedItemTable(i,key,label){
-  const rows = themes[i][key] || [];
+function addListItem(i,g,key){
+  const group = ensureGroup(i,g);
+  if(!group[key])group[key] = [];
+  group[key].push({zh:'',en:'',url_zh:'',url_en:''});
+  if(key === 'zones')group.showZone = true;
+  if(key === 'forums')group.showForum = true;
+  syncLegacyLinkFields(themes[i]);
+  renderDetailPanel();
+  schedulePreview();
+  saveToStorage();
+}
+
+function removeListItem(i,g,key,j){
+  const group = ensureGroup(i,g);
+  if(!group[key])return;
+  group[key].splice(j,1);
+  if(key === 'zones')group.showZone = group[key].length > 0;
+  if(key === 'forums')group.showForum = group[key].length > 0;
+  syncLegacyLinkFields(themes[i]);
+  renderDetailPanel();
+  schedulePreview();
+  saveToStorage();
+}
+
+function renderLinkedItemTable(i,g,key,label){
+  const group = ensureGroup(i,g);
+  const rows = group[key] || [];
   const empty = rows.length
     ? ''
     : `<div class="link-table-empty">目前沒有${esc(label)}。可從 Excel 匯入，或按下方新增一筆。</div>`;
   const rowHtml = rows.map((item,j)=>`
     <div class="link-row">
-      <input value="${esc(item.zh || '')}" placeholder="中文名稱" oninput="listItemValue(${i},'${key}',${j},'zh',this.value)">
-      <input value="${esc(item.en || '')}" placeholder="English Name" oninput="listItemValue(${i},'${key}',${j},'en',this.value)">
-      <input class="url-input" value="${esc(itemUrl(item,'zh'))}" placeholder="中文 URL" oninput="listItemValue(${i},'${key}',${j},'url_zh',this.value)">
-      <input class="url-input" value="${esc(itemUrl(item,'en'))}" placeholder="English URL" oninput="listItemValue(${i},'${key}',${j},'url_en',this.value)">
-      <button class="link-row-remove" onclick="removeListItem(${i},'${key}',${j})" title="刪除">×</button>
+      <input value="${esc(item.zh || '')}" placeholder="中文名稱" oninput="listItemValue(${i},${g},'${key}',${j},'zh',this.value)">
+      <input value="${esc(item.en || '')}" placeholder="English Name" oninput="listItemValue(${i},${g},'${key}',${j},'en',this.value)">
+      <input class="url-input" value="${esc(itemUrl(item,'zh'))}" placeholder="中文 URL" oninput="listItemValue(${i},${g},'${key}',${j},'url_zh',this.value)">
+      <input class="url-input" value="${esc(itemUrl(item,'en'))}" placeholder="English URL" oninput="listItemValue(${i},${g},'${key}',${j},'url_en',this.value)">
+      <button class="link-row-remove" onclick="removeListItem(${i},${g},'${key}',${j})" title="刪除">×</button>
     </div>`).join('');
   return `
     <div class="link-table">
@@ -1116,10 +1317,61 @@ function renderLinkedItemTable(i,key,label){
       ${empty}
       ${rowHtml}
       <div class="link-table-actions">
-        <button class="btn btn-outline btn-sm" onclick="addListItem(${i},'${key}')">＋ 新增${esc(label)}</button>
+        <button class="btn btn-outline btn-sm" onclick="addListItem(${i},${g},'${key}')">＋ 新增${esc(label)}</button>
         <span class="link-table-hint">Excel 可用獨立欄位匯入：中文 / English / 中文 URL / English URL。</span>
       </div>
     </div>`;
+}
+
+function renderContentGroups(i){
+  const groups = themeGroups(themes[i]);
+  const html = groups.map((group,g)=>{
+    const zoneCount = (group.zones || []).length;
+    const forumCount = (group.forums || []).length;
+    const groupTitle = group.label_zh || group.label_en || `內容群組 ${g + 1}`;
+    const groupSub = group.label_zh && group.label_en
+      ? group.label_en
+      : (group.label_en || (groups.length > 1 ? `第 ${g + 1} 組` : '預設群組'));
+    return `
+    <details class="content-group" ${g === 0 ? 'open' : ''}>
+      <summary>
+        <div class="content-group-summary">
+          <div class="content-group-summary-copy">
+            <div class="content-group-summary-title">${esc(groupTitle)}</div>
+            <div class="content-group-summary-sub">${esc(groupSub)}</div>
+          </div>
+          <div class="content-group-summary-meta">
+            <span class="meta-pill">展區 ${zoneCount}</span>
+            <span class="meta-pill">論壇 ${forumCount}</span>
+          </div>
+        </div>
+      </summary>
+      <div class="content-group-panel">
+      <div class="content-group-head">
+        <label>群組名稱<input value="${esc(group.label_zh || '')}" placeholder="例如：化合物半導體" oninput="groupValue(${i},${g},'label_zh',this.value)"></label>
+        <label>Group Name<input value="${esc(group.label_en || '')}" placeholder="Compound Semiconductor" oninput="groupValue(${i},${g},'label_en',this.value)"></label>
+        <button class="content-group-remove" onclick="removeContentGroup(${i},${g})">刪除此組</button>
+      </div>
+      <div class="content-group-body">
+        <div>
+          <div class="detail-card-title">
+            <span>展區 / 專區</span>
+            <label class="toggle-chip"><input type="checkbox" ${group.showZone?'checked':''} onchange="groupToggle(${i},${g},'showZone',this.checked);refreshWorkbench()"> 顯示</label>
+          </div>
+          ${renderLinkedItemTable(i,g,'zones','展區')}
+        </div>
+        <div>
+          <div class="detail-card-title">
+            <span>論壇議題</span>
+            <label class="toggle-chip"><input type="checkbox" ${group.showForum?'checked':''} onchange="groupToggle(${i},${g},'showForum',this.checked);refreshWorkbench()"> 顯示</label>
+          </div>
+          ${renderLinkedItemTable(i,g,'forums','論壇')}
+        </div>
+      </div>
+      </div>
+    </details>`;
+  }).join('');
+  return `<div class="group-stack">${html}<div class="group-actions"><button class="btn btn-outline btn-sm" onclick="addContentGroup(${i})">＋ 新增內容群組</button></div></div>`;
 }
 
 function renderDetailPanel(){
@@ -1131,6 +1383,7 @@ function renderDetailPanel(){
     return;
   }
   const t = themes[selectedThemeIndex];
+  normalizeTheme(t);
   const issues = getPublishIssues().filter(issue=>issue.themeIndex===selectedThemeIndex).length;
   panel.innerHTML = `
     <div class="detail-current">
@@ -1139,8 +1392,9 @@ function renderDetailPanel(){
         <div class="current-title">${esc(themeLabel(selectedThemeIndex))}</div>
         <div class="current-meta">
           <span class="meta-pill">${issues ? `${issues} 項需檢查` : '無檢查提醒'}</span>
-          <span class="meta-pill">展區 ${t.zones.length}</span>
-          <span class="meta-pill">論壇 ${t.forums.length}</span>
+          <span class="meta-pill">群組 ${activeGroupCount(t)}</span>
+          <span class="meta-pill">展區 ${linkCount(t,'zones')}</span>
+          <span class="meta-pill">論壇 ${linkCount(t,'forums')}</span>
           <span class="meta-pill">${(t.icon_url || '').trim() ? 'Icon 已設定' : 'Icon 未設定'}</span>
         </div>
       </div>
@@ -1192,25 +1446,12 @@ function renderDetailPanel(){
       <div class="detail-note">卡片上已改成右下角浮水印邏輯。沒有圖就留空，不會影響版型。</div>
     </div>
 
-    <div class="detail-grid">
-      <div class="detail-col">
-        <div class="detail-card">
-          <div class="detail-card-title">
-            <span>展區 / 專區</span>
-            <label class="toggle-chip"><input type="checkbox" ${t.showZone?'checked':''} onchange="upd(${selectedThemeIndex},'showZone',this.checked);refreshWorkbench()"> 顯示此欄</label>
-          </div>
-          ${renderLinkedItemTable(selectedThemeIndex,'zones','展區')}
-        </div>
+    <div class="detail-card">
+      <div class="detail-card-title">
+        <span>內容群組</span>
+        <span class="link-table-hint">一個主題可以有 1 組或多組展區 / 論壇，Excel 可用 Group 欄位分組。</span>
       </div>
-      <div class="detail-col">
-        <div class="detail-card">
-          <div class="detail-card-title">
-            <span>論壇議題</span>
-            <label class="toggle-chip"><input type="checkbox" ${t.showForum?'checked':''} onchange="upd(${selectedThemeIndex},'showForum',this.checked);refreshWorkbench()"> 顯示此欄</label>
-          </div>
-          ${renderLinkedItemTable(selectedThemeIndex,'forums','論壇')}
-        </div>
-      </div>
+      ${renderContentGroups(selectedThemeIndex)}
     </div>`;
 }
 
@@ -1262,7 +1503,7 @@ function applyListEditor(i,key,value){
   refreshWorkbench();
 }
 function addTheme(){
-  themes.push({icon_url:'',title_zh:'新主題',title_en:'New Theme',sub_zh:'副標題',sub_en:'Subtitle',desc_zh:'',desc_en:'',showZone:false,showForum:false,zones:[],forums:[]});
+  themes.push({icon_url:'',title_zh:'新主題',title_en:'New Theme',sub_zh:'副標題',sub_en:'Subtitle',desc_zh:'',desc_en:'',groups:[{label_zh:'',label_en:'',showZone:true,showForum:true,zones:[],forums:[]}]});
   selectedThemeIndex = themes.length - 1;
   renderList();schedulePreview();saveToStorage();
 }
@@ -1406,6 +1647,9 @@ ${sc} .st-d-desc{font-size:${s(14)};color:var(--gr);line-height:1.85;margin:0;pa
 ${sc} .st-d-desc-empty{display:none;}
 ${sc} .st-d-grid{display:grid;gap:32px;align-items:start;}
 @media(max-width:600px){${sc} .st-d-grid{grid-template-columns:1fr!important;gap:20px;}}
+${sc} .st-group-stack{display:flex;flex-direction:column;gap:26px;}
+${sc} .st-group-title{font-size:${s(11)};font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--pu);margin-bottom:12px;}
+${sc} .st-group-title:empty{display:none;}
 ${sc} .st-d-label{font-size:${s(10)};font-weight:500;letter-spacing:2.5px;text-transform:uppercase;color:var(--gr);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--bd);display:block;}
 ${sc} .st-d-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:12px;}
 ${sc} .st-d-list li{font-size:${s(13)};color:var(--bk);line-height:1.7;padding:0;display:flex;gap:8px;align-items:flex-start;min-width:0;}
@@ -1473,20 +1717,27 @@ function buildCards(lang, uid, forPreview) {
       ? `<div class="st-card-icon-wrap"><img src="${esc(iconUrl)}" alt="" loading="lazy" onerror="this.parentElement.style.display='none'"></div>`
       : '';
 
-    const zoneHtml = buildDrawerList(t.zones);
-    const forumHtml = buildDrawerList(t.forums);
-
     const descHtml = desc
       ? `<p class="st-d-desc">${esc(desc)}</p>`
       : `<p class="st-d-desc st-d-desc-empty"></p>`;
 
-    const cols = [];
-    if(t.showZone)  cols.push(`<div><span class="st-d-label">${esc(gl1)}</span>${zoneHtml}</div>`);
-    if(t.showForum) cols.push(`<div><span class="st-d-label">${esc(gl2)}</span>${forumHtml}</div>`);
-    const gridCols = cols.length===1?'1fr':'1fr 1.3fr';
-    const gridHtml = cols.length>0
-      ? `<div class="st-d-grid" style="grid-template-columns:${gridCols};">${cols.join('')}</div>`
-      : '';
+    const groups = themeGroups(t).filter(group =>
+      (group.showZone && (group.zones || []).length) ||
+      (group.showForum && (group.forums || []).length)
+    );
+    const groupHtml = groups.map(group => {
+      const zoneHtml = buildDrawerList(group.zones);
+      const forumHtml = buildDrawerList(group.forums);
+      const cols = [];
+      if(group.showZone)  cols.push(`<div><span class="st-d-label">${esc(gl1)}</span>${zoneHtml}</div>`);
+      if(group.showForum) cols.push(`<div><span class="st-d-label">${esc(gl2)}</span>${forumHtml}</div>`);
+      if(!cols.length)return '';
+      const gridCols = cols.length===1?'1fr':'1fr 1.3fr';
+      const label = lang === 'zh' ? group.label_zh : group.label_en;
+      const titleHtml = groups.length > 1 && label ? `<div class="st-group-title">${esc(label)}</div>` : '';
+      return `<div class="st-group">${titleHtml}<div class="st-d-grid" style="grid-template-columns:${gridCols};">${cols.join('')}</div></div>`;
+    }).filter(Boolean).join('');
+    const gridHtml = groupHtml ? `<div class="st-group-stack">${groupHtml}</div>` : '';
 
     return `        <div class="st-card" tabindex="0">
             <div class="st-num-wrap">${id}</div>
@@ -1647,14 +1898,15 @@ const SYSTEM_SINGLE = `你是一個資料解析助理。根據使用者提供的
   "sub_en":"Tech keywords, separated by ·",
   "desc_zh":"一到兩句中文描述",
   "desc_en":"One to two sentences in English",
-  "zones":[{"zh":"中文名稱","en":"English name","url_zh":"中文頁網址或留空","url_en":"English page URL or empty"}],
-  "forums":[{"zh":"中文名稱","en":"English name","url_zh":"中文頁網址或留空","url_en":"English page URL or empty"}]
+  "groups":[{"label_zh":"可留空或群組名稱","label_en":"optional group name","zones":[{"zh":"中文名稱","en":"English name","url_zh":"中文頁網址或留空","url_en":"English page URL or empty"}],"forums":[{"zh":"中文名稱","en":"English name","url_zh":"中文頁網址或留空","url_en":"English page URL or empty"}]}],
+  "zones":[{"zh":"舊格式相容，可省略","en":"","url_zh":"","url_en":""}],
+  "forums":[{"zh":"舊格式相容，可省略","en":"","url_zh":"","url_en":""}]
 }
 如果找不到某欄位的資訊，留空字串。`;
 
 const SYSTEM_ALL = `你是一個資料解析助理。根據使用者提供的網址或文字，提取所有可辨識的半導體主題的展區與論壇資訊。
 只回傳 JSON，不要加說明或 markdown。格式如下：
-{"themes":[{"index":1,"title_zh":"","title_en":"","zones":[{"zh":"","en":"","url_zh":"","url_en":""}],"forums":[{"zh":"","en":"","url_zh":"","url_en":""}]}]}
+{"themes":[{"index":1,"title_zh":"","title_en":"","groups":[{"label_zh":"","label_en":"","zones":[{"zh":"","en":"","url_zh":"","url_en":""}],"forums":[{"zh":"","en":"","url_zh":"","url_en":""}]}]}]}
 index 對應主題編號。只列出有找到資訊的主題。如果某欄位找不到，留空字串。`;
 
 function showLog(elId, msg, type=''){
@@ -1684,8 +1936,8 @@ async function runAiImport(){
           if(idx>=0&&idx<themes.length){
             if(td.title_zh) themes[idx].title_zh=td.title_zh;
             if(td.title_en) themes[idx].title_en=td.title_en;
-            if(td.zones&&td.zones.length){themes[idx].zones=td.zones;themes[idx].showZone=true;}
-            if(td.forums&&td.forums.length){themes[idx].forums=td.forums;themes[idx].showForum=true;}
+            if(td.groups&&td.groups.length)replaceThemeGroups(themes[idx], td.groups);
+            else if((td.zones&&td.zones.length) || (td.forums&&td.forums.length))replaceThemeLinks(themes[idx], td.zones || [], td.forums || []);
             updated++;
           }
         });
@@ -1703,8 +1955,8 @@ async function runAiImport(){
       if(td.sub_en) themes[idx].sub_en=td.sub_en;
       if(td.desc_zh) themes[idx].desc_zh=td.desc_zh;
       if(td.desc_en) themes[idx].desc_en=td.desc_en;
-      if(td.zones&&td.zones.length){themes[idx].zones=td.zones;themes[idx].showZone=true;}
-      if(td.forums&&td.forums.length){themes[idx].forums=td.forums;themes[idx].showForum=true;}
+      if(td.groups&&td.groups.length)replaceThemeGroups(themes[idx], td.groups);
+      else if((td.zones&&td.zones.length) || (td.forums&&td.forums.length))replaceThemeLinks(themes[idx], td.zones || [], td.forums || []);
       renderList();schedulePreview();saveToStorage();
       showLog('aiLog','✓ 已更新「'+themes[idx].title_zh+'」','success');
     }
@@ -1729,8 +1981,8 @@ async function runAiFillTheme(i){
     if(td.sub_en) themes[i].sub_en=td.sub_en;
     if(td.desc_zh) themes[i].desc_zh=td.desc_zh;
     if(td.desc_en) themes[i].desc_en=td.desc_en;
-    if(td.zones&&td.zones.length){themes[i].zones=td.zones;themes[i].showZone=true;}
-    if(td.forums&&td.forums.length){themes[i].forums=td.forums;themes[i].showForum=true;}
+    if(td.groups&&td.groups.length)replaceThemeGroups(themes[i], td.groups);
+    else if((td.zones&&td.zones.length) || (td.forums&&td.forums.length))replaceThemeLinks(themes[i], td.zones || [], td.forums || []);
     renderList();schedulePreview();saveToStorage();
     showLog('aifill-log-'+i,'✓ 填入完成','success');
   }catch(e){
@@ -1743,15 +1995,16 @@ async function runAiFillTheme(i){
 // ════════════════════════════════════════════
 const IMPORT_SCHEMA_TEXT = [
   '建議欄位（TSV / Excel）：',
-  'No | Icon URL | Title ZH | Title EN | Sub ZH | Sub EN | Trend Intro ZH | Trend Intro EN | Keywords ZH | Keywords EN | Zone1 ZH | Zone1 EN | Zone1 URL ZH | Zone1 URL EN | Forum1 ZH | Forum1 EN | Forum1 URL ZH | Forum1 URL EN ...',
+  'No | Icon URL | Title ZH | Title EN | Sub ZH | Sub EN | Trend Intro ZH | Trend Intro EN | Keywords ZH | Keywords EN | Group | Group ZH | Group EN | Zone1 ZH | Zone1 EN | Zone1 URL ZH | Zone1 URL EN | Forum1 ZH | Forum1 EN | Forum1 URL ZH | Forum1 URL EN ...',
   '',
   '也支援目前工作表模式：',
-  'Segment | 主題 | 英文主題 | 主題介紹 | 關鍵字 | 英文關鍵字 | 對應專區 | 英文對應專區 | 中文對應專區連結 | 英文對應專區連結 | 對應論壇 | 英文對應論壇 | 中文對應論壇連結 | 英文對應論壇連結',
+  'Segment | 主題 | 英文主題 | 主題介紹 | 關鍵字 | 英文關鍵字 | Group | Group ZH | Group EN | 對應專區 | 英文對應專區 | 中文對應專區連結 | 英文對應專區連結 | 對應論壇 | 英文對應論壇 | 中文對應論壇連結 | 英文對應論壇連結',
   '',
   '建議專區 / 論壇內容：',
   '做法 A：中文、英文、中文連結、英文連結各放一欄；多筆資料可在同一格用換行對齊。',
   '做法 B：同一格直接寫：中文名稱 | English Name | 中文 URL | English URL',
-  '做法 C：每一筆專區 / 論壇拆成一列，同一個 Segment 會自動合併。'
+  '做法 C：每一筆專區 / 論壇拆成一列，同一個 Segment + Group 會自動合併；沒有 Group 就放入預設群組。',
+  '網址規則：若只提供中文 URL，工具會嘗試把網址中的 zh / zh-tw 推導成 en。'
 ].join('\n');
 
 function copyImportSchema(){
@@ -1874,39 +2127,46 @@ function pushUniqueItem(arr, item){
 }
 
 function buildSheetHeaders(zoneSlots, forumSlots){
-  const headers = ['No','Icon URL','Title ZH','Title EN','Sub ZH','Sub EN','Trend Intro ZH','Trend Intro EN','Keywords ZH','Keywords EN'];
+  const headers = ['No','Icon URL','Title ZH','Title EN','Sub ZH','Sub EN','Trend Intro ZH','Trend Intro EN','Keywords ZH','Keywords EN','Group','Group ZH','Group EN'];
   for(let i=1;i<=zoneSlots;i++)headers.push(`Zone${i} ZH`,`Zone${i} EN`,`Zone${i} URL ZH`,`Zone${i} URL EN`);
   for(let i=1;i<=forumSlots;i++)headers.push(`Forum${i} ZH`,`Forum${i} EN`,`Forum${i} URL ZH`,`Forum${i} URL EN`);
   return headers;
 }
 
 function exportSheetBatch(){
-  const zoneSlots = Math.max(3, ...themes.map(theme => theme.zones.length || 0));
-  const forumSlots = Math.max(5, ...themes.map(theme => theme.forums.length || 0));
+  normalizeThemeLinks();
+  const allGroups = themes.flatMap(theme => themeGroups(theme));
+  const zoneSlots = Math.max(3, ...allGroups.map(group => (group.zones || []).length));
+  const forumSlots = Math.max(5, ...allGroups.map(group => (group.forums || []).length));
   const headers = buildSheetHeaders(zoneSlots, forumSlots);
   const rows = [headers];
   themes.forEach((theme, index)=>{
-    const row = [
-      String(index + 1).padStart(2,'0'),
-      tsvCell(theme.icon_url),
-      tsvCell(theme.title_zh),
-      tsvCell(theme.title_en),
-      tsvCell(theme.sub_zh),
-      tsvCell(theme.sub_en),
-      tsvCell(theme.desc_zh),
-      tsvCell(theme.desc_en),
-      tsvCell(theme.sub_zh),
-      tsvCell(theme.sub_en)
-    ];
-    for(let i=0;i<zoneSlots;i++){
-      const item = theme.zones[i] || {};
-      row.push(tsvCell(item.zh), tsvCell(item.en), tsvCell(itemUrl(item,'zh')), tsvCell(itemUrl(item,'en')));
-    }
-    for(let i=0;i<forumSlots;i++){
-      const item = theme.forums[i] || {};
-      row.push(tsvCell(item.zh), tsvCell(item.en), tsvCell(itemUrl(item,'zh')), tsvCell(itemUrl(item,'en')));
-    }
-    rows.push(row);
+    themeGroups(theme).forEach((group, groupIndex)=>{
+      const row = [
+        String(index + 1).padStart(2,'0'),
+        tsvCell(theme.icon_url),
+        tsvCell(theme.title_zh),
+        tsvCell(theme.title_en),
+        tsvCell(theme.sub_zh),
+        tsvCell(theme.sub_en),
+        tsvCell(theme.desc_zh),
+        tsvCell(theme.desc_en),
+        tsvCell(theme.sub_zh),
+        tsvCell(theme.sub_en),
+        String(groupIndex + 1),
+        tsvCell(group.label_zh),
+        tsvCell(group.label_en)
+      ];
+      for(let i=0;i<zoneSlots;i++){
+        const item = (group.zones || [])[i] || {};
+        row.push(tsvCell(item.zh), tsvCell(item.en), tsvCell(itemUrl(item,'zh')), tsvCell(itemUrl(item,'en')));
+      }
+      for(let i=0;i<forumSlots;i++){
+        const item = (group.forums || [])[i] || {};
+        row.push(tsvCell(item.zh), tsvCell(item.en), tsvCell(itemUrl(item,'zh')), tsvCell(itemUrl(item,'en')));
+      }
+      rows.push(row);
+    });
   });
   const text = rows.map(row => row.join('\t')).join('\n');
   const el = document.getElementById('sheetBatchInput');
@@ -2031,18 +2291,36 @@ function applyTemplateSheet(rows, headers){
   const subEnIndex = findHeaderIndex(headers, ['sub en','subtitle en','keywords en','英文關鍵字']);
   const descZhIndex = findHeaderIndex(headers, ['trend intro zh','description zh','主題介紹']);
   const descEnIndex = findHeaderIndex(headers, ['trend intro en','description en','英文主題介紹']);
+  const groupIndex = findHeaderIndex(headers, ['group','group no','group id','群組','組別']);
+  const groupZhIndex = findHeaderIndex(headers, ['group zh','group title zh','群組名稱','中文群組','群組中文']);
+  const groupEnIndex = findHeaderIndex(headers, ['group en','group title en','english group','英文群組','群組英文']);
   const zoneGroups = collectIndexedGroups(headers, 'zone');
   const forumGroups = collectIndexedGroups(headers, 'forum');
   let updated = 0;
+  const touched = new Set();
   rows.forEach((cols,rowIndex)=>{
     const rawNo = noIndex >= 0 ? cols[noIndex] : '';
     const idx = rawNo && Number.isFinite(parseInt(rawNo,10)) ? parseInt(rawNo,10) - 1 : rowIndex;
     if(idx < 0 || idx >= themes.length)return;
     const theme = themes[idx];
-    theme.zones = [];
-    theme.forums = [];
-    theme.showZone = false;
-    theme.showForum = false;
+    if(!touched.has(idx)){
+      theme.groups = [];
+      theme.zones = [];
+      theme.forums = [];
+      theme.showZone = false;
+      theme.showForum = false;
+      touched.add(idx);
+    }
+    const rawGroup = cellAt(cols, groupIndex);
+    const hasGroupInfo = groupIndex >= 0 || groupZhIndex >= 0 || groupEnIndex >= 0;
+    const parsedGroup = rawGroup && Number.isFinite(parseInt(rawGroup,10))
+      ? parseInt(rawGroup,10)
+      : (hasGroupInfo && (cellAt(cols, groupZhIndex) || cellAt(cols, groupEnIndex)) ? theme.groups.length + 1 : 1);
+    const groupNo = Math.max(1, parsedGroup);
+    if(!theme.groups[groupNo - 1])theme.groups[groupNo - 1] = {label_zh:'',label_en:'',showZone:true,showForum:true,zones:[],forums:[]};
+    const contentGroup = theme.groups[groupNo - 1];
+    if(groupZhIndex >= 0 && cols[groupZhIndex])contentGroup.label_zh = cols[groupZhIndex].trim();
+    if(groupEnIndex >= 0 && cols[groupEnIndex])contentGroup.label_en = cols[groupEnIndex].trim();
     if(iconIndex >= 0 && cols[iconIndex])theme.icon_url = cols[iconIndex].trim();
     if(titleZhIndex >= 0 && cols[titleZhIndex])theme.title_zh = cols[titleZhIndex].trim();
     if(titleEnIndex >= 0 && cols[titleEnIndex])theme.title_en = cols[titleEnIndex].trim();
@@ -2050,7 +2328,6 @@ function applyTemplateSheet(rows, headers){
     if(subEnIndex >= 0 && cols[subEnIndex])theme.sub_en = cols[subEnIndex].trim();
     if(descZhIndex >= 0 && cols[descZhIndex])theme.desc_zh = cols[descZhIndex].trim();
     if(descEnIndex >= 0 && cols[descEnIndex])theme.desc_en = cols[descEnIndex].trim();
-    const zones = [];
     zoneGroups.forEach(group => {
       const sharedUrl = group.url !== undefined ? (cols[group.url] || '').trim() : '';
       const item = {
@@ -2059,9 +2336,8 @@ function applyTemplateSheet(rows, headers){
         url_zh: group.url_zh !== undefined ? (cols[group.url_zh] || '').trim() : sharedUrl,
         url_en: group.url_en !== undefined ? (cols[group.url_en] || '').trim() : sharedUrl
       };
-      pushUniqueItem(zones, item);
+      pushUniqueItem(contentGroup.zones, item);
     });
-    const forums = [];
     forumGroups.forEach(group => {
       const sharedUrl = group.url !== undefined ? (cols[group.url] || '').trim() : '';
       const item = {
@@ -2070,12 +2346,9 @@ function applyTemplateSheet(rows, headers){
         url_zh: group.url_zh !== undefined ? (cols[group.url_zh] || '').trim() : sharedUrl,
         url_en: group.url_en !== undefined ? (cols[group.url_en] || '').trim() : sharedUrl
       };
-      pushUniqueItem(forums, item);
+      pushUniqueItem(contentGroup.forums, item);
     });
-    theme.zones = zones;
-    theme.forums = forums;
-    theme.showZone = zones.length > 0;
-    theme.showForum = forums.length > 0;
+    syncLegacyLinkFields(theme);
     updated++;
   });
   return updated;
@@ -2089,6 +2362,9 @@ function applyGroupedSheet(rows, headers){
   const introEnIndex = findHeaderIndex(headers, ['英文主題介紹','trend intro en','description en']);
   const keywordIndex = findHeaderIndex(headers, ['關鍵字','keywords zh','sub zh']);
   const keywordEnIndex = findHeaderIndex(headers, ['英文關鍵字','keywords en','sub en']);
+  const groupIndex = findHeaderIndex(headers, ['group','group no','group id','群組','組別']);
+  const groupZhIndex = findHeaderIndex(headers, ['group zh','group title zh','群組名稱','中文群組','群組中文']);
+  const groupEnIndex = findHeaderIndex(headers, ['group en','group title en','english group','英文群組','群組英文']);
   const zoneIndex = findHeaderIndex(headers, ['對應專區','zones','zone']);
   const zoneEnIndex = findHeaderIndex(headers, ['英文對應專區','zones en','zone en']);
   const zoneUrlZhIndex = findHeaderIndex(headers, ['中文對應專區連結','對應專區中文連結','對應專區連結 zh','專區中文連結','zone url zh','zones url zh','zone zh url']);
@@ -2101,6 +2377,7 @@ function applyGroupedSheet(rows, headers){
   const forumUrlIndex = findHeaderIndex(headers, ['對應論壇連結','論壇連結','forum url','forums url']);
   const iconIndex = findHeaderIndex(headers, ['icon url','icon']);
   let currentThemeIndex = -1;
+  const currentGroupByTheme = {};
   let touched = new Set();
 
   rows.forEach(cols => {
@@ -2111,6 +2388,9 @@ function applyGroupedSheet(rows, headers){
     const introEn = cellAt(cols, introEnIndex);
     const keyword = cellAt(cols, keywordIndex);
     const keywordEn = cellAt(cols, keywordEnIndex);
+    const groupText = cellAt(cols, groupIndex);
+    const groupZhText = cellAt(cols, groupZhIndex);
+    const groupEnText = cellAt(cols, groupEnIndex);
     const zoneText = cellAt(cols, zoneIndex);
     const zoneEnText = cellAt(cols, zoneEnIndex);
     const zoneUrlText = cellAt(cols, zoneUrlIndex);
@@ -2135,11 +2415,24 @@ function applyGroupedSheet(rows, headers){
 
     const theme = themes[currentThemeIndex];
     if(!touched.has(currentThemeIndex)){
+      theme.groups = [];
       theme.zones = [];
       theme.forums = [];
       theme.showZone = false;
       theme.showForum = false;
     }
+    const hasGroupInfo = groupIndex >= 0 || groupZhIndex >= 0 || groupEnIndex >= 0;
+    const parsedGroup = groupText && Number.isFinite(parseInt(groupText,10))
+      ? parseInt(groupText,10)
+      : (hasGroupInfo && (groupZhText || groupEnText)
+        ? theme.groups.length + 1
+        : (currentGroupByTheme[currentThemeIndex] || 1));
+    const groupNo = Math.max(1, parsedGroup);
+    currentGroupByTheme[currentThemeIndex] = groupNo;
+    if(!theme.groups[groupNo - 1])theme.groups[groupNo - 1] = {label_zh:'',label_en:'',showZone:true,showForum:true,zones:[],forums:[]};
+    const contentGroup = theme.groups[groupNo - 1];
+    if(groupZhText)contentGroup.label_zh = groupZhText;
+    if(groupEnText)contentGroup.label_en = groupEnText;
     if(title)theme.title_zh = title;
     if(titleEn)theme.title_en = titleEn;
     if(intro)theme.desc_zh = intro;
@@ -2148,13 +2441,14 @@ function applyGroupedSheet(rows, headers){
     if(keywordEn)theme.sub_en = keywordEn;
     if(iconText)theme.icon_url = iconText;
     parseLinkedItems(zoneText, zoneEnText, zoneUrlZhText, zoneUrlEnText).forEach(item => {
-      pushUniqueItem(theme.zones, item);
-      theme.showZone = true;
+      pushUniqueItem(contentGroup.zones, item);
+      contentGroup.showZone = true;
     });
     parseLinkedItems(forumText, forumEnText, forumUrlZhText, forumUrlEnText).forEach(item => {
-      pushUniqueItem(theme.forums, item);
-      theme.showForum = true;
+      pushUniqueItem(contentGroup.forums, item);
+      contentGroup.showForum = true;
     });
+    syncLegacyLinkFields(theme);
     touched.add(currentThemeIndex);
   });
   return touched.size;
@@ -2214,37 +2508,53 @@ function applyExistingHtmlBatch(html){
       }
       if(icon)theme.icon_url = icon;
 
-      const cols = Array.from(card.querySelectorAll('.st-d-grid > div'));
-      const zoneItems = cols[0] ? parseOutputListItems(cols[0], lang) : [];
-      const forumItems = cols[1] ? parseOutputListItems(cols[1], lang) : [];
-      if(zoneItems.length){
-        if(lang === 'zh'){
-          theme.zones = [];
-          zoneItems.forEach(item => pushUniqueItem(theme.zones, item));
-        }else{
-          zoneItems.forEach((item, rowIndex) => {
-            if(!theme.zones[rowIndex])theme.zones[rowIndex] = {zh:'',en:'',url_zh:'',url_en:''};
-            theme.zones[rowIndex].en = item.en;
-            theme.zones[rowIndex].url_en = item.url_en;
-          });
-          theme.zones = normalizeLinkItems(theme.zones);
+      const groupNodes = Array.from(card.querySelectorAll('.st-group'));
+      const importGroups = groupNodes.length ? groupNodes : [card.querySelector('.st-d-grid')?.parentElement || card];
+      if(lang === 'zh' && importGroups.length)theme.groups = [];
+      importGroups.forEach((groupNode, groupIndex) => {
+        const grid = groupNode.querySelector('.st-d-grid');
+        if(!grid)return;
+        const cols = Array.from(grid.children);
+        const label = cleanImportedText(groupNode.querySelector('.st-group-title')?.textContent || '');
+        if(!theme.groups || !theme.groups[groupIndex])theme.groups = theme.groups || [];
+        if(!theme.groups[groupIndex])theme.groups[groupIndex] = {label_zh:'',label_en:'',showZone:true,showForum:true,zones:[],forums:[]};
+        const contentGroup = theme.groups[groupIndex];
+        if(label){
+          if(lang === 'zh')contentGroup.label_zh = label;
+          else contentGroup.label_en = label;
         }
-        theme.showZone = true;
-      }
-      if(forumItems.length){
-        if(lang === 'zh'){
-          theme.forums = [];
-          forumItems.forEach(item => pushUniqueItem(theme.forums, item));
-        }else{
-          forumItems.forEach((item, rowIndex) => {
-            if(!theme.forums[rowIndex])theme.forums[rowIndex] = {zh:'',en:'',url_zh:'',url_en:''};
-            theme.forums[rowIndex].en = item.en;
-            theme.forums[rowIndex].url_en = item.url_en;
-          });
-          theme.forums = normalizeLinkItems(theme.forums);
+        const zoneItems = cols[0] ? parseOutputListItems(cols[0], lang) : [];
+        const forumItems = cols[1] ? parseOutputListItems(cols[1], lang) : [];
+        if(zoneItems.length){
+          if(lang === 'zh'){
+            contentGroup.zones = [];
+            zoneItems.forEach(item => pushUniqueItem(contentGroup.zones, item));
+          }else{
+            zoneItems.forEach((item, rowIndex) => {
+              if(!contentGroup.zones[rowIndex])contentGroup.zones[rowIndex] = {zh:'',en:'',url_zh:'',url_en:''};
+              contentGroup.zones[rowIndex].en = item.en;
+              contentGroup.zones[rowIndex].url_en = item.url_en;
+            });
+            contentGroup.zones = normalizeLinkItems(contentGroup.zones);
+          }
+          contentGroup.showZone = true;
         }
-        theme.showForum = true;
-      }
+        if(forumItems.length){
+          if(lang === 'zh'){
+            contentGroup.forums = [];
+            forumItems.forEach(item => pushUniqueItem(contentGroup.forums, item));
+          }else{
+            forumItems.forEach((item, rowIndex) => {
+              if(!contentGroup.forums[rowIndex])contentGroup.forums[rowIndex] = {zh:'',en:'',url_zh:'',url_en:''};
+              contentGroup.forums[rowIndex].en = item.en;
+              contentGroup.forums[rowIndex].url_en = item.url_en;
+            });
+            contentGroup.forums = normalizeLinkItems(contentGroup.forums);
+          }
+          contentGroup.showForum = true;
+        }
+      });
+      syncLegacyLinkFields(theme);
       updated++;
     });
   });
@@ -2299,7 +2609,7 @@ function getWorkState(){
   return {
     schema: WORKFILE_SCHEMA,
     tool: 'Interactive Theme Block Generator',
-    version: 'v4.10.1',
+    version: 'v4.11',
     projectName: 'Theme Block Project',
     exportedAt: new Date().toISOString(),
     data: { themes, globals: getGlobals(), selectedThemeIndex }
@@ -2311,6 +2621,7 @@ function applyWorkState(workfile){
   if(data.themes&&Array.isArray(data.themes))themes=data.themes;
   if(Number.isInteger(data.selectedThemeIndex))selectedThemeIndex=data.selectedThemeIndex;
   fillMissingIconsWithDefaults();
+  normalizeThemeLinks();
   applyGlobals(data.globals);
   renderList();
   schedulePreview();
@@ -2319,6 +2630,7 @@ function applyWorkState(workfile){
 
 function saveToStorage(){
   try{
+    normalizeThemeLinks();
     const g=getGlobals();
     localStorage.setItem(STORAGE_KEY,JSON.stringify({themes,globals:g,selectedThemeIndex}));
     flashSave();
@@ -2332,6 +2644,7 @@ function loadFromStorage(){
     if(s.themes&&Array.isArray(s.themes))themes=s.themes;
     if(Number.isInteger(s.selectedThemeIndex))selectedThemeIndex=s.selectedThemeIndex;
     fillMissingIconsWithDefaults();
+    normalizeThemeLinks();
     if(s.globals)applyGlobals(s.globals);
     return true;
   }catch(e){return false;}

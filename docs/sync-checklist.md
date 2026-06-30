@@ -57,7 +57,8 @@
 
 | 項目 | 說明 | 優先級 |
 |---|---|---|
-| Trend 版本漂移 | 已修正：Hub 首頁、workspace metadata、工具實際版本皆為 v4.8 | ✅ 完成 |
-| Trend release notes | v4.8 相較 v4.7 的有感變更補充 | 🟡 中 |
-| Sponsors release notes | v5.2.0 有感變更補充 | 🟡 中 |
-| Pavilions release notes | v1.1 有感變更補充 | 🟡 中 |
+| Trend v4.11 metadata alignment | 已完成：Hub 首頁、workspace metadata、工具檔與 version-map 皆以 v4.11 為目前版本 | ✅ 完成 |
+| Trend Drupal QA / output rendering | 版本漂移已不是主要風險；下一步是 Drupal paste、桌機/手機前台、互動與 template QA 證據 | 🟡 中 |
+| Forum post-v9.13 紀錄 | 已先放入 Unreleased；後續若正式發版需決定是否 bump v9.14 | 🟡 中 |
+| Sponsors release notes | v5.2.1 有感變更已補；source repo 仍需回同步 | 🟡 中 |
+| Pavilions working copy | v1.1 CMS source 壓縮輸出已記錄；待測試與 commit | 🟡 中 |
