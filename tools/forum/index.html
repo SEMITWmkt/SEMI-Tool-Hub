@@ -108,6 +108,18 @@ textarea.inp{resize:vertical}
 .restore-value{font-size:12px;color:#333;line-height:1.55;white-space:pre-wrap;word-break:break-word}
 .restore-wide{grid-column:1/-1}
 .restore-note{font-size:11px;color:#92400e;margin-top:5px;font-weight:700}
+.restore-apply{border:1px solid #f0edf9;border-radius:8px;background:#faf8ff;padding:11px 12px}
+.restore-options{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+.restore-option{display:flex;gap:8px;align-items:flex-start;padding:9px 10px;background:#fff;border:1px solid #f5f5f7;border-radius:7px;font-size:12px;color:#333;font-weight:700;line-height:1.4}
+.restore-option input{width:15px;height:15px;margin-top:1px;accent-color:var(--brand);cursor:pointer;flex-shrink:0}
+.restore-option.disabled{color:var(--muted);background:#f8f8f9}
+.restore-flags{display:grid;gap:5px;margin:8px 0 10px}
+.restore-flags div{font-size:11px;color:#666;line-height:1.45}
+.restore-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.restore-success{font-size:12px;font-weight:700;color:#166534;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:7px;padding:8px 10px;margin-top:8px;display:none}
+.restore-success.show{display:block}
+.restore-continue{display:none}
+.restore-continue.show{display:inline-flex}
 .restore-logo-group{border:1px solid #f0edf9;border-radius:8px;background:#fff;margin-bottom:8px;padding:11px 12px}
 .restore-logo-group:last-child{margin-bottom:0}
 .restore-logo-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap}
@@ -235,6 +247,7 @@ textarea.inp{resize:vertical}
   .readiness-item{border-right:none;grid-template-columns:82px 1fr}
   .restore-summary-grid{grid-template-columns:1fr 1fr}
   .restore-grid{grid-template-columns:1fr}
+  .restore-options{grid-template-columns:1fr}
   .restore-item{border-right:none}
   .panel{padding:20px 16px}
   .stepbar{overflow-x:auto}
@@ -1178,6 +1191,8 @@ function mergeRelatedLinksIntoRemarks(d) {
 }
 
 // ─────────────────────────── Legacy HTML Restore Preview ───────────────────────────
+let lastLegacyRestoreData = null;
+
 function cleanLegacyText(text) {
   return String(text || '').replace(/\s+/g, ' ').trim();
 }
@@ -1236,6 +1251,7 @@ function summarizeLogoSrc(src) {
 
 function parseLegacyForumHTML(html) {
   const doc = new DOMParser().parseFromString(String(html || ''), 'text/html');
+  const lang = doc.querySelector('.st26-lang-zh') ? 'zh' : (doc.querySelector('.st26-lang-en') ? 'en' : '');
   const themeEl = doc.querySelector('.st26-theme-line, .st26-theme-static');
   const outlineEl = doc.querySelector('.st26-outline');
   const venueEl = doc.querySelector('.st26-anchor-btn');
@@ -1261,6 +1277,7 @@ function parseLegacyForumHTML(html) {
     outline: legacyOutlineToText(outlineEl),
     venue: cleanLegacyLabeledText(venueEl?.textContent, ['地點：', 'Venue:']),
     registrationUrl: regBtn?.getAttribute('href') || '',
+    lang,
     logoRows,
     warnings
   };
@@ -1271,12 +1288,120 @@ function handleLegacyRestorePreview() {
   const preview = document.getElementById('legacy-restore-preview');
   if(!preview) return;
   if(!raw) {
+    lastLegacyRestoreData = null;
     preview.classList.add('show');
     preview.innerHTML = '<div class="restore-head">解析結果</div><div class="restore-warnings"><div>請先貼上既有 Drupal body HTML。</div></div>';
     return;
   }
   const data = parseLegacyForumHTML(raw);
+  lastLegacyRestoreData = data;
   renderLegacyRestorePreview(data);
+}
+
+function legacyRestoreTargetLabel(data) {
+  if(data.lang === 'zh') return '中文欄位';
+  if(data.lang === 'en') return '英文欄位';
+  return '中英欄位';
+}
+
+function legacyRestoreTargetIds(data, field) {
+  const targetLangs = data.lang ? [data.lang] : ['zh', 'en'];
+  const map = {
+    theme: { zh: 'theme-zh', en: 'theme-en' },
+    outline: { zh: 'outline-zh', en: 'outline-en' },
+    venue: { zh: 'venue-zh', en: 'venue-en' },
+    registrationUrl: { zh: 'reg-url-zh', en: 'reg-url-en' }
+  };
+  return targetLangs.map(lang => map[field]?.[lang]).filter(Boolean);
+}
+
+function legacyRestoreApplyItems(data) {
+  return [
+    { key: 'theme', label: 'Theme 主題', value: data.theme },
+    { key: 'outline', label: 'Outline 大綱', value: data.outline },
+    { key: 'venue', label: 'Venue 地點', value: data.venue },
+    { key: 'registrationUrl', label: 'Registration URL 報名連結', value: data.registrationUrl }
+  ];
+}
+
+function legacyRestoreFieldLabel(id) {
+  const labels = {
+    'theme-zh': '中文主題',
+    'theme-en': '英文主題',
+    'outline-zh': '中文大綱 / 簡介',
+    'outline-en': '英文大綱 / 簡介',
+    'venue-zh': '中文地點',
+    'venue-en': '英文地點',
+    'reg-url-zh': '中文報名連結',
+    'reg-url-en': '英文報名連結'
+  };
+  return labels[id] || id;
+}
+
+function legacyRestoreOptionHTML(item, data) {
+  const hasValue = !!item.value;
+  const target = legacyRestoreTargetLabel(data);
+  return '<label class="restore-option '+(hasValue ? '' : 'disabled')+'">' +
+    '<input type="checkbox" id="legacy-apply-'+esc(item.key)+'" '+(hasValue ? 'checked' : 'disabled')+'>' +
+    '<span>'+esc(item.label)+'<br><span style="font-weight:600;color:var(--muted)">套用到 '+esc(target)+'</span></span>' +
+  '</label>';
+}
+
+function handleLegacyRestoreApply() {
+  const data = lastLegacyRestoreData;
+  if(!data) return;
+
+  const selected = legacyRestoreApplyItems(data).filter(item => {
+    const box = document.getElementById('legacy-apply-'+item.key);
+    return box?.checked && item.value;
+  });
+
+  const result = document.getElementById('legacy-apply-result');
+  if(!selected.length) {
+    if(result) {
+      result.classList.add('show');
+      result.textContent = '尚未選擇可套用的欄位。';
+    }
+    return;
+  }
+
+  const conflicts = [];
+  selected.forEach(item => {
+    legacyRestoreTargetIds(data, item.key).forEach(id => {
+      const current = getVal(id);
+      if(current) conflicts.push(legacyRestoreFieldLabel(id));
+    });
+  });
+
+  if(conflicts.length) {
+    const uniqueConflicts = Array.from(new Set(conflicts));
+    const ok = confirm('下列欄位目前已有內容，套用還原資料會覆蓋它們：\n\n' + uniqueConflicts.join('\n') + '\n\n是否繼續？');
+    if(!ok) return;
+  }
+
+  const applied = [];
+  selected.forEach(item => {
+    legacyRestoreTargetIds(data, item.key).forEach(id => setVal(id, item.value));
+    applied.push(item.label);
+  });
+
+  selectedForum = null;
+  hideErr('parse-err');
+
+  if(result) {
+    result.classList.add('show');
+    result.textContent = '已套用：' + applied.join('、') + '。你現在可以繼續到 Step 2 編輯。Logo、票價與人員角色未套用，請手動確認。';
+  }
+
+  const continueBtn = document.getElementById('legacy-continue-step2');
+  if(continueBtn) {
+    continueBtn.classList.add('show');
+  }
+}
+
+function continueLegacyRestoreToStep2() {
+  if(!lastLegacyRestoreData) return;
+  goStep(2);
 }
 
 function renderLegacyRestorePreview(data) {
@@ -1286,12 +1411,13 @@ function renderLegacyRestorePreview(data) {
   const logoSections = data.logoRows.length;
   const totalLogos = data.logoRows.reduce((sum, row) => sum + row.srcs.length, 0);
   const warningCount = data.warnings.length;
-  const field = (label, value, wide) =>
-    '<div class="restore-item '+(wide ? 'restore-wide' : '')+'"><div class="restore-label">'+esc(label)+'</div><div class="restore-value">'+esc(value || '—')+'</div></div>';
-  const outlinePreview = truncateText(data.outline, 1000);
-  const outlineText = outlinePreview.text || '—';
+  const oneLinePreview = (value) => truncateText(cleanLegacyText(value), 110).text || '—';
+  const outlinePreview = truncateText(data.outline, 900);
+  const outlineChars = String(data.outline || '').length;
+  const field = (label, value) =>
+    '<div class="restore-item"><div class="restore-label">'+esc(label)+'</div><div class="restore-value">'+esc(oneLinePreview(value))+'</div></div>';
   const metric = (label, value) =>
-    '<div class="restore-metric"><div class="restore-metric-label">'+esc(label)+'</div><div class="restore-metric-value">'+esc(String(value))+'</div></div>';
+    '<div class="restore-metric"><div class="restore-metric-value">'+esc(String(value))+'</div><div class="restore-metric-label">'+esc(label)+'</div></div>';
   const sourceTypeSummary = (srcs) => {
     const counts = srcs.reduce((acc, src) => {
       const type = summarizeLogoSrc(src).type;
@@ -1302,68 +1428,93 @@ function renderLegacyRestorePreview(data) {
       count + ' ' + type + ' logo' + (count === 1 ? '' : 's')
     ).join(' · ');
   };
-  const logos = data.logoRows.length
+  const base64LogoCount = data.logoRows.reduce((sum, row) =>
+    sum + row.srcs.filter(src => /^data:image\//i.test(src)).length, 0);
+  const logoDetails = data.logoRows.length
     ? data.logoRows.map(row => {
-      const hasBase64 = row.srcs.some(src => /^data:image\//i.test(src));
       const summaries = row.srcs.map((src, idx) => {
         const info = summarizeLogoSrc(src);
         return [
-          'Logo '+(idx + 1)+': '+info.type,
-          'length: '+info.length+' chars',
-          'preview: '+info.preview
+          'Logo '+(idx + 1)+'：'+info.type,
+          '長度：'+info.length+' 字元',
+          '預覽：'+info.preview
         ].filter(Boolean).join('\n  ');
       });
       return '<div class="restore-logo-group">' +
         '<div class="restore-logo-top">' +
-          '<div class="restore-logo-label">'+esc(row.label || 'Logo section')+'</div>' +
-          '<div class="restore-logo-count">'+row.srcs.length+' logo'+(row.srcs.length === 1 ? '' : 's')+'</div>' +
+          '<div class="restore-logo-label">'+esc(row.label || 'Logo 區塊')+'</div>' +
+          '<div class="restore-logo-count">'+row.srcs.length+' 個 Logo</div>' +
         '</div>' +
         '<div class="restore-logo-summary">'+esc(sourceTypeSummary(row.srcs) || 'No logo source found')+'</div>' +
-        (hasBase64 ? '<div class="restore-action-note">Replace with Drupal file URLs before publishing.</div>' : '') +
-        '<details class="restore-tech"><summary>Show technical details</summary><pre>'+esc(summaries.join('\n\n') || '—')+'</pre></details>' +
+        '<pre>'+esc(summaries.join('\n\n') || '—')+'</pre>' +
       '</div>';
     }).join('')
-    : '<div class="restore-logo-group"><div class="restore-logo-summary">No logo sections detected.</div></div>';
-  const warnings = data.warnings.length
-    ? '<div class="restore-warnings">'+data.warnings.map(w => '<div>⚠ '+esc(w)+'</div>').join('')+'</div>'
-    : '<div class="ok-box" style="font-size:12px;margin:0">No restore warnings detected.</div>';
+    : '<div class="restore-logo-summary">未偵測到 Logo 區塊。</div>';
+  const visibleWarnings = data.warnings.filter(w => !/base64|data:image/i.test(w));
+  const warnings = visibleWarnings.length
+    ? '<div class="restore-warnings">'+visibleWarnings.map(w => '<div>⚠ '+esc(w)+'</div>').join('')+'</div>'
+    : '<div class="ok-box" style="font-size:12px;margin:0">沒有額外提醒。</div>';
+  const applyOptions = legacyRestoreApplyItems(data).map(item => legacyRestoreOptionHTML(item, data)).join('');
 
   preview.classList.add('show');
   preview.innerHTML =
     '<div class="restore-head">' +
-      '<div><div class="restore-title">Restore Preview</div><div class="restore-sub">Structured review only. Nothing is applied to the form.</div></div>' +
-      '<div class="restore-badges"><span class="restore-badge">Preview only</span><span class="restore-badge review">Needs review</span></div>' +
+      '<div><div class="restore-title">匯入結果</div><div class="restore-sub">先確認可 reuse 的內容；點「套用到表單」前不會改動目前欄位。</div></div>' +
+      '<div class="restore-badges"><span class="restore-badge">預覽模式</span><span class="restore-badge review">需人工確認</span></div>' +
     '</div>' +
     '<div class="restore-section">' +
-      '<div class="restore-section-title">A. Restore Summary</div>' +
+      '<div class="restore-section-title">匯入結果</div>' +
       '<div class="restore-summary-grid">' +
-        metric('Detected fields', detectedFields) +
-        metric('Logo sections', logoSections) +
-        metric('Total logos', totalLogos) +
-        metric('Warnings', warningCount) +
+        metric('已抓到欄位', detectedFields + ' 個') +
+        metric('Logo 區塊', logoSections + ' 個') +
+        metric('Logo', totalLogos + ' 個') +
+        metric('提醒', warningCount + ' 個') +
       '</div>' +
     '</div>' +
     '<div class="restore-section">' +
-      '<div class="restore-section-title">B. Restored Fields</div>' +
+      '<div class="restore-section-title">可套用欄位</div>' +
       '<div class="restore-grid">' +
-        field('Theme', data.theme, false) +
-        field('Venue', data.venue, false) +
-        field('Registration URL', data.registrationUrl, true) +
-        field('Outline', outlineText, true) +
+        field('Theme / 主題', data.theme) +
+        field('Venue / 地點', data.venue) +
+        field('Registration URL / 報名連結', data.registrationUrl) +
+        '<div class="restore-item restore-wide"><div class="restore-label">Outline / 大綱</div><div class="restore-value">'+
+          (outlineChars ? '已抓到活動大綱，約 '+outlineChars+' 字。' : '—') +
+          (outlineChars ? '<details class="restore-tech"><summary>展開查看大綱內容</summary><pre>'+esc(outlinePreview.text)+'</pre></details>' : '') +
+        '</div></div>' +
       '</div>' +
-      (outlinePreview.truncated ? '<div class="restore-note">Preview shortened. Full outline remains available in parsed data for later implementation.</div>' : '') +
+      (outlinePreview.truncated ? '<div class="restore-note">大綱內容已縮短顯示，套用後可到 Step 2 編輯完整內容。</div>' : '') +
+      '<div class="restore-apply" style="margin-top:10px">' +
+        '<div class="restore-logo-label">套用還原欄位到表單 Apply restored fields to form</div>' +
+        '<div class="restore-sub">勾選要套用的欄位；已有內容時會先詢問，不會自動覆蓋。</div>' +
+        '<div class="restore-options">'+applyOptions+'</div>' +
+        '<div class="restore-flags">' +
+          '<div>Logo 圖片不會套用，請人工確認。</div>' +
+          '<div>票價表不會套用，請人工確認。</div>' +
+          '<div>主席 / 主持人 / 指導單位不會套用，請人工確認。</div>' +
+        '</div>' +
+        '<div class="restore-actions">' +
+          '<button class="btn btn-secondary btn-sm" onclick="handleLegacyRestoreApply()">套用到表單</button>' +
+          '<button class="btn btn-primary btn-sm restore-continue" id="legacy-continue-step2" onclick="continueLegacyRestoreToStep2()">繼續到 Step 2</button>' +
+        '</div>' +
+        '<div class="restore-success" id="legacy-apply-result"></div>' +
+      '</div>' +
     '</div>' +
     '<div class="restore-section">' +
-      '<div class="restore-section-title">C. Logo Review</div>' +
-      logos +
+      '<div class="restore-section-title">Logo 檢查</div>' +
+      '<div class="restore-logo-group">' +
+        '<div class="restore-logo-summary">偵測到 '+totalLogos+' 個 Logo，其中 '+base64LogoCount+' 個為 base64 / data:image。</div>' +
+        (base64LogoCount ? '<div class="restore-action-note">發布前建議替換為 Drupal file URL。</div>' : '') +
+        '<details class="restore-tech"><summary>展開 Logo 進階技術細節</summary>'+logoDetails+'</details>' +
+      '</div>' +
       warnings +
     '</div>' +
     '<div class="restore-section">' +
-      '<div class="restore-section-title">D. Not Restored in This Version</div>' +
+      '<div class="restore-section-title">需要人工確認</div>' +
       '<div class="restore-not-restored">' +
-        '<div><strong>Page title</strong> - may live outside Drupal body HTML.</div>' +
-        '<div><strong>Pricing table</strong> - requires manual confirmation in this version.</div>' +
-        '<div><strong>Chair / Moderator / Advised by</strong> - requires manual confirmation in this version.</div>' +
+        '<div><strong>頁面標題</strong>：論壇名稱通常由 Drupal 頁面標題管理，因此本工具不從 body HTML 還原。</div>' +
+        '<div><strong>票價表</strong>：本版不還原，請人工確認。</div>' +
+        '<div><strong>主席 / 主持人 / 指導單位</strong>：本版不還原，請人工確認。</div>' +
+        '<div><strong>Logo 圖片</strong>：本版不套用，請人工確認。</div>' +
       '</div>' +
     '</div>';
 }
