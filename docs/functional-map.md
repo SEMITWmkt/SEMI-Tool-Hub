@@ -64,7 +64,7 @@ Core function: build complete bilingual forum page HTML.
 | Logo normalization | Yes | Add per-logo status and export-safe warnings. |
 | Pricing table output | Yes | Add final checklist for price completeness. |
 | Bilingual output | Yes | Keep as flagship function. |
-| Draft save | Yes | Add JSON project export/import. |
+| Draft save | Yes | Forum Draft JSON import/export is now the recommended maintenance source after first creation; continue improving QA and handoff guidance. |
 
 ### Theme / Trend Generator
 

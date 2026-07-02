@@ -1,6 +1,6 @@
 # SEMI Tool Hub — Tool Integration Contracts
 
-Last updated: 2026-06-30
+Last updated: 2026-07-02
 
 This document defines the minimum contract each integrated tool must keep when it is copied into or updated inside the Hub. It is intentionally product-facing and handoff-oriented: if a future change breaks one of these contracts, it needs a deliberate version update and QA pass.
 
@@ -20,12 +20,12 @@ Every tool inside `tools/` must:
 
 | Contract item | Definition |
 |---|---|
-| Primary input | Forum Excel/CSV rows, selected forum content, bilingual labels, speakers/moderators/chairs, pricing, registration/map links, partner/logo data. |
+| Primary input | Forum Excel/CSV rows for first creation, Forum Draft JSON for later maintenance, selected forum content, bilingual labels, speakers/moderators/chairs, pricing, registration/map links, partner/logo data, and optional existing Drupal body HTML for recovery preview. |
 | Primary output | Bilingual forum-page HTML that can be pasted into Drupal source. |
 | CSS scope | Generated output must stay scoped to the forum section and avoid leaking resets into the Drupal page. |
-| Storage | Uses browser-side work/draft storage for project continuity; saved state must not collide with other tools. |
-| Drupal QA requirement | Paste generated HTML into Drupal source, save/preview, confirm desktop and mobile layout, speaker/pricing sections, buttons, and links. |
-| Integration risks | Forum is already in active team use; large workflow changes create retraining risk. Post-v9.13 changes need a clear version decision before release. |
+| Storage | Uses browser-side work/draft storage for same-browser continuity and Forum Draft JSON import/export for handoff and future maintenance. Draft JSON is local structured state, not CMS storage. |
+| Drupal QA requirement | Paste generated HTML into Drupal source, save/preview, confirm desktop and mobile layout, Theme / Outline collapse behavior, speaker/pricing sections, buttons, links, and logo image sources. |
+| Integration risks | Forum is already in active team use; large workflow changes create retraining risk. v9.14 keeps Excel as the initial import path, uses Draft JSON for maintenance, and treats Legacy Restore as a helper rather than a full CMS migration. |
 
 ## Trend Table Creator
 

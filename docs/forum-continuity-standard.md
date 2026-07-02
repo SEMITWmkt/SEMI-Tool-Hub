@@ -2,6 +2,8 @@
 
 This document defines how the Forum Generator should support recurring updates, team handoff, and standardized work without changing the CP team's core Excel-first habit.
 
+Current implementation baseline: Forum HTML Compiler `v9.14`.
+
 ## Core Principle
 
 `Program at a Glance Excel` remains the upstream source of truth for forum schedule rows.
@@ -92,6 +94,12 @@ Should preserve:
 - pricing state
 - publish checklist state
 
+Current implementation:
+
+- Forum Draft JSON is the recommended editable state after first creation.
+- Browser draft storage is useful for same-browser recovery, but it is not the handoff artifact.
+- If a Draft JSON contains uploaded logo data, the file may be large because base64 image data is preserved for editing continuity.
+
 ### 4. Output artifact
 
 Generated HTML.
@@ -110,14 +118,40 @@ Should not be treated as:
 
 The target workflow should remain familiar but become safer.
 
+### New page workflow
+
 1. Paste `Program at a Glance Excel` content.
-2. Parse and select the forum row.
-3. Review the parsed baseline before editing.
+2. Parse and select the forum row if needed.
+3. Continue to Step 2.
 4. Add or correct speakers, logos, remarks, partner content, and links.
-5. Preview generated HTML.
-6. Save work file.
-7. Reopen work file later for updates.
-8. Regenerate HTML and publish.
+5. Generate and preview Drupal HTML.
+6. Paste generated HTML into Drupal.
+7. Export Forum Draft JSON and save it with the forum project files.
+
+### Future update workflow
+
+1. Open the generator.
+2. Import the Forum Draft JSON from the previous edit.
+3. Edit only changed fields.
+4. Generate and preview Drupal HTML.
+5. Paste updated HTML into Drupal.
+6. Export the updated Forum Draft JSON.
+
+### Legacy recovery workflow
+
+1. Paste existing Drupal body HTML.
+2. Parse restore preview.
+3. Apply only high-confidence fields: Theme, Outline, Venue, and Registration URL.
+4. Continue to Step 2.
+5. Manually check Logo sections, pricing, chair/moderator/advised-by fields, and page title.
+6. Generate HTML only if the restored content is suitable for the page being updated.
+
+Legacy Restore does not restore:
+
+- Drupal page title / forum name.
+- Pricing table.
+- Logo images / sponsor sections.
+- Chair, moderator, or advised-by fields.
 
 ## What Should Be Standardized First
 
@@ -125,11 +159,11 @@ These items give the highest handoff value without redesigning the whole tool.
 
 ### P0
 
-- `Save work file`
-- `Load work file`
-- visible `Autosaved draft`
-- stable project name field
-- parsed forum summary shown before Step 2
+- Forum Draft JSON export / import.
+- visible browser draft recovery for same-browser continuity.
+- stable project name field.
+- parsed forum selection and continue action before Step 2.
+- Legacy Restore preview for existing Drupal body HTML.
 
 ### P1
 
@@ -154,12 +188,12 @@ Recommended shape:
 {
   "schema": "semicon-tool-workfile-v1",
   "tool": "Forum HTML Generator",
-  "version": "v9.13",
+  "version": "v9.14",
   "projectName": "SEMICON Taiwan 2026 AI Computing Forum",
   "exportedAt": "2026-06-18T00:00:00.000Z",
   "data": {
     "sourceType": "program-at-a-glance-excel",
-    "parserVersion": "forum-v9.13",
+    "parserVersion": "forum-v9.14",
     "selectedForumKey": "AI Computing Forum|AI 算力論壇|09:00-12:00",
     "parsedForum": {},
     "editedFields": {},
@@ -185,7 +219,7 @@ Recommended rule:
 
 This is the recommended order for Forum standardization.
 
-1. Add `Save work file` and `Load work file`.
+1. Keep Forum Draft JSON as the maintenance source after first creation.
 2. Preserve parsed forum baseline inside the work file.
 3. Add parsed review summary before detail editing.
 4. Add publish checklist.

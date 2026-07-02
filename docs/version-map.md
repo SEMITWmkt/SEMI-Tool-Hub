@@ -9,7 +9,7 @@
 
 | 工具 | Hub 路徑 | Hub 內版本 | Source Repo | Source 版本 | 同步狀態 | 備註 |
 |---|---|---|---|---|---|---|
-| Forum HTML Compiler | `tools/forum/index.html` | v9.13 | `Forum HTML Creator` | v9.13 | Hub branch ahead | v9.13 後續新增 pricing / outline 控制，尚未 bump 工具版本 |
+| Forum HTML Compiler | `tools/forum/index.html` | v9.14 | `Forum HTML Creator` | v9.14 | Hub branch ahead | Forum continuity release: Legacy Restore, Step 1 workflow cleanup, quieter Theme / Outline output, mobile fixes, Draft JSON import/export. Source repo back-sync / Drupal QA evidence still pending. |
 | Sponsors Logo Creator | `tools/sponsors/index.html` | v5.2.1 | `Sponsors Logo HTML Creator` | v5.2.0 | Hub ahead | 強化貼上線上 HTML 還原流程，source repo 待回同步 |
 | Pavilions Vendor Creator | `tools/pavilions/index.html` | v1.1 | `Pavilions Vendor HTML Creator` | v1.1 | Working copy ahead | 本機工作區已調整 CMS source 輸出壓縮，待測試與 commit |
 | Trend Table Creator | `tools/trends/index.html` | v4.11 | `Trend_Table Creator` | v4.11 | Metadata aligned; QA pending | 2026-06-30 confirmed tool file title, UI badge, workfile metadata, Hub card, workspace metadata, and version-map all use `v4.11`. Remaining risk is Drupal QA / output rendering / template QA, not version drift. |
@@ -38,6 +38,7 @@
 | 2026-06-29 | Trend Table Creator | v4.8 → v4.9 | 強化 grouped sheet 匯入、Excel hyperlink 讀取、展區 / 論壇連結欄位與狀態摘要 |
 | 2026-06-29 | Pavilions Vendor Creator | v1.1 → v1.1 | 本機工作區調整輸出為更適合 CMS source 的壓縮 HTML；待測試與 commit |
 | 2026-06-30 | Trend Table Creator | v4.9 → v4.11 | Metadata-only version drift resolution. `tools/trends/index.html` is the source of truth; README, Hub card, workspace metadata, and version-map now all show `v4.11`. |
+| 2026-07-02 | Forum HTML Compiler | v9.13 → v9.14 | Documented Forum continuity workflow: Legacy Restore helper, Step 1 action placement, quieter collapsible Theme / Outline block, mobile fixes, and Draft JSON import/export for future maintenance. |
 
 ---
 

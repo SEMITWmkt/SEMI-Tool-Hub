@@ -8,7 +8,7 @@ The current product direction is intentionally narrow: help website editors prep
 
 | Tool | Purpose | Hub integration status |
 |---|---|---|
-| Forum Generator | 論壇頁資料、Logo、價格與報名資訊的中英文 HTML 產生器 | Integrated; needs source drift review |
+| Forum Generator | 論壇頁資料、Logo、價格、還原與草稿維護的中英文 HTML 產生器 | Integrated v9.14 |
 | Theme / Trend Generator | 主題卡片、展區與論壇議題互動 HTML 產生器 | Integrated |
 | Logo Prep Tool | PDF-compatible AI、PDF、SVG 與圖片去白邊轉 PNG 工具 | Integrated v0.1 |
 | Sponsors Logo Generator | 贊助商 Logo 分級、排序、備份與中英文輸出 | Integrated v5.2.1 |
@@ -48,6 +48,7 @@ The desktop tool folders are treated as source material during migration. The Hu
 | [Version Map](docs/version-map.md) | Integration source, current Hub module status, and drift notes. |
 | [Workflow](docs/workflow.md) | Repeatable test, integrate, document, and release process. |
 | [Functional Map](docs/functional-map.md) | Product functions organized by workflow and role. |
+| [Forum v9.14 Work Log](docs/forum-v914-worklog.md) | Maintainer-facing summary of the Forum continuity workflow, decisions, limits, and next improvements. |
 | [Pavilions v1.1 Spec](docs/pavilions-v1.1-spec.md) | Scope and acceptance criteria for the next tool slice. |
 | [Trial Runs 2026-06-03](docs/trial-runs-2026-06-03.md) | Baseline results from editor, visitor, and developer perspectives. |
 | [Trial Runs 2026-06-08](docs/trial-runs-2026-06-08-data-resilience.md) | Data resilience tests for messy vendor and sponsor source data. |
@@ -55,6 +56,20 @@ The desktop tool folders are treated as source material during migration. The Hu
 ## UIUX Direction
 
 The current integrated Hub keeps the existing generators usable. The next design pass is captured in [uiux-demo.html](uiux-demo.html), which proposes one shared product language for source input, validation, preview, and Drupal HTML copy workflows.
+
+## Forum v9.14 Workflow
+
+Forum v9.14 uses three source layers:
+
+- Excel/text is for first-time import.
+- Forum Draft JSON is the recommended maintenance source after first creation.
+- Drupal HTML is the publishing output, not the ideal source of truth.
+
+For a new page, paste Excel/text, parse, select the forum/session if needed, edit fields in Step 2, generate HTML, paste to Drupal, then export the Forum Draft JSON with the project files.
+
+For later updates, import the Forum Draft JSON, edit only changed fields, regenerate HTML, paste to Drupal, then export the updated draft JSON.
+
+Legacy HTML Restore is a recovery helper for existing Drupal body HTML. It can preview and apply Theme, Outline, Venue, and Registration URL, but it does not restore page title, pricing, logo sections, chair/moderator/advised-by fields, or full CMS state.
 
 ## Current Focus
 
