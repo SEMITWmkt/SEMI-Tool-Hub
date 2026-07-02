@@ -84,6 +84,73 @@ textarea.inp{resize:vertical}
 .api-details summary::-webkit-details-marker{display:none}
 .api-body{margin-top:10px;display:flex;gap:8px;align-items:flex-end}
 .api-body .inp{font-family:monospace;font-size:12px;letter-spacing:.03em}
+.input-action-row{display:flex;justify-content:flex-end;gap:8px;margin-top:10px;flex-wrap:wrap}
+.restore-primary-action{border:1px solid #e8def8;border-radius:8px;background:#faf8ff;padding:12px;margin-top:10px}
+.restore-primary-title{font-size:13px;font-weight:800;color:#1d1d1f;line-height:1.45}
+.restore-primary-sub{font-size:11px;color:var(--muted);line-height:1.5;margin-top:3px}
+.draft-json-card{background:#fff;border-color:#e5e5ea}
+.draft-json-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.draft-json-title{font-size:14px;font-weight:800;color:#1d1d1f;margin-bottom:4px}
+.draft-json-sub{font-size:12px;color:#666;line-height:1.55}
+.draft-json-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.draft-json-msg{display:none;margin-top:12px;border-radius:8px;padding:10px 12px;font-size:12px;font-weight:700;line-height:1.5}
+.draft-json-msg.ok{display:block;background:#edf7e3;border:1px solid #bbf7d0;color:#166534}
+.draft-json-msg.warn{display:block;background:#fffbeb;border:1px solid #fde68a;color:#92400e}
+.draft-json-msg.err{display:block;background:#fff0f0;border:1px solid #fcc;color:var(--err)}
+.restore-primary-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.restore-adjust{margin-top:10px}
+.restore-adjust summary{font-size:11px;font-weight:800;color:var(--brand);cursor:pointer}
+
+/* Legacy restore preview */
+.restore-preview{display:none;margin-top:12px;border:1px solid var(--border);border-radius:8px;background:#fff;overflow:hidden}
+.restore-preview.show{display:block}
+.restore-head{padding:12px 14px;background:#faf8ff;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
+.restore-title{font-size:12px;font-weight:800;color:var(--brand)}
+.restore-sub{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.5}
+.restore-badges{display:flex;gap:6px;flex-wrap:wrap}
+.restore-badge{font-size:10px;font-weight:800;border-radius:100px;padding:4px 8px;background:#f5f5f7;color:#555;white-space:nowrap}
+.restore-badge.review{background:#fffbeb;color:#92400e;border:1px solid #fde68a}
+.restore-section{padding:12px 14px;border-bottom:1px solid #f5f5f7}
+.restore-section:last-child{border-bottom:none}
+.restore-section-title{font-size:10px;font-weight:800;color:var(--brand);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px}
+.restore-summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.restore-metric{border:1px solid #f0edf9;border-radius:8px;background:#faf8ff;padding:9px 10px}
+.restore-metric-label{font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.restore-metric-value{font-size:18px;font-weight:800;color:#1d1d1f;margin-top:2px}
+.restore-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.restore-item{padding:11px 12px;border:1px solid #f5f5f7;border-radius:8px;min-width:0;background:#fff}
+.restore-item:nth-child(2n){border-right:1px solid #f5f5f7}
+.restore-label{font-size:10px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+.restore-value{font-size:12px;color:#333;line-height:1.55;white-space:pre-wrap;word-break:break-word}
+.restore-wide{grid-column:1/-1}
+.restore-note{font-size:11px;color:#92400e;margin-top:5px;font-weight:700}
+.restore-apply{border:1px solid #f0edf9;border-radius:8px;background:#faf8ff;padding:11px 12px}
+.restore-options{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+.restore-option{display:flex;gap:8px;align-items:flex-start;padding:9px 10px;background:#fff;border:1px solid #f5f5f7;border-radius:7px;font-size:12px;color:#333;font-weight:700;line-height:1.4}
+.restore-option input{width:15px;height:15px;margin-top:1px;accent-color:var(--brand);cursor:pointer;flex-shrink:0}
+.restore-option.disabled{color:var(--muted);background:#f8f8f9}
+.restore-flags{display:grid;gap:5px;margin:8px 0 10px}
+.restore-flags div{font-size:11px;color:#666;line-height:1.45}
+.restore-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.restore-success{font-size:12px;font-weight:700;color:#166534;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:7px;padding:8px 10px;margin-top:8px;display:none}
+.restore-success.show{display:block}
+.restore-continue{display:none}
+.restore-continue.show{display:inline-flex}
+.restore-logo-group{border:1px solid #f0edf9;border-radius:8px;background:#fff;margin-bottom:8px;padding:11px 12px}
+.restore-logo-group:last-child{margin-bottom:0}
+.restore-logo-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap}
+.restore-logo-label{font-size:12px;font-weight:800;color:#1d1d1f}
+.restore-logo-count{font-size:10px;font-weight:800;color:var(--muted);background:#f5f5f7;border-radius:100px;padding:3px 8px;white-space:nowrap}
+.restore-logo-summary{font-size:12px;color:#555;line-height:1.5;margin-top:6px}
+.restore-action-note{font-size:12px;color:#92400e;font-weight:800;margin-top:6px}
+.restore-tech{margin-top:8px}
+.restore-tech summary{font-size:11px;font-weight:800;color:var(--brand);cursor:pointer}
+.restore-tech pre{white-space:pre-wrap;word-break:break-word;font-size:11px;line-height:1.5;background:#f7f7f9;border-radius:6px;padding:8px;margin-top:6px;color:#555}
+.restore-warnings{padding:10px 12px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px}
+.restore-warnings div{font-size:12px;color:#92400e;line-height:1.55;margin:3px 0}
+.restore-not-restored{display:grid;gap:7px}
+.restore-not-restored div{font-size:12px;color:#555;line-height:1.5}
+.restore-not-restored strong{color:#1d1d1f}
 
 /* Draft banner */
 .draft-banner{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:12px 16px;margin-bottom:14px;display:none;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
@@ -194,6 +261,10 @@ textarea.inp{resize:vertical}
   .copy-row{grid-template-columns:1fr}
   .readiness-list{grid-template-columns:1fr}
   .readiness-item{border-right:none;grid-template-columns:82px 1fr}
+  .restore-summary-grid{grid-template-columns:1fr 1fr}
+  .restore-grid{grid-template-columns:1fr}
+  .restore-options{grid-template-columns:1fr}
+  .restore-item{border-right:none}
   .panel{padding:20px 16px}
   .stepbar{overflow-x:auto}
   .stepbar-item{min-width:80px;font-size:11px}
@@ -252,6 +323,51 @@ textarea.inp{resize:vertical}
   <div class="field">
     <label class="lbl">貼上資料 <span style="color:var(--err)">*</span></label>
     <textarea class="inp" id="raw-input" rows="9" placeholder="在此貼入資料..."></textarea>
+    <div class="input-action-row">
+      <button class="btn btn-primary" id="near-parse-btn" onclick="handleParse()">解析 Excel 資料 →</button>
+    </div>
+  </div>
+
+  <!-- Excel forum select (shown after parse) -->
+  <div id="forum-select-wrap" style="display:none">
+    <div class="card">
+      <div class="card-title">選擇場次</div>
+      <div class="field">
+        <label class="lbl">找到 <span id="forum-count">0</span> 個場次，請選擇：</label>
+        <select class="inp" id="forum-select" onchange="onForumSelect()">
+          <option value="">── 請選擇 ──</option>
+        </select>
+      </div>
+      <div id="forum-preview" style="display:none;margin-top:12px">
+        <div class="grid2">
+          <div>
+            <div class="lbl" style="color:var(--brand)">場地</div>
+            <div id="prev-venue" style="font-size:14px;font-weight:700"></div>
+            <div id="prev-venue-zh" style="font-size:12px;color:var(--muted);margin-top:2px"></div>
+          </div>
+        </div>
+        <div style="margin-top:12px">
+          <div class="lbl" style="color:var(--brand)">票價預覽</div>
+          <div id="prev-price"></div>
+        </div>
+      </div>
+      <div class="input-action-row">
+        <button class="btn btn-primary" onclick="proceedFromExcel()">確認場次並繼續到 Step 2 →</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="legacy-restore-card">
+    <div class="card-title">↩ 已上架 HTML 還原 Legacy HTML Restore</div>
+    <div class="hint-box" style="font-size:12px">
+      用於檢查已發布 Drupal 頁面能還原多少資料。此版本只顯示解析預覽，不會寫入表單，也不會覆蓋目前輸入內容。
+    </div>
+    <div class="field">
+      <label class="lbl">貼上既有 Drupal body HTML</label>
+      <textarea class="inp" id="legacy-html-input" rows="5" placeholder="貼上之前由 Forum HTML Compiler 產生、已貼到 Drupal 的 HTML..."></textarea>
+    </div>
+    <button class="btn btn-secondary btn-sm" onclick="handleLegacyRestorePreview()">解析還原預覽</button>
+    <div class="restore-preview" id="legacy-restore-preview"></div>
   </div>
 
   <!-- API settings (only shown for text mode) -->
@@ -283,32 +399,6 @@ textarea.inp{resize:vertical}
 
   <div class="err-box" id="parse-err"></div>
 
-  <!-- Excel forum select (shown after parse) -->
-  <div id="forum-select-wrap" style="display:none">
-    <div class="card">
-      <div class="card-title">選擇場次</div>
-      <div class="field">
-        <label class="lbl">找到 <span id="forum-count">0</span> 個場次，請選擇：</label>
-        <select class="inp" id="forum-select" onchange="onForumSelect()">
-          <option value="">── 請選擇 ──</option>
-        </select>
-      </div>
-      <div id="forum-preview" style="display:none;margin-top:12px">
-        <div class="grid2">
-          <div>
-            <div class="lbl" style="color:var(--brand)">場地</div>
-            <div id="prev-venue" style="font-size:14px;font-weight:700"></div>
-            <div id="prev-venue-zh" style="font-size:12px;color:var(--muted);margin-top:2px"></div>
-          </div>
-        </div>
-        <div style="margin-top:12px">
-          <div class="lbl" style="color:var(--brand)">票價預覽</div>
-          <div id="prev-price"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- Draft banner -->
   <div class="draft-banner" id="draft-banner">
     <div>
@@ -333,6 +423,21 @@ textarea.inp{resize:vertical}
 
   <div class="workflow-note" id="workflow-note">
     目前為一般論壇流程，只保留 CP Team 上架常用欄位；合作論壇欄位已收起，避免一般論壇編輯時被不相關內容干擾。
+  </div>
+
+  <div class="card draft-json-card">
+    <div class="draft-json-head">
+      <div>
+        <div class="draft-json-title">論壇草稿 JSON</div>
+        <div class="draft-json-sub">更新同一頁論壇時，建議先匯入上次保存的草稿，再編輯變動欄位並重新產生 HTML。</div>
+      </div>
+      <div class="draft-json-actions">
+        <button class="btn btn-secondary" onclick="document.getElementById('forum-draft-json-input').click()">匯入論壇草稿 JSON</button>
+        <button class="btn btn-ok" onclick="exportForumDraftJson()">匯出論壇草稿 JSON</button>
+        <input type="file" id="forum-draft-json-input" accept="application/json,.json" style="display:none" onchange="handleImportDraftJson(event)">
+      </div>
+    </div>
+    <div class="draft-json-msg" id="draft-json-msg"></div>
   </div>
 
   <!-- 基本資訊 -->
@@ -672,6 +777,8 @@ function setMode(mode, btn) {
   document.getElementById('mode-hint-excel').style.display = mode==='excel' ? 'block' : 'none';
   document.getElementById('mode-hint-partner').style.display = mode==='partner' ? 'block' : 'none';
   document.getElementById('api-section').style.display     = (mode==='text' || mode==='partner') ? 'block' : 'none';
+  const nearParseBtn = document.getElementById('near-parse-btn');
+  if(nearParseBtn) nearParseBtn.textContent = mode === 'excel' ? '解析 Excel 資料 →' : '解析文字內容 →';
   document.getElementById('forum-select-wrap').style.display = 'none';
   document.getElementById('draft-banner').classList.remove('show');
 
@@ -1122,6 +1229,340 @@ function mergeRelatedLinksIntoRemarks(d) {
   merge('remarkEn', 'relatedLinksEn');
 }
 
+// ─────────────────────────── Legacy HTML Restore Preview ───────────────────────────
+let lastLegacyRestoreData = null;
+
+function cleanLegacyText(text) {
+  return String(text || '').replace(/\s+/g, ' ').trim();
+}
+
+function truncateText(text, maxLength) {
+  const value = String(text || '');
+  if(value.length <= maxLength) return { text: value, truncated: false };
+  return { text: value.slice(0, maxLength).trimEnd() + '...', truncated: true };
+}
+
+function cleanLegacyLabeledText(text, labels) {
+  let value = cleanLegacyText(text);
+  labels.forEach(label => {
+    value = value.replace(new RegExp('^' + label + '\\s*', 'i'), '').trim();
+  });
+  return value;
+}
+
+function legacyOutlineToText(outlineEl) {
+  if(!outlineEl) return '';
+  const blocks = [];
+  Array.from(outlineEl.children).forEach(child => {
+    const tag = child.tagName.toLowerCase();
+    if(tag === 'ul' || tag === 'ol') {
+      const items = Array.from(child.querySelectorAll('li')).map(li => '- ' + cleanLegacyText(li.textContent));
+      if(items.length) blocks.push(items.join('\n'));
+      return;
+    }
+    const text = cleanLegacyText(child.textContent);
+    if(text) blocks.push(text);
+  });
+  if(!blocks.length) {
+    const fallback = cleanLegacyText(outlineEl.textContent);
+    if(fallback) blocks.push(fallback);
+  }
+  return blocks.join('\n\n');
+}
+
+function summarizeLogoSrc(src) {
+  const raw = String(src || '');
+  const preview = truncateText(raw, 80).text;
+  let type = 'unknown';
+  if(/^data:image\//i.test(raw)) {
+    type = 'base64 / data:image';
+  } else if(/^https?:\/\//i.test(raw)) {
+    type = 'external URL';
+  } else if(raw.startsWith('/')) {
+    type = 'relative URL';
+  }
+  return {
+    type,
+    length: raw.length,
+    preview
+  };
+}
+
+function parseLegacyForumHTML(html) {
+  const doc = new DOMParser().parseFromString(String(html || ''), 'text/html');
+  const lang = doc.querySelector('.st26-lang-zh') ? 'zh' : (doc.querySelector('.st26-lang-en') ? 'en' : '');
+  const themeEl = doc.querySelector('.st26-theme-line, .st26-theme-static');
+  const outlineEl = doc.querySelector('.st26-outline');
+  const venueEl = doc.querySelector('.st26-anchor-btn');
+  const regBtn = doc.querySelector('.st26-btn');
+  const logoRows = Array.from(doc.querySelectorAll('.st26-logo-row')).map(row => ({
+    label: cleanLegacyText(row.querySelector('.st26-logo-label')?.textContent),
+    srcs: Array.from(row.querySelectorAll('.st26-logo-item img'))
+      .map(img => img.getAttribute('src') || '')
+      .filter(Boolean)
+  })).filter(row => row.label || row.srcs.length);
+  const logoSrcs = logoRows.flatMap(row => row.srcs);
+  const warnings = [];
+
+  if(logoSrcs.some(src => /^data:image\//i.test(src))) {
+    warnings.push('偵測到 base64 / data:image Logo，建議改用 Drupal file URL。');
+  }
+  if(!doc.querySelector('.st26')) {
+    warnings.push('未偵測到 .st26 外層，請確認貼入的是 Forum HTML Compiler 產生的 body HTML。');
+  }
+
+  return {
+    theme: cleanLegacyLabeledText(themeEl?.textContent, ['主題：', 'Theme:']),
+    outline: legacyOutlineToText(outlineEl),
+    venue: cleanLegacyLabeledText(venueEl?.textContent, ['地點：', 'Venue:']),
+    registrationUrl: regBtn?.getAttribute('href') || '',
+    lang,
+    logoRows,
+    warnings
+  };
+}
+
+function handleLegacyRestorePreview() {
+  const raw = document.getElementById('legacy-html-input')?.value.trim() || '';
+  const preview = document.getElementById('legacy-restore-preview');
+  if(!preview) return;
+  if(!raw) {
+    lastLegacyRestoreData = null;
+    preview.classList.add('show');
+    preview.innerHTML = '<div class="restore-head">解析結果</div><div class="restore-warnings"><div>請先貼上既有 Drupal body HTML。</div></div>';
+    return;
+  }
+  const data = parseLegacyForumHTML(raw);
+  lastLegacyRestoreData = data;
+  renderLegacyRestorePreview(data);
+}
+
+function legacyRestoreTargetLabel(data) {
+  if(data.lang === 'zh') return '中文欄位';
+  if(data.lang === 'en') return '英文欄位';
+  return '中英欄位';
+}
+
+function legacyRestoreTargetIds(data, field) {
+  const targetLangs = data.lang ? [data.lang] : ['zh', 'en'];
+  const map = {
+    theme: { zh: 'theme-zh', en: 'theme-en' },
+    outline: { zh: 'outline-zh', en: 'outline-en' },
+    venue: { zh: 'venue-zh', en: 'venue-en' },
+    registrationUrl: { zh: 'reg-url-zh', en: 'reg-url-en' }
+  };
+  return targetLangs.map(lang => map[field]?.[lang]).filter(Boolean);
+}
+
+function legacyRestoreApplyItems(data) {
+  return [
+    { key: 'theme', label: 'Theme 主題', value: data.theme },
+    { key: 'outline', label: 'Outline 大綱', value: data.outline },
+    { key: 'venue', label: 'Venue 地點', value: data.venue },
+    { key: 'registrationUrl', label: 'Registration URL 報名連結', value: data.registrationUrl }
+  ];
+}
+
+function legacyRestoreFieldLabel(id) {
+  const labels = {
+    'theme-zh': '中文主題',
+    'theme-en': '英文主題',
+    'outline-zh': '中文大綱 / 簡介',
+    'outline-en': '英文大綱 / 簡介',
+    'venue-zh': '中文地點',
+    'venue-en': '英文地點',
+    'reg-url-zh': '中文報名連結',
+    'reg-url-en': '英文報名連結'
+  };
+  return labels[id] || id;
+}
+
+function legacyRestoreOptionHTML(item, data) {
+  const hasValue = !!item.value;
+  const target = legacyRestoreTargetLabel(data);
+  return '<label class="restore-option '+(hasValue ? '' : 'disabled')+'">' +
+    '<input type="checkbox" id="legacy-apply-'+esc(item.key)+'" '+(hasValue ? 'checked' : 'disabled')+'>' +
+    '<span>'+esc(item.label)+'<br><span style="font-weight:600;color:var(--muted)">套用到 '+esc(target)+'</span></span>' +
+  '</label>';
+}
+
+function handleLegacyRestoreApply() {
+  const data = lastLegacyRestoreData;
+  if(!data) return;
+
+  const selected = legacyRestoreApplyItems(data).filter(item => {
+    const box = document.getElementById('legacy-apply-'+item.key);
+    return box?.checked && item.value;
+  });
+
+  const result = document.getElementById('legacy-apply-result');
+  if(!selected.length) {
+    if(result) {
+      result.classList.add('show');
+      result.textContent = '尚未選擇可套用的欄位。';
+    }
+    return;
+  }
+
+  const conflicts = [];
+  selected.forEach(item => {
+    legacyRestoreTargetIds(data, item.key).forEach(id => {
+      const current = getVal(id);
+      if(current) conflicts.push(legacyRestoreFieldLabel(id));
+    });
+  });
+
+  if(conflicts.length) {
+    const uniqueConflicts = Array.from(new Set(conflicts));
+    const ok = confirm('下列欄位目前已有內容，套用還原資料會覆蓋它們：\n\n' + uniqueConflicts.join('\n') + '\n\n是否繼續？');
+    if(!ok) return;
+  }
+
+  const applied = [];
+  selected.forEach(item => {
+    legacyRestoreTargetIds(data, item.key).forEach(id => setVal(id, item.value));
+    applied.push(item.label);
+  });
+
+  selectedForum = null;
+  hideErr('parse-err');
+
+  if(result) {
+    result.classList.add('show');
+    result.textContent = '已套用：' + applied.join('、') + '。你現在可以繼續到 Step 2 編輯。Logo、票價與人員角色未套用，請手動確認。';
+  }
+
+  document.querySelectorAll('.legacy-continue-step2').forEach(btn => btn.classList.add('show'));
+}
+
+function continueLegacyRestoreToStep2() {
+  if(!lastLegacyRestoreData) return;
+  goStep(2);
+}
+
+function renderLegacyRestorePreview(data) {
+  const preview = document.getElementById('legacy-restore-preview');
+  if(!preview) return;
+  const detectedFields = [data.theme, data.venue, data.registrationUrl, data.outline].filter(Boolean).length;
+  const logoSections = data.logoRows.length;
+  const totalLogos = data.logoRows.reduce((sum, row) => sum + row.srcs.length, 0);
+  const warningCount = data.warnings.length;
+  const oneLinePreview = (value) => truncateText(cleanLegacyText(value), 110).text || '—';
+  const outlinePreview = truncateText(data.outline, 900);
+  const outlineChars = String(data.outline || '').length;
+  const field = (label, value) =>
+    '<div class="restore-item"><div class="restore-label">'+esc(label)+'</div><div class="restore-value">'+esc(oneLinePreview(value))+'</div></div>';
+  const metric = (label, value) =>
+    '<div class="restore-metric"><div class="restore-metric-value">'+esc(String(value))+'</div><div class="restore-metric-label">'+esc(label)+'</div></div>';
+  const sourceTypeSummary = (srcs) => {
+    const counts = srcs.reduce((acc, src) => {
+      const type = summarizeLogoSrc(src).type;
+      acc[type] = (acc[type] || 0) + 1;
+      return acc;
+    }, {});
+    return Object.entries(counts).map(([type, count]) =>
+      count + ' ' + type + ' logo' + (count === 1 ? '' : 's')
+    ).join(' · ');
+  };
+  const base64LogoCount = data.logoRows.reduce((sum, row) =>
+    sum + row.srcs.filter(src => /^data:image\//i.test(src)).length, 0);
+  const logoDetails = data.logoRows.length
+    ? data.logoRows.map(row => {
+      const summaries = row.srcs.map((src, idx) => {
+        const info = summarizeLogoSrc(src);
+        return [
+          'Logo '+(idx + 1)+'：'+info.type,
+          '長度：'+info.length+' 字元',
+          '預覽：'+info.preview
+        ].filter(Boolean).join('\n  ');
+      });
+      return '<div class="restore-logo-group">' +
+        '<div class="restore-logo-top">' +
+          '<div class="restore-logo-label">'+esc(row.label || 'Logo 區塊')+'</div>' +
+          '<div class="restore-logo-count">'+row.srcs.length+' 個 Logo</div>' +
+        '</div>' +
+        '<div class="restore-logo-summary">'+esc(sourceTypeSummary(row.srcs) || 'No logo source found')+'</div>' +
+        '<pre>'+esc(summaries.join('\n\n') || '—')+'</pre>' +
+      '</div>';
+    }).join('')
+    : '<div class="restore-logo-summary">未偵測到 Logo 區塊。</div>';
+  const visibleWarnings = data.warnings.filter(w => !/base64|data:image/i.test(w));
+  const warnings = visibleWarnings.length
+    ? '<div class="restore-warnings">'+visibleWarnings.map(w => '<div>⚠ '+esc(w)+'</div>').join('')+'</div>'
+    : '<div class="ok-box" style="font-size:12px;margin:0">沒有額外提醒。</div>';
+  const applyOptions = legacyRestoreApplyItems(data).map(item => legacyRestoreOptionHTML(item, data)).join('');
+  const targetLabel = legacyRestoreTargetLabel(data);
+  const actionTitle = '已抓到 '+detectedFields+' 個欄位，可套用到'+targetLabel;
+
+  preview.classList.add('show');
+  preview.innerHTML =
+    '<div class="restore-head">' +
+      '<div><div class="restore-title">匯入結果</div><div class="restore-sub">先確認可 reuse 的內容；點「套用到表單」前不會改動目前欄位。</div></div>' +
+      '<div class="restore-badges"><span class="restore-badge">預覽模式</span><span class="restore-badge review">需人工確認</span></div>' +
+    '</div>' +
+    '<div class="restore-section">' +
+      '<div class="restore-section-title">匯入結果</div>' +
+      '<div class="restore-summary-grid">' +
+        metric('已抓到欄位', detectedFields + ' 個') +
+        metric('Logo 區塊', logoSections + ' 個') +
+        metric('Logo', totalLogos + ' 個') +
+        metric('提醒', warningCount + ' 個') +
+      '</div>' +
+      '<div class="restore-primary-action">' +
+        '<div class="restore-primary-title">'+esc(actionTitle)+'</div>' +
+        '<div class="restore-primary-sub">先套用可確認的欄位，再到 Step 2 檢查與補齊內容。</div>' +
+        '<div class="restore-primary-actions">' +
+          '<button class="btn btn-primary btn-sm" onclick="handleLegacyRestoreApply()">套用到表單</button>' +
+          '<button class="btn btn-primary btn-sm restore-continue legacy-continue-step2" onclick="continueLegacyRestoreToStep2()">繼續到 Step 2 編輯</button>' +
+        '</div>' +
+        '<div class="restore-success" id="legacy-apply-result"></div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="restore-section">' +
+      '<div class="restore-section-title">可套用欄位</div>' +
+      '<div class="restore-grid">' +
+        field('Theme / 主題', data.theme) +
+        field('Venue / 地點', data.venue) +
+        field('Registration URL / 報名連結', data.registrationUrl) +
+        '<div class="restore-item restore-wide"><div class="restore-label">Outline / 大綱</div><div class="restore-value">'+
+          (outlineChars ? '已抓到活動大綱，約 '+outlineChars+' 字。' : '—') +
+          (outlineChars ? '<details class="restore-tech"><summary>展開查看大綱內容</summary><pre>'+esc(outlinePreview.text)+'</pre></details>' : '') +
+        '</div></div>' +
+      '</div>' +
+      (outlinePreview.truncated ? '<div class="restore-note">大綱內容已縮短顯示，套用後可到 Step 2 編輯完整內容。</div>' : '') +
+      '<div class="restore-apply" style="margin-top:10px">' +
+        '<details class="restore-adjust">' +
+          '<summary>調整套用欄位</summary>' +
+          '<div class="restore-sub">預設只勾選有抓到內容的欄位；已有內容時會先詢問，不會自動覆蓋。</div>' +
+          '<div class="restore-options">'+applyOptions+'</div>' +
+        '</details>' +
+        '<div class="restore-flags">' +
+          '<div>Logo 圖片不會套用，請人工確認。</div>' +
+          '<div>票價表不會套用，請人工確認。</div>' +
+          '<div>主席 / 主持人 / 指導單位不會套用，請人工確認。</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="restore-section">' +
+      '<div class="restore-section-title">Logo 檢查</div>' +
+      '<div class="restore-logo-group">' +
+        '<div class="restore-logo-summary">偵測到 '+totalLogos+' 個 Logo，其中 '+base64LogoCount+' 個為 base64 / data:image。</div>' +
+        (base64LogoCount ? '<div class="restore-action-note">發布前建議替換為 Drupal file URL。</div>' : '') +
+        '<details class="restore-tech"><summary>展開 Logo 進階技術細節</summary>'+logoDetails+'</details>' +
+      '</div>' +
+      warnings +
+    '</div>' +
+    '<div class="restore-section">' +
+      '<div class="restore-section-title">需要人工確認</div>' +
+      '<div class="restore-not-restored">' +
+        '<div><strong>頁面標題</strong>：論壇名稱通常由 Drupal 頁面標題管理，因此本工具不從 body HTML 還原。</div>' +
+        '<div><strong>票價表</strong>：本版不還原，請人工確認。</div>' +
+        '<div><strong>主席 / 主持人 / 指導單位</strong>：本版不還原，請人工確認。</div>' +
+        '<div><strong>Logo 圖片</strong>：本版不套用，請人工確認。</div>' +
+      '</div>' +
+    '</div>';
+}
+
 // ─────────────────────────── Handle Parse → Step 2 ───────────────────────────
 function handleParse() {
   const raw = document.getElementById('raw-input').value.trim();
@@ -1330,13 +1771,14 @@ function switchView(mode, btn) {
   if(btn) btn.classList.add('active');
   const frame = document.getElementById('preview-frame');
   frame.classList.toggle('mobile', mode==='mobile');
+  updatePreview(currentLang);
 }
 
 function updatePreview(lang) {
   const html = lang==='zh' ? zhHTML : enHTML;
   const frame = document.getElementById('preview-frame');
-  // viewport meta tag ensures media queries fire correctly inside the iframe
-  frame.srcdoc = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{margin:0;padding:0;width:100%}body{padding:20px;box-sizing:border-box}</style></head><body>${html}</body></html>`;
+  const bodyClass = currentView === 'mobile' ? ' class="st26-preview-mobile"' : '';
+  frame.srcdoc = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{margin:0;padding:0;width:100%}body{padding:20px;box-sizing:border-box}</style></head><body${bodyClass}>${html}</body></html>`;
   frame.onload = () => {
     try {
       if(currentView === 'desktop') {
@@ -1772,6 +2214,116 @@ function getDraftKey() {
   return FORUM_DRAFT_PREFIX + btoa(unescape(encodeURIComponent(name))).substring(0,24);
 }
 
+function serializeDraftLogos(sectionId) {
+  return Array.from(document.querySelectorAll('#'+sectionId+' .logo-card')).map(c => ({
+    origSrc: c.dataset.isUrl === '1'
+      ? (c.dataset.origSrc || '')
+      : (c.dataset.trimmedSrc || c.dataset.origSrc || ''),
+    isUrl:   c.dataset.isUrl === '1',
+    isCo:    c.dataset.isCo === '1',
+    scale:   parseInt(c.dataset.scale || 80)
+  })).filter(l => l.origSrc);
+}
+
+function collectForumDraftState() {
+  return {
+    inputMode,
+    nameZh: getVal('name-zh'), nameEn: getVal('name-en'),
+    venueZh: getVal('venue-zh'), venueEn: getVal('venue-en'),
+    themeZh: getVal('theme-zh'), themeEn: getVal('theme-en'),
+    outlineZh: getVal('outline-zh'), outlineEn: getVal('outline-en'),
+    partnerMode: document.getElementById('opt-partner')?.checked || false,
+    freeAdmission: document.getElementById('opt-free')?.checked || false,
+    showPricing: document.getElementById('opt-pricing')?.checked !== false,
+    showTheme: document.getElementById('opt-theme')?.checked !== false,
+    showOutline: document.getElementById('opt-outline')?.checked !== false,
+    showDayPass: document.getElementById('opt-daypass')?.checked !== false,
+    showDiscount: document.getElementById('opt-discount')?.checked !== false,
+    showFootnote: document.getElementById('opt-footnote')?.checked !== false,
+    outputOptions: {
+      showPricing: document.getElementById('opt-pricing')?.checked !== false,
+      showTheme: document.getElementById('opt-theme')?.checked !== false,
+      showOutline: document.getElementById('opt-outline')?.checked !== false,
+      showDayPass: document.getElementById('opt-daypass')?.checked !== false,
+      showDiscount: document.getElementById('opt-discount')?.checked !== false,
+      showFootnote: document.getElementById('opt-footnote')?.checked !== false
+    },
+    partnerOrgsZh: getVal('partner-orgs-zh'), partnerOrgsEn: getVal('partner-orgs-en'),
+    advisedName: getVal('advised-name'), advisedUrl: getVal('advised-url'),
+    chairs: getPeople('chairs-wrap'), mods: getPeople('mods-wrap'),
+    logos: {
+      org:     serializeDraftLogos('logo-org'),
+      coorg:   serializeDraftLogos('logo-coorg'),
+      sponsor: serializeDraftLogos('logo-sponsor')
+    },
+    remarkZh: getVal('remark-zh'), remarkEn: getVal('remark-en'),
+    relatedLinksZh: getVal('related-links-zh'), relatedLinksEn: getVal('related-links-en'),
+    regUrlZh: getVal('reg-url-zh'), regUrlEn: getVal('reg-url-en'),
+    mapUrl: getVal('map-url'),
+    selectedForumMeta: selectedForum ? {
+      nameZh: selectedForum.nameZh || '',
+      nameEn: selectedForum.nameEn || '',
+      venueZh: selectedForum.venueZh || '',
+      venueEn: selectedForum.venueEn || ''
+    } : null,
+    forumPrices: selectedForum ? { prices: selectedForum.prices, hasPrices: selectedForum.hasPrices } : null
+  };
+}
+
+function applyForumDraftState(d) {
+  const fieldMap = {
+    nameZh:'name-zh', nameEn:'name-en', venueZh:'venue-zh', venueEn:'venue-en',
+    themeZh:'theme-zh', themeEn:'theme-en', outlineZh:'outline-zh', outlineEn:'outline-en',
+    partnerOrgsZh:'partner-orgs-zh', partnerOrgsEn:'partner-orgs-en',
+    advisedName:'advised-name', advisedUrl:'advised-url',
+    remarkZh:'remark-zh', remarkEn:'remark-en',
+    relatedLinksZh:'related-links-zh', relatedLinksEn:'related-links-en',
+    regUrlZh:'reg-url-zh', regUrlEn:'reg-url-en', mapUrl:'map-url'
+  };
+  Object.entries(fieldMap).forEach(([k, id]) => {
+    if(d[k] !== undefined) setVal(id, d[k]);
+  });
+
+  if(d.inputMode) inputMode = d.inputMode;
+  setChecked('opt-partner', !!d.partnerMode);
+  onPartnerModeChange(!!d.partnerMode);
+
+  if(d.forumPrices) {
+    selectedForum = selectedForum || {};
+    selectedForum.prices    = d.forumPrices.prices;
+    selectedForum.hasPrices = d.forumPrices.hasPrices;
+  }
+
+  const outputOptions = d.outputOptions || {};
+  const pickBool = (primary, secondary, fallback) =>
+    primary !== undefined ? !!primary : (secondary !== undefined ? !!secondary : fallback);
+  setChecked('opt-free', d.freeAdmission !== undefined ? !!d.freeAdmission : hasOnlyZeroPrices(selectedForum));
+  setChecked('opt-pricing', pickBool(d.showPricing, outputOptions.showPricing, true));
+  setChecked('opt-theme', pickBool(d.showTheme, outputOptions.showTheme, true));
+  setChecked('opt-outline', pickBool(d.showOutline, outputOptions.showOutline, true));
+  setChecked('opt-daypass', pickBool(d.showDayPass, outputOptions.showDayPass, true));
+  setChecked('opt-discount', pickBool(d.showDiscount, outputOptions.showDiscount, true));
+  setChecked('opt-footnote', pickBool(d.showFootnote, outputOptions.showFootnote, true));
+
+  document.getElementById('chairs-wrap').innerHTML = '';
+  (d.chairs||[]).forEach(p => addPerson('chairs-wrap', p.name, p.url));
+  if(!d.chairs?.length) addPerson('chairs-wrap');
+
+  document.getElementById('mods-wrap').innerHTML = '';
+  (d.mods||[]).forEach(p => addPerson('mods-wrap', p.name, p.url));
+  if(!d.mods?.length) addPerson('mods-wrap');
+
+  ['org','coorg','sponsor'].forEach(type => {
+    document.getElementById('logo-'+type).innerHTML = '';
+    (d.logos?.[type]||[]).forEach(l => {
+      if(l.origSrc) renderLogoCard('logo-'+type, l.origSrc, l.isCo || false, l.scale || 80, l.isUrl || false);
+    });
+  });
+
+  document.getElementById('draft-banner').classList.remove('show');
+  goStep(2);
+}
+
 function checkDraft() {
   const key = getDraftKey();
   if(key && localStorage.getItem(key)) {
@@ -1783,39 +2335,7 @@ async function saveDraft() {
   const key = getDraftKey();
   if(!key) { alert('請先填入場次名稱再儲存草稿'); return; }
 
-  // For URL-based logos, keep the URL. For uploaded files, keep the trimmed image instead of the original file payload.
-  const serializeLogos = (sectionId) =>
-    Array.from(document.querySelectorAll('#'+sectionId+' .logo-card')).map(c => ({
-      origSrc: c.dataset.isUrl === '1'
-        ? (c.dataset.origSrc || '')
-        : (c.dataset.trimmedSrc || c.dataset.origSrc || ''),
-      isUrl:   c.dataset.isUrl === '1',
-      isCo:    c.dataset.isCo === '1',
-      scale:   parseInt(c.dataset.scale || 80)
-    })).filter(l => l.origSrc);
-
-  const draft = {
-    nameZh: getVal('name-zh'), nameEn: getVal('name-en'),
-    venueZh: getVal('venue-zh'), venueEn: getVal('venue-en'),
-    themeZh: getVal('theme-zh'), themeEn: getVal('theme-en'),
-    outlineZh: getVal('outline-zh'), outlineEn: getVal('outline-en'),
-    partnerMode: document.getElementById('opt-partner')?.checked || false,
-    freeAdmission: document.getElementById('opt-free')?.checked || false,
-    showPricing: document.getElementById('opt-pricing')?.checked !== false,
-    partnerOrgsZh: getVal('partner-orgs-zh'), partnerOrgsEn: getVal('partner-orgs-en'),
-    advisedName: getVal('advised-name'), advisedUrl: getVal('advised-url'),
-    chairs: getPeople('chairs-wrap'), mods: getPeople('mods-wrap'),
-    logos: {
-      org:     serializeLogos('logo-org'),
-      coorg:   serializeLogos('logo-coorg'),
-      sponsor: serializeLogos('logo-sponsor')
-    },
-    remarkZh: getVal('remark-zh'), remarkEn: getVal('remark-en'),
-    relatedLinksZh: getVal('related-links-zh'), relatedLinksEn: getVal('related-links-en'),
-    regUrlZh: getVal('reg-url-zh'), regUrlEn: getVal('reg-url-en'),
-    mapUrl: getVal('map-url'),
-    forumPrices: selectedForum ? { prices: selectedForum.prices, hasPrices: selectedForum.hasPrices } : null
-  };
+  const draft = collectForumDraftState();
 
   try {
     await migrateLegacyDrafts();
@@ -1848,51 +2368,116 @@ async function loadDraft() {
       alert('載入失敗：找不到草稿內容，可能已被清除。');
       return;
     }
-    const fieldMap = {
-      nameZh:'name-zh', nameEn:'name-en', venueZh:'venue-zh', venueEn:'venue-en',
-      themeZh:'theme-zh', themeEn:'theme-en', outlineZh:'outline-zh', outlineEn:'outline-en',
-      partnerOrgsZh:'partner-orgs-zh', partnerOrgsEn:'partner-orgs-en',
-      advisedName:'advised-name', advisedUrl:'advised-url',
-      remarkZh:'remark-zh', remarkEn:'remark-en',
-      relatedLinksZh:'related-links-zh', relatedLinksEn:'related-links-en',
-      regUrlZh:'reg-url-zh', regUrlEn:'reg-url-en', mapUrl:'map-url'
-    };
-    Object.entries(fieldMap).forEach(([k, id]) => {
-      if(d[k] !== undefined) setVal(id, d[k]);
-    });
-
-    setChecked('opt-partner', !!d.partnerMode);
-    onPartnerModeChange(!!d.partnerMode);
-
-    document.getElementById('chairs-wrap').innerHTML = '';
-    (d.chairs||[]).forEach(p => addPerson('chairs-wrap', p.name, p.url));
-    if(!d.chairs?.length) addPerson('chairs-wrap');
-
-    document.getElementById('mods-wrap').innerHTML = '';
-    (d.mods||[]).forEach(p => addPerson('mods-wrap', p.name, p.url));
-    if(!d.mods?.length) addPerson('mods-wrap');
-
-    // Restore logos — both URL-based and file-based (base64)
-    ['org','coorg','sponsor'].forEach(type => {
-      document.getElementById('logo-'+type).innerHTML = '';
-      (d.logos?.[type]||[]).forEach(l => {
-        if(l.origSrc) renderLogoCard('logo-'+type, l.origSrc, l.isCo || false, l.scale || 80, l.isUrl || false);
-      });
-    });
-
-    if(d.forumPrices) {
-      selectedForum = selectedForum || {};
-      selectedForum.prices    = d.forumPrices.prices;
-      selectedForum.hasPrices = d.forumPrices.hasPrices;
-    }
-    setChecked('opt-free', d.freeAdmission !== undefined ? !!d.freeAdmission : hasOnlyZeroPrices(selectedForum));
-    setChecked('opt-pricing', d.showPricing !== undefined ? !!d.showPricing : true);
-
-    document.getElementById('draft-banner').classList.remove('show');
-    goStep(2);
+    applyForumDraftState(d);
   } catch(e) {
     alert('載入失敗：草稿資料損毀，請重新輸入。');
   }
+}
+
+function getForumDraftTitle(draft) {
+  return draft.nameEn || draft.nameZh || draft.themeEn || draft.themeZh || 'forum-draft';
+}
+
+function makeForumDraftFileName(draft) {
+  const now = new Date();
+  const pad = (n) => String(n).padStart(2, '0');
+  const stamp = now.getFullYear() + pad(now.getMonth()+1) + pad(now.getDate()) + '-' + pad(now.getHours()) + pad(now.getMinutes());
+  const prefix = getForumDraftTitle(draft)
+    .replace(/[\\/:*?"<>|]+/g, '')
+    .replace(/\s+/g, '-')
+    .slice(0, 40)
+    .replace(/^-+|-+$/g, '');
+  return (prefix ? prefix + '-' : '') + 'forum-draft-' + stamp + '.json';
+}
+
+function showDraftJsonMessage(text, type) {
+  const box = document.getElementById('draft-json-msg');
+  if(!box) {
+    alert(text);
+    return;
+  }
+  box.textContent = text;
+  box.className = 'draft-json-msg ' + (type || 'ok');
+}
+
+function exportForumDraftJson() {
+  const draft = collectForumDraftState();
+  const payload = {
+    tool: 'forum-html-generator',
+    schemaVersion: 1,
+    exportedAt: new Date().toISOString(),
+    source: 'manual-draft',
+    title: getForumDraftTitle(draft),
+    ...draft
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = makeForumDraftFileName(draft);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  showDraftJsonMessage('已匯出論壇草稿 JSON。請和該論壇頁面的工作檔一起保存。', 'ok');
+}
+
+function normalizeImportedForumDraft(parsed) {
+  if(!parsed || typeof parsed !== 'object') throw new Error('invalid draft');
+  const draft = parsed.draft && typeof parsed.draft === 'object' ? parsed.draft : parsed;
+  const schemaVersion = parsed.schemaVersion ?? draft.schemaVersion;
+  return {
+    draft,
+    warning: schemaVersion !== 1
+  };
+}
+
+function formHasContentForDraftImport() {
+  const ids = [
+    'name-zh','name-en','venue-zh','venue-en','theme-zh','theme-en','outline-zh','outline-en',
+    'partner-orgs-zh','partner-orgs-en','advised-name','advised-url','remark-zh','remark-en',
+    'related-links-zh','related-links-en','reg-url-zh','reg-url-en','map-url'
+  ];
+  const hasText = ids.some(id => getVal(id));
+  const hasPeople = getPeople('chairs-wrap').length > 0 || getPeople('mods-wrap').length > 0;
+  const hasLogos = ['logo-org','logo-coorg','logo-sponsor'].some(id => serializeDraftLogos(id).length > 0);
+  return hasText || hasPeople || hasLogos || !!selectedForum;
+}
+
+function handleImportDraftJson(event) {
+  const input = event.target;
+  const file = input.files?.[0];
+  input.value = '';
+  if(!file) return;
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    let normalized;
+    try {
+      const parsed = JSON.parse(String(reader.result || ''));
+      normalized = normalizeImportedForumDraft(parsed);
+    } catch(e) {
+      showDraftJsonMessage('JSON 格式無法讀取，請確認檔案是否為論壇草稿。', 'err');
+      return;
+    }
+
+    if(formHasContentForDraftImport() && !confirm('目前表單已有內容，匯入草稿會覆蓋目前欄位。是否繼續？')) {
+      showDraftJsonMessage('已取消匯入，現有表單內容未變更。', 'warn');
+      return;
+    }
+
+    try {
+      applyForumDraftState(normalized.draft);
+      const msg = normalized.warning
+        ? '草稿版本較舊或未知，已嘗試匯入相容欄位，請檢查內容。'
+        : '已匯入草稿，可繼續編輯並重新產生 HTML。';
+      showDraftJsonMessage(msg, normalized.warning ? 'warn' : 'ok');
+    } catch(e) {
+      showDraftJsonMessage('草稿內容無法套用，請確認檔案是否來自論壇 HTML 產生器。', 'err');
+    }
+  };
+  reader.onerror = () => showDraftJsonMessage('無法讀取檔案，請重新選擇草稿 JSON。', 'err');
+  reader.readAsText(file);
 }
 
 async function clearDrafts() {
@@ -1964,17 +2549,17 @@ const OUT_CSS = `<style><!--
 .st26-anchor-btn:hover{background:#673BB8;color:#fff;border-color:#673BB8}
 .st26-venue-btn-static{cursor:default}
 .st26-venue-btn-static:hover{background:#f9f8ff;color:#673BB8;border-color:#d4c8f0}
-.st26-details{margin-bottom:12px}
-.st26-summary{list-style:none;cursor:pointer;padding:12px 16px;background:#ede8f8;border-radius:8px;outline:none;display:block;margin-bottom:12px;transition:background-color .2s;border:1px solid #d4c8f0}
-.st26-summary:hover{background-color:#e2d9f3}
+.st26-details{margin:0 0 18px;padding:16px 18px;background:#fbfbfd;border:1px solid #ececf2;border-left:3px solid #b9a7dc;border-radius:8px}
+.st26-outline-toggle{margin-top:12px;padding-top:10px;border-top:1px solid #ececf2}
+.st26-summary{list-style:none;cursor:pointer;padding:0;background:transparent;border-radius:0;outline:none;display:inline-flex;margin:0;border:none;font-size:13px;font-weight:700;color:#555;line-height:1.4}
+.st26-summary:hover{color:#673BB8}
 .st26-summary::-webkit-details-marker{display:none}
-.st26-theme-line{font-size:24px;font-weight:800;color:#673BB8;display:inline}
-.st26-theme-line::after{content:'▼';font-size:14px;color:#673BB8;margin-left:12px;display:inline-block;transition:transform .2s;vertical-align:middle;font-family:Arial,sans-serif}
-details[open] .st26-theme-line::after{transform:rotate(180deg)}
-.st26-theme-static{font-size:24px;font-weight:800;color:#673BB8;display:block;padding:12px 16px;background:#ede8f8;border-radius:8px;border:1px solid #d4c8f0;margin-bottom:16px}
-.st26-lang-zh .st26-theme-line::before,.st26-lang-zh .st26-theme-static::before{content:'主題：';font-weight:800;color:#673BB8}
-.st26-lang-en .st26-theme-line::before,.st26-lang-en .st26-theme-static::before{content:'Theme: ';font-weight:800;color:#673BB8}
-.st26-outline{padding:16px 20px;background:#f9f8ff;border-left:4px solid #673BB8;border-radius:0 6px 6px 0;margin-top:4px;margin-bottom:16px;font-size:16px;color:#444;line-height:1.8}
+.st26-theme-head{display:block;margin:0}
+.st26-theme-label,.st26-outline-label{font-size:12px;font-weight:800;color:#86868b;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px}
+.st26-theme-line{font-size:22px;font-weight:800;color:#1d1d1f;display:block;line-height:1.35}
+.st26-theme-static{font-size:22px;font-weight:800;color:#1d1d1f;display:block;line-height:1.35}
+.st26-outline{padding:10px 0 0;background:transparent;border-left:none;border-radius:0;margin-top:0;margin-bottom:0;font-size:16px;color:#444;line-height:1.8}
+.st26-outline-label{margin-top:0;margin-bottom:6px}
 .st26-outline p{margin-bottom:10px}
 .st26-outline p:last-child{margin-bottom:0}
 .st26-outline ul,.st26-pricing-remark ul{margin:8px 0 10px 20px;padding:0}
@@ -2036,6 +2621,15 @@ details[open] .st26-theme-line::after{transform:rotate(180deg)}
 .st26-discount{margin-top:16px;padding:14px 18px;background:#edf7e3;border-left:4px solid #55A51C;border-radius:0 6px 6px 0;font-size:14px;font-weight:600;color:#2d5a0e;line-height:1.6}
 .st26-note{margin-top:10px;font-size:13px;color:#888;line-height:1.5}
 @media(max-width:768px){
+  .st26-anchor-nav{gap:8px;margin:10px 0 14px}
+  .st26-anchor-btn{font-size:12px;padding:6px 10px;line-height:1.35}
+  .st26-details{padding:10px 12px;margin-bottom:12px;border-radius:7px}
+  .st26-theme-label,.st26-outline-label{font-size:10px;margin-bottom:3px;letter-spacing:.07em}
+  .st26-theme-line,.st26-theme-static{font-size:20px;line-height:1.24}
+  .st26-outline-toggle{margin-top:8px;padding-top:7px}
+  .st26-summary{font-size:12px;line-height:1.3}
+  .st26-outline{font-size:14px;line-height:1.68;padding-top:8px}
+  .st26-outline p{margin-bottom:8px}
   .st26-org{grid-template-columns:1fr;gap:12px}
   .st26-org-item{grid-template-columns:1fr;gap:4px;min-width:100%}
   .st26-dp{flex-direction:column;align-items:flex-start}
@@ -2050,12 +2644,25 @@ details[open] .st26-theme-line::after{transform:rotate(180deg)}
   .st26-partner-org-row{grid-template-columns:1fr;gap:2px}
   .st26-partner-org-role{font-size:12px}
   .st26-pr-head{display:none}
+  .st26-pr-wrap{padding-bottom:2px}
   .st26-pr-row{display:flex;flex-direction:column;background:#fff;border:1px solid #d4c8f0;border-radius:8px;padding:16px;margin-bottom:12px;gap:0}
+  .st26-pr-row:last-child{border-bottom:1px solid #d4c8f0;margin-bottom:0}
   .st26-pr-col1{width:100%;border-bottom:2px solid #1d1d1f;padding-bottom:12px;margin-bottom:8px}
   .st26-pr-col2,.st26-pr-col3{width:100%;display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #eee;text-align:right}
   .st26-pr-col3{border-bottom:none;padding-bottom:0}
   .st26-pr-label{display:block;font-size:13px;color:#86868b;font-weight:700}
 }
+.st26-preview-mobile .st26-anchor-nav{gap:8px;margin:10px 0 14px}
+.st26-preview-mobile .st26-anchor-btn{font-size:12px;padding:6px 10px;line-height:1.35}
+.st26-preview-mobile .st26-details{padding:10px 12px;margin-bottom:12px;border-radius:7px}
+.st26-preview-mobile .st26-theme-label,.st26-preview-mobile .st26-outline-label{font-size:10px;margin-bottom:3px;letter-spacing:.07em}
+.st26-preview-mobile .st26-theme-line,.st26-preview-mobile .st26-theme-static{font-size:20px;line-height:1.24}
+.st26-preview-mobile .st26-outline-toggle{margin-top:8px;padding-top:7px}
+.st26-preview-mobile .st26-summary{font-size:12px;line-height:1.3}
+.st26-preview-mobile .st26-outline{font-size:14px;line-height:1.68;padding-top:8px}
+.st26-preview-mobile .st26-outline p{margin-bottom:8px}
+.st26-preview-mobile .st26-pr-wrap{padding-bottom:2px}
+.st26-preview-mobile .st26-pr-row:last-child{border-bottom:1px solid #d4c8f0;margin-bottom:0}
 --></style>`;
 
 function isPartnerMode() {
@@ -2125,24 +2732,18 @@ function parsePipeRows(raw, expected) {
 function buildThemeBlock(theme, outline, lang) {
   const showTheme   = document.getElementById('opt-theme')?.checked !== false;
   const showOutline = document.getElementById('opt-outline')?.checked !== false;
-  const partnerMode = isPartnerMode();
 
   if(!showTheme) return '';
 
   const txt = theme || (lang==='zh' ? '即將公告' : 'To be announced');
+  const themeLabel = lang==='zh' ? '主題' : 'Theme';
+  const outlineLabel = lang==='zh' ? '活動大綱' : 'Overview';
+  const outlineSummary = lang==='zh' ? '查看活動大綱' : 'View overview';
+  const outlineHTML = (outline && showOutline)
+    ? '\n  <details class="st26-outline-toggle">\n    <summary class="st26-summary">'+outlineSummary+'</summary>\n    <div class="st26-outline">\n      <div class="st26-outline-label">'+outlineLabel+'</div>\n'+renderParagraphs(outline)+'\n    </div>\n  </details>'
+    : '';
 
-  if(partnerMode) {
-    const outlineHTML = (outline && showOutline)
-      ? '\n  <div class="st26-outline">\n'+renderParagraphs(outline)+'\n  </div>'
-      : '';
-    return '\n<div style="padding:4px 0;"><span class="st26-theme-static">'+esc(txt)+'</span></div>' + outlineHTML;
-  }
-
-  if(outline && showOutline) {
-    const paras = renderParagraphs(outline);
-    return '\n<details class="st26-details">\n  <summary class="st26-summary"><span class="st26-theme-line">'+esc(txt)+'</span></summary>\n  <div class="st26-outline">\n'+paras+'\n  </div>\n</details>';
-  }
-  return '\n<div style="padding:4px 0;"><span class="st26-theme-static">'+esc(txt)+'</span></div>';
+  return '\n<div class="st26-details">\n  <div class="st26-theme-head">\n    <div class="st26-theme-label">'+themeLabel+'</div>\n    <span class="st26-theme-line">'+esc(txt)+'</span>\n  </div>' + outlineHTML + '\n</div>';
 }
 
 function buildAnchorNav(venueDisplay, mapUrl, lang) {
