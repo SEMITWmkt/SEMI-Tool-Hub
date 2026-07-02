@@ -84,6 +84,13 @@ textarea.inp{resize:vertical}
 .api-details summary::-webkit-details-marker{display:none}
 .api-body{margin-top:10px;display:flex;gap:8px;align-items:flex-end}
 .api-body .inp{font-family:monospace;font-size:12px;letter-spacing:.03em}
+.input-action-row{display:flex;justify-content:flex-end;gap:8px;margin-top:10px;flex-wrap:wrap}
+.restore-primary-action{border:1px solid #e8def8;border-radius:8px;background:#faf8ff;padding:12px;margin-top:10px}
+.restore-primary-title{font-size:13px;font-weight:800;color:#1d1d1f;line-height:1.45}
+.restore-primary-sub{font-size:11px;color:var(--muted);line-height:1.5;margin-top:3px}
+.restore-primary-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.restore-adjust{margin-top:10px}
+.restore-adjust summary{font-size:11px;font-weight:800;color:var(--brand);cursor:pointer}
 
 /* Legacy restore preview */
 .restore-preview{display:none;margin-top:12px;border:1px solid var(--border);border-radius:8px;background:#fff;overflow:hidden}
@@ -307,6 +314,38 @@ textarea.inp{resize:vertical}
   <div class="field">
     <label class="lbl">貼上資料 <span style="color:var(--err)">*</span></label>
     <textarea class="inp" id="raw-input" rows="9" placeholder="在此貼入資料..."></textarea>
+    <div class="input-action-row">
+      <button class="btn btn-primary" id="near-parse-btn" onclick="handleParse()">解析 Excel 資料 →</button>
+    </div>
+  </div>
+
+  <!-- Excel forum select (shown after parse) -->
+  <div id="forum-select-wrap" style="display:none">
+    <div class="card">
+      <div class="card-title">選擇場次</div>
+      <div class="field">
+        <label class="lbl">找到 <span id="forum-count">0</span> 個場次，請選擇：</label>
+        <select class="inp" id="forum-select" onchange="onForumSelect()">
+          <option value="">── 請選擇 ──</option>
+        </select>
+      </div>
+      <div id="forum-preview" style="display:none;margin-top:12px">
+        <div class="grid2">
+          <div>
+            <div class="lbl" style="color:var(--brand)">場地</div>
+            <div id="prev-venue" style="font-size:14px;font-weight:700"></div>
+            <div id="prev-venue-zh" style="font-size:12px;color:var(--muted);margin-top:2px"></div>
+          </div>
+        </div>
+        <div style="margin-top:12px">
+          <div class="lbl" style="color:var(--brand)">票價預覽</div>
+          <div id="prev-price"></div>
+        </div>
+      </div>
+      <div class="input-action-row">
+        <button class="btn btn-primary" onclick="proceedFromExcel()">確認場次並繼續到 Step 2 →</button>
+      </div>
+    </div>
   </div>
 
   <div class="card" id="legacy-restore-card">
@@ -350,32 +389,6 @@ textarea.inp{resize:vertical}
   </div>
 
   <div class="err-box" id="parse-err"></div>
-
-  <!-- Excel forum select (shown after parse) -->
-  <div id="forum-select-wrap" style="display:none">
-    <div class="card">
-      <div class="card-title">選擇場次</div>
-      <div class="field">
-        <label class="lbl">找到 <span id="forum-count">0</span> 個場次，請選擇：</label>
-        <select class="inp" id="forum-select" onchange="onForumSelect()">
-          <option value="">── 請選擇 ──</option>
-        </select>
-      </div>
-      <div id="forum-preview" style="display:none;margin-top:12px">
-        <div class="grid2">
-          <div>
-            <div class="lbl" style="color:var(--brand)">場地</div>
-            <div id="prev-venue" style="font-size:14px;font-weight:700"></div>
-            <div id="prev-venue-zh" style="font-size:12px;color:var(--muted);margin-top:2px"></div>
-          </div>
-        </div>
-        <div style="margin-top:12px">
-          <div class="lbl" style="color:var(--brand)">票價預覽</div>
-          <div id="prev-price"></div>
-        </div>
-      </div>
-    </div>
-  </div>
 
   <!-- Draft banner -->
   <div class="draft-banner" id="draft-banner">
@@ -740,6 +753,8 @@ function setMode(mode, btn) {
   document.getElementById('mode-hint-excel').style.display = mode==='excel' ? 'block' : 'none';
   document.getElementById('mode-hint-partner').style.display = mode==='partner' ? 'block' : 'none';
   document.getElementById('api-section').style.display     = (mode==='text' || mode==='partner') ? 'block' : 'none';
+  const nearParseBtn = document.getElementById('near-parse-btn');
+  if(nearParseBtn) nearParseBtn.textContent = mode === 'excel' ? '解析 Excel 資料 →' : '解析文字內容 →';
   document.getElementById('forum-select-wrap').style.display = 'none';
   document.getElementById('draft-banner').classList.remove('show');
 
@@ -1393,10 +1408,7 @@ function handleLegacyRestoreApply() {
     result.textContent = '已套用：' + applied.join('、') + '。你現在可以繼續到 Step 2 編輯。Logo、票價與人員角色未套用，請手動確認。';
   }
 
-  const continueBtn = document.getElementById('legacy-continue-step2');
-  if(continueBtn) {
-    continueBtn.classList.add('show');
-  }
+  document.querySelectorAll('.legacy-continue-step2').forEach(btn => btn.classList.add('show'));
 }
 
 function continueLegacyRestoreToStep2() {
@@ -1455,6 +1467,8 @@ function renderLegacyRestorePreview(data) {
     ? '<div class="restore-warnings">'+visibleWarnings.map(w => '<div>⚠ '+esc(w)+'</div>').join('')+'</div>'
     : '<div class="ok-box" style="font-size:12px;margin:0">沒有額外提醒。</div>';
   const applyOptions = legacyRestoreApplyItems(data).map(item => legacyRestoreOptionHTML(item, data)).join('');
+  const targetLabel = legacyRestoreTargetLabel(data);
+  const actionTitle = '已抓到 '+detectedFields+' 個欄位，可套用到'+targetLabel;
 
   preview.classList.add('show');
   preview.innerHTML =
@@ -1470,6 +1484,15 @@ function renderLegacyRestorePreview(data) {
         metric('Logo', totalLogos + ' 個') +
         metric('提醒', warningCount + ' 個') +
       '</div>' +
+      '<div class="restore-primary-action">' +
+        '<div class="restore-primary-title">'+esc(actionTitle)+'</div>' +
+        '<div class="restore-primary-sub">先套用可確認的欄位，再到 Step 2 檢查與補齊內容。</div>' +
+        '<div class="restore-primary-actions">' +
+          '<button class="btn btn-primary btn-sm" onclick="handleLegacyRestoreApply()">套用到表單</button>' +
+          '<button class="btn btn-primary btn-sm restore-continue legacy-continue-step2" onclick="continueLegacyRestoreToStep2()">繼續到 Step 2 編輯</button>' +
+        '</div>' +
+        '<div class="restore-success" id="legacy-apply-result"></div>' +
+      '</div>' +
     '</div>' +
     '<div class="restore-section">' +
       '<div class="restore-section-title">可套用欄位</div>' +
@@ -1484,19 +1507,16 @@ function renderLegacyRestorePreview(data) {
       '</div>' +
       (outlinePreview.truncated ? '<div class="restore-note">大綱內容已縮短顯示，套用後可到 Step 2 編輯完整內容。</div>' : '') +
       '<div class="restore-apply" style="margin-top:10px">' +
-        '<div class="restore-logo-label">套用還原欄位到表單 Apply restored fields to form</div>' +
-        '<div class="restore-sub">勾選要套用的欄位；已有內容時會先詢問，不會自動覆蓋。</div>' +
-        '<div class="restore-options">'+applyOptions+'</div>' +
+        '<details class="restore-adjust">' +
+          '<summary>調整套用欄位</summary>' +
+          '<div class="restore-sub">預設只勾選有抓到內容的欄位；已有內容時會先詢問，不會自動覆蓋。</div>' +
+          '<div class="restore-options">'+applyOptions+'</div>' +
+        '</details>' +
         '<div class="restore-flags">' +
           '<div>Logo 圖片不會套用，請人工確認。</div>' +
           '<div>票價表不會套用，請人工確認。</div>' +
           '<div>主席 / 主持人 / 指導單位不會套用，請人工確認。</div>' +
         '</div>' +
-        '<div class="restore-actions">' +
-          '<button class="btn btn-secondary btn-sm" onclick="handleLegacyRestoreApply()">套用到表單</button>' +
-          '<button class="btn btn-primary btn-sm restore-continue" id="legacy-continue-step2" onclick="continueLegacyRestoreToStep2()">繼續到 Step 2</button>' +
-        '</div>' +
-        '<div class="restore-success" id="legacy-apply-result"></div>' +
       '</div>' +
     '</div>' +
     '<div class="restore-section">' +
@@ -1727,13 +1747,14 @@ function switchView(mode, btn) {
   if(btn) btn.classList.add('active');
   const frame = document.getElementById('preview-frame');
   frame.classList.toggle('mobile', mode==='mobile');
+  updatePreview(currentLang);
 }
 
 function updatePreview(lang) {
   const html = lang==='zh' ? zhHTML : enHTML;
   const frame = document.getElementById('preview-frame');
-  // viewport meta tag ensures media queries fire correctly inside the iframe
-  frame.srcdoc = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{margin:0;padding:0;width:100%}body{padding:20px;box-sizing:border-box}</style></head><body>${html}</body></html>`;
+  const bodyClass = currentView === 'mobile' ? ' class="st26-preview-mobile"' : '';
+  frame.srcdoc = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{margin:0;padding:0;width:100%}body{padding:20px;box-sizing:border-box}</style></head><body${bodyClass}>${html}</body></html>`;
   frame.onload = () => {
     try {
       if(currentView === 'desktop') {
@@ -2361,17 +2382,17 @@ const OUT_CSS = `<style><!--
 .st26-anchor-btn:hover{background:#673BB8;color:#fff;border-color:#673BB8}
 .st26-venue-btn-static{cursor:default}
 .st26-venue-btn-static:hover{background:#f9f8ff;color:#673BB8;border-color:#d4c8f0}
-.st26-details{margin-bottom:12px}
-.st26-summary{list-style:none;cursor:pointer;padding:12px 16px;background:#ede8f8;border-radius:8px;outline:none;display:block;margin-bottom:12px;transition:background-color .2s;border:1px solid #d4c8f0}
-.st26-summary:hover{background-color:#e2d9f3}
+.st26-details{margin:0 0 18px;padding:16px 18px;background:#fbfbfd;border:1px solid #ececf2;border-left:3px solid #b9a7dc;border-radius:8px}
+.st26-outline-toggle{margin-top:12px;padding-top:10px;border-top:1px solid #ececf2}
+.st26-summary{list-style:none;cursor:pointer;padding:0;background:transparent;border-radius:0;outline:none;display:inline-flex;margin:0;border:none;font-size:13px;font-weight:700;color:#555;line-height:1.4}
+.st26-summary:hover{color:#673BB8}
 .st26-summary::-webkit-details-marker{display:none}
-.st26-theme-line{font-size:24px;font-weight:800;color:#673BB8;display:inline}
-.st26-theme-line::after{content:'▼';font-size:14px;color:#673BB8;margin-left:12px;display:inline-block;transition:transform .2s;vertical-align:middle;font-family:Arial,sans-serif}
-details[open] .st26-theme-line::after{transform:rotate(180deg)}
-.st26-theme-static{font-size:24px;font-weight:800;color:#673BB8;display:block;padding:12px 16px;background:#ede8f8;border-radius:8px;border:1px solid #d4c8f0;margin-bottom:16px}
-.st26-lang-zh .st26-theme-line::before,.st26-lang-zh .st26-theme-static::before{content:'主題：';font-weight:800;color:#673BB8}
-.st26-lang-en .st26-theme-line::before,.st26-lang-en .st26-theme-static::before{content:'Theme: ';font-weight:800;color:#673BB8}
-.st26-outline{padding:16px 20px;background:#f9f8ff;border-left:4px solid #673BB8;border-radius:0 6px 6px 0;margin-top:4px;margin-bottom:16px;font-size:16px;color:#444;line-height:1.8}
+.st26-theme-head{display:block;margin:0}
+.st26-theme-label,.st26-outline-label{font-size:12px;font-weight:800;color:#86868b;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px}
+.st26-theme-line{font-size:22px;font-weight:800;color:#1d1d1f;display:block;line-height:1.35}
+.st26-theme-static{font-size:22px;font-weight:800;color:#1d1d1f;display:block;line-height:1.35}
+.st26-outline{padding:10px 0 0;background:transparent;border-left:none;border-radius:0;margin-top:0;margin-bottom:0;font-size:16px;color:#444;line-height:1.8}
+.st26-outline-label{margin-top:0;margin-bottom:6px}
 .st26-outline p{margin-bottom:10px}
 .st26-outline p:last-child{margin-bottom:0}
 .st26-outline ul,.st26-pricing-remark ul{margin:8px 0 10px 20px;padding:0}
@@ -2433,6 +2454,15 @@ details[open] .st26-theme-line::after{transform:rotate(180deg)}
 .st26-discount{margin-top:16px;padding:14px 18px;background:#edf7e3;border-left:4px solid #55A51C;border-radius:0 6px 6px 0;font-size:14px;font-weight:600;color:#2d5a0e;line-height:1.6}
 .st26-note{margin-top:10px;font-size:13px;color:#888;line-height:1.5}
 @media(max-width:768px){
+  .st26-anchor-nav{gap:8px;margin:10px 0 14px}
+  .st26-anchor-btn{font-size:12px;padding:6px 10px;line-height:1.35}
+  .st26-details{padding:10px 12px;margin-bottom:12px;border-radius:7px}
+  .st26-theme-label,.st26-outline-label{font-size:10px;margin-bottom:3px;letter-spacing:.07em}
+  .st26-theme-line,.st26-theme-static{font-size:20px;line-height:1.24}
+  .st26-outline-toggle{margin-top:8px;padding-top:7px}
+  .st26-summary{font-size:12px;line-height:1.3}
+  .st26-outline{font-size:14px;line-height:1.68;padding-top:8px}
+  .st26-outline p{margin-bottom:8px}
   .st26-org{grid-template-columns:1fr;gap:12px}
   .st26-org-item{grid-template-columns:1fr;gap:4px;min-width:100%}
   .st26-dp{flex-direction:column;align-items:flex-start}
@@ -2447,12 +2477,25 @@ details[open] .st26-theme-line::after{transform:rotate(180deg)}
   .st26-partner-org-row{grid-template-columns:1fr;gap:2px}
   .st26-partner-org-role{font-size:12px}
   .st26-pr-head{display:none}
+  .st26-pr-wrap{padding-bottom:2px}
   .st26-pr-row{display:flex;flex-direction:column;background:#fff;border:1px solid #d4c8f0;border-radius:8px;padding:16px;margin-bottom:12px;gap:0}
+  .st26-pr-row:last-child{border-bottom:1px solid #d4c8f0;margin-bottom:0}
   .st26-pr-col1{width:100%;border-bottom:2px solid #1d1d1f;padding-bottom:12px;margin-bottom:8px}
   .st26-pr-col2,.st26-pr-col3{width:100%;display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #eee;text-align:right}
   .st26-pr-col3{border-bottom:none;padding-bottom:0}
   .st26-pr-label{display:block;font-size:13px;color:#86868b;font-weight:700}
 }
+.st26-preview-mobile .st26-anchor-nav{gap:8px;margin:10px 0 14px}
+.st26-preview-mobile .st26-anchor-btn{font-size:12px;padding:6px 10px;line-height:1.35}
+.st26-preview-mobile .st26-details{padding:10px 12px;margin-bottom:12px;border-radius:7px}
+.st26-preview-mobile .st26-theme-label,.st26-preview-mobile .st26-outline-label{font-size:10px;margin-bottom:3px;letter-spacing:.07em}
+.st26-preview-mobile .st26-theme-line,.st26-preview-mobile .st26-theme-static{font-size:20px;line-height:1.24}
+.st26-preview-mobile .st26-outline-toggle{margin-top:8px;padding-top:7px}
+.st26-preview-mobile .st26-summary{font-size:12px;line-height:1.3}
+.st26-preview-mobile .st26-outline{font-size:14px;line-height:1.68;padding-top:8px}
+.st26-preview-mobile .st26-outline p{margin-bottom:8px}
+.st26-preview-mobile .st26-pr-wrap{padding-bottom:2px}
+.st26-preview-mobile .st26-pr-row:last-child{border-bottom:1px solid #d4c8f0;margin-bottom:0}
 --></style>`;
 
 function isPartnerMode() {
@@ -2522,24 +2565,18 @@ function parsePipeRows(raw, expected) {
 function buildThemeBlock(theme, outline, lang) {
   const showTheme   = document.getElementById('opt-theme')?.checked !== false;
   const showOutline = document.getElementById('opt-outline')?.checked !== false;
-  const partnerMode = isPartnerMode();
 
   if(!showTheme) return '';
 
   const txt = theme || (lang==='zh' ? '即將公告' : 'To be announced');
+  const themeLabel = lang==='zh' ? '主題' : 'Theme';
+  const outlineLabel = lang==='zh' ? '活動大綱' : 'Overview';
+  const outlineSummary = lang==='zh' ? '查看活動大綱' : 'View overview';
+  const outlineHTML = (outline && showOutline)
+    ? '\n  <details class="st26-outline-toggle">\n    <summary class="st26-summary">'+outlineSummary+'</summary>\n    <div class="st26-outline">\n      <div class="st26-outline-label">'+outlineLabel+'</div>\n'+renderParagraphs(outline)+'\n    </div>\n  </details>'
+    : '';
 
-  if(partnerMode) {
-    const outlineHTML = (outline && showOutline)
-      ? '\n  <div class="st26-outline">\n'+renderParagraphs(outline)+'\n  </div>'
-      : '';
-    return '\n<div style="padding:4px 0;"><span class="st26-theme-static">'+esc(txt)+'</span></div>' + outlineHTML;
-  }
-
-  if(outline && showOutline) {
-    const paras = renderParagraphs(outline);
-    return '\n<details class="st26-details">\n  <summary class="st26-summary"><span class="st26-theme-line">'+esc(txt)+'</span></summary>\n  <div class="st26-outline">\n'+paras+'\n  </div>\n</details>';
-  }
-  return '\n<div style="padding:4px 0;"><span class="st26-theme-static">'+esc(txt)+'</span></div>';
+  return '\n<div class="st26-details">\n  <div class="st26-theme-head">\n    <div class="st26-theme-label">'+themeLabel+'</div>\n    <span class="st26-theme-line">'+esc(txt)+'</span>\n  </div>' + outlineHTML + '\n</div>';
 }
 
 function buildAnchorNav(venueDisplay, mapUrl, lang) {
