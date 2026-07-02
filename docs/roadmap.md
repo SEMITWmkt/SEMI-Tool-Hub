@@ -41,7 +41,7 @@ Status: completed enough for the current integrated Hub; ongoing as tools change
 
 - Confirm all four Hub modules launch from `index.html`.
 - Confirm Pavilions v1.1 appears inside Hub.
-- Keep Forum v9.13 source sync documented.
+- Keep Forum v9.14 source sync and QA status documented.
 - Align embedded tool layouts with the Hub workspace so tools do not appear as narrow standalone pages.
 - Decide whether source docs should be copied into Hub docs or kept as tool-level references.
 
@@ -69,7 +69,7 @@ Out of scope:
 
 ## Phase 2.6: Project State Continuity
 
-Status: started with Sponsors, Pavilions, and Trends.
+Status: active across Sponsors, Pavilions, Trends, and Forum v9.14.
 
 Goal: make recurring website updates editable through saved structured state instead of manual HTML edits.
 
@@ -86,7 +86,7 @@ Scope:
 
 Next:
 
-- Add Forum project state without disrupting the current v9.13 workflow.
+- Run QA on Forum v9.14 Draft JSON maintenance workflow and back-sync source state.
 
 ## Phase 2.7: Shared Generator UI
 
@@ -108,12 +108,12 @@ Status: pending.
 
 Focus:
 
-- Keep Forum source and Hub snapshot synchronized before adding new workflow changes.
+- Keep Forum source and Hub snapshot synchronized before adding further workflow changes.
 - Use `Program at a Glance Excel` as the fixed upstream source and standardize the post-parse workflow instead of replacing Excel.
-- Add Forum continuity slice based on `docs/forum-continuity-standard.md`.
+- Maintain Forum continuity slice based on `docs/forum-continuity-standard.md`.
 - Review AI-assisted parsing path.
 - Add minimum-input mode if it reduces editor confusion.
-- Add JSON project export/import if current storage is not enough for handoff.
+- Extend JSON project export/import only after v9.14 QA identifies gaps.
 - Add Drupal paste checklist.
 
 ## Phase 4: Theme / Trend Generator Review

@@ -59,6 +59,6 @@
 |---|---|---|
 | Trend v4.11 metadata alignment | 已完成：Hub 首頁、workspace metadata、工具檔與 version-map 皆以 v4.11 為目前版本 | ✅ 完成 |
 | Trend Drupal QA / output rendering | 版本漂移已不是主要風險；下一步是 Drupal paste、桌機/手機前台、互動與 template QA 證據 | 🟡 中 |
-| Forum post-v9.13 紀錄 | 已先放入 Unreleased；後續若正式發版需決定是否 bump v9.14 | 🟡 中 |
+| Forum v9.14 workflow docs | 已補 release notes、version-map、status 與 work log；下一步是 Drupal QA 與 source repo back-sync | 🟡 中 |
 | Sponsors release notes | v5.2.1 有感變更已補；source repo 仍需回同步 | 🟡 中 |
 | Pavilions working copy | v1.1 CMS source 壓縮輸出已記錄；待測試與 commit | 🟡 中 |

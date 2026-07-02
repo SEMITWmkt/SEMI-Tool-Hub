@@ -1,6 +1,6 @@
 # SEMI Tool Hub — Tool Status
 
-Last updated: 2026-06-30
+Last updated: 2026-07-02
 
 This is the central status map for the integrated Hub. It records what each tool currently represents inside `tools/`, what is known to be unresolved, and what must happen before the next publish-ready handoff.
 
@@ -16,7 +16,7 @@ Status labels:
 
 | Tool | Hub path | Current status | Drupal QA state | Next action |
 |---|---|---|---|---|
-| Forum HTML Compiler | `tools/forum/index.html` | Hub branch ahead | QA pending for post-v9.13 changes | Decide whether post-v9.13 work becomes v9.14, then run Drupal QA. |
+| Forum HTML Compiler | `tools/forum/index.html` | Hub branch ahead at v9.14 | QA pending for v9.14 workflow | Run Drupal QA for Legacy Restore, Draft JSON, Theme / Outline, pricing, and mobile output before publish-ready handoff. |
 | Trend Table Creator | `tools/trends/index.html` | Working copy aligned at v4.11 | QA pending | Run Drupal QA for output rendering and interaction behavior. |
 | Sponsors Logo Creator | `tools/sponsors/index.html` | Hub ahead | QA pending for v5.2.1 restore flow | Back-sync v5.2.1 to source repo and capture Drupal paste evidence. |
 | Pavilions Vendor Creator | `tools/pavilions/index.html` | Working copy ahead | QA pending for compact CMS source output | Test compact output in Drupal source and decide whether to publish current working copy. |
@@ -28,14 +28,14 @@ Status labels:
 
 | Field | Status |
 |---|---|
-| Owner thread | Forum continuity / post-v9.13 pricing and outline control |
+| Owner thread | Forum continuity / v9.14 maintenance workflow |
 | Hub path | `tools/forum/index.html` |
-| Version shown in tool | `v9.13` |
-| Version in Hub metadata | `v9.13` |
+| Version shown in tool | `v9.14` |
+| Version in Hub metadata | `v9.14` |
 | Version-map state | Hub branch ahead |
-| Known issues | Post-v9.13 changes add free admission, pricing toggles, and outline formatting without a version bump. |
-| Drupal QA state | Pending. Needs backend paste, frontend desktop/mobile, link checks, and screenshot evidence. |
-| Next action | Decide whether to label this as `v9.14`; if yes, update version-map/release-notes after QA. |
+| Known issues | v9.14 workflow is documented, but still needs Drupal paste evidence and source repo back-sync. Legacy Restore intentionally does not restore title, pricing, logos, or people roles. |
+| Drupal QA state | Pending. Needs backend paste, frontend desktop/mobile, link checks, Legacy Restore smoke test, Draft JSON import/export smoke test, and screenshot evidence. |
+| Next action | Run v9.14 QA, then back-sync or explicitly mark the source repo behind. |
 
 ### Trend Table Creator
 

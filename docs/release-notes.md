@@ -9,11 +9,31 @@
 
 > 正在開發中，尚未同步進 Hub 的變更放這裡，上線時移到對應版本區塊。
 
-### Forum HTML Compiler v9.13 post-baseline
-- 新增手動免費入場控制，避免只為調整價格文字而手改 HTML。
-- 新增 pricing 顯示開關，讓編輯者能明確控制是否輸出價格 / 免費入場資訊。
-- 支援較可控的 outline 格式，降低貼入 Drupal 前再修版面的機率。
-- 壓縮免費論壇 pricing 輸出，讓 CMS source 內容更乾淨。
+### Forum HTML Compiler v9.14
+- 新增 Forum Draft JSON 匯入 / 匯出，讓 CP 後續更新同一頁論壇時不必每次重新貼 Excel、重建欄位。
+- 新增既有 Drupal body HTML 還原預覽，可從已發布內容抓回 Theme、Outline、Venue、Registration URL。
+- 還原資料可手動套用到表單，套用後可直接進入 Step 2 編輯，不會自動覆蓋欄位或自動產生 HTML。
+- Step 1 動線整理：Excel/text 解析按鈕靠近輸入區，場次選擇區有就近繼續按鈕，Legacy Restore 放在正常流程之後。
+- Theme / Outline 輸出改為較安靜的 B2B 版型：主題永遠可見，大綱維持可收合但不再像大型紫色 demo accordion。
+- 修正手機版 Theme / Outline 過度佔版與 pricing card 底線裁切問題。
+- 保留既有 Drupal Readiness / Logo source guidance，降低貼上前的發布風險。
+
+#### v9.14 維護流程提醒
+- Excel/text 適合初次建立頁面。
+- Forum Draft JSON 是後續維護同一頁論壇的建議來源。
+- Drupal HTML 是發布輸出，不建議作為日後編輯的主要來源。
+- Legacy Restore 是救援 / 接續工具，不是完整 CMS migration。
+
+#### Legacy Restore 尚不還原
+- Drupal 頁面標題 / 論壇名稱。
+- 票價表。
+- Logo 圖片 / 贊助或主協辦區塊。
+- 主席、主持人、指導單位。
+
+#### Draft JSON 注意事項
+- Draft JSON 是本機檔案，不是資料庫，也不是 CMS migration 系統。
+- 若草稿內含本機上傳 Logo，檔案可能會因 base64 圖片而變大。
+- 長期發布仍建議將 Logo 上傳到 Drupal file / media library，並在工具中使用 Drupal file URL。
 
 ### Trend Table Creator v4.11
 - Metadata alignment completed: Hub launcher, workspace metadata, tool file, and version-map now use `v4.11`.

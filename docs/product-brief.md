@@ -74,7 +74,7 @@ As a SEMICON Taiwan website editor, I want one workbench that guides me to the r
 ## Acceptance Criteria
 
 - Each tool can be launched from the Hub.
-- Forum v9.13 remains available inside the Hub without changing the team’s familiar workflow.
+- Forum v9.14 remains available inside the Hub with the familiar Excel-first path plus Draft JSON maintenance for future updates.
 - Each tool has a clear purpose statement and publishing responsibility.
 - The Hub does not display fake controls that imply unavailable features.
 - Pavilions v1.1 shows source-data validation before output.
@@ -117,7 +117,7 @@ Initial target:
 
 - Replace dashboard-like layout with a clear tool selection experience.
 - Keep active tools reachable.
-- Do not redesign Forum internals yet.
+- Keep Forum changes focused on continuity, QA, and handoff safety rather than broad redesign.
 
 ### Phase 3: Pavilions v1.1 Confidence Upgrade
 
