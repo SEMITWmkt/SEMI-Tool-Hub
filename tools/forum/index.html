@@ -88,6 +88,15 @@ textarea.inp{resize:vertical}
 .restore-primary-action{border:1px solid #e8def8;border-radius:8px;background:#faf8ff;padding:12px;margin-top:10px}
 .restore-primary-title{font-size:13px;font-weight:800;color:#1d1d1f;line-height:1.45}
 .restore-primary-sub{font-size:11px;color:var(--muted);line-height:1.5;margin-top:3px}
+.draft-json-card{background:#fff;border-color:#e5e5ea}
+.draft-json-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.draft-json-title{font-size:14px;font-weight:800;color:#1d1d1f;margin-bottom:4px}
+.draft-json-sub{font-size:12px;color:#666;line-height:1.55}
+.draft-json-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.draft-json-msg{display:none;margin-top:12px;border-radius:8px;padding:10px 12px;font-size:12px;font-weight:700;line-height:1.5}
+.draft-json-msg.ok{display:block;background:#edf7e3;border:1px solid #bbf7d0;color:#166534}
+.draft-json-msg.warn{display:block;background:#fffbeb;border:1px solid #fde68a;color:#92400e}
+.draft-json-msg.err{display:block;background:#fff0f0;border:1px solid #fcc;color:var(--err)}
 .restore-primary-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
 .restore-adjust{margin-top:10px}
 .restore-adjust summary{font-size:11px;font-weight:800;color:var(--brand);cursor:pointer}
@@ -414,6 +423,21 @@ textarea.inp{resize:vertical}
 
   <div class="workflow-note" id="workflow-note">
     目前為一般論壇流程，只保留 CP Team 上架常用欄位；合作論壇欄位已收起，避免一般論壇編輯時被不相關內容干擾。
+  </div>
+
+  <div class="card draft-json-card">
+    <div class="draft-json-head">
+      <div>
+        <div class="draft-json-title">論壇草稿 JSON</div>
+        <div class="draft-json-sub">更新同一頁論壇時，建議先匯入上次保存的草稿，再編輯變動欄位並重新產生 HTML。</div>
+      </div>
+      <div class="draft-json-actions">
+        <button class="btn btn-secondary" onclick="document.getElementById('forum-draft-json-input').click()">匯入論壇草稿 JSON</button>
+        <button class="btn btn-ok" onclick="exportForumDraftJson()">匯出論壇草稿 JSON</button>
+        <input type="file" id="forum-draft-json-input" accept="application/json,.json" style="display:none" onchange="handleImportDraftJson(event)">
+      </div>
+    </div>
+    <div class="draft-json-msg" id="draft-json-msg"></div>
   </div>
 
   <!-- 基本資訊 -->
@@ -2190,6 +2214,116 @@ function getDraftKey() {
   return FORUM_DRAFT_PREFIX + btoa(unescape(encodeURIComponent(name))).substring(0,24);
 }
 
+function serializeDraftLogos(sectionId) {
+  return Array.from(document.querySelectorAll('#'+sectionId+' .logo-card')).map(c => ({
+    origSrc: c.dataset.isUrl === '1'
+      ? (c.dataset.origSrc || '')
+      : (c.dataset.trimmedSrc || c.dataset.origSrc || ''),
+    isUrl:   c.dataset.isUrl === '1',
+    isCo:    c.dataset.isCo === '1',
+    scale:   parseInt(c.dataset.scale || 80)
+  })).filter(l => l.origSrc);
+}
+
+function collectForumDraftState() {
+  return {
+    inputMode,
+    nameZh: getVal('name-zh'), nameEn: getVal('name-en'),
+    venueZh: getVal('venue-zh'), venueEn: getVal('venue-en'),
+    themeZh: getVal('theme-zh'), themeEn: getVal('theme-en'),
+    outlineZh: getVal('outline-zh'), outlineEn: getVal('outline-en'),
+    partnerMode: document.getElementById('opt-partner')?.checked || false,
+    freeAdmission: document.getElementById('opt-free')?.checked || false,
+    showPricing: document.getElementById('opt-pricing')?.checked !== false,
+    showTheme: document.getElementById('opt-theme')?.checked !== false,
+    showOutline: document.getElementById('opt-outline')?.checked !== false,
+    showDayPass: document.getElementById('opt-daypass')?.checked !== false,
+    showDiscount: document.getElementById('opt-discount')?.checked !== false,
+    showFootnote: document.getElementById('opt-footnote')?.checked !== false,
+    outputOptions: {
+      showPricing: document.getElementById('opt-pricing')?.checked !== false,
+      showTheme: document.getElementById('opt-theme')?.checked !== false,
+      showOutline: document.getElementById('opt-outline')?.checked !== false,
+      showDayPass: document.getElementById('opt-daypass')?.checked !== false,
+      showDiscount: document.getElementById('opt-discount')?.checked !== false,
+      showFootnote: document.getElementById('opt-footnote')?.checked !== false
+    },
+    partnerOrgsZh: getVal('partner-orgs-zh'), partnerOrgsEn: getVal('partner-orgs-en'),
+    advisedName: getVal('advised-name'), advisedUrl: getVal('advised-url'),
+    chairs: getPeople('chairs-wrap'), mods: getPeople('mods-wrap'),
+    logos: {
+      org:     serializeDraftLogos('logo-org'),
+      coorg:   serializeDraftLogos('logo-coorg'),
+      sponsor: serializeDraftLogos('logo-sponsor')
+    },
+    remarkZh: getVal('remark-zh'), remarkEn: getVal('remark-en'),
+    relatedLinksZh: getVal('related-links-zh'), relatedLinksEn: getVal('related-links-en'),
+    regUrlZh: getVal('reg-url-zh'), regUrlEn: getVal('reg-url-en'),
+    mapUrl: getVal('map-url'),
+    selectedForumMeta: selectedForum ? {
+      nameZh: selectedForum.nameZh || '',
+      nameEn: selectedForum.nameEn || '',
+      venueZh: selectedForum.venueZh || '',
+      venueEn: selectedForum.venueEn || ''
+    } : null,
+    forumPrices: selectedForum ? { prices: selectedForum.prices, hasPrices: selectedForum.hasPrices } : null
+  };
+}
+
+function applyForumDraftState(d) {
+  const fieldMap = {
+    nameZh:'name-zh', nameEn:'name-en', venueZh:'venue-zh', venueEn:'venue-en',
+    themeZh:'theme-zh', themeEn:'theme-en', outlineZh:'outline-zh', outlineEn:'outline-en',
+    partnerOrgsZh:'partner-orgs-zh', partnerOrgsEn:'partner-orgs-en',
+    advisedName:'advised-name', advisedUrl:'advised-url',
+    remarkZh:'remark-zh', remarkEn:'remark-en',
+    relatedLinksZh:'related-links-zh', relatedLinksEn:'related-links-en',
+    regUrlZh:'reg-url-zh', regUrlEn:'reg-url-en', mapUrl:'map-url'
+  };
+  Object.entries(fieldMap).forEach(([k, id]) => {
+    if(d[k] !== undefined) setVal(id, d[k]);
+  });
+
+  if(d.inputMode) inputMode = d.inputMode;
+  setChecked('opt-partner', !!d.partnerMode);
+  onPartnerModeChange(!!d.partnerMode);
+
+  if(d.forumPrices) {
+    selectedForum = selectedForum || {};
+    selectedForum.prices    = d.forumPrices.prices;
+    selectedForum.hasPrices = d.forumPrices.hasPrices;
+  }
+
+  const outputOptions = d.outputOptions || {};
+  const pickBool = (primary, secondary, fallback) =>
+    primary !== undefined ? !!primary : (secondary !== undefined ? !!secondary : fallback);
+  setChecked('opt-free', d.freeAdmission !== undefined ? !!d.freeAdmission : hasOnlyZeroPrices(selectedForum));
+  setChecked('opt-pricing', pickBool(d.showPricing, outputOptions.showPricing, true));
+  setChecked('opt-theme', pickBool(d.showTheme, outputOptions.showTheme, true));
+  setChecked('opt-outline', pickBool(d.showOutline, outputOptions.showOutline, true));
+  setChecked('opt-daypass', pickBool(d.showDayPass, outputOptions.showDayPass, true));
+  setChecked('opt-discount', pickBool(d.showDiscount, outputOptions.showDiscount, true));
+  setChecked('opt-footnote', pickBool(d.showFootnote, outputOptions.showFootnote, true));
+
+  document.getElementById('chairs-wrap').innerHTML = '';
+  (d.chairs||[]).forEach(p => addPerson('chairs-wrap', p.name, p.url));
+  if(!d.chairs?.length) addPerson('chairs-wrap');
+
+  document.getElementById('mods-wrap').innerHTML = '';
+  (d.mods||[]).forEach(p => addPerson('mods-wrap', p.name, p.url));
+  if(!d.mods?.length) addPerson('mods-wrap');
+
+  ['org','coorg','sponsor'].forEach(type => {
+    document.getElementById('logo-'+type).innerHTML = '';
+    (d.logos?.[type]||[]).forEach(l => {
+      if(l.origSrc) renderLogoCard('logo-'+type, l.origSrc, l.isCo || false, l.scale || 80, l.isUrl || false);
+    });
+  });
+
+  document.getElementById('draft-banner').classList.remove('show');
+  goStep(2);
+}
+
 function checkDraft() {
   const key = getDraftKey();
   if(key && localStorage.getItem(key)) {
@@ -2201,39 +2335,7 @@ async function saveDraft() {
   const key = getDraftKey();
   if(!key) { alert('請先填入場次名稱再儲存草稿'); return; }
 
-  // For URL-based logos, keep the URL. For uploaded files, keep the trimmed image instead of the original file payload.
-  const serializeLogos = (sectionId) =>
-    Array.from(document.querySelectorAll('#'+sectionId+' .logo-card')).map(c => ({
-      origSrc: c.dataset.isUrl === '1'
-        ? (c.dataset.origSrc || '')
-        : (c.dataset.trimmedSrc || c.dataset.origSrc || ''),
-      isUrl:   c.dataset.isUrl === '1',
-      isCo:    c.dataset.isCo === '1',
-      scale:   parseInt(c.dataset.scale || 80)
-    })).filter(l => l.origSrc);
-
-  const draft = {
-    nameZh: getVal('name-zh'), nameEn: getVal('name-en'),
-    venueZh: getVal('venue-zh'), venueEn: getVal('venue-en'),
-    themeZh: getVal('theme-zh'), themeEn: getVal('theme-en'),
-    outlineZh: getVal('outline-zh'), outlineEn: getVal('outline-en'),
-    partnerMode: document.getElementById('opt-partner')?.checked || false,
-    freeAdmission: document.getElementById('opt-free')?.checked || false,
-    showPricing: document.getElementById('opt-pricing')?.checked !== false,
-    partnerOrgsZh: getVal('partner-orgs-zh'), partnerOrgsEn: getVal('partner-orgs-en'),
-    advisedName: getVal('advised-name'), advisedUrl: getVal('advised-url'),
-    chairs: getPeople('chairs-wrap'), mods: getPeople('mods-wrap'),
-    logos: {
-      org:     serializeLogos('logo-org'),
-      coorg:   serializeLogos('logo-coorg'),
-      sponsor: serializeLogos('logo-sponsor')
-    },
-    remarkZh: getVal('remark-zh'), remarkEn: getVal('remark-en'),
-    relatedLinksZh: getVal('related-links-zh'), relatedLinksEn: getVal('related-links-en'),
-    regUrlZh: getVal('reg-url-zh'), regUrlEn: getVal('reg-url-en'),
-    mapUrl: getVal('map-url'),
-    forumPrices: selectedForum ? { prices: selectedForum.prices, hasPrices: selectedForum.hasPrices } : null
-  };
+  const draft = collectForumDraftState();
 
   try {
     await migrateLegacyDrafts();
@@ -2266,51 +2368,116 @@ async function loadDraft() {
       alert('載入失敗：找不到草稿內容，可能已被清除。');
       return;
     }
-    const fieldMap = {
-      nameZh:'name-zh', nameEn:'name-en', venueZh:'venue-zh', venueEn:'venue-en',
-      themeZh:'theme-zh', themeEn:'theme-en', outlineZh:'outline-zh', outlineEn:'outline-en',
-      partnerOrgsZh:'partner-orgs-zh', partnerOrgsEn:'partner-orgs-en',
-      advisedName:'advised-name', advisedUrl:'advised-url',
-      remarkZh:'remark-zh', remarkEn:'remark-en',
-      relatedLinksZh:'related-links-zh', relatedLinksEn:'related-links-en',
-      regUrlZh:'reg-url-zh', regUrlEn:'reg-url-en', mapUrl:'map-url'
-    };
-    Object.entries(fieldMap).forEach(([k, id]) => {
-      if(d[k] !== undefined) setVal(id, d[k]);
-    });
-
-    setChecked('opt-partner', !!d.partnerMode);
-    onPartnerModeChange(!!d.partnerMode);
-
-    document.getElementById('chairs-wrap').innerHTML = '';
-    (d.chairs||[]).forEach(p => addPerson('chairs-wrap', p.name, p.url));
-    if(!d.chairs?.length) addPerson('chairs-wrap');
-
-    document.getElementById('mods-wrap').innerHTML = '';
-    (d.mods||[]).forEach(p => addPerson('mods-wrap', p.name, p.url));
-    if(!d.mods?.length) addPerson('mods-wrap');
-
-    // Restore logos — both URL-based and file-based (base64)
-    ['org','coorg','sponsor'].forEach(type => {
-      document.getElementById('logo-'+type).innerHTML = '';
-      (d.logos?.[type]||[]).forEach(l => {
-        if(l.origSrc) renderLogoCard('logo-'+type, l.origSrc, l.isCo || false, l.scale || 80, l.isUrl || false);
-      });
-    });
-
-    if(d.forumPrices) {
-      selectedForum = selectedForum || {};
-      selectedForum.prices    = d.forumPrices.prices;
-      selectedForum.hasPrices = d.forumPrices.hasPrices;
-    }
-    setChecked('opt-free', d.freeAdmission !== undefined ? !!d.freeAdmission : hasOnlyZeroPrices(selectedForum));
-    setChecked('opt-pricing', d.showPricing !== undefined ? !!d.showPricing : true);
-
-    document.getElementById('draft-banner').classList.remove('show');
-    goStep(2);
+    applyForumDraftState(d);
   } catch(e) {
     alert('載入失敗：草稿資料損毀，請重新輸入。');
   }
+}
+
+function getForumDraftTitle(draft) {
+  return draft.nameEn || draft.nameZh || draft.themeEn || draft.themeZh || 'forum-draft';
+}
+
+function makeForumDraftFileName(draft) {
+  const now = new Date();
+  const pad = (n) => String(n).padStart(2, '0');
+  const stamp = now.getFullYear() + pad(now.getMonth()+1) + pad(now.getDate()) + '-' + pad(now.getHours()) + pad(now.getMinutes());
+  const prefix = getForumDraftTitle(draft)
+    .replace(/[\\/:*?"<>|]+/g, '')
+    .replace(/\s+/g, '-')
+    .slice(0, 40)
+    .replace(/^-+|-+$/g, '');
+  return (prefix ? prefix + '-' : '') + 'forum-draft-' + stamp + '.json';
+}
+
+function showDraftJsonMessage(text, type) {
+  const box = document.getElementById('draft-json-msg');
+  if(!box) {
+    alert(text);
+    return;
+  }
+  box.textContent = text;
+  box.className = 'draft-json-msg ' + (type || 'ok');
+}
+
+function exportForumDraftJson() {
+  const draft = collectForumDraftState();
+  const payload = {
+    tool: 'forum-html-generator',
+    schemaVersion: 1,
+    exportedAt: new Date().toISOString(),
+    source: 'manual-draft',
+    title: getForumDraftTitle(draft),
+    ...draft
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = makeForumDraftFileName(draft);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  showDraftJsonMessage('已匯出論壇草稿 JSON。請和該論壇頁面的工作檔一起保存。', 'ok');
+}
+
+function normalizeImportedForumDraft(parsed) {
+  if(!parsed || typeof parsed !== 'object') throw new Error('invalid draft');
+  const draft = parsed.draft && typeof parsed.draft === 'object' ? parsed.draft : parsed;
+  const schemaVersion = parsed.schemaVersion ?? draft.schemaVersion;
+  return {
+    draft,
+    warning: schemaVersion !== 1
+  };
+}
+
+function formHasContentForDraftImport() {
+  const ids = [
+    'name-zh','name-en','venue-zh','venue-en','theme-zh','theme-en','outline-zh','outline-en',
+    'partner-orgs-zh','partner-orgs-en','advised-name','advised-url','remark-zh','remark-en',
+    'related-links-zh','related-links-en','reg-url-zh','reg-url-en','map-url'
+  ];
+  const hasText = ids.some(id => getVal(id));
+  const hasPeople = getPeople('chairs-wrap').length > 0 || getPeople('mods-wrap').length > 0;
+  const hasLogos = ['logo-org','logo-coorg','logo-sponsor'].some(id => serializeDraftLogos(id).length > 0);
+  return hasText || hasPeople || hasLogos || !!selectedForum;
+}
+
+function handleImportDraftJson(event) {
+  const input = event.target;
+  const file = input.files?.[0];
+  input.value = '';
+  if(!file) return;
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    let normalized;
+    try {
+      const parsed = JSON.parse(String(reader.result || ''));
+      normalized = normalizeImportedForumDraft(parsed);
+    } catch(e) {
+      showDraftJsonMessage('JSON 格式無法讀取，請確認檔案是否為論壇草稿。', 'err');
+      return;
+    }
+
+    if(formHasContentForDraftImport() && !confirm('目前表單已有內容，匯入草稿會覆蓋目前欄位。是否繼續？')) {
+      showDraftJsonMessage('已取消匯入，現有表單內容未變更。', 'warn');
+      return;
+    }
+
+    try {
+      applyForumDraftState(normalized.draft);
+      const msg = normalized.warning
+        ? '草稿版本較舊或未知，已嘗試匯入相容欄位，請檢查內容。'
+        : '已匯入草稿，可繼續編輯並重新產生 HTML。';
+      showDraftJsonMessage(msg, normalized.warning ? 'warn' : 'ok');
+    } catch(e) {
+      showDraftJsonMessage('草稿內容無法套用，請確認檔案是否來自論壇 HTML 產生器。', 'err');
+    }
+  };
+  reader.onerror = () => showDraftJsonMessage('無法讀取檔案，請重新選擇草稿 JSON。', 'err');
+  reader.readAsText(file);
 }
 
 async function clearDrafts() {
