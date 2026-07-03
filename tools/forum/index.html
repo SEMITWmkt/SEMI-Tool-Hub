@@ -2573,10 +2573,10 @@ const OUT_CSS = `<style><!--
 .st26-org-name{font-size:15px;font-weight:600;color:#333;line-height:1.55;min-width:0}
 .st26-org-name a{color:#673BB8;text-decoration:none;font-weight:600}
 .st26-org-name a:hover{text-decoration:underline}
-.st26-logo-row{display:grid;grid-template-columns:max-content minmax(0,1fr);align-items:start;column-gap:12px;padding:8px 0;border-bottom:1px solid #f5f5f7}
-.st26-logo-label{font-size:12px;font-weight:700;color:#86868b;text-transform:uppercase;letter-spacing:.05em;line-height:1.35;padding-top:18px;white-space:nowrap}
-.st26-logo-wrap{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px 10px;align-items:center;min-height:56px}
-.st26-logo-item{--logo-max-w:80%;--logo-max-h:43px;display:flex;align-items:center;justify-content:center;min-width:0;height:56px}
+.st26-logo-row{display:block;padding:16px 0;border-bottom:1px solid #f1f1f4}
+.st26-logo-label{display:block;font-size:12px;font-weight:800;color:#6e6e73;text-transform:uppercase;letter-spacing:.06em;line-height:1.35;margin-bottom:10px}
+.st26-logo-wrap{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,160px));gap:12px 16px;align-items:center;justify-content:start}
+.st26-logo-item{--logo-max-w:80%;--logo-max-h:54px;display:flex;align-items:center;justify-content:center;min-width:0;height:82px;padding:10px 12px;border:1px solid #f0f0f3;border-radius:8px;background:#fff}
 .st26-logo-item-wide{grid-column:span 2}
 .st26-logo-item img{max-width:var(--logo-max-w);max-height:var(--logo-max-h);width:auto;height:auto;object-fit:contain;display:block}
 .st26-partner-orgs{display:grid;gap:8px;margin:14px 0 18px;padding:12px 0;border-top:1px solid #e5e5ea;border-bottom:1px solid #e5e5ea}
@@ -2636,11 +2636,12 @@ const OUT_CSS = `<style><!--
   .st26-dp-grid{width:100%;display:grid;grid-template-columns:1fr;gap:12px}
   .st26-dp-item{align-items:center;flex-direction:row;justify-content:space-between;width:100%;border-bottom:1px solid #eee;padding-bottom:8px}
   .st26-dp-item:last-child{border-bottom:none;padding-bottom:0}
-  .st26-logo-row{display:block;padding:8px 0}
-  .st26-logo-label{width:100%;padding-top:0;margin-bottom:6px;font-size:12px}
-  .st26-logo-wrap{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;min-height:50px}
+  .st26-logo-row{padding:14px 0}
+  .st26-logo-label{margin-bottom:8px;font-size:12px}
+  .st26-logo-wrap{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
   .st26-logo-wrap.st26-logo-wrap-two{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .st26-logo-item{height:50px}
+  .st26-logo-item{height:74px;padding:9px 10px}
+  .st26-logo-item-wide{grid-column:1/-1}
   .st26-partner-org-row{grid-template-columns:1fr;gap:2px}
   .st26-partner-org-role{font-size:12px}
   .st26-pr-head{display:none}
@@ -2877,7 +2878,7 @@ function buildLogoSection(label, logos) {
   if(!logos.length) return '';
   const validLogos = logos.map(l => {
     const scale = Math.max(30, Math.min(100, parseInt(l.scale || 80)));
-    const maxH = Math.round(54 * (scale / 100));
+    const maxH = Math.round(64 * (scale / 100));
     const src = safeUrl(l.src, true);
     if(!src) return null;
     const itemClass = l.isCo ? 'st26-logo-item st26-logo-item-wide' : 'st26-logo-item';
