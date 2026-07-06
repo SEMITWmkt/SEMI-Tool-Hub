@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>主題互動區塊產生器 v4.11</title>
+<title>主題互動區塊產生器 v4.12</title>
 <style>
 :root{
   --pu:#800080;--pu-light:#f5eef5;--pu-mid:#ddc0dd;
@@ -429,7 +429,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 <header class="app-header">
     <div class="header-brand">
       <h1>主題互動區塊產生器</h1>
-    <span class="version-badge">v4.11</span>
+    <span class="version-badge">v4.12</span>
   </div>
   <div class="header-actions">
     <span class="save-indicator" id="saveIndicator"></span>
@@ -653,6 +653,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 
 <script src="assets/xlsx.full.min.js"></script>
 <script>
+// v4.12: safer reverse import, label-based drawer parsing, URL cleanup, import warnings
 // ════════════════════════════════════════════
 // DATA
 // ════════════════════════════════════════════
@@ -698,6 +699,7 @@ let themeSearchTerm = '';
 let showOnlyIssues = false;
 let selectedThemeIndex = 0;
 let themeListCollapsed = true;
+let importWarnings = [];
 
 // ════════════════════════════════════════════
 // RENDER
@@ -838,6 +840,14 @@ function addIssue(issues, themeIndex, message, meta, severity='error'){
   issues.push({themeIndex, message, meta, severity});
 }
 
+function clearImportWarnings(){
+  importWarnings = [];
+}
+
+function addImportWarning(themeIndex, message, meta){
+  importWarnings.push({themeIndex, message, meta, severity:'warn'});
+}
+
 function checkContentRows(issues, t, themeIndex, key, label){
   const groups = themeGroups(t);
   groups.forEach((group, groupIndex)=>{
@@ -920,7 +930,7 @@ function getPublishIssues(){
     checkContentRows(issues, t, i, 'zones', '展區');
     checkContentRows(issues, t, i, 'forums', '論壇');
   });
-  return issues;
+  return issues.concat(importWarnings || []);
 }
 
 function shouldRenderTheme(t,i,term,issues){
@@ -1701,7 +1711,7 @@ function buildCards(lang, uid, forPreview) {
       const content = url
         ? `<a href="${esc(url)}" target="_blank" rel="noopener">${esc(tx)}</a>`
         : esc(tx);
-      return `<li><span class="st-list-marker" aria-hidden="true"></span><span class="st-list-text">${content}</span></li>`;
+      return `<li><span class="st-list-text">${content}</span></li>`;
     }).filter(Boolean);
     return rows.length ? `<ul class="st-d-list">${rows.join('')}</ul>` : `<p class="st-cs">${esc(csText)}</p>`;
   };
@@ -2458,12 +2468,112 @@ function cleanImportedText(value){
   return String(value || '').replace(/\s+/g, ' ').trim();
 }
 
-function parseOutputListItems(col, lang){
+function importWarningMeta(context, rowIndex){
+  context = context || {};
+  const parts = [];
+  if(context.groupLabel)parts.push(context.groupLabel);
+  if(context.columnLabel)parts.push(context.columnLabel);
+  if(Number.isInteger(rowIndex))parts.push(String(rowIndex + 1));
+  return parts.join(' - ') || '匯入資料';
+}
+
+function warnImportedText(text, context, rowIndex){
+  context = context || {themeIndex:0};
+  const value = String(text || '').trim();
+  if(!value)return;
+  const meta = importWarningMeta(context, rowIndex);
+  if(/^\s*["“”'「『]/.test(value))addImportWarning(context.themeIndex, '匯入文字前方可能含多餘引號', meta);
+  if(/^\s*["“”'「『]?\s*\d+\s*[\.\、．\)]/.test(value))addImportWarning(context.themeIndex, '匯入文字前方可能含多餘編號', meta);
+  if(/待確認/.test(value))addImportWarning(context.themeIndex, '匯入文字含「待確認」', meta);
+}
+
+function shouldStripUrlParam(name){
+  return /^(_gl|_ga|_gcl_au)$/i.test(name) || /^utm_/i.test(name) || /^(gclid|fbclid)$/i.test(name);
+}
+
+function stripTrackingParamsFromUrl(value){
+  const normalized = normalizeUrl(value);
+  if(!normalized)return '';
+  const absolute = /^https?:\/\//i.test(normalized);
+  const rootRelative = /^\//.test(normalized);
+  const canParseRelative = rootRelative || /^[^?#]+[?#]/.test(normalized);
+  if(!absolute && !canParseRelative)return normalized;
+  try{
+    const url = new URL(normalized, 'https://example.invalid');
+    Array.from(url.searchParams.keys()).forEach(key => {
+      if(shouldStripUrlParam(key))url.searchParams.delete(key);
+    });
+    if(absolute)return url.toString();
+    return `${url.pathname}${url.search}${url.hash}`;
+  }catch(e){
+    return normalized;
+  }
+}
+
+function warnImportedUrl(url, context, rowIndex, hadHref){
+  context = context || {themeIndex:0};
+  const meta = importWarningMeta(context, rowIndex);
+  if(hadHref && !url){
+    addImportWarning(context.themeIndex, '匯入連結 href 是空白', meta);
+    return;
+  }
+  if(!url)return;
+  if(/dummit/i.test(url))addImportWarning(context.themeIndex, '匯入 URL 可能含拼字錯誤 dummit', meta);
+  if(/IC_Forum_202(?!\d)/i.test(url))addImportWarning(context.themeIndex, '匯入 URL 可能含不完整年份路徑 IC_Forum_202', meta);
+}
+
+function cleanImportedUrl(value, context, rowIndex, hadHref){
+  const cleaned = stripTrackingParamsFromUrl(value);
+  warnImportedUrl(cleaned, context, rowIndex, hadHref);
+  return cleaned;
+}
+
+function normalizeDrawerLabel(value){
+  return cleanImportedText(value).replace(/[：:]/g, '').replace(/\s+/g, ' ').trim();
+}
+
+function drawerColumnType(col){
+  const directLabel = normalizeDrawerLabel(col.querySelector('.st-d-label')?.textContent || '');
+  const headLabel = normalizeDrawerLabel(Array.from(col.childNodes || [])
+    .slice(0, 2)
+    .map(node => node.textContent || '')
+    .join(' ')
+  );
+  const label = directLabel || headLabel;
+  const compact = label.toLowerCase().replace(/\s+/g, '').replace(/[／/]/g, '/');
+  if(label.includes('論壇議題') || compact === 'forumtopics')return 'forums';
+  if(/展區\s*\/\s*專區/.test(label) || compact === 'exhibitionzone')return 'zones';
+  return '';
+}
+
+function collectDrawerColumns(grid){
+  const cols = Array.from(grid.children).filter(col => col.querySelector('.st-d-label') || col.querySelector('.st-d-list'));
+  const found = {zones:null, forums:null};
+  cols.forEach(col => {
+    const type = drawerColumnType(col);
+    if(type && !found[type])found[type] = col;
+  });
+  if(!found.zones && !found.forums){
+    return {zones:cols[0] || null, forums:cols[1] || null};
+  }
+  if(cols.length > 1 && !found.zones)found.zones = cols.find(col => col !== found.forums) || null;
+  if(cols.length > 1 && !found.forums)found.forums = cols.find(col => col !== found.zones) || null;
+  return found;
+}
+
+function drawerColumnLabel(col, fallback){
+  return normalizeDrawerLabel(col?.querySelector('.st-d-label')?.textContent || '') || fallback;
+}
+
+function parseOutputListItems(col, lang, context){
   return Array.from(col.querySelectorAll('.st-d-list li')).map(li => {
     const anchor = li.querySelector('a');
     const textEl = anchor || li.querySelector('.st-list-text') || li;
     const text = cleanImportedText(textEl.textContent);
-    const url = anchor ? anchor.getAttribute('href') || '' : '';
+    const rawUrl = anchor ? anchor.getAttribute('href') || '' : '';
+    const rowIndex = Array.prototype.indexOf.call(li.parentElement.children, li);
+    warnImportedText(text, context, rowIndex);
+    const url = cleanImportedUrl(rawUrl, context, rowIndex, !!anchor);
     if(!text && !url)return null;
     return lang === 'zh'
       ? {zh:text, en:'', url_zh:url, url_en:''}
@@ -2479,6 +2589,7 @@ function detectOutputLang(html, root){
 }
 
 function applyExistingHtmlBatch(html){
+  clearImportWarnings();
   const chunks = String(html || '')
     .split(/(?=<!--\s*(?:主題互動區塊|Interactive Theme Blocks)\s*\|)/i)
     .map(chunk => chunk.trim())
@@ -2497,6 +2608,9 @@ function applyExistingHtmlBatch(html){
       const sub = cleanImportedText(card.querySelector('.st-card-sub')?.textContent || '');
       const desc = cleanImportedText(card.querySelector('.st-d-desc:not(.st-d-desc-empty)')?.textContent || '');
       const icon = card.querySelector('.st-card-icon-wrap img')?.getAttribute('src') || '';
+      warnImportedText(title, {themeIndex:index, groupLabel:'主題文字', columnLabel:lang === 'zh' ? '主標題' : 'Title'}, 0);
+      warnImportedText(sub, {themeIndex:index, groupLabel:'主題文字', columnLabel:lang === 'zh' ? '關鍵字 / 副標' : 'Keywords / Subtitle'}, 0);
+      warnImportedText(desc, {themeIndex:index, groupLabel:'主題文字', columnLabel:lang === 'zh' ? '主題介紹' : 'Trend Intro'}, 0);
       if(lang === 'zh'){
         if(title)theme.title_zh = title;
         if(sub)theme.sub_zh = sub;
@@ -2514,17 +2628,21 @@ function applyExistingHtmlBatch(html){
       importGroups.forEach((groupNode, groupIndex) => {
         const grid = groupNode.querySelector('.st-d-grid');
         if(!grid)return;
-        const cols = Array.from(grid.children);
         const label = cleanImportedText(groupNode.querySelector('.st-group-title')?.textContent || '');
         if(!theme.groups || !theme.groups[groupIndex])theme.groups = theme.groups || [];
         if(!theme.groups[groupIndex])theme.groups[groupIndex] = {label_zh:'',label_en:'',showZone:true,showForum:true,zones:[],forums:[]};
         const contentGroup = theme.groups[groupIndex];
         if(label){
+          warnImportedText(label, {themeIndex:index, groupLabel:'群組', columnLabel:lang === 'zh' ? '中文標籤' : 'English Label'}, groupIndex);
           if(lang === 'zh')contentGroup.label_zh = label;
           else contentGroup.label_en = label;
         }
-        const zoneItems = cols[0] ? parseOutputListItems(cols[0], lang) : [];
-        const forumItems = cols[1] ? parseOutputListItems(cols[1], lang) : [];
+        const drawerCols = collectDrawerColumns(grid);
+        const groupLabel = label || contentGroup.label_zh || contentGroup.label_en || (importGroups.length > 1 ? `群組 ${groupIndex + 1}` : '');
+        const zoneItems = drawerCols.zones ? parseOutputListItems(drawerCols.zones, lang, {themeIndex:index, groupLabel, columnLabel:drawerColumnLabel(drawerCols.zones, lang === 'zh' ? '展區 / 專區' : 'Exhibition Zone')}) : [];
+        const forumItems = drawerCols.forums ? parseOutputListItems(drawerCols.forums, lang, {themeIndex:index, groupLabel, columnLabel:drawerColumnLabel(drawerCols.forums, lang === 'zh' ? '論壇議題' : 'Forum Topics')}) : [];
+        contentGroup.showZone = !!(drawerCols.zones && zoneItems.length);
+        contentGroup.showForum = !!(drawerCols.forums && forumItems.length);
         if(zoneItems.length){
           if(lang === 'zh'){
             contentGroup.zones = [];
@@ -2573,6 +2691,7 @@ function applySheetBatch(){
     alert(`已從既有 HTML 抓回 ${updated} 個主題。`);
     return;
   }
+  clearImportWarnings();
   const lines = raw.replace(/\r/g,'').split('\n').filter(line => line.trim() !== '');
   if(lines.length < 2){alert('至少需要標題列與一筆資料。');return;}
   const headers = lines[0].split('\t');
@@ -2609,10 +2728,10 @@ function getWorkState(){
   return {
     schema: WORKFILE_SCHEMA,
     tool: 'Interactive Theme Block Generator',
-    version: 'v4.11',
+    version: 'v4.12',
     projectName: 'Theme Block Project',
     exportedAt: new Date().toISOString(),
-    data: { themes, globals: getGlobals(), selectedThemeIndex }
+    data: { themes, globals: getGlobals(), selectedThemeIndex, importWarnings }
   };
 }
 
@@ -2620,6 +2739,7 @@ function applyWorkState(workfile){
   const data = workfile.data || workfile;
   if(data.themes&&Array.isArray(data.themes))themes=data.themes;
   if(Number.isInteger(data.selectedThemeIndex))selectedThemeIndex=data.selectedThemeIndex;
+  importWarnings = Array.isArray(data.importWarnings) ? data.importWarnings : [];
   fillMissingIconsWithDefaults();
   normalizeThemeLinks();
   applyGlobals(data.globals);
@@ -2632,7 +2752,7 @@ function saveToStorage(){
   try{
     normalizeThemeLinks();
     const g=getGlobals();
-    localStorage.setItem(STORAGE_KEY,JSON.stringify({themes,globals:g,selectedThemeIndex}));
+    localStorage.setItem(STORAGE_KEY,JSON.stringify({themes,globals:g,selectedThemeIndex,importWarnings}));
     flashSave();
   }catch(e){}
 }
@@ -2643,6 +2763,7 @@ function loadFromStorage(){
     const s=JSON.parse(raw);
     if(s.themes&&Array.isArray(s.themes))themes=s.themes;
     if(Number.isInteger(s.selectedThemeIndex))selectedThemeIndex=s.selectedThemeIndex;
+    importWarnings = Array.isArray(s.importWarnings) ? s.importWarnings : [];
     fillMissingIconsWithDefaults();
     normalizeThemeLinks();
     if(s.globals)applyGlobals(s.globals);
