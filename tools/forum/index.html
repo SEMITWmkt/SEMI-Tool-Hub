@@ -2525,16 +2525,16 @@ const OUT_CSS = `<style><!--
 .st26,.st26 *{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased}
 .st26{font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue","Noto Sans TC",Arial,sans-serif;color:#1d1d1f;padding:0 0 32px;line-height:1.6}
 .st26-anchor-nav{display:flex;gap:12px;margin:16px 0 24px;flex-wrap:wrap}
-.st26-anchor-btn{font-size:14px;font-weight:500;color:#673BB8;text-decoration:none;padding:8px 16px;border:1px solid #d4c8f0;border-radius:10px;background:#f9f8ff;transition:all .2s;display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+.st26-anchor-btn{font-size:14px;font-weight:700;color:#673BB8;text-decoration:none;padding:8px 16px;border:1px solid #d4c8f0;border-radius:10px;background:#f9f8ff;transition:all .2s;display:inline-flex;align-items:center;gap:6px;cursor:pointer}
 .st26-anchor-btn:hover{background:#673BB8;color:#fff;border-color:#673BB8}
 .st26-venue-btn-static{cursor:default}
 .st26-venue-btn-static:hover{background:#f9f8ff;color:#673BB8;border-color:#d4c8f0}
 .st26-details{margin:0 0 18px;padding:16px 18px;background:#f1edfa;border:1px solid #ddd3f2;border-radius:10px}
 .st26-outline-toggle{margin-top:12px;padding-top:10px;border-top:1px solid #ddd3f2}
-.st26-summary{list-style:none;cursor:pointer;padding:0;background:transparent;border-radius:0;outline:none;display:inline-flex;align-items:center;gap:6px;margin:0;border:none;font-size:13px;font-weight:500;color:#555;line-height:1.4}
-.st26-summary:hover{color:#673BB8}
+.st26-summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:6px;margin:0;border:1px solid #d4c8f0;border-radius:10px;background:#f9f8ff;padding:8px 14px;font-size:14px;font-weight:700;color:#673BB8;line-height:1.4}
+.st26-summary:hover{background:#673BB8;color:#fff;border-color:#673BB8}
 .st26-summary::-webkit-details-marker{display:none}
-.st26-chevron{display:inline-block;font-size:11px;transition:transform .2s}
+.st26-chevron{display:inline-block;font-size:13px;transition:transform .2s}
 details[open] .st26-chevron{transform:rotate(180deg)}
 .st26-theme-head{display:block;margin:0}
 .st26-theme-label,.st26-outline-label{font-size:12px;font-weight:800;color:#86868b;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px}
@@ -2605,12 +2605,12 @@ details[open] .st26-chevron{transform:rotate(180deg)}
 .st26-note{margin-top:10px;font-size:13px;color:#888;line-height:1.5}
 @media(max-width:768px){
   .st26-anchor-nav{gap:8px;margin:10px 0 14px}
-  .st26-anchor-btn{font-size:12px;padding:6px 10px;line-height:1.35}
+  .st26-anchor-btn{font-size:14px;padding:9px 14px;line-height:1.35}
   .st26-details{padding:10px 12px;margin-bottom:12px;border-radius:10px}
   .st26-theme-label,.st26-outline-label{font-size:10px;margin-bottom:3px;letter-spacing:.07em}
   .st26-theme-line,.st26-theme-static{font-size:20px;line-height:1.24}
   .st26-outline-toggle{margin-top:8px;padding-top:7px}
-  .st26-summary{font-size:12px;line-height:1.3}
+  .st26-summary{font-size:14px;padding:9px 14px;line-height:1.3}
   .st26-outline{font-size:14px;line-height:1.68;padding-top:8px}
   .st26-outline p{margin-bottom:8px}
   .st26-org{grid-template-columns:1fr;gap:12px}
@@ -2639,12 +2639,12 @@ details[open] .st26-chevron{transform:rotate(180deg)}
   .st26-pr-label{display:block;font-size:13px;color:#86868b;font-weight:700}
 }
 .st26-preview-mobile .st26-anchor-nav{gap:8px;margin:10px 0 14px}
-.st26-preview-mobile .st26-anchor-btn{font-size:12px;padding:6px 10px;line-height:1.35}
+.st26-preview-mobile .st26-anchor-btn{font-size:14px;padding:9px 14px;line-height:1.35}
 .st26-preview-mobile .st26-details{padding:10px 12px;margin-bottom:12px;border-radius:10px}
 .st26-preview-mobile .st26-theme-label,.st26-preview-mobile .st26-outline-label{font-size:10px;margin-bottom:3px;letter-spacing:.07em}
 .st26-preview-mobile .st26-theme-line,.st26-preview-mobile .st26-theme-static{font-size:20px;line-height:1.24}
 .st26-preview-mobile .st26-outline-toggle{margin-top:8px;padding-top:7px}
-.st26-preview-mobile .st26-summary{font-size:12px;line-height:1.3}
+.st26-preview-mobile .st26-summary{font-size:14px;padding:9px 14px;line-height:1.3}
 .st26-preview-mobile .st26-outline{font-size:14px;line-height:1.68;padding-top:8px}
 .st26-preview-mobile .st26-outline p{margin-bottom:8px}
 .st26-preview-mobile .st26-pr-wrap{padding-bottom:2px}
@@ -2743,7 +2743,8 @@ function buildThemeBlock(theme, outline, lang) {
 function buildAnchorNav(venueDisplay, mapUrl, lang) {
   if(!venueDisplay) return '';
   const locLabel = lang==='zh' ? '地點：' : 'Venue: ';
-  const vText = locLabel + esc(venueDisplay);
+  const pinIcon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>';
+  const vText = pinIcon + ' ' + locLabel + esc(venueDisplay);
   const href = safeUrl(mapUrl);
   let html = '\n<div class="st26-anchor-nav">\n';
   if(href) html += '  <a href="'+esc(href)+'" target="_blank" rel="noopener noreferrer" class="st26-anchor-btn">'+vText+' <span class="st26-anchor-arr">↗</span></a>\n';
