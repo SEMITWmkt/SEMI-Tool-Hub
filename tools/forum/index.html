@@ -183,11 +183,6 @@ textarea.inp{resize:vertical}
 .logo-ord{position:absolute;top:4px;left:4px;background:var(--brand);color:#fff;font-size:9px;font-weight:700;border-radius:3px;padding:2px 5px;line-height:1;z-index:2}
 .logo-norm-overlay{position:absolute;inset:0;background:rgba(255,255,255,.85);display:none;align-items:center;justify-content:center;font-size:11px;color:var(--brand);font-weight:700;z-index:3}
 .logo-controls{padding:8px;display:flex;flex-direction:column;gap:7px}
-.logo-slider-row{display:flex;align-items:center;gap:7px}
-.logo-slider-row label{font-size:10px;font-weight:700;color:var(--muted);white-space:nowrap;min-width:28px}
-.logo-slider{flex:1;-webkit-appearance:none;height:4px;border-radius:2px;background:var(--border);outline:none;cursor:pointer}
-.logo-slider::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--brand);cursor:pointer;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.2)}
-.logo-slider-val{font-size:10px;font-weight:700;color:var(--brand);min-width:28px;text-align:right}
 .logo-cobrand-row{display:flex;align-items:center;gap:6px}
 .logo-cobrand-row label{font-size:11px;font-weight:600;color:#555;cursor:pointer;display:flex;align-items:center;gap:5px}
 .logo-url{font-size:11px;padding:5px 8px;border:1px solid var(--border);border-radius:5px;outline:none;background:#fff;width:100%}
@@ -1836,6 +1831,7 @@ function getPeople(wrapId) {
 const CONTAINER_W   = 184;
 const CONTAINER_H   = 92;
 const CONTAINER_W_CO = 368;
+const LOGO_FIXED_SCALE = 80; // 統一顯示比例，取代原本每張 Logo 各自的手動滑桿
 
 // Update the preview area of a card using CSS object-fit (no quality loss)
 function updateCardPreview(cardId) {
@@ -1929,7 +1925,7 @@ async function loadAndTrimImage(src) {
   });
 }
 
-function addLogoCard(sectionId) { renderLogoCard(sectionId, '', false, 80); }
+function addLogoCard(sectionId) { renderLogoCard(sectionId, '', false, LOGO_FIXED_SCALE); }
 
 function renderLogoCard(sectionId, srcVal, isCo, scaleVal, isUrlVal) {
   const id = 'lc-' + lid++;
@@ -1941,7 +1937,7 @@ function renderLogoCard(sectionId, srcVal, isCo, scaleVal, isUrlVal) {
   card.dataset.trimmedSrc = '';
   card.dataset.isUrl = isUrlVal ? '1' : '0';
   card.dataset.isCo = isCo ? '1' : '0';
-  card.dataset.scale = scaleVal || 80;
+  card.dataset.scale = LOGO_FIXED_SCALE; // 統一比例，不再接受個別調整
 
   const contW = isCo ? CONTAINER_W_CO : CONTAINER_W;
 
@@ -1955,12 +1951,6 @@ function renderLogoCard(sectionId, srcVal, isCo, scaleVal, isUrlVal) {
       <div class="logo-norm-overlay" id="norm-${id}">處理中...</div>
     </div>
     <div class="logo-controls">
-      <div class="logo-slider-row">
-        <label>大小</label>
-        <input type="range" class="logo-slider" id="slider-${id}" min="30" max="100" value="${scaleVal||80}"
-          oninput="onSliderInput('${id}',this.value)">
-        <span class="logo-slider-val" id="slval-${id}">${scaleVal||80}%</span>
-      </div>
       <div class="logo-cobrand-row">
         <label>
           <input type="checkbox" id="co-${id}" ${isCo?'checked':''} onchange="toggleCoBrand('${id}','${sectionId}',this.checked)">
@@ -2034,16 +2024,6 @@ async function applyLogoSrc(cardId, src, isUrl, sectionId) {
   }
 
   if(sectionId) updateOrdNums(sectionId);
-}
-
-function onSliderInput(cardId, val) {
-  const card = document.getElementById(cardId);
-  if(!card) return;
-  card.dataset.scale = val;
-  const valEl = document.getElementById('slval-'+cardId);
-  if(valEl) valEl.textContent = val + '%';
-  // No re-encoding — just update CSS sizes via updateCardPreview
-  updateCardPreview(cardId);
 }
 
 function toggleCoBrand(cardId, sectionId, isCo) {
@@ -2545,15 +2525,17 @@ const OUT_CSS = `<style><!--
 .st26,.st26 *{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased}
 .st26{font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue","Noto Sans TC",Arial,sans-serif;color:#1d1d1f;padding:0 0 32px;line-height:1.6}
 .st26-anchor-nav{display:flex;gap:12px;margin:16px 0 24px;flex-wrap:wrap}
-.st26-anchor-btn{font-size:14px;font-weight:700;color:#673BB8;text-decoration:none;padding:8px 16px;border:1px solid #d4c8f0;border-radius:100px;background:#f9f8ff;transition:all .2s;display:inline-flex;align-items:center;cursor:pointer}
+.st26-anchor-btn{font-size:14px;font-weight:500;color:#673BB8;text-decoration:none;padding:8px 16px;border:1px solid #d4c8f0;border-radius:10px;background:#f9f8ff;transition:all .2s;display:inline-flex;align-items:center;gap:6px;cursor:pointer}
 .st26-anchor-btn:hover{background:#673BB8;color:#fff;border-color:#673BB8}
 .st26-venue-btn-static{cursor:default}
 .st26-venue-btn-static:hover{background:#f9f8ff;color:#673BB8;border-color:#d4c8f0}
-.st26-details{margin:0 0 18px;padding:16px 18px;background:#fbfbfd;border:1px solid #ececf2;border-left:3px solid #b9a7dc;border-radius:8px}
-.st26-outline-toggle{margin-top:12px;padding-top:10px;border-top:1px solid #ececf2}
-.st26-summary{list-style:none;cursor:pointer;padding:0;background:transparent;border-radius:0;outline:none;display:inline-flex;margin:0;border:none;font-size:13px;font-weight:700;color:#555;line-height:1.4}
+.st26-details{margin:0 0 18px;padding:16px 18px;background:#f1edfa;border:1px solid #ddd3f2;border-radius:10px}
+.st26-outline-toggle{margin-top:12px;padding-top:10px;border-top:1px solid #ddd3f2}
+.st26-summary{list-style:none;cursor:pointer;padding:0;background:transparent;border-radius:0;outline:none;display:inline-flex;align-items:center;gap:6px;margin:0;border:none;font-size:13px;font-weight:500;color:#555;line-height:1.4}
 .st26-summary:hover{color:#673BB8}
 .st26-summary::-webkit-details-marker{display:none}
+.st26-chevron{display:inline-block;font-size:11px;transition:transform .2s}
+details[open] .st26-chevron{transform:rotate(180deg)}
 .st26-theme-head{display:block;margin:0}
 .st26-theme-label,.st26-outline-label{font-size:12px;font-weight:800;color:#86868b;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px}
 .st26-theme-line{font-size:22px;font-weight:800;color:#1d1d1f;display:block;line-height:1.35}
@@ -2576,9 +2558,10 @@ const OUT_CSS = `<style><!--
 .st26-logo-row{display:block;padding:16px 0;border-bottom:1px solid #f1f1f4}
 .st26-logo-label{display:block;font-size:12px;font-weight:800;color:#6e6e73;text-transform:uppercase;letter-spacing:.06em;line-height:1.35;margin-bottom:10px}
 .st26-logo-wrap{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,160px));gap:12px 16px;align-items:center;justify-content:start}
-.st26-logo-item{--logo-max-w:80%;--logo-max-h:54px;display:flex;align-items:center;justify-content:center;min-width:0;height:82px;padding:10px 12px;border:1px solid #f0f0f3;border-radius:8px;background:#fff}
+.st26-logo-item{display:flex;align-items:center;justify-content:center;min-width:0;height:82px;padding:10px 12px}
 .st26-logo-item-wide{grid-column:span 2}
-.st26-logo-item img{max-width:var(--logo-max-w);max-height:var(--logo-max-h);width:auto;height:auto;object-fit:contain;display:block}
+.st26-logo-item img{height:54px;width:auto;max-width:88%;object-fit:contain;display:block}
+.st26-logo-item-wide img{max-width:95%}
 .st26-partner-orgs{display:grid;gap:8px;margin:14px 0 18px;padding:12px 0;border-top:1px solid #e5e5ea;border-bottom:1px solid #e5e5ea}
 .st26-partner-org-row{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:12px;align-items:start}
 .st26-partner-org-role{font-size:13px;font-weight:700;color:#86868b;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
@@ -2594,7 +2577,7 @@ const OUT_CSS = `<style><!--
 .st26-pricing-remark p:last-child{margin-bottom:0}
 .st26-ph{display:flex;justify-content:space-between;align-items:center;margin:16px 0 12px;flex-wrap:wrap;gap:12px}
 .st26-ph-title{font-size:18px;font-weight:800}
-.st26-btn{display:inline-flex;align-items:center;gap:10px;background:#673BB8;color:#fff;padding:8px 12px 8px 16px;border-radius:100px;font-size:15px;font-weight:700;text-decoration:none;transition:background .2s}
+.st26-btn{display:inline-flex;align-items:center;gap:10px;background:#673BB8;color:#fff;padding:13px 24px 13px 28px;border-radius:100px;font-size:16px;font-weight:500;text-decoration:none;transition:background .2s}
 .st26-btn:hover{background:#5a2ea8}
 .st26-btn-arr{width:22px;height:22px;background:#fff;color:#673BB8;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900}
 .st26-pr-wrap{display:flex;flex-direction:column;width:100%;margin-bottom:16px}
@@ -2623,7 +2606,7 @@ const OUT_CSS = `<style><!--
 @media(max-width:768px){
   .st26-anchor-nav{gap:8px;margin:10px 0 14px}
   .st26-anchor-btn{font-size:12px;padding:6px 10px;line-height:1.35}
-  .st26-details{padding:10px 12px;margin-bottom:12px;border-radius:7px}
+  .st26-details{padding:10px 12px;margin-bottom:12px;border-radius:10px}
   .st26-theme-label,.st26-outline-label{font-size:10px;margin-bottom:3px;letter-spacing:.07em}
   .st26-theme-line,.st26-theme-static{font-size:20px;line-height:1.24}
   .st26-outline-toggle{margin-top:8px;padding-top:7px}
@@ -2638,10 +2621,12 @@ const OUT_CSS = `<style><!--
   .st26-dp-item:last-child{border-bottom:none;padding-bottom:0}
   .st26-logo-row{padding:14px 0}
   .st26-logo-label{margin-bottom:8px;font-size:12px}
-  .st26-logo-wrap{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-  .st26-logo-wrap.st26-logo-wrap-two{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .st26-logo-item{height:74px;padding:9px 10px}
-  .st26-logo-item-wide{grid-column:1/-1}
+  .st26-logo-wrap{display:flex;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity;gap:10px;padding-bottom:4px;margin:0 -2px}
+  .st26-logo-wrap::-webkit-scrollbar{height:0;background:transparent}
+  .st26-logo-item{flex:0 0 auto;width:112px;height:74px;padding:9px 10px;scroll-snap-align:start}
+  .st26-logo-item img{height:46px;max-width:88%}
+  .st26-logo-item-wide img{max-width:95%}
+  .st26-logo-item-wide{width:180px}
   .st26-partner-org-row{grid-template-columns:1fr;gap:2px}
   .st26-partner-org-role{font-size:12px}
   .st26-pr-head{display:none}
@@ -2655,7 +2640,7 @@ const OUT_CSS = `<style><!--
 }
 .st26-preview-mobile .st26-anchor-nav{gap:8px;margin:10px 0 14px}
 .st26-preview-mobile .st26-anchor-btn{font-size:12px;padding:6px 10px;line-height:1.35}
-.st26-preview-mobile .st26-details{padding:10px 12px;margin-bottom:12px;border-radius:7px}
+.st26-preview-mobile .st26-details{padding:10px 12px;margin-bottom:12px;border-radius:10px}
 .st26-preview-mobile .st26-theme-label,.st26-preview-mobile .st26-outline-label{font-size:10px;margin-bottom:3px;letter-spacing:.07em}
 .st26-preview-mobile .st26-theme-line,.st26-preview-mobile .st26-theme-static{font-size:20px;line-height:1.24}
 .st26-preview-mobile .st26-outline-toggle{margin-top:8px;padding-top:7px}
@@ -2664,6 +2649,14 @@ const OUT_CSS = `<style><!--
 .st26-preview-mobile .st26-outline p{margin-bottom:8px}
 .st26-preview-mobile .st26-pr-wrap{padding-bottom:2px}
 .st26-preview-mobile .st26-pr-row:last-child{border-bottom:1px solid #d4c8f0;margin-bottom:0}
+.st26-preview-mobile .st26-logo-row{padding:14px 0}
+.st26-preview-mobile .st26-logo-label{margin-bottom:8px;font-size:12px}
+.st26-preview-mobile .st26-logo-wrap{display:flex;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity;gap:10px;padding-bottom:4px;margin:0 -2px}
+.st26-preview-mobile .st26-logo-wrap::-webkit-scrollbar{height:0;background:transparent}
+.st26-preview-mobile .st26-logo-item{flex:0 0 auto;width:112px;height:74px;padding:9px 10px;scroll-snap-align:start}
+.st26-preview-mobile .st26-logo-item img{height:46px;max-width:88%}
+.st26-preview-mobile .st26-logo-item-wide img{max-width:95%}
+.st26-preview-mobile .st26-logo-item-wide{width:180px}
 --></style>`;
 
 function isPartnerMode() {
@@ -2739,9 +2732,9 @@ function buildThemeBlock(theme, outline, lang) {
   const txt = theme || (lang==='zh' ? '即將公告' : 'To be announced');
   const themeLabel = lang==='zh' ? '主題' : 'Theme';
   const outlineLabel = lang==='zh' ? '活動大綱' : 'Overview';
-  const outlineSummary = lang==='zh' ? '查看活動大綱' : 'View overview';
+  const outlineSummary = lang==='zh' ? '論壇簡介' : 'About this forum';
   const outlineHTML = (outline && showOutline)
-    ? '\n  <details class="st26-outline-toggle">\n    <summary class="st26-summary">'+outlineSummary+'</summary>\n    <div class="st26-outline">\n      <div class="st26-outline-label">'+outlineLabel+'</div>\n'+renderParagraphs(outline)+'\n    </div>\n  </details>'
+    ? '\n  <details class="st26-outline-toggle">\n    <summary class="st26-summary">'+outlineSummary+' <span class="st26-chevron">▾</span></summary>\n    <div class="st26-outline">\n      <div class="st26-outline-label">'+outlineLabel+'</div>\n'+renderParagraphs(outline)+'\n    </div>\n  </details>'
     : '';
 
   return '\n<div class="st26-details">\n  <div class="st26-theme-head">\n    <div class="st26-theme-label">'+themeLabel+'</div>\n    <span class="st26-theme-line">'+esc(txt)+'</span>\n  </div>' + outlineHTML + '\n</div>';
@@ -2753,7 +2746,7 @@ function buildAnchorNav(venueDisplay, mapUrl, lang) {
   const vText = locLabel + esc(venueDisplay);
   const href = safeUrl(mapUrl);
   let html = '\n<div class="st26-anchor-nav">\n';
-  if(href) html += '  <a href="'+esc(href)+'" target="_blank" rel="noopener noreferrer" class="st26-anchor-btn">'+vText+'</a>\n';
+  if(href) html += '  <a href="'+esc(href)+'" target="_blank" rel="noopener noreferrer" class="st26-anchor-btn">'+vText+' <span class="st26-anchor-arr">↗</span></a>\n';
   else html += '  <span class="st26-anchor-btn st26-venue-btn-static">'+vText+'</span>\n';
   return html + '</div>';
 }
@@ -2877,13 +2870,11 @@ function buildOrgBlock(advisedName, advisedUrl, chairs, mods, lang, partnerMode)
 function buildLogoSection(label, logos) {
   if(!logos.length) return '';
   const validLogos = logos.map(l => {
-    const scale = Math.max(30, Math.min(100, parseInt(l.scale || 80)));
-    const maxH = Math.round(64 * (scale / 100));
     const src = safeUrl(l.src, true);
     if(!src) return null;
     const itemClass = l.isCo ? 'st26-logo-item st26-logo-item-wide' : 'st26-logo-item';
     return {
-      html: `    <span class="${itemClass}" style="--logo-max-w:${scale}%;--logo-max-h:${maxH}px"><img src="${esc(src)}" alt="Logo"></span>`,
+      html: `    <span class="${itemClass}"><img src="${esc(src)}" alt="Logo"></span>`,
       isCo: l.isCo
     };
   }).filter(Boolean);
