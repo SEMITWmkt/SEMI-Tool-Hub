@@ -2534,8 +2534,11 @@ const OUT_CSS = `<style><!--
 .st26-summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:6px;margin:0;border:1px solid #d4c8f0;border-radius:10px;background:#f9f8ff;padding:8px 14px;font-size:14px;font-weight:700;color:#673BB8;line-height:1.4}
 .st26-summary:hover{background:#673BB8;color:#fff;border-color:#673BB8}
 .st26-summary::-webkit-details-marker{display:none}
-.st26-chevron{display:inline-block;font-size:13px;transition:transform .2s}
-details[open] .st26-chevron{transform:rotate(180deg)}
+.st26-chevron{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:#673BB8;color:#fff;font-size:13px;font-weight:700;line-height:1;flex-shrink:0}
+.st26-chevron .st26-ic-minus{display:none}
+details[open] .st26-chevron .st26-ic-plus{display:none}
+details[open] .st26-chevron .st26-ic-minus{display:inline}
+.st26-summary:hover .st26-chevron{background:#fff;color:#673BB8}
 .st26-theme-head{display:block;margin:0}
 .st26-theme-label,.st26-outline-label{font-size:12px;font-weight:800;color:#86868b;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px}
 .st26-theme-line{font-size:22px;font-weight:800;color:#1d1d1f;display:block;line-height:1.35}
@@ -2551,7 +2554,7 @@ details[open] .st26-chevron{transform:rotate(180deg)}
 .st26-outline a:hover,.st26-pricing-remark a:hover,.st26-partner-orgs a:hover{text-decoration:underline}
 .st26-org{display:grid;grid-template-columns:1fr;gap:8px;padding:16px 0;border-top:1px solid #e5e5ea;border-bottom:1px solid #e5e5ea;margin:20px 0}
 .st26-org-item{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:12px;align-items:start;min-width:0}
-.st26-org-role{font-size:13px;font-weight:700;color:#86868b;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
+.st26-org-role{display:inline-block;font-size:11px;font-weight:700;color:#534AB7;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;background:#f1edfa;padding:3px 8px;border-radius:6px}
 .st26-org-name{font-size:15px;font-weight:600;color:#333;line-height:1.55;min-width:0}
 .st26-org-name a{color:#673BB8;text-decoration:none;font-weight:600}
 .st26-org-name a:hover{text-decoration:underline}
@@ -2564,7 +2567,7 @@ details[open] .st26-chevron{transform:rotate(180deg)}
 .st26-logo-item-wide img{max-width:95%}
 .st26-partner-orgs{display:grid;gap:8px;margin:14px 0 18px;padding:12px 0;border-top:1px solid #e5e5ea;border-bottom:1px solid #e5e5ea}
 .st26-partner-org-row{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:12px;align-items:start}
-.st26-partner-org-role{font-size:13px;font-weight:700;color:#86868b;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
+.st26-partner-org-role{display:inline-block;font-size:11px;font-weight:700;color:#534AB7;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;background:#f1edfa;padding:3px 8px;border-radius:6px}
 .st26-partner-org-name{display:grid;gap:4px;font-size:15px;font-weight:600;color:#333;line-height:1.5}
 .st26-partner-org-name-item{display:block;font-size:15px;font-weight:700;line-height:1.5}
 .st26-partner-org-name a,.st26-partner-org-row>a{color:#673BB8;text-decoration:none;font-weight:700}
@@ -2613,20 +2616,20 @@ details[open] .st26-chevron{transform:rotate(180deg)}
   .st26-summary{font-size:14px;padding:9px 14px;line-height:1.3}
   .st26-outline{font-size:14px;line-height:1.68;padding-top:8px}
   .st26-outline p{margin-bottom:8px}
-  .st26-org{grid-template-columns:1fr;gap:12px}
-  .st26-org-item{grid-template-columns:1fr;gap:4px;min-width:100%}
+  .st26-org{grid-template-columns:1fr;gap:18px}
+  .st26-org-item{grid-template-columns:1fr;gap:6px;min-width:100%}
   .st26-dp{flex-direction:column;align-items:flex-start}
   .st26-dp-grid{width:100%;display:grid;grid-template-columns:1fr;gap:12px}
   .st26-dp-item{align-items:center;flex-direction:row;justify-content:space-between;width:100%;border-bottom:1px solid #eee;padding-bottom:8px}
   .st26-dp-item:last-child{border-bottom:none;padding-bottom:0}
   .st26-logo-row{padding:14px 0}
   .st26-logo-label{margin-bottom:8px;font-size:12px}
-  .st26-logo-wrap{display:flex;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity;gap:10px;padding-bottom:4px;margin:0 -2px}
-  .st26-logo-wrap::-webkit-scrollbar{height:0;background:transparent}
-  .st26-logo-item{flex:0 0 auto;width:112px;height:74px;padding:9px 10px;scroll-snap-align:start}
+  .st26-logo-wrap{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px}
+  .st26-logo-wrap.st26-logo-wrap-two{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .st26-logo-item{height:74px;padding:9px 10px}
   .st26-logo-item img{height:46px;max-width:88%}
   .st26-logo-item-wide img{max-width:95%}
-  .st26-logo-item-wide{width:180px}
+  .st26-logo-item-wide{grid-column:span 2}
   .st26-partner-org-row{grid-template-columns:1fr;gap:2px}
   .st26-partner-org-role{font-size:12px}
   .st26-pr-head{display:none}
@@ -2651,12 +2654,12 @@ details[open] .st26-chevron{transform:rotate(180deg)}
 .st26-preview-mobile .st26-pr-row:last-child{border-bottom:1px solid #d4c8f0;margin-bottom:0}
 .st26-preview-mobile .st26-logo-row{padding:14px 0}
 .st26-preview-mobile .st26-logo-label{margin-bottom:8px;font-size:12px}
-.st26-preview-mobile .st26-logo-wrap{display:flex;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity;gap:10px;padding-bottom:4px;margin:0 -2px}
-.st26-preview-mobile .st26-logo-wrap::-webkit-scrollbar{height:0;background:transparent}
-.st26-preview-mobile .st26-logo-item{flex:0 0 auto;width:112px;height:74px;padding:9px 10px;scroll-snap-align:start}
+.st26-preview-mobile .st26-logo-wrap{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px}
+.st26-preview-mobile .st26-logo-wrap.st26-logo-wrap-two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.st26-preview-mobile .st26-logo-item{height:74px;padding:9px 10px}
 .st26-preview-mobile .st26-logo-item img{height:46px;max-width:88%}
 .st26-preview-mobile .st26-logo-item-wide img{max-width:95%}
-.st26-preview-mobile .st26-logo-item-wide{width:180px}
+.st26-preview-mobile .st26-logo-item-wide{grid-column:span 2}
 --></style>`;
 
 function isPartnerMode() {
@@ -2734,7 +2737,7 @@ function buildThemeBlock(theme, outline, lang) {
   const outlineLabel = lang==='zh' ? '活動大綱' : 'Overview';
   const outlineSummary = lang==='zh' ? '論壇簡介' : 'About this forum';
   const outlineHTML = (outline && showOutline)
-    ? '\n  <details class="st26-outline-toggle">\n    <summary class="st26-summary">'+outlineSummary+' <span class="st26-chevron">▾</span></summary>\n    <div class="st26-outline">\n      <div class="st26-outline-label">'+outlineLabel+'</div>\n'+renderParagraphs(outline)+'\n    </div>\n  </details>'
+    ? '\n  <details class="st26-outline-toggle">\n    <summary class="st26-summary">'+outlineSummary+' <span class="st26-chevron"><span class="st26-ic-plus">+</span><span class="st26-ic-minus">−</span></span></summary>\n    <div class="st26-outline">\n      <div class="st26-outline-label">'+outlineLabel+'</div>\n'+renderParagraphs(outline)+'\n    </div>\n  </details>'
     : '';
 
   return '\n<div class="st26-details">\n  <div class="st26-theme-head">\n    <div class="st26-theme-label">'+themeLabel+'</div>\n    <span class="st26-theme-line">'+esc(txt)+'</span>\n  </div>' + outlineHTML + '\n</div>';
