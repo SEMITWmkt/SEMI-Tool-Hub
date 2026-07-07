@@ -2529,21 +2529,16 @@ const OUT_CSS = `<style><!--
 .st26-anchor-btn:hover{background:#673BB8;color:#fff;border-color:#673BB8}
 .st26-venue-btn-static{cursor:default}
 .st26-venue-btn-static:hover{background:#f9f8ff;color:#673BB8;border-color:#d4c8f0}
-.st26-details{margin:0 0 18px;padding:16px 18px;background:#f1edfa;border:1px solid #ddd3f2;border-radius:10px}
-.st26-outline-toggle{margin-top:12px;padding-top:10px;border-top:1px solid #ddd3f2}
-.st26-summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:6px;margin:0;border:1px solid #d4c8f0;border-radius:10px;background:#f9f8ff;padding:8px 14px;font-size:14px;font-weight:700;color:#673BB8;line-height:1.4}
-.st26-summary:hover{background:#673BB8;color:#fff;border-color:#673BB8}
+.st26-details{margin:0 0 18px;padding:20px 22px;background:#673BB8;border-radius:10px}
+.st26-outline-toggle{margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,.25)}
+.st26-summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:6px;margin:0;border:none;border-radius:10px;background:rgba(255,255,255,.16);padding:8px 14px;font-size:14px;font-weight:700;color:#fff;line-height:1.4}
+.st26-summary:hover{background:#fff;color:#673BB8}
 .st26-summary::-webkit-details-marker{display:none}
-.st26-chevron{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:#673BB8;color:#fff;font-size:13px;font-weight:700;line-height:1;flex-shrink:0}
-.st26-chevron .st26-ic-minus{display:none}
-details[open] .st26-chevron .st26-ic-plus{display:none}
-details[open] .st26-chevron .st26-ic-minus{display:inline}
-.st26-summary:hover .st26-chevron{background:#fff;color:#673BB8}
 .st26-theme-head{display:block;margin:0}
-.st26-theme-label,.st26-outline-label{font-size:12px;font-weight:800;color:#86868b;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px}
-.st26-theme-line{font-size:22px;font-weight:800;color:#1d1d1f;display:block;line-height:1.35}
-.st26-theme-static{font-size:22px;font-weight:800;color:#1d1d1f;display:block;line-height:1.35}
-.st26-outline{padding:10px 0 0;background:transparent;border-left:none;border-radius:0;margin-top:0;margin-bottom:0;font-size:16px;color:#444;line-height:1.8}
+.st26-theme-label,.st26-outline-label{font-size:12px;font-weight:800;color:#d9d0f5;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px}
+.st26-theme-line{font-size:22px;font-weight:800;color:#fff;display:block;line-height:1.35}
+.st26-theme-static{font-size:22px;font-weight:800;color:#fff;display:block;line-height:1.35}
+.st26-outline{padding:10px 0 0;background:transparent;border-left:none;border-radius:0;margin-top:0;margin-bottom:0;font-size:16px;color:#f1edfa;line-height:1.8}
 .st26-outline-label{margin-top:0;margin-bottom:6px}
 .st26-outline p{margin-bottom:10px}
 .st26-outline p:last-child{margin-bottom:0}
@@ -2552,6 +2547,7 @@ details[open] .st26-chevron .st26-ic-minus{display:inline}
 .st26-outline strong,.st26-pricing-remark strong{font-weight:800;color:#1d1d1f}
 .st26-outline a,.st26-pricing-remark a,.st26-partner-orgs a{color:#673BB8;text-decoration:none;font-weight:700}
 .st26-outline a:hover,.st26-pricing-remark a:hover,.st26-partner-orgs a:hover{text-decoration:underline}
+.st26-details .st26-outline a{color:#fff;text-decoration:underline}
 .st26-org{display:grid;grid-template-columns:1fr;gap:8px;padding:16px 0;border-top:1px solid #e5e5ea;border-bottom:1px solid #e5e5ea;margin:20px 0}
 .st26-org-item{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:12px;align-items:start;min-width:0}
 .st26-org-role{display:inline-block;font-size:11px;font-weight:700;color:#534AB7;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;background:#f1edfa;padding:3px 8px;border-radius:6px}
@@ -2735,9 +2731,9 @@ function buildThemeBlock(theme, outline, lang) {
   const txt = theme || (lang==='zh' ? '即將公告' : 'To be announced');
   const themeLabel = lang==='zh' ? '主題' : 'Theme';
   const outlineLabel = lang==='zh' ? '活動大綱' : 'Overview';
-  const outlineSummary = lang==='zh' ? '論壇簡介' : 'About this forum';
+  const outlineSummary = lang==='zh' ? '查看大綱' : 'View outline';
   const outlineHTML = (outline && showOutline)
-    ? '\n  <details class="st26-outline-toggle">\n    <summary class="st26-summary">'+outlineSummary+' <span class="st26-chevron"><span class="st26-ic-plus">+</span><span class="st26-ic-minus">−</span></span></summary>\n    <div class="st26-outline">\n      <div class="st26-outline-label">'+outlineLabel+'</div>\n'+renderParagraphs(outline)+'\n    </div>\n  </details>'
+    ? '\n  <details class="st26-outline-toggle">\n    <summary class="st26-summary">'+outlineSummary+'</summary>\n    <div class="st26-outline">\n      <div class="st26-outline-label">'+outlineLabel+'</div>\n'+renderParagraphs(outline)+'\n    </div>\n  </details>'
     : '';
 
   return '\n<div class="st26-details">\n  <div class="st26-theme-head">\n    <div class="st26-theme-label">'+themeLabel+'</div>\n    <span class="st26-theme-line">'+esc(txt)+'</span>\n  </div>' + outlineHTML + '\n</div>';
@@ -2745,9 +2741,8 @@ function buildThemeBlock(theme, outline, lang) {
 
 function buildAnchorNav(venueDisplay, mapUrl, lang) {
   if(!venueDisplay) return '';
-  const locLabel = lang==='zh' ? '地點：' : 'Venue: ';
-  const pinIcon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>';
-  const vText = pinIcon + ' ' + locLabel + esc(venueDisplay);
+  const pinIcon = '<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>';
+  const vText = pinIcon + ' ' + esc(venueDisplay);
   const href = safeUrl(mapUrl);
   let html = '\n<div class="st26-anchor-nav">\n';
   if(href) html += '  <a href="'+esc(href)+'" target="_blank" rel="noopener noreferrer" class="st26-anchor-btn">'+vText+' <span class="st26-anchor-arr">↗</span></a>\n';
