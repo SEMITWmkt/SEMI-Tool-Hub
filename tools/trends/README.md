@@ -2,11 +2,11 @@
 
 主要檔案：
 
-- 工具頁：[index.html](/Users/lun04/Desktop/SEMI-Tool-Hub/tools/trends/index.html)
-- 使用手冊：[docs/使用說明.md](/Users/lun04/Desktop/SEMI-Tool-Hub/tools/trends/docs/使用說明.md)
-- 匯入欄位規格：[templates/import-schema.md](/Users/lun04/Desktop/SEMI-Tool-Hub/tools/trends/templates/import-schema.md)
-- Excel 範本：[templates/trend-table-import-template.xlsx](/Users/lun04/Desktop/SEMI-Tool-Hub/tools/trends/templates/trend-table-import-template.xlsx)
-- TSV 範本：[templates/trend-table-import-template.tsv](/Users/lun04/Desktop/SEMI-Tool-Hub/tools/trends/templates/trend-table-import-template.tsv)
+- 工具頁：[index.html](./index.html)
+- 使用手冊：[docs/使用說明.md](./docs/使用說明.md)
+- 匯入欄位規格：[templates/import-schema.md](./templates/import-schema.md)
+- Excel 範本：[templates/trend-table-import-template.xlsx](./templates/trend-table-import-template.xlsx)
+- TSV 範本：[templates/trend-table-import-template.tsv](./templates/trend-table-import-template.tsv)
 
 建議工作流程：
 
