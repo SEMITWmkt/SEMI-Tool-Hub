@@ -187,6 +187,7 @@ textarea.inp{resize:vertical}
 .logo-cobrand-row label{font-size:11px;font-weight:600;color:#555;cursor:pointer;display:flex;align-items:center;gap:5px}
 .logo-url{font-size:11px;padding:5px 8px;border:1px solid var(--border);border-radius:5px;outline:none;background:#fff;width:100%}
 .logo-url:focus{border-color:var(--brand)}
+.logo-url-hint{font-size:10px;color:#bbb;line-height:1.4;margin-top:-3px}
 .logo-acts{display:flex;gap:3px}
 .logo-acts button{flex:1;padding:5px 3px;font-size:11px;font-weight:700;border:none;border-radius:4px;cursor:pointer;transition:all .15s}
 .btn-mv{background:#f5f5f7;color:#555}
@@ -595,9 +596,15 @@ textarea.inp{resize:vertical}
         <textarea class="inp" id="remark-en" rows="2"></textarea>
       </div>
     </div>
-    <div class="field" style="margin-top:12px">
-      <label class="lbl">地點導航連結（Google Maps）</label>
-      <input class="inp" id="map-url" placeholder="https://maps.google.com/...">
+    <div class="grid2" style="margin-top:12px">
+      <div class="field">
+        <label class="lbl">地點/會場資訊連結（中文）</label>
+        <input class="inp" id="map-url-zh" value="https://semicontaiwan.org/zh/Forum_Information">
+      </div>
+      <div class="field">
+        <label class="lbl">地點/會場資訊連結（英文）</label>
+        <input class="inp" id="map-url-en" value="https://semicontaiwan.org/en/Forum_Information">
+      </div>
     </div>
     <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:700;color:#333;margin-top:12px">
       <input type="checkbox" id="opt-free" style="width:15px;height:15px;accent-color:var(--brand);cursor:pointer">
@@ -1055,7 +1062,6 @@ Return this exact JSON structure (use null for missing fields, empty array [] fo
   "partnerOrgsEn": "",
   "regUrlZh": "",
   "regUrlEn": "",
-  "mapUrl": "",
   "remarkZh": "",
   "remarkEn": "",
   "relatedLinksZh": "",
@@ -1163,13 +1169,13 @@ function applyAIData(d) {
   mergeRelatedLinksIntoRemarks(d);
 
   const aiFields = ['nameZh','nameEn','venueZh','venueEn','themeZh','themeEn',
-    'outlineZh','outlineEn','regUrlZh','regUrlEn','mapUrl','remarkZh','remarkEn','advisedName','advisedUrl',
+    'outlineZh','outlineEn','regUrlZh','regUrlEn','mapUrlZh','mapUrlEn','remarkZh','remarkEn','advisedName','advisedUrl',
     'partnerOrgsZh','partnerOrgsEn','relatedLinksZh','relatedLinksEn'];
 
   const map = {
     nameZh:'name-zh', nameEn:'name-en', venueZh:'venue-zh', venueEn:'venue-en',
     themeZh:'theme-zh', themeEn:'theme-en', outlineZh:'outline-zh', outlineEn:'outline-en',
-    regUrlZh:'reg-url-zh', regUrlEn:'reg-url-en', mapUrl:'map-url',
+    regUrlZh:'reg-url-zh', regUrlEn:'reg-url-en', mapUrlZh:'map-url-zh', mapUrlEn:'map-url-en',
     remarkZh:'remark-zh', remarkEn:'remark-en',
     advisedName:'advised-name', advisedUrl:'advised-url',
     partnerOrgsZh:'partner-orgs-zh', partnerOrgsEn:'partner-orgs-en',
@@ -1959,6 +1965,7 @@ function renderLogoCard(sectionId, srcVal, isCo, scaleVal, isUrlVal) {
       </div>
       <input class="logo-url" type="text" placeholder="或貼入圖片 URL" value="${isUrlVal ? esc(srcVal) : ''}"
         id="url-${id}" onchange="handleLogoUrl('${id}',this.value)">
+      <div class="logo-url-hint">貼網址將保留原圖，不會自動去除留白邊框</div>
       <div class="logo-acts">
         <button class="btn-mv" onclick="moveLogo('${id}',-1)">↑</button>
         <button class="btn-mv" onclick="moveLogo('${id}',1)">↓</button>
@@ -2007,6 +2014,14 @@ async function applyLogoSrc(cardId, src, isUrl, sectionId) {
   if(!card) return;
   card.dataset.origSrc = src;
   card.dataset.isUrl   = isUrl ? '1' : '0';
+
+  if(isUrl) {
+    // URL-sourced logos keep the original link as-is — no canvas trim/base64 conversion.
+    card.dataset.trimmedSrc = src;
+    updateCardPreview(cardId);
+    if(sectionId) updateOrdNums(sectionId);
+    return;
+  }
 
   const normOv = document.getElementById('norm-'+cardId);
   if(normOv) normOv.style.display = 'flex';
@@ -2239,7 +2254,7 @@ function collectForumDraftState() {
     remarkZh: getVal('remark-zh'), remarkEn: getVal('remark-en'),
     relatedLinksZh: getVal('related-links-zh'), relatedLinksEn: getVal('related-links-en'),
     regUrlZh: getVal('reg-url-zh'), regUrlEn: getVal('reg-url-en'),
-    mapUrl: getVal('map-url'),
+    mapUrlZh: getVal('map-url-zh'), mapUrlEn: getVal('map-url-en'),
     selectedForumMeta: selectedForum ? {
       nameZh: selectedForum.nameZh || '',
       nameEn: selectedForum.nameEn || '',
@@ -2258,7 +2273,7 @@ function applyForumDraftState(d) {
     advisedName:'advised-name', advisedUrl:'advised-url',
     remarkZh:'remark-zh', remarkEn:'remark-en',
     relatedLinksZh:'related-links-zh', relatedLinksEn:'related-links-en',
-    regUrlZh:'reg-url-zh', regUrlEn:'reg-url-en', mapUrl:'map-url'
+    regUrlZh:'reg-url-zh', regUrlEn:'reg-url-en', mapUrlZh:'map-url-zh', mapUrlEn:'map-url-en'
   };
   Object.entries(fieldMap).forEach(([k, id]) => {
     if(d[k] !== undefined) setVal(id, d[k]);
@@ -2416,7 +2431,7 @@ function formHasContentForDraftImport() {
   const ids = [
     'name-zh','name-en','venue-zh','venue-en','theme-zh','theme-en','outline-zh','outline-en',
     'partner-orgs-zh','partner-orgs-en','advised-name','advised-url','remark-zh','remark-en',
-    'related-links-zh','related-links-en','reg-url-zh','reg-url-en','map-url'
+    'related-links-zh','related-links-en','reg-url-zh','reg-url-en'
   ];
   const hasText = ids.some(id => getVal(id));
   const hasPeople = getPeople('chairs-wrap').length > 0 || getPeople('mods-wrap').length > 0;
@@ -2975,7 +2990,7 @@ function buildFullHTML(lang) {
   const regUrlEn = getVal('reg-url-en');
   const remarkZh = getVal('remark-zh');
   const remarkEn = getVal('remark-en');
-  const mapUrl   = getVal('map-url');
+  const mapUrl   = getVal('map-url-'+lang);
   const chairs   = getPeople('chairs-wrap');
   const mods     = getPeople('mods-wrap');
   const orgLogos    = getLogos('logo-org');
