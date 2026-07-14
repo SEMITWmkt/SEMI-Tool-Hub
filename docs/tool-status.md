@@ -16,10 +16,10 @@ Status labels:
 
 | Tool | Hub path | Current status | Drupal QA state | Next action |
 |---|---|---|---|---|
-| Forum HTML Compiler | `tools/forum/index.html` | Hub branch ahead at v9.14 | QA pending for v9.14 workflow | Run Drupal QA for Legacy Restore, Draft JSON, Theme / Outline, pricing, and mobile output before publish-ready handoff. |
+| Forum HTML Compiler | `tools/forum/index.html` | Hub branch ahead at v9.15 | QA pending for v9.15 workflow | Run Drupal QA for Legacy Restore, Draft JSON, Theme / Outline, pricing, mobile output, map link defaults, and logo URL handling before publish-ready handoff. |
 | Trend Table Creator | `tools/trends/index.html` | Working copy aligned at v4.11 | QA pending | Run Drupal QA for output rendering and interaction behavior. |
 | Sponsors Logo Creator | `tools/sponsors/index.html` | Hub ahead | QA pending for v5.2.1 restore flow | Back-sync v5.2.1 to source repo and capture Drupal paste evidence. |
-| Pavilions Vendor Creator | `tools/pavilions/index.html` | Working copy ahead | QA pending for compact CMS source output | Test compact output in Drupal source and decide whether to publish current working copy. |
+| Pavilions Vendor Creator | `tools/pavilions/index.html` | Working copy ahead at v1.2 | Local browser QA conditional; Drupal QA pending | Re-run stable browser/mobile QA and test compact output in Drupal source before publish-ready handoff. |
 | Logo Prep Tool | `tools/logo-prep/index.html` | Stable support utility | Not Drupal-output tool | Keep as support utility; verify export works before sponsor QA. |
 
 ## Tool Details
@@ -28,14 +28,14 @@ Status labels:
 
 | Field | Status |
 |---|---|
-| Owner thread | Forum continuity / v9.14 maintenance workflow |
+| Owner thread | Forum continuity / v9.15 maintenance workflow |
 | Hub path | `tools/forum/index.html` |
-| Version shown in tool | `v9.14` |
-| Version in Hub metadata | `v9.14` |
+| Version shown in tool | `v9.15` |
+| Version in Hub metadata | `v9.15` |
 | Version-map state | Hub branch ahead |
-| Known issues | v9.14 workflow is documented, but still needs Drupal paste evidence and source repo back-sync. Legacy Restore intentionally does not restore title, pricing, logos, or people roles. |
-| Drupal QA state | Pending. Needs backend paste, frontend desktop/mobile, link checks, Legacy Restore smoke test, Draft JSON import/export smoke test, and screenshot evidence. |
-| Next action | Run v9.14 QA, then back-sync or explicitly mark the source repo behind. |
+| Known issues | v9.15 adds map-url-zh/map-url-en default URLs (semicontaiwan.org) and skips base64 re-encoding for pasted logo URLs (uploaded/dropped files still auto-trim to base64 as before). Still needs Drupal paste evidence and source repo back-sync. Legacy Restore intentionally does not restore title, pricing, logos, or people roles. |
+| Drupal QA state | Pending. Needs backend paste, frontend desktop/mobile, link checks, Legacy Restore smoke test, Draft JSON import/export smoke test, map link default verification, logo URL paste verification, and screenshot evidence. |
+| Next action | Run v9.15 QA, then back-sync or explicitly mark the source repo behind. |
 
 ### Trend Table Creator
 
@@ -67,14 +67,14 @@ Status labels:
 
 | Field | Status |
 |---|---|
-| Owner thread | Pavilions v1.1 confidence workflow |
+| Owner thread | Pavilions continuity workflow |
 | Hub path | `tools/pavilions/index.html` |
-| Version shown in tool | `v1.1` |
-| Version in Hub metadata | `v1.1` |
+| Version shown in tool | `v1.2` |
+| Version in Hub metadata | `v1.2` |
 | Version-map state | Working copy ahead |
-| Known issues | Compact CMS source output is present in local working copy and still needs Drupal paste validation. |
-| Drupal QA state | Pending. Needs backend source paste, booth link checks, frontend desktop/mobile evidence. |
-| Next action | Run QA against representative vendor data, then decide whether the compact output change is publishable. |
+| Known issues | Incremental workflow, non-clickable missing URL output, duplicate warnings, and limited Restore HTML are present in local working copy and still need Drupal paste validation. Tailwind is still loaded from CDN for the tool UI only. |
+| Drupal QA state | Pending. Partial local browser QA found and fixed canonical-state defects; still needs stable browser/mobile evidence, backend source paste, booth link checks, and frontend desktop/mobile evidence. |
+| Next action | Re-run browser/mobile QA against representative vendor data and Drupal source paste, then decide whether the v1.2 continuity change is publishable. |
 
 ### Logo Prep Tool
 

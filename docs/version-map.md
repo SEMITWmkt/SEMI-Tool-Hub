@@ -9,9 +9,9 @@
 
 | 工具 | Hub 路徑 | Hub 內版本 | Source Repo | Source 版本 | 同步狀態 | 備註 |
 |---|---|---|---|---|---|---|
-| Forum HTML Compiler | `tools/forum/index.html` | v9.14 | `Forum HTML Creator` | v9.14 | Hub branch ahead | Forum continuity release: Legacy Restore, Step 1 workflow cleanup, quieter Theme / Outline output, mobile fixes, Draft JSON import/export. Source repo back-sync / Drupal QA evidence still pending. |
+| Forum HTML Compiler | `tools/forum/index.html` | v9.15 | `Forum HTML Creator` | v9.14 | Hub branch ahead | Forum continuity release: Legacy Restore, Step 1 workflow cleanup, quieter Theme / Outline output, mobile fixes, Draft JSON import/export. v9.15 adds map-url-zh/map-url-en default URLs and skips base64 re-encoding for pasted logo URLs. Source repo back-sync / Drupal QA evidence still pending. |
 | Sponsors Logo Creator | `tools/sponsors/index.html` | v5.2.1 | `Sponsors Logo HTML Creator` | v5.2.0 | Hub ahead | 強化貼上線上 HTML 還原流程，source repo 待回同步 |
-| Pavilions Vendor Creator | `tools/pavilions/index.html` | v1.1 | `Pavilions Vendor HTML Creator` | v1.1 | Working copy ahead | 本機工作區已調整 CMS source 輸出壓縮，待測試與 commit |
+| Pavilions Vendor Creator | `tools/pavilions/index.html` | v1.2 | `Pavilions Vendor HTML Creator` | v1.1 | Working copy ahead | 本機工作區已加入增量維護、缺/壞 URL 非連結輸出、重複警告、有限 HTML restore 與 README；待 Drupal QA 與 source repo 回同步 |
 | Trend Table Creator | `tools/trends/index.html` | v4.11 | `Trend_Table Creator` | v4.11 | Metadata aligned; QA pending | 2026-06-30 confirmed tool file title, UI badge, workfile metadata, Hub card, workspace metadata, and version-map all use `v4.11`. Remaining risk is Drupal QA / output rendering / template QA, not version drift. |
 | Logo Prep Tool | `tools/logo-prep/index.html` | v0.1 | —（無獨立 repo） | v0.1 | ✅ | 輔助工具，不與四大工具同層管理 |
 
@@ -39,6 +39,8 @@
 | 2026-06-29 | Pavilions Vendor Creator | v1.1 → v1.1 | 本機工作區調整輸出為更適合 CMS source 的壓縮 HTML；待測試與 commit |
 | 2026-06-30 | Trend Table Creator | v4.9 → v4.11 | Metadata-only version drift resolution. `tools/trends/index.html` is the source of truth; README, Hub card, workspace metadata, and version-map now all show `v4.11`. |
 | 2026-07-02 | Forum HTML Compiler | v9.13 → v9.14 | Documented Forum continuity workflow: Legacy Restore helper, Step 1 action placement, quieter collapsible Theme / Outline block, mobile fixes, and Draft JSON import/export for future maintenance. |
+| 2026-07-13 | Pavilions Vendor Creator | v1.1 → v1.2 | Hardened incremental publishing workflow: stable order, add/edit/reorder/delete controls, missing/invalid URL warnings with non-clickable output, duplicate warnings, import confirmation, limited generated-HTML restore, README, and QA evidence. |
+| 2026-07-13 | Forum HTML Compiler | v9.14 → v9.15 | Split map-url into map-url-zh/map-url-en with semicontaiwan.org default URLs; logo URL input now skips canvas/base64 re-encoding and keeps the pasted URL as-is to avoid HTML bloat. |
 
 ---
 
