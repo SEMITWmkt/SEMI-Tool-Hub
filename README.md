@@ -8,7 +8,7 @@ The current product direction is intentionally narrow: help website editors prep
 
 | Tool | Purpose | Hub integration status |
 |---|---|---|
-| Forum Generator | 論壇頁資料、Logo、價格、還原與草稿維護的中英文 HTML 產生器 | Integrated v9.14 |
+| Forum Generator | 論壇頁資料、Logo、價格、還原與草稿維護的中英文 HTML 產生器 | Integrated v9.15 |
 | Theme / Trend Generator | 主題卡片、展區與論壇議題互動 HTML 產生器 | Integrated |
 | Logo Prep Tool | PDF-compatible AI、PDF、SVG 與圖片去白邊轉 PNG 工具 | Integrated v0.1 |
 | Sponsors Logo Generator | 贊助商 Logo 分級、排序、備份與中英文輸出 | Integrated v5.2.1 |
@@ -70,6 +70,8 @@ For a new page, paste Excel/text, parse, select the forum/session if needed, edi
 For later updates, import the Forum Draft JSON, edit only changed fields, regenerate HTML, paste to Drupal, then export the updated draft JSON.
 
 Legacy HTML Restore is a recovery helper for existing Drupal body HTML. It can preview and apply Theme, Outline, Venue, and Registration URL, but it does not restore page title, pricing, logo sections, chair/moderator/advised-by fields, or full CMS state.
+
+Step 1 also offers a Manual mode for forums with no Excel or Word source at all: it skips parsing and goes straight to a blank Step 2, with the standard SEMI pricing table left off by default since there is no parsed price data to show.
 
 ## Current Focus
 

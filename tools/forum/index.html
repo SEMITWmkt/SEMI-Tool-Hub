@@ -297,26 +297,36 @@ textarea.inp{resize:vertical}
 <div class="panel active" id="panel-1">
 
   <div class="hint-box">
-    選擇輸入方式，貼上資料後按「解析」，系統會自動填入所有能辨識的欄位。
+    選擇輸入方式：有 Excel 資料或文字內容請貼上後按「解析」；不需要任何資料來源時，可選「手動建立」直接進入 Step 2 填寫。
   </div>
 
   <div class="mode-toggle">
     <button class="mode-btn active" onclick="setMode('excel',this)">
       📊 有 Excel 資料
     </button>
+    <button class="mode-btn" onclick="setMode('manual',this)">
+      ✍️ 手動建立
+    </button>
     <button class="mode-btn" onclick="setMode('partner',this)">
-      📝 沒有 Excel / Word 內容
+      📝 沒有 Excel / Word 內容（AI 輔助）
     </button>
   </div>
 
   <div id="mode-hint-excel" class="warn-box" style="font-size:12px">
     請直接從 Excel 複製「ST26_官網連結」資料表的內容（含標題列），貼入下方。
   </div>
+  <div id="mode-hint-manual" class="warn-box" style="font-size:12px;display:none">
+    適合單次或非公版格式的論壇頁，不需要貼上任何資料。按下方按鈕直接進入 Step 2，手動填寫場次資訊、主題大綱、人員與 Logo 後產生 HTML。此模式預設關閉 SEMI 標準票價表（避免在沒有票價資料時顯示錯誤的價格區塊），如該論壇確實需要票價表，請於 Step 2 自行開啟並填寫。
+  </div>
   <div id="mode-hint-partner" class="warn-box" style="font-size:12px;display:none">
     適合沒有 Excel 的外部單位或合作論壇。請貼上 Word 內容、email 內文或活動說明；解析後會自動進入合作論壇流程，文字中的連結會保留為可點擊內容。
   </div>
 
-  <div class="field">
+  <div id="manual-start-wrap" style="display:none;margin-bottom:14px">
+    <button class="btn btn-primary" onclick="startManualEntry()">✍️ 開始手動建立 →</button>
+  </div>
+
+  <div class="field" id="paste-input-wrap">
     <label class="lbl">貼上資料 <span style="color:var(--err)">*</span></label>
     <textarea class="inp" id="raw-input" rows="9" placeholder="在此貼入資料..."></textarea>
     <div class="input-action-row">
@@ -778,11 +788,25 @@ function setMode(mode, btn) {
   btn.classList.add('active');
   document.getElementById('mode-hint-excel').style.display = mode==='excel' ? 'block' : 'none';
   document.getElementById('mode-hint-partner').style.display = mode==='partner' ? 'block' : 'none';
+  document.getElementById('mode-hint-manual').style.display = mode==='manual' ? 'block' : 'none';
   document.getElementById('api-section').style.display     = (mode==='text' || mode==='partner') ? 'block' : 'none';
+  document.getElementById('manual-start-wrap').style.display = mode==='manual' ? 'block' : 'none';
+  document.getElementById('paste-input-wrap').style.display  = mode==='manual' ? 'none' : '';
   const nearParseBtn = document.getElementById('near-parse-btn');
   if(nearParseBtn) nearParseBtn.textContent = mode === 'excel' ? '解析 Excel 資料 →' : '解析文字內容 →';
   document.getElementById('forum-select-wrap').style.display = 'none';
   document.getElementById('draft-banner').classList.remove('show');
+
+  const bottomParseBtn = document.getElementById('parse-btn');
+  if(bottomParseBtn) {
+    if(mode === 'manual') {
+      bottomParseBtn.textContent = '開始手動建立 →';
+      bottomParseBtn.onclick = startManualEntry;
+    } else {
+      bottomParseBtn.textContent = '解析資料 →';
+      bottomParseBtn.onclick = handleParse;
+    }
+  }
 
   setChecked('opt-partner', mode === 'partner');
   onPartnerModeChange(mode === 'partner');
@@ -1598,6 +1622,15 @@ function proceedFromExcel() {
   const btn = document.getElementById('parse-btn');
   btn.textContent = '解析資料 →';
   btn.onclick = handleParse;
+}
+
+// Manual mode → skip parsing entirely, Step 2 already starts with blank
+// fields (see addPerson/addLogoCard calls at bottom of script).
+function startManualEntry() {
+  selectedForum = null;
+  setChecked('opt-pricing', false);
+  hideErr('parse-err');
+  goStep(2);
 }
 
 function onPartnerModeChange(checked) {
