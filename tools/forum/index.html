@@ -583,6 +583,24 @@ textarea.inp{resize:vertical}
     <button class="btn btn-ghost btn-sm" onclick="addLogoCard('logo-sponsor')">＋ 新增 Logo</button>
   </div>
 
+  <!-- 議程 Agenda（選填，顯示於 Logo 與票價之間） -->
+  <div class="card" id="agenda-card">
+    <div class="card-title">📅 議程 Agenda（選填）</div>
+    <div class="hint-box" style="margin-bottom:12px;font-size:12px">
+      每行一個場次，格式：時間 ｜ 場次名稱 ｜ 講者（選填）。想強調的場次，把場次名稱前後加上 <code>**</code>（例如 <code>**Panel A: XXX**</code>）即可標記為重點場次，輸出時會有強調底色。此區塊會顯示在 Logo 與報名費用之間；Drupal 後台完整議程功能仍會顯示在頁面最下方，兩者不衝突。
+    </div>
+    <div class="grid2">
+      <div class="field">
+        <label class="lbl">中文議程（選填）</label>
+        <textarea class="inp" id="agenda-zh" rows="5" placeholder="09:00 ~ 09:05 ｜ 開幕致詞 ｜ SEMI + VIP&#10;10:30 ~ 11:15 ｜ **Panel A：亞太再生能源發展路徑** ｜ 主持人：David Kang, BloombergNEF"></textarea>
+      </div>
+      <div class="field">
+        <label class="lbl">英文議程（選填）</label>
+        <textarea class="inp" id="agenda-en" rows="5" placeholder="09:00 ~ 09:05 | Welcome remarks | SEMI + VIP&#10;10:30 ~ 11:15 | **Panel A: APAC Renewable Energy Pathways** | Moderator: David Kang, BloombergNEF"></textarea>
+      </div>
+    </div>
+  </div>
+
   <!-- 報名與地點 -->
   <div class="card" id="registration-card">
     <div class="card-title">🔗 報名與地點</div>
@@ -1629,6 +1647,7 @@ function proceedFromExcel() {
 function startManualEntry() {
   selectedForum = null;
   setChecked('opt-pricing', false);
+  setChecked('opt-theme', false);
   hideErr('parse-err');
   goStep(2);
 }
@@ -2260,6 +2279,7 @@ function collectForumDraftState() {
     venueZh: getVal('venue-zh'), venueEn: getVal('venue-en'),
     themeZh: getVal('theme-zh'), themeEn: getVal('theme-en'),
     outlineZh: getVal('outline-zh'), outlineEn: getVal('outline-en'),
+    agendaZh: getVal('agenda-zh'), agendaEn: getVal('agenda-en'),
     partnerMode: document.getElementById('opt-partner')?.checked || false,
     freeAdmission: document.getElementById('opt-free')?.checked || false,
     showPricing: document.getElementById('opt-pricing')?.checked !== false,
@@ -2302,6 +2322,7 @@ function applyForumDraftState(d) {
   const fieldMap = {
     nameZh:'name-zh', nameEn:'name-en', venueZh:'venue-zh', venueEn:'venue-en',
     themeZh:'theme-zh', themeEn:'theme-en', outlineZh:'outline-zh', outlineEn:'outline-en',
+    agendaZh:'agenda-zh', agendaEn:'agenda-en',
     partnerOrgsZh:'partner-orgs-zh', partnerOrgsEn:'partner-orgs-en',
     advisedName:'advised-name', advisedUrl:'advised-url',
     remarkZh:'remark-zh', remarkEn:'remark-en',
@@ -2463,6 +2484,7 @@ function normalizeImportedForumDraft(parsed) {
 function formHasContentForDraftImport() {
   const ids = [
     'name-zh','name-en','venue-zh','venue-en','theme-zh','theme-en','outline-zh','outline-en',
+    'agenda-zh','agenda-en',
     'partner-orgs-zh','partner-orgs-en','advised-name','advised-url','remark-zh','remark-en',
     'related-links-zh','related-links-en','reg-url-zh','reg-url-en'
   ];
@@ -2579,6 +2601,7 @@ const OUT_CSS = `<style><!--
 .st26-venue-btn-static:hover{background:#f9f8ff;color:#673BB8;border-color:#d4c8f0}
 .st26-details{margin:0 0 18px;padding:20px 22px;background:#673BB8;border-radius:10px}
 .st26-outline-toggle{margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,.25)}
+.st26-details>.st26-outline-toggle:first-child{margin-top:0;padding-top:0;border-top:none}
 .st26-summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:6px;margin:0;border:none;border-radius:10px;background:rgba(255,255,255,.16);padding:8px 14px;font-size:14px;font-weight:700;color:#fff;line-height:1.4}
 .st26-summary:hover{background:#fff;color:#673BB8}
 .st26-summary::-webkit-details-marker{display:none}
@@ -2619,6 +2642,15 @@ const OUT_CSS = `<style><!--
 .st26-partner-org-row>a{grid-column:2;display:block}
 .st26-partner-org-row>a .st26-partner-org-name{display:block;color:#673BB8;font-weight:700}
 .st26-div{height:1px;background:#e5e5ea;margin:20px 0}
+.st26-agenda{margin:0 0 20px}
+.st26-agenda-title{font-size:18px;font-weight:800;margin-bottom:12px;color:#1d1d1f}
+.st26-agenda-row{display:flex;gap:16px;padding:12px 4px;border-bottom:1px solid #eeeeee}
+.st26-agenda-row:last-child{border-bottom:none}
+.st26-agenda-row-hi{background:#f9f8ff;border-left:3px solid #673BB8;border-radius:0 6px 6px 0;padding:12px 12px 12px 13px;margin:0 -4px;border-bottom:none}
+.st26-agenda-time{flex:0 0 150px;font-size:13px;font-weight:700;color:#673BB8;white-space:nowrap}
+.st26-agenda-main{flex:1;min-width:0}
+.st26-agenda-session{font-size:15px;font-weight:700;color:#1d1d1f;line-height:1.5}
+.st26-agenda-speaker{font-size:13px;color:#666;margin-top:3px;line-height:1.5}
 .st26-pricing-remark{padding:12px 16px;background:#f9f8ff;border-left:3px solid #673BB8;border-radius:0 4px 4px 0;font-size:14px;color:#666;margin-bottom:16px;line-height:1.6}
 .st26-pricing-remark p{margin-bottom:6px}
 .st26-pricing-remark p:last-child{margin-bottom:0}
@@ -2686,6 +2718,10 @@ const OUT_CSS = `<style><!--
   .st26-pr-label{display:block;font-size:15px;color:#86868b;font-weight:700}
   .st26-pname{font-size:17px}
   .st26-pdate{font-size:14px}
+  .st26-agenda-row{flex-direction:column;gap:4px;padding:10px 4px}
+  .st26-agenda-row-hi{padding:10px 10px 10px 11px}
+  .st26-agenda-time{flex:none;font-size:12px}
+  .st26-agenda-session{font-size:14px}
 }
 .st26-preview-mobile .st26-anchor-nav{gap:8px;margin:10px 0 14px}
 .st26-preview-mobile .st26-anchor-btn{font-size:14px;padding:9px 14px;line-height:1.35}
@@ -2706,6 +2742,10 @@ const OUT_CSS = `<style><!--
 .st26-preview-mobile .st26-pr-label{display:block;font-size:15px;color:#86868b;font-weight:700}
 .st26-preview-mobile .st26-pname{font-size:17px}
 .st26-preview-mobile .st26-pdate{font-size:14px}
+.st26-preview-mobile .st26-agenda-row{flex-direction:column;gap:4px;padding:10px 4px}
+.st26-preview-mobile .st26-agenda-row-hi{padding:10px 10px 10px 11px}
+.st26-preview-mobile .st26-agenda-time{flex:none;font-size:12px}
+.st26-preview-mobile .st26-agenda-session{font-size:14px}
 .st26-preview-mobile .st26-logo-row{padding:14px 0}
 .st26-preview-mobile .st26-logo-label{margin-bottom:8px;font-size:12px}
 .st26-preview-mobile .st26-logo-wrap{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px}
@@ -2784,17 +2824,22 @@ function buildThemeBlock(theme, outline, lang) {
   const showTheme   = document.getElementById('opt-theme')?.checked !== false;
   const showOutline = document.getElementById('opt-outline')?.checked !== false;
 
-  if(!showTheme) return '';
-
-  const txt = theme || (lang==='zh' ? '即將公告' : 'To be announced');
   const themeLabel = lang==='zh' ? '主題' : 'Theme';
   const outlineLabel = lang==='zh' ? '活動大綱' : 'Overview';
   const outlineSummary = lang==='zh' ? '查看大綱' : 'View outline';
+
+  // Theme and Outline are independent toggles: unchecking "顯示主題" must not
+  // hide the outline too (forums with no theme, outline-only, still need it).
+  const themeHTML = showTheme
+    ? '\n  <div class="st26-theme-head">\n    <div class="st26-theme-label">'+themeLabel+'</div>\n    <span class="st26-theme-line">'+esc(theme || (lang==='zh' ? '即將公告' : 'To be announced'))+'</span>\n  </div>'
+    : '';
   const outlineHTML = (outline && showOutline)
     ? '\n  <details class="st26-outline-toggle">\n    <summary class="st26-summary">'+outlineSummary+'</summary>\n    <div class="st26-outline">\n      <div class="st26-outline-label">'+outlineLabel+'</div>\n'+renderParagraphs(outline)+'\n    </div>\n  </details>'
     : '';
 
-  return '\n<div class="st26-details">\n  <div class="st26-theme-head">\n    <div class="st26-theme-label">'+themeLabel+'</div>\n    <span class="st26-theme-line">'+esc(txt)+'</span>\n  </div>' + outlineHTML + '\n</div>';
+  if(!themeHTML && !outlineHTML) return '';
+
+  return '\n<div class="st26-details">' + themeHTML + outlineHTML + '\n</div>';
 }
 
 function buildAnchorNav(venueDisplay, mapUrl, lang) {
@@ -2948,6 +2993,21 @@ function pCell(v) {
   return '<span class="st26-price">NT$ '+Number(v).toLocaleString()+'</span>';
 }
 
+// Rows: Time | Session | Speaker (pipe-delimited, one per line). Wrapping the
+// session name in **...** marks that row as a highlighted/featured session.
+function buildAgendaBlock(raw, lang) {
+  const rows = parsePipeRows(raw, 3).filter(r => r[0] || r[1]);
+  if(!rows.length) return '';
+  const title = lang==='zh' ? '議程' : 'Agenda';
+  const rowsHTML = rows.map(([time, session, speaker]) => {
+    const isHi = /^\*\*[\s\S]+\*\*$/.test(session.trim());
+    const cls = isHi ? ' st26-agenda-row-hi' : '';
+    const speakerHTML = speaker ? '<div class="st26-agenda-speaker">'+renderInlineRichText(speaker)+'</div>' : '';
+    return '  <div class="st26-agenda-row'+cls+'">\n    <div class="st26-agenda-time">'+esc(time)+'</div>\n    <div class="st26-agenda-main">\n      <div class="st26-agenda-session">'+renderInlineRichText(session)+'</div>\n'+speakerHTML+'    </div>\n  </div>';
+  }).join('\n');
+  return '\n<div class="st26-agenda">\n  <div class="st26-agenda-title">'+title+'</div>\n'+rowsHTML+'\n</div>';
+}
+
 function buildPricingBlock(f, regUrlZh, regUrlEn, remarkZh, remarkEn, lang) {
   const partnerMode = isPartnerMode();
   const freePricing = isFreeAdmission();
@@ -3007,8 +3067,15 @@ function buildPricingBlock(f, regUrlZh, regUrlEn, remarkZh, remarkEn, lang) {
   const discountHTML = showDiscount ? '<div class="st26-discount">'+discount+'</div>' : '';
   const footnoteHTML = showFootnote ? '<div class="st26-note">'+note+'</div>' : '';
 
-  return '\n<div class="st26-ph">  <div class="st26-ph-title">'+phTitle+'</div>  '+btnHTML+'</div>\n'
-    + remarkHTML + freePriceHTML + priceTableHTML + dayPassHTML + discountHTML + footnoteHTML;
+  // Skip the "Registration Fees" header entirely when there is nothing to
+  // show under it (no CTA link, no price data, not marked free) — forums
+  // with no ticket price should not render a dangling, empty-looking title.
+  const hasPricingContent = !!(activeUrl || (showPricing && f?.hasPrices) || freePricing);
+  const headerHTML = hasPricingContent
+    ? '\n<div class="st26-ph">  <div class="st26-ph-title">'+phTitle+'</div>  '+btnHTML+'</div>\n'
+    : '';
+
+  return headerHTML + remarkHTML + freePriceHTML + priceTableHTML + dayPassHTML + discountHTML + footnoteHTML;
 }
 
 function buildFullHTML(lang) {
@@ -3045,6 +3112,7 @@ function buildFullHTML(lang) {
   const logoOrg     = buildLogoSection(orgLabel, orgLogos);
   const logoCoorg   = buildLogoSection(coorgLabel, coorgLogos);
   const logoSponsor = buildLogoSection(sponLabel, sponsorLogos);
+  const agendaBlock = buildAgendaBlock(getVal('agenda-'+lang), lang);
   const pricingBlock = buildPricingBlock(f, regUrlZh, regUrlEn, remarkZh, remarkEn, lang);
   const logosHtml   = [logoOrg, logoCoorg, logoSponsor].filter(Boolean).join('\n');
   const hasLogos    = logosHtml.trim().length > 0;
@@ -3052,6 +3120,7 @@ function buildFullHTML(lang) {
   return OUT_CSS + '\n<div class="st26 st26-lang-'+lang+'">\n' +
     themeBlock + '\n' + anchorNav + '\n' + partnerOrgsBlock + '\n' + orgBlock + '\n' +
     (hasLogos ? '\n'+logosHtml+'\n<div class="st26-div" style="margin-top:20px;"></div>\n' : '') +
+    agendaBlock + '\n' +
     pricingBlock + '\n</div>';
 }
 
