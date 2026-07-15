@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ST26 論壇 HTML 產生器 v9.15</title>
+<title>ST26 論壇 HTML 產生器 v9.16</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -275,7 +275,7 @@ textarea.inp{resize:vertical}
   <div>
     <div class="hdr-eye">SEMI Taiwan · ST26</div>
     <div class="hdr-name">論壇 HTML 產生器</div>
-    <div class="hdr-ver">v9.15 · 三步驟流程 · AI 輔助 · Excel 彈性解析</div>
+    <div class="hdr-ver">v9.16 · 三步驟流程 · AI 輔助 · Excel 彈性解析</div>
   </div>
   <div class="hdr-badge">✦ AI 輔助版</div>
 </div>
@@ -587,16 +587,16 @@ textarea.inp{resize:vertical}
   <div class="card" id="agenda-card">
     <div class="card-title">📅 議程 Agenda（選填）</div>
     <div class="hint-box" style="margin-bottom:12px;font-size:12px">
-      每行一個場次，格式：時間 ｜ 場次名稱 ｜ 講者（選填）。想強調的場次，把場次名稱前後加上 <code>**</code>（例如 <code>**Panel A: XXX**</code>）即可標記為重點場次，輸出時會有強調底色。此區塊會顯示在 Logo 與報名費用之間；Drupal 後台完整議程功能仍會顯示在頁面最下方，兩者不衝突。
+      可直接貼上原始議程，大部分情況不需要手動整理：只要每個場次的時間單獨一行（例如 <code>10:15 – 10:55</code>），系統就會自動偵測時間並開始一個新場次；接下來一行是場次名稱，之後每一行是一位講者，格式 <code>姓名 ｜ 職稱 ｜ 公司</code>（可以有好幾位講者，各自一行）。空白行可留可不留，不影響判讀。想插入不屬於任何場次的分節標題（例如「CEO Summit」），該行前面加上 <code>##</code>（例如 <code>## CEO Summit: Global Ecosystem Leaderships</code），這樣不管有沒有空白行都會被正確辨識成標題，不會被誤判成講者。想強調的場次或標題，前後加上 <code>**</code> 即可（例如 <code>**Panel A: XXX**</code>）。此區塊顯示在 Logo 與報名費用之間；Drupal 後台完整議程功能仍會顯示在頁面最下方，兩者不衝突。
     </div>
     <div class="grid2">
       <div class="field">
         <label class="lbl">中文議程（選填）</label>
-        <textarea class="inp" id="agenda-zh" rows="5" placeholder="09:00 ~ 09:05 ｜ 開幕致詞 ｜ SEMI + VIP&#10;10:30 ~ 11:15 ｜ **Panel A：亞太再生能源發展路徑** ｜ 主持人：David Kang, BloombergNEF"></textarea>
+        <textarea class="inp" id="agenda-zh" rows="12" placeholder="10:00 – 10:15&#10;報到&#10;&#10;10:15 – 10:55&#10;開幕主題演講&#10;王小明 ｜ 技術長 ｜ 台積電&#10;&#10;## CEO 高峰論壇&#10;&#10;11:00 – 11:20&#10;**專題演講**&#10;陳大文 ｜ 執行長 ｜ 聯電"></textarea>
       </div>
       <div class="field">
         <label class="lbl">英文議程（選填）</label>
-        <textarea class="inp" id="agenda-en" rows="5" placeholder="09:00 ~ 09:05 | Welcome remarks | SEMI + VIP&#10;10:30 ~ 11:15 | **Panel A: APAC Renewable Energy Pathways** | Moderator: David Kang, BloombergNEF"></textarea>
+        <textarea class="inp" id="agenda-en" rows="12" placeholder="10:00 – 10:15&#10;Registration&#10;&#10;10:15 – 10:55&#10;SEMICON Taiwan 2026 Opening Keynote&#10;Amin Vadhat | SVP &amp; Chief Technologist of AI and Infrastructure | Google&#10;&#10;## CEO Summit: Global Ecosystem Leaderships&#10;&#10;11:00 – 11:20&#10;**Keynote Speech**&#10;Alexander Gorski | COO | Infineon (Confirmed)"></textarea>
       </div>
     </div>
   </div>
@@ -2216,7 +2216,7 @@ function buildDraftMarker(draft) {
   );
   return {
     schema: FORUM_DRAFT_MARKER_SCHEMA,
-    version: 'v9.15',
+    version: 'v9.16',
     savedAt: new Date().toISOString(),
     nameEn: draft.nameEn || '',
     hasFileLogo
@@ -2642,15 +2642,19 @@ const OUT_CSS = `<style><!--
 .st26-partner-org-row>a{grid-column:2;display:block}
 .st26-partner-org-row>a .st26-partner-org-name{display:block;color:#673BB8;font-weight:700}
 .st26-div{height:1px;background:#e5e5ea;margin:20px 0}
-.st26-agenda{margin:0 0 20px}
-.st26-agenda-title{font-size:18px;font-weight:800;margin-bottom:12px;color:#1d1d1f}
-.st26-agenda-row{display:flex;gap:16px;padding:12px 4px;border-bottom:1px solid #eeeeee}
+.st26-agenda{margin:0 0 16px}
+.st26-agenda-title{font-size:20px;font-weight:800;margin-bottom:8px;color:#1d1d1f}
+.st26-agenda-row{display:flex;gap:20px;padding:8px 4px;border-bottom:1px solid #eeeeee}
 .st26-agenda-row:last-child{border-bottom:none}
-.st26-agenda-row-hi{background:#f9f8ff;border-left:3px solid #673BB8;border-radius:0 6px 6px 0;padding:12px 12px 12px 13px;margin:0 -4px;border-bottom:none}
-.st26-agenda-time{flex:0 0 150px;font-size:13px;font-weight:700;color:#673BB8;white-space:nowrap}
+.st26-agenda-row-hi{background:#f9f8ff;border-left:3px solid #673BB8;border-radius:0 6px 6px 0;padding:8px 14px 8px 15px;margin:0 -4px;border-bottom:none}
+.st26-agenda-time{flex:0 0 170px;font-size:15px;font-weight:700;color:#673BB8;white-space:nowrap;line-height:1.3}
 .st26-agenda-main{flex:1;min-width:0}
-.st26-agenda-session{font-size:15px;font-weight:700;color:#1d1d1f;line-height:1.5}
-.st26-agenda-speaker{font-size:13px;color:#666;margin-top:3px;line-height:1.5}
+.st26-agenda-session{font-size:18px;font-weight:700;color:#1d1d1f;line-height:1.3}
+.st26-agenda-speaker{font-size:14.5px;color:#555;margin-top:1px;line-height:1.3}
+.st26-agenda-header{font-size:16px;font-weight:800;color:#673BB8;padding:10px 4px 3px;line-height:1.3}
+.st26-agenda-header:first-child{padding-top:2px}
+.st26-agenda-header-hi{background:#f9f8ff;border-left:3px solid #673BB8;border-radius:0 6px 6px 0;padding:7px 14px 7px 15px;margin:8px -4px 3px}
+.st26-agenda-header-hi:first-child{margin-top:0}
 .st26-pricing-remark{padding:12px 16px;background:#f9f8ff;border-left:3px solid #673BB8;border-radius:0 4px 4px 0;font-size:14px;color:#666;margin-bottom:16px;line-height:1.6}
 .st26-pricing-remark p{margin-bottom:6px}
 .st26-pricing-remark p:last-child{margin-bottom:0}
@@ -2718,10 +2722,13 @@ const OUT_CSS = `<style><!--
   .st26-pr-label{display:block;font-size:15px;color:#86868b;font-weight:700}
   .st26-pname{font-size:17px}
   .st26-pdate{font-size:14px}
-  .st26-agenda-row{flex-direction:column;gap:4px;padding:10px 4px}
-  .st26-agenda-row-hi{padding:10px 10px 10px 11px}
-  .st26-agenda-time{flex:none;font-size:12px}
-  .st26-agenda-session{font-size:14px}
+  .st26-agenda-row{flex-direction:column;gap:2px;padding:8px 4px}
+  .st26-agenda-row-hi{padding:8px 10px 8px 11px}
+  .st26-agenda-time{flex:none;font-size:13px}
+  .st26-agenda-session{font-size:16px}
+  .st26-agenda-speaker{font-size:13.5px}
+  .st26-agenda-header{font-size:15px;padding:10px 4px 3px}
+  .st26-agenda-header-hi{padding:6px 10px 6px 11px;margin:8px -4px 3px}
 }
 .st26-preview-mobile .st26-anchor-nav{gap:8px;margin:10px 0 14px}
 .st26-preview-mobile .st26-anchor-btn{font-size:14px;padding:9px 14px;line-height:1.35}
@@ -2742,10 +2749,13 @@ const OUT_CSS = `<style><!--
 .st26-preview-mobile .st26-pr-label{display:block;font-size:15px;color:#86868b;font-weight:700}
 .st26-preview-mobile .st26-pname{font-size:17px}
 .st26-preview-mobile .st26-pdate{font-size:14px}
-.st26-preview-mobile .st26-agenda-row{flex-direction:column;gap:4px;padding:10px 4px}
-.st26-preview-mobile .st26-agenda-row-hi{padding:10px 10px 10px 11px}
-.st26-preview-mobile .st26-agenda-time{flex:none;font-size:12px}
-.st26-preview-mobile .st26-agenda-session{font-size:14px}
+.st26-preview-mobile .st26-agenda-row{flex-direction:column;gap:2px;padding:8px 4px}
+.st26-preview-mobile .st26-agenda-row-hi{padding:8px 10px 8px 11px}
+.st26-preview-mobile .st26-agenda-time{flex:none;font-size:13px}
+.st26-preview-mobile .st26-agenda-session{font-size:16px}
+.st26-preview-mobile .st26-agenda-speaker{font-size:13.5px}
+.st26-preview-mobile .st26-agenda-header{font-size:15px;padding:10px 4px 3px}
+.st26-preview-mobile .st26-agenda-header-hi{padding:6px 10px 6px 11px;margin:8px -4px 3px}
 .st26-preview-mobile .st26-logo-row{padding:14px 0}
 .st26-preview-mobile .st26-logo-label{margin-bottom:8px;font-size:12px}
 .st26-preview-mobile .st26-logo-wrap{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px}
@@ -2993,18 +3003,72 @@ function pCell(v) {
   return '<span class="st26-price">NT$ '+Number(v).toLocaleString()+'</span>';
 }
 
-// Rows: Time | Session | Speaker (pipe-delimited, one per line). Wrapping the
-// session name in **...** marks that row as a highlighted/featured session.
+// Agenda input is meant to be pasted almost as-is from a source doc, not
+// hand-reformatted into one line per row. A time line (e.g. "10:15 – 10:55")
+// starts a new session entry; the line right after it is the session title;
+// every line after that (until the next time line, a blank line, or a "##"
+// line) is one speaker, "Name | Title | Company". A blank line optionally
+// closes the current entry. A line starting with "##" is always a standalone
+// section header/divider (e.g. "## CEO Summit: Global Ecosystem
+// Leaderships"), regardless of blank lines. Wrapping a session title or
+// header in **...** marks that row as highlighted.
+function isAgendaTimeLine(line) {
+  return /^\d{1,2}:\d{2}\s*[-–—~]/.test(line);
+}
+
+function parseAgendaEntries(raw) {
+  const rawLines = String(raw || '').split(/\r?\n/).map(l => l.trim());
+  const entries = [];
+  let current = null;
+  rawLines.forEach(line => {
+    if(!line) { current = null; return; }
+    const headerMatch = /^#{1,2}\s*(.+)$/.exec(line);
+    if(headerMatch) {
+      entries.push({ type: 'header', text: headerMatch[1].trim() });
+      current = null;
+      return;
+    }
+    if(isAgendaTimeLine(line)) {
+      current = { type: 'session', time: line, session: '', speakers: [] };
+      entries.push(current);
+      return;
+    }
+    if(current && !current.session) { current.session = line; return; }
+    if(current) { current.speakers.push(line); return; }
+    entries.push({ type: 'header', text: line });
+  });
+  return entries;
+}
+
+function parseAgendaSpeakerLine(line) {
+  const parts = line.split(/\s*[|｜]\s*/).map(p => p.trim()).filter(Boolean);
+  return { name: parts[0] || '', role: parts[1] || '', company: parts[2] || '' };
+}
+
+function agendaSpeakerHTML(line) {
+  const { name, role, company } = parseAgendaSpeakerLine(line);
+  const detail = [role, company].filter(Boolean).join(', ');
+  const text = [name, detail].filter(Boolean).join(' — ');
+  return '<div class="st26-agenda-speaker">'+renderInlineRichText(text)+'</div>';
+}
+
 function buildAgendaBlock(raw, lang) {
-  const rows = parsePipeRows(raw, 3).filter(r => r[0] || r[1]);
-  if(!rows.length) return '';
+  const entries = parseAgendaEntries(raw);
+  if(!entries.length) return '';
   const title = lang==='zh' ? '議程' : 'Agenda';
-  const rowsHTML = rows.map(([time, session, speaker]) => {
-    const isHi = /^\*\*[\s\S]+\*\*$/.test(session.trim());
+
+  const rowsHTML = entries.map(entry => {
+    if(entry.type === 'header') {
+      const isHi = /^\*\*[\s\S]+\*\*$/.test(entry.text);
+      const cls = isHi ? ' st26-agenda-header-hi' : '';
+      return '  <div class="st26-agenda-header'+cls+'">'+renderInlineRichText(entry.text)+'</div>';
+    }
+    const speakersHTML = entry.speakers.map(agendaSpeakerHTML).join('\n');
+    const isHi = /^\*\*[\s\S]+\*\*$/.test(entry.session.trim());
     const cls = isHi ? ' st26-agenda-row-hi' : '';
-    const speakerHTML = speaker ? '<div class="st26-agenda-speaker">'+renderInlineRichText(speaker)+'</div>' : '';
-    return '  <div class="st26-agenda-row'+cls+'">\n    <div class="st26-agenda-time">'+esc(time)+'</div>\n    <div class="st26-agenda-main">\n      <div class="st26-agenda-session">'+renderInlineRichText(session)+'</div>\n'+speakerHTML+'    </div>\n  </div>';
+    return '  <div class="st26-agenda-row'+cls+'">\n    <div class="st26-agenda-time">'+renderInlineRichText(entry.time)+'</div>\n    <div class="st26-agenda-main">\n      <div class="st26-agenda-session">'+renderInlineRichText(entry.session)+'</div>\n'+speakersHTML+'\n    </div>\n  </div>';
   }).join('\n');
+
   return '\n<div class="st26-agenda">\n  <div class="st26-agenda-title">'+title+'</div>\n'+rowsHTML+'\n</div>';
 }
 

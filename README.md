@@ -8,7 +8,7 @@ The current product direction is intentionally narrow: help website editors prep
 
 | Tool | Purpose | Hub integration status |
 |---|---|---|
-| Forum Generator | 論壇頁資料、Logo、價格、還原與草稿維護的中英文 HTML 產生器 | Integrated v9.15 |
+| Forum Generator | 論壇頁資料、Logo、價格、還原與草稿維護的中英文 HTML 產生器 | Integrated v9.16 |
 | Theme / Trend Generator | 主題卡片、展區與論壇議題互動 HTML 產生器 | Integrated |
 | Logo Prep Tool | PDF-compatible AI、PDF、SVG 與圖片去白邊轉 PNG 工具 | Integrated v0.1 |
 | Sponsors Logo Generator | 贊助商 Logo 分級、排序、備份與中英文輸出 | Integrated v5.2.1 |
@@ -57,9 +57,9 @@ The desktop tool folders are treated as source material during migration. The Hu
 
 The current integrated Hub keeps the existing generators usable. The next design pass is captured in [uiux-demo.html](uiux-demo.html), which proposes one shared product language for source input, validation, preview, and Drupal HTML copy workflows.
 
-## Forum v9.14 Workflow
+## Forum v9.16 Workflow
 
-Forum v9.14 uses three source layers:
+Forum v9.16 uses three source layers:
 
 - Excel/text is for first-time import.
 - Forum Draft JSON is the recommended maintenance source after first creation.
@@ -71,7 +71,9 @@ For later updates, import the Forum Draft JSON, edit only changed fields, regene
 
 Legacy HTML Restore is a recovery helper for existing Drupal body HTML. It can preview and apply Theme, Outline, Venue, and Registration URL, but it does not restore page title, pricing, logo sections, chair/moderator/advised-by fields, or full CMS state.
 
-Step 1 also offers a Manual mode for forums with no Excel or Word source at all: it skips parsing and goes straight to a blank Step 2, with the standard SEMI pricing table left off by default since there is no parsed price data to show.
+Step 1 also offers a Manual mode for forums with no Excel or Word source at all: it skips parsing and goes straight to a blank Step 2, with the standard SEMI pricing table left off by default since there is no parsed price data to show. Theme and Outline are independent toggles, and the Registration Fees block only renders when there is an actual CTA link or price data to show.
+
+Step 2 also has an optional Agenda block (between Logos and Registration/Pricing) for forums that need a short session list on the page. Paste the agenda close to as-is: a line that looks like a time (e.g. `10:15 – 10:55`) starts a new session entry, the next line is the session title, and every line after that is one speaker (`Name | Title | Company`). A line starting with `##` is always a standalone section header regardless of blank lines, and wrapping a session title or header in `**...**` highlights that row.
 
 ## Current Focus
 
