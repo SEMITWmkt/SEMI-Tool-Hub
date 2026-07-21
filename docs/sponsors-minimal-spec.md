@@ -36,7 +36,7 @@ Each sponsor should stay simple.
 
 | Field | Required | Main Screen | Notes |
 |---|---:|---:|---|
-| Tier | Yes | Yes | Platinum, Gold, Silver, Special, etc. |
+| Tier | Yes | Yes | Platinum, Gold, Silver, Strategic Partner, etc. |
 | Name | Recommended | Yes | Used for identification and title attribute. |
 | Logo image | Yes | Yes | Paste, upload, or future URL support. |
 | Link URL | Optional | Hidden / compact | Missing link should be `Check`, not blocking. |

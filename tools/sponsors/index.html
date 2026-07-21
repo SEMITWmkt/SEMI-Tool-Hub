@@ -437,8 +437,8 @@
           <div class="form-group" style="margin:0;"><label>Gold (英文)</label><input type="text" id="t_gold_en" value="Gold Sponsors"></div>
           <div class="form-group" style="margin:0;"><label>銀級 (中文)</label><input type="text" id="t_silv_zh" value="銀級贊助"></div>
           <div class="form-group" style="margin:0;"><label>Silver (英文)</label><input type="text" id="t_silv_en" value="Silver Sponsors"></div>
-          <div class="form-group" style="margin:0;"><label>特別贊助 (中文)</label><input type="text" id="t_spec_zh" value="官方策略合作夥伴"></div>
-          <div class="form-group" style="margin:0;"><label>Special (英文)</label><input type="text" id="t_spec_en" value="Official Strategic Partners"></div>
+          <div class="form-group" style="margin:0;"><label>策略合作夥伴 (中文)</label><input type="text" id="t_strategic_zh" value="策略合作夥伴"></div>
+          <div class="form-group" style="margin:0;"><label>Strategic Partner (英文)</label><input type="text" id="t_strategic_en" value="Strategic Partner"></div>
         </div>
       </div>
 
@@ -449,7 +449,7 @@
           <option value="platinum">Platinum / 白金級</option>
           <option value="gold">Gold / 金級</option>
           <option value="silver">Silver / 銀級</option>
-          <option value="special">Special / 特別贊助</option>
+          <option value="strategicPartner">Strategic Partner / 策略合作夥伴</option>
         </select>
       </div>
       
@@ -608,7 +608,7 @@
 </div>
 
 <script>
-  let sponsors = { platinum: [], gold: [], silver: [], special: [] };
+  let sponsors = { platinum: [], gold: [], silver: [], strategicPartner: [] };
   let draggedItemInfo = null;
   let currentPreviewLang = 'zh';
   let currentMgmtFilter = 'all';
@@ -665,7 +665,7 @@
     if (/白金|platinum|plat/.test(text)) return 'platinum';
     if (/金級|gold/.test(text)) return 'gold';
     if (/銀級|silver|silv/.test(text)) return 'silver';
-    if (/特別|策略|special|partner/.test(text)) return 'special';
+    if (/特別|策略|special|partner/.test(text)) return 'strategicPartner';
     return '';
   }
 
@@ -681,7 +681,7 @@
       platinum: { zh: 't_plat_zh', en: 't_plat_en' },
       gold: { zh: 't_gold_zh', en: 't_gold_en' },
       silver: { zh: 't_silv_zh', en: 't_silv_en' },
-      special: { zh: 't_spec_zh', en: 't_spec_en' }
+      strategicPartner: { zh: 't_strategic_zh', en: 't_strategic_en' }
     };
     const fieldId = titleMap[tier] && titleMap[tier][lang];
     if (fieldId) document.getElementById(fieldId).value = text;
@@ -692,7 +692,7 @@
       platinum: '白金級',
       gold: '金級',
       silver: '銀級',
-      special: '特別贊助'
+      strategicPartner: '策略合作夥伴'
     };
     return labels[tier] || tier;
   }
@@ -788,7 +788,7 @@
         plat_zh: document.getElementById('t_plat_zh').value, plat_en: document.getElementById('t_plat_en').value,
         gold_zh: document.getElementById('t_gold_zh').value, gold_en: document.getElementById('t_gold_en').value,
         silv_zh: document.getElementById('t_silv_zh').value, silv_en: document.getElementById('t_silv_en').value,
-        spec_zh: document.getElementById('t_spec_zh').value, spec_en: document.getElementById('t_spec_en').value
+        strategic_zh: document.getElementById('t_strategic_zh').value, strategic_en: document.getElementById('t_strategic_en').value
       }
     };
   }
@@ -806,9 +806,9 @@
       document.getElementById('projectName').value = parsed.projectName;
     }
     if (parsed.sponsors) {
-      const normalizedSponsors = { platinum: [], gold: [], silver: [], special: [] };
+      const normalizedSponsors = { platinum: [], gold: [], silver: [], strategicPartner: [] };
       for (let tier in normalizedSponsors) {
-        const incoming = parsed.sponsors[tier] || [];
+        const incoming = parsed.sponsors[tier] || (tier === 'strategicPartner' ? parsed.sponsors.special || [] : []);
         normalizedSponsors[tier] = incoming.map(s => ({
           id: s.id || Date.now().toString() + Math.random().toString(36).slice(2),
           name: s.name || '',
@@ -826,8 +826,8 @@
       document.getElementById('t_gold_en').value = parsed.titles.gold_en || 'Gold Sponsors';
       document.getElementById('t_silv_zh').value = parsed.titles.silv_zh || '銀級贊助';
       document.getElementById('t_silv_en').value = parsed.titles.silv_en || 'Silver Sponsors';
-      document.getElementById('t_spec_zh').value = parsed.titles.spec_zh || '官方策略合作夥伴';
-      document.getElementById('t_spec_en').value = parsed.titles.spec_en || 'Official Strategic Partners';
+      document.getElementById('t_strategic_zh').value = parsed.titles.strategic_zh || parsed.titles.spec_zh || '策略合作夥伴';
+      document.getElementById('t_strategic_en').value = parsed.titles.strategic_en || parsed.titles.spec_en || 'Strategic Partner';
     }
     setRestoreImportSummary('');
     updateSystem();
@@ -876,7 +876,7 @@
 
   function clearAllData() {
     if (confirm("確定要清空所有贊助商資料嗎？此操作無法復原。請確認已匯出備份。")) {
-      sponsors = { platinum: [], gold: [], silver: [], special: [] };
+      sponsors = { platinum: [], gold: [], silver: [], strategicPartner: [] };
       localStorage.removeItem(STORAGE_KEY);
       document.getElementById('sampleNote').classList.remove('show');
       setRestoreImportSummary('');
@@ -973,8 +973,8 @@
         { id: 'sample-gold-2', name: 'Vector Fab', image: makeSampleLogo('VECTOR', '#2563eb'), link: 'https://example.com/vector', scale: 100 }
       ],
       silver: [],
-      special: [
-        { id: 'sample-special-1', name: '', image: makeSampleLogo('PARTNER', '#047857'), link: 'https://example.com/partner', scale: 90 }
+      strategicPartner: [
+        { id: 'sample-strategic-partner-1', name: '', image: makeSampleLogo('PARTNER', '#047857'), link: 'https://example.com/partner', scale: 90 }
       ]
     };
     document.getElementById('sampleNote').classList.add('show');
@@ -1238,7 +1238,7 @@
     if (currentCounts.total && !confirm('匯入既有 HTML 會取代目前清單。請先確認已儲存工作檔。')) return;
 
     const doc = new DOMParser().parseFromString(raw, 'text/html');
-    const imported = { platinum: [], gold: [], silver: [], special: [] };
+    const imported = { platinum: [], gold: [], silver: [], strategicPartner: [] };
     let importedCount = 0;
 
     const spTiers = Array.from(doc.querySelectorAll('.sp-tier'));
@@ -1325,7 +1325,7 @@
   }
 
   function getFilteredSponsorItems(filter = currentMgmtFilter) {
-    const tiersOrder = ['platinum', 'gold', 'silver', 'special'];
+    const tiersOrder = ['platinum', 'gold', 'silver', 'strategicPartner'];
     const rows = [];
     tiersOrder.forEach(tier => {
       sponsors[tier].forEach((sponsor, index) => {
@@ -1338,7 +1338,7 @@
 
   function findSponsorById(id) {
     if (!id) return null;
-    const tiers = ['platinum', 'gold', 'silver', 'special'];
+    const tiers = ['platinum', 'gold', 'silver', 'strategicPartner'];
     for (const tier of tiers) {
       const index = sponsors[tier].findIndex(s => s.id === id);
       if (index !== -1) {
@@ -1512,7 +1512,7 @@
             <option value="platinum" ${tier === 'platinum' ? 'selected' : ''}>PLATINUM</option>
             <option value="gold" ${tier === 'gold' ? 'selected' : ''}>GOLD</option>
             <option value="silver" ${tier === 'silver' ? 'selected' : ''}>SILVER</option>
-            <option value="special" ${tier === 'special' ? 'selected' : ''}>SPECIAL</option>
+            <option value="strategicPartner" ${tier === 'strategicPartner' ? 'selected' : ''}>STRATEGIC PARTNER</option>
           </select>`;
         item.innerHTML = `
           <div class="mgmt-drag-handle" title="按住拖拉進行排序">⋮⋮</div>
@@ -1570,7 +1570,7 @@
       platinum: { zh: document.getElementById('t_plat_zh').value, en: document.getElementById('t_plat_en').value },
       gold: { zh: document.getElementById('t_gold_zh').value, en: document.getElementById('t_gold_en').value },
       silver: { zh: document.getElementById('t_silv_zh').value, en: document.getElementById('t_silv_en').value },
-      special: { zh: document.getElementById('t_spec_zh').value, en: document.getElementById('t_spec_en').value }
+      strategicPartner: { zh: document.getElementById('t_strategic_zh').value, en: document.getElementById('t_strategic_en').value }
     };
 
     let hasData = false;
@@ -1595,15 +1595,12 @@
   .sp-card {
     display: flex; align-items: center; justify-content: center; background: transparent; 
     height: 80px; padding: 10px; position: relative;
-    border: 1px solid #e5e7eb; 
-    border-radius: 0;
     overflow: hidden; 
   }
   
   .sp-card.has-link { text-decoration: none; transition: all 0.2s ease-out; cursor: pointer; }
   .sp-card.has-link:hover { 
-    border-color: #9ca3af; 
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06); 
+    box-shadow: none;
     transform: translateY(-2px); 
   }
   
@@ -1617,7 +1614,7 @@
 
     const buildHTML = (lang) => {
       let html = `<div class="sp-static-wrap">\n`;
-      const order = ['platinum', 'gold', 'silver', 'special'];
+      const order = ['platinum', 'gold', 'silver', 'strategicPartner'];
       
       order.forEach(tier => {
         const publishableSponsors = sponsors[tier].filter(s => s.image);

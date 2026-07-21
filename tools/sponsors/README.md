@@ -20,7 +20,7 @@
 
 ## 3. 使用流程
 
-1. 新增贊助商：選擇分級（Platinum / Gold / Silver / Special 等）、輸入名稱、貼上或上傳 Logo 圖檔、填入連結（可留白，狀態會顯示 Check）
+1. 新增贊助商：選擇分級（Platinum / Gold / Silver / Strategic Partner 等）、輸入名稱、貼上或上傳 Logo 圖檔、填入連結（可留白，狀態會顯示 Check）
 2. 清單會自動標示狀態：
    - **Ready**：有 Logo、名稱不為空，可發布
    - **Missing**：缺 Logo 圖檔，無法正確發布
