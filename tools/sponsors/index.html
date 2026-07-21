@@ -433,7 +433,7 @@
         <div class="grid-2col">
           <div class="form-group" style="margin:0;"><label>白金級 (中文)</label><input type="text" id="t_plat_zh" value="白金級贊助"></div>
           <div class="form-group" style="margin:0;"><label>Platinum (英文)</label><input type="text" id="t_plat_en" value="Platinum Sponsors"></div>
-          <div class="form-group" style="margin:0;"><label>金級 (中文)</label><input type="text" id="t_gold_zh" value="金級贊助"></div>
+          <div class="form-group" style="margin:0;"><label>黃金級 (中文)</label><input type="text" id="t_gold_zh" value="黃金級贊助"></div>
           <div class="form-group" style="margin:0;"><label>Gold (英文)</label><input type="text" id="t_gold_en" value="Gold Sponsors"></div>
           <div class="form-group" style="margin:0;"><label>銀級 (中文)</label><input type="text" id="t_silv_zh" value="銀級贊助"></div>
           <div class="form-group" style="margin:0;"><label>Silver (英文)</label><input type="text" id="t_silv_en" value="Silver Sponsors"></div>
@@ -450,7 +450,7 @@
         <select id="inputTier">
           <option value="strategicPartner">Strategic Partner / 策略合作夥伴</option>
           <option value="platinum">Platinum / 白金級</option>
-          <option value="gold">Gold / 金級</option>
+          <option value="gold">Gold / 黃金級</option>
           <option value="silver">Silver / 銀級</option>
           <option value="bronze">Bronze / 銅級</option>
         </select>
@@ -731,7 +731,7 @@
   function tierLabel(tier) {
     const labels = {
       platinum: '白金級',
-      gold: '金級',
+      gold: '黃金級',
       silver: '銀級',
       bronze: '銅級',
       strategicPartner: '策略合作夥伴'
@@ -872,7 +872,7 @@
     if (parsed.titles) {
       document.getElementById('t_plat_zh').value = parsed.titles.plat_zh || '白金級贊助';
       document.getElementById('t_plat_en').value = parsed.titles.plat_en || 'Platinum Sponsors';
-      document.getElementById('t_gold_zh').value = parsed.titles.gold_zh || '金級贊助';
+      document.getElementById('t_gold_zh').value = parsed.titles.gold_zh || '黃金級贊助';
       document.getElementById('t_gold_en').value = parsed.titles.gold_en || 'Gold Sponsors';
       document.getElementById('t_silv_zh').value = parsed.titles.silv_zh || '銀級贊助';
       document.getElementById('t_silv_en').value = parsed.titles.silv_en || 'Silver Sponsors';
@@ -1598,11 +1598,11 @@
           : `<div class="mgmt-thumb" style="display:flex;align-items:center;justify-content:center;color:#b91c1c;font-size:.65rem;font-weight:900;">No logo</div>`;
         const tierSelect = `
           <select class="mgmt-tier-select" onchange="updateSponsorTier('${tier}', ${index}, this.value)" title="更改贊助級別">
-            <option value="platinum" ${tier === 'platinum' ? 'selected' : ''}>PLATINUM</option>
-            <option value="gold" ${tier === 'gold' ? 'selected' : ''}>GOLD</option>
-            <option value="silver" ${tier === 'silver' ? 'selected' : ''}>SILVER</option>
-            <option value="bronze" ${tier === 'bronze' ? 'selected' : ''}>BRONZE</option>
-            <option value="strategicPartner" ${tier === 'strategicPartner' ? 'selected' : ''}>STRATEGIC PARTNER</option>
+            <option value="strategicPartner" ${tier === 'strategicPartner' ? 'selected' : ''}>Strategic Partner</option>
+            <option value="platinum" ${tier === 'platinum' ? 'selected' : ''}>Platinum Sponsors</option>
+            <option value="gold" ${tier === 'gold' ? 'selected' : ''}>Gold Sponsors</option>
+            <option value="silver" ${tier === 'silver' ? 'selected' : ''}>Silver Sponsors</option>
+            <option value="bronze" ${tier === 'bronze' ? 'selected' : ''}>Bronze Sponsors</option>
           </select>`;
         item.innerHTML = `
           <div class="mgmt-drag-handle" title="按住拖拉進行排序">⋮⋮</div>
@@ -1680,14 +1680,16 @@
 <style>
   .sp-static-wrap { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; max-width: 1200px; margin: 20px auto; padding: 0 20px; box-sizing: border-box; }
   .sp-static-wrap * { box-sizing: border-box; }
-  .sp-tier { margin-bottom: 30px; }
-  .sp-title { font-size: 1.2rem; font-weight: 800; margin-bottom: 15px; color: #111; text-transform: uppercase; letter-spacing: 1px; }
+  .sp-tier { margin-bottom: 56px; }
+  .sp-tier:last-child { margin-bottom: 40px; }
+  .sp-title { font-size: 1.2rem; font-weight: 800; margin: 0; color: #111; letter-spacing: .02em; }
+  .sp-tier-divider { width: 100%; border-bottom: 1px solid #d9d9d9; margin: 14px 0 26px; }
   
-  .sp-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; }
+  .sp-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 24px 28px; }
   
   .sp-card {
     display: flex; align-items: center; justify-content: center; background: transparent; 
-    height: 80px; padding: 10px; position: relative;
+    min-height: 100px; padding: 12px; position: relative;
     overflow: hidden; 
   }
   
@@ -1697,11 +1699,11 @@
     transform: translateY(-2px); 
   }
   
-  .sp-card img { max-width: 90%; max-height: 90%; object-fit: contain; }
+  .sp-card img { max-width: 100%; max-height: 90px; width: auto; height: auto; object-fit: contain; }
 
-  @media (max-width: 1024px) { .sp-grid { grid-template-columns: repeat(4, 1fr); } }
-  @media (max-width: 900px) { .sp-grid { grid-template-columns: repeat(3, 1fr); } }
-  @media (max-width: 600px) { .sp-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 1100px) { .sp-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+  @media (max-width: 900px) { .sp-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 600px) { .sp-grid { grid-template-columns: 1fr; gap: 18px; } .sp-card { min-height: 100px; } }
 </style>
 `;
 
@@ -1714,8 +1716,10 @@
         if (publishableSponsors.length > 0) {
           const tierName = escapeHtml(titles[tier][lang]);
           html += `  <!-- ${tierName} -->\n`;
-          html += `  <div class="sp-tier">\n`;
+          const tierKey = tier === 'strategicPartner' ? 'strategic_partner' : tier;
+          html += `  <section class="sp-tier" data-tier-key="${tierKey}">\n`;
           html += `    <h3 class="sp-title ${tier}">${tierName}</h3>\n`;
+          html += `    <div class="sp-tier-divider" aria-hidden="true"></div>\n`;
           html += `    <div class="sp-grid">\n`;
           
           publishableSponsors.forEach(s => {
@@ -1737,7 +1741,7 @@
             if (hasLink) html += `      </a>\n`; else html += `      </div>\n`;
           });
           
-          html += `    </div>\n  </div>\n\n`;
+          html += `    </div>\n  </section>\n\n`;
         }
       });
       html += `</div>`;
