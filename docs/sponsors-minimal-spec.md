@@ -36,9 +36,10 @@ Each sponsor should stay simple.
 
 | Field | Required | Main Screen | Notes |
 |---|---:|---:|---|
-| Tier | Yes | Yes | Platinum, Gold, Silver, Strategic Partner, etc. |
+| Tier | Yes | Yes | Strategic Partner, Platinum, Gold, Silver, Bronze. Render order is separate from tier identity. |
 | Name | Recommended | Yes | Used for identification and title attribute. |
-| Logo image | Yes | Yes | Paste, upload, or future URL support. |
+| Drupal image URL | Recommended | Yes | Primary source for published HTML; accepts a full URL or `/sites/default/files/...`. |
+| Temporary logo image | Optional | Yes | Base64 is for preview and legacy work files only; it is used in output only when no Drupal image URL exists. |
 | Link URL | Optional | Hidden / compact | Missing link should be `Check`, not blocking. |
 | Display scale | Yes | Yes | Keep because logo visual balance matters. |
 | Status | Automatic | Yes | Derived from fields, not manually assigned. |

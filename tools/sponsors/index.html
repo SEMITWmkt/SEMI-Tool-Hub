@@ -437,6 +437,8 @@
           <div class="form-group" style="margin:0;"><label>Gold (英文)</label><input type="text" id="t_gold_en" value="Gold Sponsors"></div>
           <div class="form-group" style="margin:0;"><label>銀級 (中文)</label><input type="text" id="t_silv_zh" value="銀級贊助"></div>
           <div class="form-group" style="margin:0;"><label>Silver (英文)</label><input type="text" id="t_silv_en" value="Silver Sponsors"></div>
+          <div class="form-group" style="margin:0;"><label>銅級 (中文)</label><input type="text" id="t_bronze_zh" value="銅級贊助"></div>
+          <div class="form-group" style="margin:0;"><label>Bronze (英文)</label><input type="text" id="t_bronze_en" value="Bronze Sponsors"></div>
           <div class="form-group" style="margin:0;"><label>策略合作夥伴 (中文)</label><input type="text" id="t_strategic_zh" value="策略合作夥伴"></div>
           <div class="form-group" style="margin:0;"><label>Strategic Partner (英文)</label><input type="text" id="t_strategic_en" value="Strategic Partner"></div>
         </div>
@@ -446,10 +448,11 @@
       <div class="form-group">
         <label>選擇級別 (Tier)</label>
         <select id="inputTier">
+          <option value="strategicPartner">Strategic Partner / 策略合作夥伴</option>
           <option value="platinum">Platinum / 白金級</option>
           <option value="gold">Gold / 金級</option>
           <option value="silver">Silver / 銀級</option>
-          <option value="strategicPartner">Strategic Partner / 策略合作夥伴</option>
+          <option value="bronze">Bronze / 銅級</option>
         </select>
       </div>
       
@@ -459,7 +462,7 @@
       </div>
 
       <div class="form-group">
-        <label>上傳 Logo 圖片 (必填，點擊/拖曳/貼上均可)</label>
+        <label>上傳 Logo 圖片（僅作臨時預覽／舊資料相容）</label>
         <div id="pasteZone" class="paste-zone" tabindex="0">
           <p>點擊、貼上 (Ctrl+V) 或拖曳圖片</p>
           <small>✅ 自動極限壓縮，不佔空間</small>
@@ -467,6 +470,16 @@
           <input type="file" id="fileInput" accept="image/*" style="display: none;">
         </div>
         <input type="hidden" id="imageBase64" value="">
+      </div>
+
+      <div class="form-group">
+        <label>Drupal 圖片網址 / Drupal Image URL</label>
+        <input type="text" id="inputImageUrl" placeholder="https://www.semicontaiwan.org/sites/default/files/... 或 /sites/default/files/...">
+      </div>
+
+      <div class="form-group">
+        <label>Logo 替代文字（選填）</label>
+        <input type="text" id="inputAltText" placeholder="預設使用公司名稱">
       </div>
 
       <div class="form-group">
@@ -608,13 +621,15 @@
 </div>
 
 <script>
-  let sponsors = { platinum: [], gold: [], silver: [], strategicPartner: [] };
+  const DEFAULT_TIER_ORDER = ['strategicPartner', 'platinum', 'gold', 'silver', 'bronze'];
+  let tierOrder = [...DEFAULT_TIER_ORDER];
+  let sponsors = { strategicPartner: [], platinum: [], gold: [], silver: [], bronze: [] };
   let draggedItemInfo = null;
   let currentPreviewLang = 'zh';
   let currentMgmtFilter = 'all';
   let highlightedSponsorId = '';
-  const TOOL_VERSION = 'v5.2.1';
-  const BACKUP_SCHEMA = 'semicon-sponsors-v1';
+  const TOOL_VERSION = 'v5.3.0';
+  const BACKUP_SCHEMA = 'semicon-sponsors-v2';
   const CROP_WHITE_THRESHOLD = 245;
   const CROP_ALPHA_THRESHOLD = 12;
 
@@ -651,6 +666,30 @@
     return url;
   }
 
+  function normalizeImageUrl(value) {
+    const url = cleanText(value).replace(/[。；;，,]+$/g, '');
+    if (!url) return '';
+    if (url.startsWith('/sites/default/files/')) return url;
+    return normalizeUrl(url);
+  }
+
+  function isImageUrl(value) {
+    return /^https?:\/\/\S+/i.test(value) || /^\/sites\/default\/files\//i.test(value);
+  }
+
+  function getImageSrc(sponsor) {
+    return isImageUrl(sponsor.imageUrl || '') ? sponsor.imageUrl : sponsor.imageDataUrl || sponsor.image || '';
+  }
+
+  function hasLegacyImageOnly(sponsor) {
+    return !sponsor.imageUrl && Boolean(sponsor.imageDataUrl || sponsor.image);
+  }
+
+  function getTierOrder() {
+    const valid = tierOrder.filter(tier => DEFAULT_TIER_ORDER.includes(tier));
+    return [...valid, ...DEFAULT_TIER_ORDER.filter(tier => !valid.includes(tier))];
+  }
+
   function isUsableUrl(value) {
     return /^https?:\/\/\S+/i.test(cleanText(value));
   }
@@ -665,6 +704,7 @@
     if (/白金|platinum|plat/.test(text)) return 'platinum';
     if (/金級|gold/.test(text)) return 'gold';
     if (/銀級|silver|silv/.test(text)) return 'silver';
+    if (/銅級|bronze|bron/.test(text)) return 'bronze';
     if (/特別|策略|special|partner/.test(text)) return 'strategicPartner';
     return '';
   }
@@ -681,6 +721,7 @@
       platinum: { zh: 't_plat_zh', en: 't_plat_en' },
       gold: { zh: 't_gold_zh', en: 't_gold_en' },
       silver: { zh: 't_silv_zh', en: 't_silv_en' },
+      bronze: { zh: 't_bronze_zh', en: 't_bronze_en' },
       strategicPartner: { zh: 't_strategic_zh', en: 't_strategic_en' }
     };
     const fieldId = titleMap[tier] && titleMap[tier][lang];
@@ -692,6 +733,7 @@
       platinum: '白金級',
       gold: '金級',
       silver: '銀級',
+      bronze: '銅級',
       strategicPartner: '策略合作夥伴'
     };
     return labels[tier] || tier;
@@ -764,7 +806,7 @@
   }
 
   function getSponsorDisplayName(sponsor) {
-    return cleanText(sponsor && sponsor.name) || '未命名廠商';
+    return cleanText(sponsor && sponsor.companyName) || '未命名廠商';
   }
 
   function toggleCodeBox(boxId, btn) {
@@ -784,10 +826,12 @@
       projectName: document.getElementById('projectName').value.trim() || 'SEMICON Taiwan Sponsors',
       exportedAt: new Date().toISOString(),
       sponsors: sponsors,
+      tierOrder: getTierOrder(),
       titles: {
         plat_zh: document.getElementById('t_plat_zh').value, plat_en: document.getElementById('t_plat_en').value,
         gold_zh: document.getElementById('t_gold_zh').value, gold_en: document.getElementById('t_gold_en').value,
         silv_zh: document.getElementById('t_silv_zh').value, silv_en: document.getElementById('t_silv_en').value,
+        bronze_zh: document.getElementById('t_bronze_zh').value, bronze_en: document.getElementById('t_bronze_en').value,
         strategic_zh: document.getElementById('t_strategic_zh').value, strategic_en: document.getElementById('t_strategic_en').value
       }
     };
@@ -806,18 +850,24 @@
       document.getElementById('projectName').value = parsed.projectName;
     }
     if (parsed.sponsors) {
-      const normalizedSponsors = { platinum: [], gold: [], silver: [], strategicPartner: [] };
+      const normalizedSponsors = { strategicPartner: [], platinum: [], gold: [], silver: [], bronze: [] };
       for (let tier in normalizedSponsors) {
         const incoming = parsed.sponsors[tier] || (tier === 'strategicPartner' ? parsed.sponsors.special || [] : []);
         normalizedSponsors[tier] = incoming.map(s => ({
           id: s.id || Date.now().toString() + Math.random().toString(36).slice(2),
-          name: s.name || '',
-          image: s.image || '',
-          link: normalizeUrl(s.link || ''),
+          companyName: s.companyName || s.name || '',
+          altText: s.altText || '',
+          imageUrl: (() => {
+            const imageUrl = normalizeImageUrl(s.imageUrl || '');
+            return isImageUrl(imageUrl) ? imageUrl : '';
+          })(),
+          imageDataUrl: s.imageDataUrl || s.image || '',
+          linkUrl: normalizeUrl(s.linkUrl || s.link || ''),
           scale: s.scale === undefined ? 100 : s.scale
         }));
       }
       sponsors = normalizedSponsors;
+      tierOrder = Array.isArray(parsed.tierOrder) ? parsed.tierOrder.filter(tier => DEFAULT_TIER_ORDER.includes(tier)) : [...DEFAULT_TIER_ORDER];
     }
     if (parsed.titles) {
       document.getElementById('t_plat_zh').value = parsed.titles.plat_zh || '白金級贊助';
@@ -826,6 +876,8 @@
       document.getElementById('t_gold_en').value = parsed.titles.gold_en || 'Gold Sponsors';
       document.getElementById('t_silv_zh').value = parsed.titles.silv_zh || '銀級贊助';
       document.getElementById('t_silv_en').value = parsed.titles.silv_en || 'Silver Sponsors';
+      document.getElementById('t_bronze_zh').value = parsed.titles.bronze_zh || '銅級贊助';
+      document.getElementById('t_bronze_en').value = parsed.titles.bronze_en || 'Bronze Sponsors';
       document.getElementById('t_strategic_zh').value = parsed.titles.strategic_zh || parsed.titles.spec_zh || '策略合作夥伴';
       document.getElementById('t_strategic_en').value = parsed.titles.strategic_en || parsed.titles.spec_en || 'Strategic Partner';
     }
@@ -876,7 +928,8 @@
 
   function clearAllData() {
     if (confirm("確定要清空所有贊助商資料嗎？此操作無法復原。請確認已匯出備份。")) {
-      sponsors = { platinum: [], gold: [], silver: [], strategicPartner: [] };
+      sponsors = { strategicPartner: [], platinum: [], gold: [], silver: [], bronze: [] };
+      tierOrder = [...DEFAULT_TIER_ORDER];
       localStorage.removeItem(STORAGE_KEY);
       document.getElementById('sampleNote').classList.remove('show');
       setRestoreImportSummary('');
@@ -885,10 +938,11 @@
   }
 
   function sponsorStatus(s) {
-    if (!s.image) return { key: 'missing', label: 'Missing', hint: '缺 Logo 圖片' };
-    const hasName = s.name && s.name.trim() && s.name.trim() !== '未命名廠商';
-    const hasLink = s.link && s.link.trim();
-    if (hasLink && !isUsableUrl(normalizeUrl(s.link))) return { key: 'check', label: 'Check', hint: '網址格式需確認' };
+    if (!getImageSrc(s)) return { key: 'missing', label: 'Missing', hint: '缺 Logo 圖片' };
+    const hasName = s.companyName && s.companyName.trim() && s.companyName.trim() !== '未命名廠商';
+    const hasLink = s.linkUrl && s.linkUrl.trim();
+    if (hasLink && !isUsableUrl(normalizeUrl(s.linkUrl))) return { key: 'check', label: 'Check', hint: '網址格式需確認' };
+    if (hasLegacyImageOnly(s)) return { key: 'check', label: 'Check', hint: '建議改填 Drupal 圖片網址，避免輸出 Base64' };
     if (!hasName || !hasLink) return { key: 'check', label: 'Check', hint: !hasName ? '建議補公司名稱' : '尚未填連結' };
     return { key: 'ready', label: 'Ready', hint: '可輸出' };
   }
@@ -964,17 +1018,19 @@
   function loadSampleData() {
     const counts = getSponsorCounts();
     if (counts.total && !confirm('載入示範資料會取代目前清單。請先確認已儲存工作檔。')) return;
+    tierOrder = [...DEFAULT_TIER_ORDER];
     sponsors = {
       platinum: [
-        { id: 'sample-platinum-1', name: 'Aurora Semi', image: makeSampleLogo('AURORA', '#800080'), link: 'https://example.com/aurora', scale: 100 }
+        { id: 'sample-platinum-1', companyName: 'Aurora Semi', altText: 'Aurora Semi', imageUrl: '', imageDataUrl: makeSampleLogo('AURORA', '#800080'), linkUrl: 'https://example.com/aurora', scale: 100 }
       ],
       gold: [
-        { id: 'sample-gold-1', name: 'Nova Systems', image: makeSampleLogo('NOVA', '#b7791f'), link: '', scale: 95 },
-        { id: 'sample-gold-2', name: 'Vector Fab', image: makeSampleLogo('VECTOR', '#2563eb'), link: 'https://example.com/vector', scale: 100 }
+        { id: 'sample-gold-1', companyName: 'Nova Systems', altText: 'Nova Systems', imageUrl: '', imageDataUrl: makeSampleLogo('NOVA', '#b7791f'), linkUrl: '', scale: 95 },
+        { id: 'sample-gold-2', companyName: 'Vector Fab', altText: 'Vector Fab', imageUrl: '', imageDataUrl: makeSampleLogo('VECTOR', '#2563eb'), linkUrl: 'https://example.com/vector', scale: 100 }
       ],
       silver: [],
+      bronze: [],
       strategicPartner: [
-        { id: 'sample-strategic-partner-1', name: '', image: makeSampleLogo('PARTNER', '#047857'), link: 'https://example.com/partner', scale: 90 }
+        { id: 'sample-strategic-partner-1', companyName: 'Strategic Partner', altText: 'Strategic Partner', imageUrl: '', imageDataUrl: makeSampleLogo('PARTNER', '#047857'), linkUrl: 'https://example.com/partner', scale: 90 }
       ]
     };
     document.getElementById('sampleNote').classList.add('show');
@@ -1063,7 +1119,7 @@
     input.onchange = function() {
       if (input.files && input.files[0]) {
         compressImageFile(input.files[0], (compressedBase64) => {
-          sponsors[tier][index].image = compressedBase64;
+          sponsors[tier][index].imageDataUrl = compressedBase64;
           updateSystem();
         });
       }
@@ -1118,17 +1174,22 @@
   function addSponsor() {
     const tier = document.getElementById('inputTier').value;
     const name = document.getElementById('inputName').value.trim() || '未命名廠商';
-    const image = document.getElementById('imageBase64').value;
+    const imageDataUrl = document.getElementById('imageBase64').value;
+    const imageUrl = normalizeImageUrl(document.getElementById('inputImageUrl').value);
+    const altText = cleanText(document.getElementById('inputAltText').value);
     const link = normalizeUrl(document.getElementById('inputLink').value);
 
-    if (!image) { alert("請先在上傳區填入 Logo 圖片！"); return; }
+    if (!imageUrl && !imageDataUrl) { alert("請填入 Drupal 圖片網址，或暫時上傳 Logo 圖片供預覽！"); return; }
+    if (imageUrl && !isImageUrl(imageUrl)) { alert("Drupal 圖片網址格式需為完整 https:// URL 或 /sites/default/files/... 路徑。"); return; }
 
     const id = Date.now().toString();
-    sponsors[tier].push({ id, name, image, link, scale: 100 }); 
+    sponsors[tier].push({ id, companyName: name, altText, imageUrl, imageDataUrl, linkUrl: link, scale: 100 });
     document.getElementById('sampleNote').classList.remove('show');
 
     document.getElementById('inputName').value = '';
     document.getElementById('inputLink').value = '';
+    document.getElementById('inputImageUrl').value = '';
+    document.getElementById('inputAltText').value = '';
     base64Input.value = '';
     previewImage.style.display = 'none';
     previewImage.src = '';
@@ -1162,9 +1223,11 @@
 
       sponsors[tier].push({
         id: Date.now().toString() + Math.random().toString(36).slice(2),
-        name,
-        image: '',
-        link,
+        companyName: name,
+        altText: '',
+        imageUrl: '',
+        imageDataUrl: '',
+        linkUrl: link,
         scale: 100
       });
       added += 1;
@@ -1205,21 +1268,23 @@
       if (!img) return;
       const tier = fallbackTier || 'gold';
       const closestLink = img.closest('a[href]');
-      const image = normalizeImportedImageSrc(img.getAttribute('src'));
-      if (!image) return;
+      const imageSrc = normalizeImportedImageSrc(img.getAttribute('src'));
+      if (!imageSrc) return;
       const name = cleanText(
         img.getAttribute('alt')
         || img.getAttribute('title')
         || (closestLink && closestLink.getAttribute('title'))
         || `Imported sponsor ${idx + 1}`
       );
-      const link = normalizeUrl(closestLink ? closestLink.getAttribute('href') : '');
+      const linkUrl = normalizeUrl(closestLink ? closestLink.getAttribute('href') : '');
       const scale = parseScalePercent(img.getAttribute('style'));
       bucket[tier].push({
         id: `imported-${Date.now()}-${Math.random().toString(36).slice(2)}`,
-        name,
-        image,
-        link,
+        companyName: name,
+        altText: name,
+        imageUrl: imageSrc.startsWith('data:image/') ? '' : imageSrc,
+        imageDataUrl: imageSrc.startsWith('data:image/') ? imageSrc : '',
+        linkUrl,
         scale
       });
     });
@@ -1238,7 +1303,7 @@
     if (currentCounts.total && !confirm('匯入既有 HTML 會取代目前清單。請先確認已儲存工作檔。')) return;
 
     const doc = new DOMParser().parseFromString(raw, 'text/html');
-    const imported = { platinum: [], gold: [], silver: [], strategicPartner: [] };
+    const imported = { strategicPartner: [], platinum: [], gold: [], silver: [], bronze: [] };
     let importedCount = 0;
 
     const spTiers = Array.from(doc.querySelectorAll('.sp-tier'));
@@ -1284,7 +1349,7 @@
       return;
     }
 
-    const importedMissingCount = Object.values(imported).flat().filter(row => !row.image).length;
+    const importedMissingCount = Object.values(imported).flat().filter(row => !getImageSrc(row)).length;
     const importBreakdown = summarizeImportedSponsors(imported);
     sponsors = imported;
     input.value = '';
@@ -1325,7 +1390,7 @@
   }
 
   function getFilteredSponsorItems(filter = currentMgmtFilter) {
-    const tiersOrder = ['platinum', 'gold', 'silver', 'strategicPartner'];
+    const tiersOrder = getTierOrder();
     const rows = [];
     tiersOrder.forEach(tier => {
       sponsors[tier].forEach((sponsor, index) => {
@@ -1338,7 +1403,7 @@
 
   function findSponsorById(id) {
     if (!id) return null;
-    const tiers = ['platinum', 'gold', 'silver', 'strategicPartner'];
+    const tiers = getTierOrder();
     for (const tier of tiers) {
       const index = sponsors[tier].findIndex(s => s.id === id);
       if (index !== -1) {
@@ -1390,7 +1455,7 @@
       return;
     }
     compressImageFile(file, (compressedBase64) => {
-      sponsors[target.tier][target.index].image = compressedBase64;
+      sponsors[target.tier][target.index].imageDataUrl = compressedBase64;
       advanceIssueQueue();
       updateSystem();
     });
@@ -1419,12 +1484,28 @@
   }
 
   function updateSponsorLink(tier, index, val) {
-    sponsors[tier][index].link = normalizeUrl(val);
+    sponsors[tier][index].linkUrl = normalizeUrl(val);
     updateSystem();
   }
 
   function updateSponsorName(tier, index, val) {
-    sponsors[tier][index].name = cleanText(val);
+    sponsors[tier][index].companyName = cleanText(val);
+    updateSystem();
+  }
+
+  function updateSponsorAltText(tier, index, val) {
+    sponsors[tier][index].altText = cleanText(val);
+    updateSystem();
+  }
+
+  function updateSponsorImageUrl(tier, index, val) {
+    const imageUrl = normalizeImageUrl(val);
+    if (imageUrl && !isImageUrl(imageUrl)) {
+      alert('Drupal 圖片網址格式需為完整 https:// URL 或 /sites/default/files/... 路徑。');
+      renderMgmtList();
+      return;
+    }
+    sponsors[tier][index].imageUrl = imageUrl;
     updateSystem();
   }
 
@@ -1496,22 +1577,31 @@
 
           if (sourceTier === targetTier && sourceIndex < targetIndex) { targetIndex -= 1; }
 
+          if (sourceTier !== targetTier) {
+            // Card drag is for ordering only. It must never change a sponsor's tier identity.
+            updateSystem();
+            return;
+          }
           const movedItem = sponsors[sourceTier].splice(sourceIndex, 1)[0];
-          sponsors[targetTier].splice(targetIndex, 0, movedItem);
+          sponsors[sourceTier].splice(targetIndex, 0, movedItem);
 
           updateSystem();
         };
 
-        const safeName = s.name || '未命名廠商';
-        const safeLink = normalizeUrl(s.link || '');
-        const thumbHtml = s.image
-          ? `<img src="${s.image}" class="mgmt-thumb" alt="thumb">`
+        const safeName = s.companyName || '未命名廠商';
+        const safeAltText = s.altText || '';
+        const safeLink = normalizeUrl(s.linkUrl || '');
+        const safeImageUrl = normalizeImageUrl(s.imageUrl || '');
+        const imageSrc = getImageSrc(s);
+        const thumbHtml = imageSrc
+          ? `<img src="${escapeAttr(imageSrc)}" class="mgmt-thumb" alt="thumb">`
           : `<div class="mgmt-thumb" style="display:flex;align-items:center;justify-content:center;color:#b91c1c;font-size:.65rem;font-weight:900;">No logo</div>`;
         const tierSelect = `
           <select class="mgmt-tier-select" onchange="updateSponsorTier('${tier}', ${index}, this.value)" title="更改贊助級別">
             <option value="platinum" ${tier === 'platinum' ? 'selected' : ''}>PLATINUM</option>
             <option value="gold" ${tier === 'gold' ? 'selected' : ''}>GOLD</option>
             <option value="silver" ${tier === 'silver' ? 'selected' : ''}>SILVER</option>
+            <option value="bronze" ${tier === 'bronze' ? 'selected' : ''}>BRONZE</option>
             <option value="strategicPartner" ${tier === 'strategicPartner' ? 'selected' : ''}>STRATEGIC PARTNER</option>
           </select>`;
         item.innerHTML = `
@@ -1525,6 +1615,8 @@
                 ${status.key !== 'ready' ? `<span class="status-reason">${escapeHtml(status.hint)}</span>` : ''}
               </div>
               <input class="mgmt-name-edit" type="text" value="${escapeAttr(safeName)}" placeholder="公司名稱" onchange="updateSponsorName('${tier}', ${index}, this.value)" title="更改公司名稱">
+              <input class="mgmt-name-edit" type="text" value="${escapeAttr(safeAltText)}" placeholder="Logo 替代文字（預設使用公司名稱）" onchange="updateSponsorAltText('${tier}', ${index}, this.value)" title="更改 Logo 替代文字">
+              <input class="mgmt-name-edit" type="text" value="${escapeAttr(safeImageUrl)}" placeholder="Drupal 圖片網址 / Drupal Image URL" onchange="updateSponsorImageUrl('${tier}', ${index}, this.value)" title="正式輸出優先使用此網址">
               
               <div class="mgmt-inline-ctrl">
                 <input type="text" value="${escapeAttr(safeLink)}" placeholder="未填連結(點此補上)" onchange="updateSponsorLink('${tier}', ${index}, this.value)" title="隨時更新網址，離開輸入框即自動存檔">
@@ -1570,11 +1662,12 @@
       platinum: { zh: document.getElementById('t_plat_zh').value, en: document.getElementById('t_plat_en').value },
       gold: { zh: document.getElementById('t_gold_zh').value, en: document.getElementById('t_gold_en').value },
       silver: { zh: document.getElementById('t_silv_zh').value, en: document.getElementById('t_silv_en').value },
+      bronze: { zh: document.getElementById('t_bronze_zh').value, en: document.getElementById('t_bronze_en').value },
       strategicPartner: { zh: document.getElementById('t_strategic_zh').value, en: document.getElementById('t_strategic_en').value }
     };
 
     let hasData = false;
-    for (let t in sponsors) { if (sponsors[t].some(s => s.image)) hasData = true; }
+    for (let t in sponsors) { if (sponsors[t].some(s => getImageSrc(s))) hasData = true; }
 
     if (!hasData) {
       document.getElementById('outputCodeZh').value = '';
@@ -1614,10 +1707,10 @@
 
     const buildHTML = (lang) => {
       let html = `<div class="sp-static-wrap">\n`;
-      const order = ['platinum', 'gold', 'silver', 'strategicPartner'];
+      const order = getTierOrder();
       
       order.forEach(tier => {
-        const publishableSponsors = sponsors[tier].filter(s => s.image);
+        const publishableSponsors = sponsors[tier].filter(s => getImageSrc(s));
         if (publishableSponsors.length > 0) {
           const tierName = escapeHtml(titles[tier][lang]);
           html += `  <!-- ${tierName} -->\n`;
@@ -1626,11 +1719,12 @@
           html += `    <div class="sp-grid">\n`;
           
           publishableSponsors.forEach(s => {
-            const normalizedLink = normalizeUrl(s.link);
+            const normalizedLink = normalizeUrl(s.linkUrl);
             const hasLink = normalizedLink && isUsableUrl(normalizedLink);
             const scaleFactor = (s.scale || 100) / 100; 
             const scaleStyle = scaleFactor !== 1 ? ` style="transform: scale(${scaleFactor});"` : '';
-            const sponsorName = escapeAttr(s.name || 'Sponsor');
+            const sponsorName = escapeAttr(s.altText || s.companyName || 'Sponsor');
+            const imageSrc = getImageSrc(s);
 
             if (hasLink) {
               html += `      <a href="${escapeAttr(normalizedLink)}" target="_blank" rel="noopener noreferrer" class="sp-card has-link" title="${sponsorName}">\n`;
@@ -1638,7 +1732,7 @@
               html += `      <div class="sp-card" title="${sponsorName}">\n`;
             }
             
-            html += `        <img src="${s.image}" alt="${sponsorName}"${scaleStyle}>\n`;
+            html += `        <img src="${escapeAttr(imageSrc)}" alt="${sponsorName}"${scaleStyle}>\n`;
             
             if (hasLink) html += `      </a>\n`; else html += `      </div>\n`;
           });

@@ -20,14 +20,14 @@
 
 ## 3. 使用流程
 
-1. 新增贊助商：選擇分級（Platinum / Gold / Silver / Strategic Partner 等）、輸入名稱、貼上或上傳 Logo 圖檔、填入連結（可留白，狀態會顯示 Check）
+1. 新增贊助商：選擇分級（Strategic Partner / Platinum / Gold / Silver / Bronze）、輸入名稱，優先貼入 Drupal 圖片網址；貼上或上傳的 Base64 圖片只作臨時預覽與舊資料相容。連結可留白，狀態會顯示 Check。
 2. 清單會自動標示狀態：
    - **Ready**：有 Logo、名稱不為空，可發布
    - **Missing**：缺 Logo 圖檔，無法正確發布
    - **Check**：有 Logo 但缺名稱或連結，需人工確認
 3. 用清單上的 Scale 微調視覺比例，用上下移動排序
 4. 用 Preview 確認中英文輸出畫面
-5. Copy ZH / Copy EN 複製對應語言的 HTML，貼到 Drupal
+5. Copy ZH / Copy EN 複製對應語言的 HTML，貼到 Drupal；正式輸出優先使用 Drupal 圖片網址，不會在已有網址時輸出 Base64。
 6. **存工作檔（備份 JSON）**——因為贊助商資料是陸續到齊的，備份/匯出是核心工作流程，不是進階功能
 
 ## 4. 已知問題
