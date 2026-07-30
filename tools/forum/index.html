@@ -1294,6 +1294,10 @@ function legacyOutlineToText(outlineEl) {
   if(!outlineEl) return '';
   const blocks = [];
   Array.from(outlineEl.children).forEach(child => {
+    // ".st26-outline-label" is the rendered section heading ("活動大綱" /
+    // "Overview"), not author content. Restoring it would prepend the heading
+    // to the outline field and duplicate it again on every round trip.
+    if(child.classList?.contains('st26-outline-label')) return;
     const tag = child.tagName.toLowerCase();
     if(tag === 'ul' || tag === 'ol') {
       const items = Array.from(child.querySelectorAll('li')).map(li => '- ' + cleanLegacyText(li.textContent));
@@ -1304,7 +1308,9 @@ function legacyOutlineToText(outlineEl) {
     if(text) blocks.push(text);
   });
   if(!blocks.length) {
-    const fallback = cleanLegacyText(outlineEl.textContent);
+    const clone = outlineEl.cloneNode(true);
+    clone.querySelectorAll('.st26-outline-label').forEach(el => el.remove());
+    const fallback = cleanLegacyText(clone.textContent);
     if(fallback) blocks.push(fallback);
   }
   return blocks.join('\n\n');
@@ -1333,7 +1339,15 @@ function parseLegacyForumHTML(html) {
   const lang = doc.querySelector('.st26-lang-zh') ? 'zh' : (doc.querySelector('.st26-lang-en') ? 'en' : '');
   const themeEl = doc.querySelector('.st26-theme-line, .st26-theme-static');
   const outlineEl = doc.querySelector('.st26-outline');
-  const venueEl = doc.querySelector('.st26-anchor-btn');
+  // The venue button renders a trailing "↗" glyph (.st26-anchor-arr). Read from
+  // a clone without it, or the arrow is restored into the venue field and a new
+  // one is appended on every generate/restore round trip.
+  const venueBtn = doc.querySelector('.st26-anchor-btn');
+  let venueEl = venueBtn;
+  if(venueBtn) {
+    venueEl = venueBtn.cloneNode(true);
+    venueEl.querySelectorAll('.st26-anchor-arr').forEach(el => el.remove());
+  }
   const regBtn = doc.querySelector('.st26-btn');
   const logoRows = Array.from(doc.querySelectorAll('.st26-logo-row')).map(row => ({
     label: cleanLegacyText(row.querySelector('.st26-logo-label')?.textContent),
