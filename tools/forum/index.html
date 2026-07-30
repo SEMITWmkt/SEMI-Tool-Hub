@@ -39,6 +39,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue","Noto Sans TC
 /* Cards */
 .card{background:#faf8ff;border:1px solid var(--border);border-radius:var(--r);padding:18px 20px;margin-bottom:14px}
 .card-title{font-size:11px;font-weight:700;color:var(--brand);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px;display:flex;align-items:center;gap:6px}
+.card-collapsible[open] .card-title{margin-bottom:14px}
+.card-collapsible:not([open]) .card-title{margin-bottom:0}
+.card-collapsible .card-title{cursor:pointer;list-style:none}
+.card-collapsible .card-title::-webkit-details-marker{display:none}
+.card-collapsible .card-title::before{content:'▶';font-size:9px;color:var(--muted)}
+.card-collapsible[open] .card-title::before{content:'▼'}
 .workflow-note{background:#f5f5f7;border:1px solid #e5e5ea;border-radius:8px;padding:10px 12px;font-size:12px;color:#555;line-height:1.6;margin-bottom:14px}
 
 /* Forms */
@@ -89,8 +95,6 @@ textarea.inp{resize:vertical}
 .restore-primary-title{font-size:13px;font-weight:800;color:#1d1d1f;line-height:1.45}
 .restore-primary-sub{font-size:11px;color:var(--muted);line-height:1.5;margin-top:3px}
 .draft-json-card{background:#fff;border-color:#e5e5ea}
-.draft-json-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap}
-.draft-json-title{font-size:14px;font-weight:800;color:#1d1d1f;margin-bottom:4px}
 .draft-json-sub{font-size:12px;color:#666;line-height:1.55}
 .draft-json-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .draft-json-msg{display:none;margin-top:12px;border-radius:8px;padding:10px 12px;font-size:12px;font-weight:700;line-height:1.5}
@@ -316,7 +320,7 @@ textarea.inp{resize:vertical}
     請直接從 Excel 複製「ST26_官網連結」資料表的內容（含標題列），貼入下方。
   </div>
   <div id="mode-hint-manual" class="warn-box" style="font-size:12px;display:none">
-    適合單次或非公版格式的論壇頁，不需要貼上任何資料。按下方按鈕直接進入 Step 2，手動填寫場次資訊、主題大綱、人員與 Logo 後產生 HTML。此模式預設關閉 SEMI 標準票價表（避免在沒有票價資料時顯示錯誤的價格區塊），如該論壇確實需要票價表，請於 Step 2 自行開啟並填寫。
+    適合單次或非公版格式的論壇頁，不需要貼上任何資料。按下方按鈕直接進入 Step 2，手動填寫場次資訊、主題大綱、人員與 Logo 後產生 HTML。此模式預設關閉「顯示票價表」與「顯示主題」（避免在沒有票價資料時顯示錯誤的價格區塊），如該論壇確實需要票價表或主題區塊，請於 Step 2「輸出內容選項」自行開啟並填寫。
   </div>
   <div id="mode-hint-partner" class="warn-box" style="font-size:12px;display:none">
     適合沒有 Excel 的外部單位或合作論壇。請貼上 Word 內容、email 內文或活動說明；解析後會自動進入合作論壇流程，文字中的連結會保留為可點擊內容。
@@ -363,8 +367,8 @@ textarea.inp{resize:vertical}
     </div>
   </div>
 
-  <div class="card" id="legacy-restore-card">
-    <div class="card-title">↩ 已上架 HTML 還原 Legacy HTML Restore</div>
+  <details class="card card-collapsible" id="legacy-restore-card">
+    <summary class="card-title">↩ 已上架 HTML 還原 Legacy HTML Restore</summary>
     <div class="hint-box" style="font-size:12px">
       用於檢查已發布 Drupal 頁面能還原多少資料。此版本只顯示解析預覽，不會寫入表單，也不會覆蓋目前輸入內容。
     </div>
@@ -374,7 +378,7 @@ textarea.inp{resize:vertical}
     </div>
     <button class="btn btn-secondary btn-sm" onclick="handleLegacyRestorePreview()">解析還原預覽</button>
     <div class="restore-preview" id="legacy-restore-preview"></div>
-  </div>
+  </details>
 
   <!-- API settings (only shown for text mode) -->
   <div id="api-section" style="display:none;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:14px 16px;margin-bottom:14px">
@@ -405,21 +409,9 @@ textarea.inp{resize:vertical}
 
   <div class="err-box" id="parse-err"></div>
 
-  <!-- Draft banner -->
-  <div class="draft-banner" id="draft-banner">
-    <div>
-      <div style="font-weight:700;color:#92400e">偵測到此場次有未完成的草稿</div>
-      <div style="font-size:12px;color:#78350f;margin-top:2px">點擊載入可還原上次填寫的內容（Logo 需重新上傳）</div>
-    </div>
-    <button class="btn btn-sm" style="background:#92400e;color:#fff;border:none;cursor:pointer;padding:8px 16px;border-radius:6px;font-weight:700" onclick="loadDraft()">載入上次進度</button>
-  </div>
-
   <div class="nav">
     <div style="display:flex;gap:8px;align-items:center">
       <button class="btn btn-secondary btn-sm" onclick="clearDrafts()">🧹 清除所有草稿</button>
-    </div>
-    <div class="nav-right">
-      <button class="btn btn-primary" id="parse-btn" onclick="handleParse()">解析資料 →</button>
     </div>
   </div>
 </div>
@@ -431,19 +423,13 @@ textarea.inp{resize:vertical}
     目前為一般論壇流程，只保留 CP Team 上架常用欄位；合作論壇欄位已收起，避免一般論壇編輯時被不相關內容干擾。
   </div>
 
-  <div class="card draft-json-card">
-    <div class="draft-json-head">
-      <div>
-        <div class="draft-json-title">論壇草稿 JSON</div>
-        <div class="draft-json-sub">更新同一頁論壇時，建議先匯入上次保存的草稿，再編輯變動欄位並重新產生 HTML。</div>
-      </div>
-      <div class="draft-json-actions">
-        <button class="btn btn-secondary" onclick="document.getElementById('forum-draft-json-input').click()">匯入論壇草稿 JSON</button>
-        <button class="btn btn-ok" onclick="exportForumDraftJson()">匯出論壇草稿 JSON</button>
-        <input type="file" id="forum-draft-json-input" accept="application/json,.json" style="display:none" onchange="handleImportDraftJson(event)">
-      </div>
+  <!-- Draft banner -->
+  <div class="draft-banner" id="draft-banner">
+    <div>
+      <div style="font-weight:700;color:#92400e">偵測到此場次有未完成的草稿</div>
+      <div style="font-size:12px;color:#78350f;margin-top:2px">點擊載入可還原上次填寫的內容（Logo 需重新上傳）</div>
     </div>
-    <div class="draft-json-msg" id="draft-json-msg"></div>
+    <button class="btn btn-sm" style="background:#92400e;color:#fff;border:none;cursor:pointer;padding:8px 16px;border-radius:6px;font-weight:700" onclick="loadDraft()">載入上次進度</button>
   </div>
 
   <!-- 基本資訊 -->
@@ -452,7 +438,7 @@ textarea.inp{resize:vertical}
     <div class="grid2">
       <div class="field" id="field-name-en">
         <label class="lbl">場次英文名稱</label>
-        <input class="inp" id="name-en" placeholder="Forum name in English">
+        <input class="inp" id="name-en" placeholder="Forum name in English" oninput="checkDraft()">
       </div>
       <div class="field" id="field-name-zh">
         <label class="lbl">場次中文名稱</label>
@@ -469,17 +455,9 @@ textarea.inp{resize:vertical}
     </div>
   </div>
 
-  <!-- 論壇類型 -->
-  <div class="card" id="forum-type-card">
-    <div class="card-title">⚙️ 論壇類型</div>
-    <div class="hint-box" style="margin-bottom:12px;font-size:12px">
-      合作論壇可保留外部單位提供的完整說明與連結，但仍使用統一版型輸出；Logo 尚未收到時，可先用文字連結呈現合作單位。
-    </div>
-    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:700;color:#333">
-      <input type="checkbox" id="opt-partner" onchange="onPartnerModeChange(this.checked)" style="width:15px;height:15px;accent-color:var(--brand);cursor:pointer">
-      合作論壇模式（主題與大綱直接展開，關閉 SEMI 自辦票價附加資訊）
-    </label>
-  </div>
+  <!-- 合作論壇模式狀態：由 Step 1 的模式選擇（setMode）與草稿還原（applyForumDraftState）驅動，
+       不提供手動 UI 切換，欄位僅作為狀態存放用 -->
+  <input type="checkbox" id="opt-partner" style="display:none">
 
   <!-- 主題與大綱 -->
   <div class="card" id="theme-card">
@@ -681,6 +659,17 @@ textarea.inp{resize:vertical}
     </div>
   </div>
 
+  <details class="card card-collapsible draft-json-card">
+    <summary class="card-title">進階：匯入 / 匯出論壇草稿 JSON</summary>
+    <div class="draft-json-sub">更新同一頁論壇時，建議先匯入上次保存的草稿，再編輯變動欄位並重新產生 HTML。</div>
+    <div class="draft-json-actions" style="margin-top:10px">
+      <button class="btn btn-secondary" onclick="document.getElementById('forum-draft-json-input').click()">匯入論壇草稿 JSON</button>
+      <button class="btn btn-ok" onclick="exportForumDraftJson()">匯出論壇草稿 JSON</button>
+      <input type="file" id="forum-draft-json-input" accept="application/json,.json" style="display:none" onchange="handleImportDraftJson(event)">
+    </div>
+    <div class="draft-json-msg" id="draft-json-msg"></div>
+  </details>
+
   <div class="nav">
     <button class="btn btn-secondary" onclick="goStep(1)">← 回到輸入</button>
     <div class="nav-right">
@@ -789,16 +778,6 @@ function goStep(n) {
   window.scrollTo({top:0, behavior:'smooth'});
 }
 
-// Step 1 → parse button resets only parse state, never Step 2 fields
-function resetParseState() {
-  document.getElementById('forum-select-wrap').style.display = 'none';
-  document.getElementById('draft-banner').classList.remove('show');
-  hideErr('parse-err');
-  const btn = document.getElementById('parse-btn');
-  btn.textContent = '解析資料 →';
-  btn.onclick = handleParse;
-}
-
 // ─────────────────────────── Mode toggle ───────────────────────────
 function setMode(mode, btn) {
   inputMode = mode;
@@ -814,17 +793,6 @@ function setMode(mode, btn) {
   if(nearParseBtn) nearParseBtn.textContent = mode === 'excel' ? '解析 Excel 資料 →' : '解析文字內容 →';
   document.getElementById('forum-select-wrap').style.display = 'none';
   document.getElementById('draft-banner').classList.remove('show');
-
-  const bottomParseBtn = document.getElementById('parse-btn');
-  if(bottomParseBtn) {
-    if(mode === 'manual') {
-      bottomParseBtn.textContent = '開始手動建立 →';
-      bottomParseBtn.onclick = startManualEntry;
-    } else {
-      bottomParseBtn.textContent = '解析資料 →';
-      bottomParseBtn.onclick = handleParse;
-    }
-  }
 
   setChecked('opt-partner', mode === 'partner');
   onPartnerModeChange(mode === 'partner');
@@ -1614,21 +1582,11 @@ function handleParse() {
 
   if(inputMode === 'excel') {
     parseExcel(raw);
-    // For excel mode, user needs to select forum first
-    // Then we go to step 2 from a "continue" button logic
-    // Actually let's add a proceed button after selection
-    showExcelContinue();
+    // User selects a forum from the dropdown, then clicks the
+    // "確認場次並繼續到 Step 2 →" button (proceedFromExcel).
   } else {
     parseWithAI(raw);
   }
-}
-
-function showExcelContinue() {
-  // We already show the forum select; user selects then clicks proceed
-  // Let's update the nav button behavior
-  const btn = document.getElementById('parse-btn');
-  btn.textContent = '繼續 →';
-  btn.onclick = proceedFromExcel;
 }
 
 function proceedFromExcel() {
@@ -1636,10 +1594,6 @@ function proceedFromExcel() {
   if(!idx) { showErr('parse-err','請先選擇場次'); return; }
   onForumSelect();
   goStep(2);
-  // Reset button
-  const btn = document.getElementById('parse-btn');
-  btn.textContent = '解析資料 →';
-  btn.onclick = handleParse;
 }
 
 // Manual mode → skip parsing entirely, Step 2 already starts with blank
@@ -1650,6 +1604,7 @@ function startManualEntry() {
   setChecked('opt-theme', false);
   hideErr('parse-err');
   goStep(2);
+  checkDraft();
 }
 
 function onPartnerModeChange(checked) {
@@ -1672,7 +1627,6 @@ function updateWorkflowView() {
     if(el) el.style.display = visible ? '' : 'none';
   };
 
-  show('forum-type-card', false);
   show('partner-orgs-card', partnerMode);
   show('people-card', !partnerMode);
   show('related-links-wrap', false);
@@ -2375,8 +2329,11 @@ function applyForumDraftState(d) {
 
 function checkDraft() {
   const key = getDraftKey();
+  const banner = document.getElementById('draft-banner');
   if(key && localStorage.getItem(key)) {
-    document.getElementById('draft-banner').classList.add('show');
+    banner.classList.add('show');
+  } else {
+    banner.classList.remove('show');
   }
 }
 
