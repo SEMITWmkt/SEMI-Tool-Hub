@@ -342,6 +342,7 @@ textarea.inp{resize:vertical}
   <div id="forum-select-wrap" style="display:none">
     <div class="card">
       <div class="card-title">選擇場次</div>
+      <div class="warn-box" id="excel-format-warn" style="display:none;font-size:12px"></div>
       <div class="field">
         <label class="lbl">找到 <span id="forum-count">0</span> 個場次，請選擇：</label>
         <select class="inp" id="forum-select" onchange="onForumSelect()">
@@ -903,6 +904,31 @@ function buildExcelHeaderMap(cells) {
   return map;
 }
 
+// The tool's price mapping assumes the "票價一覽表" layout: the price columns
+// run Super Early-Bird → Early-Bird → Regular → On-Site (member/non-member
+// pairs) followed by the student price, and 中文連結/英文連結 exist. The plain
+// "Program-at-a-glance" export has no link columns and orders its price tiers
+// the other way round, which would silently map every tier to the wrong label.
+function checkExcelFormat(map, parsedCount) {
+  const problems = [];
+  if(map.urlZh < 0 && map.urlEn < 0) {
+    problems.push('找不到「中文連結 / 英文連結」欄位，所有場次的報名連結會是空的。');
+  }
+  if(map.priceStart <= Math.max(map.theme, map.urlZh, map.urlEn)) {
+    problems.push('找不到票價欄位的起始位置，票價可能無法正確讀取。');
+  }
+  if(!problems.length) return;
+
+  const warn = document.getElementById('excel-format-warn');
+  if(!warn) return;
+  warn.innerHTML = '⚠️ <strong>這份資料的欄位結構與「票價一覽表」版本不同</strong>（已解析 '
+    + parsedCount + ' 個場次）：<br>· '
+    + problems.join('<br>· ')
+    + '<br>票價級距（超早鳥 / 早鳥 / 原價 / 現場）也可能對應錯誤。建議改用檔名含「票價一覽表」的版本，'
+    + '或在 Step 2 逐一核對票價與報名連結後再發布。';
+  warn.style.display = 'block';
+}
+
 function mergeExcelHeaderMap(next, prev) {
   if(!prev) return next;
   const merged = { ...next };
@@ -953,6 +979,8 @@ function parseExcel(raw) {
   const delim = (lines[0].match(/\t/g)||[]).length >= (lines[0].match(/,/g)||[]).length ? '\t' : ',';
   const parsed = [];
   let headerMap = null;
+  const formatWarn = document.getElementById('excel-format-warn');
+  if(formatWarn) formatWarn.style.display = 'none';
 
   for(const line of lines) {
     const c = parseCSVLine(line, delim);
@@ -983,6 +1011,7 @@ function parseExcel(raw) {
   });
   document.getElementById('forum-count').textContent = parsed.length;
   document.getElementById('forum-select-wrap').style.display = 'block';
+  if(headerMap) checkExcelFormat(headerMap, parsed.length);
 }
 
 function onForumSelect() {
@@ -2212,7 +2241,10 @@ async function migrateLegacyDrafts() {
 function getDraftKey() {
   const name = getVal('name-en') || (selectedForum?.nameEn) || '';
   if(!name) return null;
-  return FORUM_DRAFT_PREFIX + btoa(unescape(encodeURIComponent(name))).substring(0,24);
+  // Full base64 of the name, not truncated: forum names here share long common
+  // prefixes ("SEMICON Taiwan 2026 ... Forum"), and truncating to a short
+  // prefix collapsed different forums onto the same draft key.
+  return FORUM_DRAFT_PREFIX + btoa(unescape(encodeURIComponent(name)));
 }
 
 function serializeDraftLogos(sectionId) {
