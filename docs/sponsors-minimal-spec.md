@@ -36,18 +36,17 @@ Each sponsor should stay simple.
 
 | Field | Required | Main Screen | Notes |
 |---|---:|---:|---|
-| Tier | Yes | Yes | Strategic Partner, Platinum, Gold, Silver, Bronze. Render order is separate from tier identity. |
+| Tier | Yes | Yes | Strategic Partners, Platinum Sponsors, Gold Sponsors, Silver Sponsors, Bronze Sponsors. Render order is separate from tier identity. |
 | Name | Recommended | Yes | Used for identification and title attribute. |
 | Drupal image URL | Recommended | Yes | Primary source for published HTML; accepts a full URL or `/sites/default/files/...`. |
 | Temporary logo image | Optional | Yes | Base64 is for preview and legacy work files only; it is used in output only when no Drupal image URL exists. |
 | Link URL | Optional | Hidden / compact | Missing link should be `Check`, not blocking. |
-| Display scale | Yes | Yes | Keep because logo visual balance matters. |
 | Status | Automatic | Yes | Derived from fields, not manually assigned. |
 | Notes | Optional | Hidden | Only if needed later. |
 | Last updated | Automatic | Hidden | Useful for continuous updates, not daily viewing. |
 | Include in output | Optional | Hidden | Useful later for pending logos. Not Round 1. |
 
-## Automatic Status
+## Automatic Management Status
 
 Use only three states.
 
@@ -55,9 +54,23 @@ Use only three states.
 |---|---|---|
 | Ready | Safe to publish. | Has logo image. Name is not empty. |
 | Missing | Cannot publish correctly. | Missing logo image. |
-| Check | Publishable, but needs attention. | Has logo but missing name or link, or image appears unusually small/large if detectable. |
+| Check | Publishable, but needs attention. | Has logo but is missing a name or link, has an invalid link, or relies on a legacy Base64 image. |
 
 Do not add more workflow states in Round 1.
+
+These row-level labels help operators manage individual sponsors. They are separate from the language-specific publish readiness contract below.
+
+## Publish Readiness and Copy Contract
+
+Chinese and English readiness are evaluated independently because an active tier can have a title in one language but not the other.
+
+| State | Current behavior | Copy behavior |
+|---|---|---|
+| READY | At least one sponsor has a usable logo, every active tier has a title for the target language, and there are no warnings. | Copy for that language is enabled. |
+| WARNING | Output remains publishable, but one or more rows has a missing logo, missing name, missing or invalid link, or legacy Base64-only image. A row without a usable logo is omitted from output. | Review remains possible and copy for that language stays enabled. |
+| BLOCKED | There is no publishable sponsor, or an active tier lacks its title for the target language. | Copy for that language is disabled. |
+
+The guard must be checked again when Copy is invoked; button appearance alone is not the enforcement boundary.
 
 Avoid:
 
@@ -119,7 +132,6 @@ Each sponsor row/card should show:
 - Sponsor name
 - Tier
 - Status
-- Scale control
 - Move up/down or drag handle
 - Delete
 
@@ -198,7 +210,9 @@ Do not build these unless a real workflow later requires them:
 - Comment threads
 - Complex status taxonomy
 - Sponsor analytics
-- Automatic logo quality scoring beyond basic warnings
+- Automatic logo quality scoring or image-size classification
+
+Do not infer image quality or classify images as unusually small or large without supported image-analysis behavior.
 
 ## Round 1 Scope
 
@@ -220,7 +234,11 @@ Implement the smallest set that changes user confidence:
 - Summary counts update after adding/removing sponsors.
 - Backup export contains project metadata and can still be imported.
 - Preview can switch between Chinese and English.
-- Copy buttons remain available and unchanged in reliability.
+- Copy remains enabled for READY and WARNING, and is disabled for BLOCKED independently for Chinese and English.
+
+## Legacy Compatibility
+
+Older work files may contain a `scale` property. Import may retain that property for compatibility, but the current UI does not expose a Scale control and generated output does not use legacy scale values.
 
 ## Design Guardrail
 
