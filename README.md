@@ -48,6 +48,7 @@ The desktop tool folders are treated as source material during migration. The Hu
 | [Version Map](docs/version-map.md) | Integration source, current Hub module status, and drift notes. |
 | [Workflow](docs/workflow.md) | Repeatable test, integrate, document, and release process. |
 | [Functional Map](docs/functional-map.md) | Product functions organized by workflow and role. |
+| [2026 開發收斂與決策紀錄](docs/2026-toolhub-closeout-zh.md) | 2026 release closeout 的決策背景、已發布／保留範圍、重大修正與後續接手指引。 |
 | [Forum v9.14 Work Log](docs/forum-v914-worklog.md) | Maintainer-facing summary of the Forum continuity workflow, decisions, limits, and next improvements. |
 | [Pavilions v1.1 Spec](docs/pavilions-v1.1-spec.md) | Scope and acceptance criteria for the next tool slice. |
 | [Trial Runs 2026-06-03](docs/trial-runs-2026-06-03.md) | Baseline results from editor, visitor, and developer perspectives. |
