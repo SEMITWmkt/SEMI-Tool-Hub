@@ -1,3 +1,25 @@
 .DS_Store
 **/.DS_Store
 
+# Forum logo retrieval and audit work products
+/forums-raw/
+/forums-updated/
+/forums-assets/
+
+# One-time audit and extraction outputs
+/audit-report.txt
+/audit-report-updated.txt
+/forum-raw-audit.csv
+/forum-raw-audit.md
+/audit-forums.js
+/map-links.json
+/*.inspect.ndjson
+
+# Intermediate Drupal HTML/text captures
+/st26-fixed.html
+/st26-fixed-copy.txt
+/st26-zh-fixed.html
+/st26-zh-fixed-copy.txt
+
+# Known local Forum logo source files
+/L1330_*.png
