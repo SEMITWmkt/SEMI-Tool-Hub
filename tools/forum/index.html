@@ -46,6 +46,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue","Noto Sans TC
 .card-collapsible .card-title::before{content:'▶';font-size:9px;color:var(--muted)}
 .card-collapsible[open] .card-title::before{content:'▼'}
 .workflow-note{background:#f5f5f7;border:1px solid #e5e5ea;border-radius:8px;padding:10px 12px;font-size:12px;color:#555;line-height:1.6;margin-bottom:14px}
+.review-map{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px;margin-bottom:14px;scrollbar-width:thin}
+.review-map-btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:100px;padding:7px 10px;background:#fff;color:#555;font:700 11px/1 inherit;white-space:nowrap;cursor:pointer;transition:background .15s,border-color .15s,color .15s}
+.review-map-btn:hover{background:var(--brand-lt);color:var(--brand)}
+.review-map-btn.active{background:var(--brand);border-color:var(--brand);color:#fff}
+.review-map-btn:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.review-section-state{width:7px;height:7px;border-radius:50%;background:var(--ok);flex:0 0 auto}
+.review-map-btn.warning .review-section-state{background:#d97706}
+.review-map-btn.blocked .review-section-state{background:var(--err)}
+.review-map-btn.active .review-section-state{background:#fff}
+.review-section{display:none}
+.review-section.active{display:block}
 
 /* Forms */
 .lbl{font-size:12px;font-weight:700;color:#555;display:block;margin-bottom:5px}
@@ -159,6 +170,14 @@ textarea.inp{resize:vertical}
 /* Draft banner */
 .draft-banner{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:12px 16px;margin-bottom:14px;display:none;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .draft-banner.show{display:flex}
+.continuity-card{border:1px solid var(--border);border-radius:var(--r);background:#faf8ff;padding:14px 16px;margin-bottom:14px;display:none;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.continuity-card.show{display:flex}
+.continuity-title{font-size:13px;font-weight:800;color:var(--brand)}
+.continuity-sub,.autosave-status{font-size:11px;color:var(--muted);line-height:1.5;margin-top:2px}
+.autosave-status{min-height:17px;margin:-4px 0 12px;text-align:right}
+.autosave-status.saving{color:#666}.autosave-status.saved{color:#2d5a0e}.autosave-status.unavailable{color:#92400e}
+.start-new-head{font-size:11px;font-weight:800;color:var(--brand);text-transform:uppercase;letter-spacing:.08em;margin:18px 0 8px}
+.continuity-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
 
 /* Price preview */
 .price-tbl{width:100%;font-size:12px;border-collapse:collapse;margin-top:8px}
@@ -226,6 +245,10 @@ textarea.inp{resize:vertical}
 .readiness-title{font-size:13px;font-weight:800;color:var(--brand)}
 .readiness-sub{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.5}
 .readiness-pill{font-size:11px;font-weight:800;border-radius:100px;padding:5px 10px;background:#f5f5f7;color:#555;white-space:nowrap}
+.readiness-states{display:flex;align-items:center;justify-content:flex-end;gap:7px;flex-wrap:wrap}
+.output-freshness{font-size:10px;font-weight:700;border-radius:100px;padding:4px 8px;background:#f5f5f7;color:#666;white-space:nowrap}
+.output-freshness.current{background:#edf7e3;color:#2d5a0e}
+.output-freshness.stale{background:#fffbeb;color:#92400e}
 .readiness-list{display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:1px solid #f5f5f7}
 .readiness-item{display:grid;grid-template-columns:88px 1fr;gap:10px;padding:11px 14px;border-right:1px solid #f5f5f7;border-bottom:1px solid #f5f5f7;align-items:start}
 .readiness-item:nth-child(2n){border-right:none}
@@ -233,8 +256,14 @@ textarea.inp{resize:vertical}
 .readiness-status.ok{background:#edf7e3;color:#2d5a0e}
 .readiness-status.warning{background:#fffbeb;color:#92400e}
 .readiness-status.review{background:#fff0f0;color:var(--err)}
+.readiness-status.blocked{background:#fff0f0;color:var(--err)}
 .readiness-msg{font-size:12px;color:#333;line-height:1.5}
 .readiness-msg strong{display:block;font-size:12px;color:#1d1d1f;margin-bottom:1px}
+.readiness-goto{display:block;margin-top:5px;font-size:11px;font-weight:700;color:var(--brand);background:none;border:none;padding:0;cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+.readiness-goto:hover{color:var(--brand-dk)}
+.readiness-goto:focus-visible{outline:2px solid var(--brand);outline-offset:2px;border-radius:3px}
+
+.review-target-flash{outline:3px solid var(--brand)!important;outline-offset:2px;box-shadow:0 0 0 6px rgba(103,59,184,.14);border-radius:6px;transition:box-shadow .3s ease}
 
 .copy-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
 .copy-big{padding:18px;border-radius:10px;border:none;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:3px}
@@ -245,6 +274,9 @@ textarea.inp{resize:vertical}
 .copy-en{background:#1d1d1f;color:#fff}
 .copy-en:hover{background:#000}
 .copy-big.copied{background:var(--ok)!important}
+.copy-big:disabled{cursor:not-allowed;opacity:.58;filter:saturate(.45)}
+.copy-big:disabled:hover{background:inherit}
+.copy-big.is-blocked{background:#8b1e2d;color:#fff}
 
 .code-details{margin-bottom:10px}
 .code-details summary{cursor:pointer;font-size:12px;font-weight:700;color:var(--muted);padding:8px 0;list-style:none;display:flex;align-items:center;gap:6px}
@@ -268,6 +300,7 @@ textarea.inp{resize:vertical}
   .panel{padding:20px 16px}
   .stepbar{overflow-x:auto}
   .stepbar-item{min-width:80px;font-size:11px}
+  .review-map{margin-right:-16px;padding-right:16px}
 }
 </style>
 </head>
@@ -293,7 +326,7 @@ textarea.inp{resize:vertical}
     <span class="snum">2</span>確認 &amp; 編輯
   </div>
   <div class="stepbar-item" id="step-tab-3">
-    <span class="snum">3</span>輸出預覽
+    <span class="snum">3</span>發布
   </div>
 </div>
 
@@ -302,6 +335,20 @@ textarea.inp{resize:vertical}
 
   <div class="hint-box">
     選擇輸入方式：有 Excel 資料或文字內容請貼上後按「解析」；不需要任何資料來源時，可選「手動建立」直接進入 Step 2 填寫。
+  </div>
+
+  <div class="continuity-card" id="continue-work-wrap">
+    <div>
+      <div class="continuity-title">Continue work</div>
+      <div class="continuity-sub" id="continue-work-context"></div>
+    </div>
+    <button type="button" class="btn btn-primary" onclick="continueWork()">Continue</button>
+  </div>
+
+  <div class="start-new-head">Start new Forum</div>
+  <div class="continuity-actions">
+    <button type="button" class="btn btn-secondary btn-sm" onclick="beginNewForum()">開始新論壇</button>
+    <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('forum-draft-json-input').click()">載入工作檔</button>
   </div>
 
   <div class="mode-toggle">
@@ -320,7 +367,7 @@ textarea.inp{resize:vertical}
     請直接從 Excel 複製「ST26_官網連結」資料表的內容（含標題列），貼入下方。
   </div>
   <div id="mode-hint-manual" class="warn-box" style="font-size:12px;display:none">
-    適合單次或非公版格式的論壇頁，不需要貼上任何資料。按下方按鈕直接進入 Step 2，手動填寫場次資訊、主題大綱、人員與 Logo 後產生 HTML。此模式預設關閉「顯示票價表」與「顯示主題」（避免在沒有票價資料時顯示錯誤的價格區塊），如該論壇確實需要票價表或主題區塊，請於 Step 2「輸出內容選項」自行開啟並填寫。
+    適合單次或非公版格式的論壇頁，不需要貼上任何資料。按下方按鈕直接進入 Step 2，手動填寫場次資訊、主題大綱、人員與 Logo 後前往發布。此模式預設關閉「顯示票價表」與「顯示主題」（避免在沒有票價資料時顯示錯誤的價格區塊），如該論壇確實需要票價表或主題區塊，請於 Step 2 對應區段自行開啟並填寫。
   </div>
   <div id="mode-hint-partner" class="warn-box" style="font-size:12px;display:none">
     適合沒有 Excel 的外部單位或合作論壇。請貼上 Word 內容、email 內文或活動說明；解析後會自動進入合作論壇流程，文字中的連結會保留為可點擊內容。
@@ -369,7 +416,7 @@ textarea.inp{resize:vertical}
   </div>
 
   <details class="card card-collapsible" id="legacy-restore-card">
-    <summary class="card-title">↩ 已上架 HTML 還原 Legacy HTML Restore</summary>
+    <summary class="card-title">Recovery / Advanced · 已上架 HTML 還原</summary>
     <div class="hint-box" style="font-size:12px">
       用於檢查已發布 Drupal 頁面能還原多少資料。此版本只顯示解析預覽，不會寫入表單，也不會覆蓋目前輸入內容。
     </div>
@@ -379,6 +426,7 @@ textarea.inp{resize:vertical}
     </div>
     <button class="btn btn-secondary btn-sm" onclick="handleLegacyRestorePreview()">解析還原預覽</button>
     <div class="restore-preview" id="legacy-restore-preview"></div>
+    <div style="margin-top:12px"><button type="button" class="btn btn-secondary btn-sm" onclick="clearDrafts()">清除瀏覽器續作資料</button></div>
   </details>
 
   <!-- API settings (only shown for text mode) -->
@@ -397,11 +445,12 @@ textarea.inp{resize:vertical}
 
     <div style="display:flex;gap:8px;align-items:flex-end;margin-top:10px">
       <div style="flex:1">
-        <label class="lbl">API Key <span style="font-weight:400;color:var(--muted)">（頁面關閉即清除）</span></label>
+        <label class="lbl">API Key <span style="font-weight:400;color:var(--muted)">（只在目前頁面使用）</span></label>
         <input class="inp" id="api-key-inp" type="password" placeholder="sk-ant-...">
       </div>
-      <button class="btn btn-secondary btn-sm" onclick="saveApiKey()">儲存</button>
+      <button class="btn btn-secondary btn-sm" onclick="saveApiKey()">使用此頁面</button>
     </div>
+    <div class="continuity-sub" id="api-key-status"></div>
     <div style="margin-top:8px;font-size:11px;color:#78350f;line-height:1.7" id="api-provider-hint">
       申請 API Key：<a href="https://console.anthropic.com" target="_blank" style="color:var(--brand);font-weight:700">console.anthropic.com</a>
       （免費額度可用，無需綁定信用卡即可開始）
@@ -423,43 +472,40 @@ textarea.inp{resize:vertical}
   <div class="workflow-note" id="workflow-note">
     目前為一般論壇流程，只保留 CP Team 上架常用欄位；合作論壇欄位已收起，避免一般論壇編輯時被不相關內容干擾。
   </div>
+  <div class="autosave-status" id="autosave-status" role="status" aria-live="polite"></div>
 
-  <!-- Draft banner -->
-  <div class="draft-banner" id="draft-banner">
-    <div>
-      <div style="font-weight:700;color:#92400e">偵測到此場次有未完成的草稿</div>
-      <div style="font-size:12px;color:#78350f;margin-top:2px">點擊載入可還原上次填寫的內容（Logo 需重新上傳）</div>
-    </div>
-    <button class="btn btn-sm" style="background:#92400e;color:#fff;border:none;cursor:pointer;padding:8px 16px;border-radius:6px;font-weight:700" onclick="loadDraft()">載入上次進度</button>
-  </div>
+  <nav class="review-map" id="review-map" aria-label="Review Map">
+    <button type="button" class="review-map-btn active" data-review-section="basic" aria-controls="review-section-basic" aria-current="page"><span>Basic</span><span class="review-section-state" aria-hidden="true"></span></button>
+    <button type="button" class="review-map-btn" data-review-section="theme" aria-controls="review-section-theme"><span>Theme</span><span class="review-section-state" aria-hidden="true"></span></button>
+    <button type="button" class="review-map-btn" data-review-section="people" aria-controls="review-section-people"><span>People</span><span class="review-section-state" aria-hidden="true"></span></button>
+    <button type="button" class="review-map-btn" data-review-section="partners" aria-controls="review-section-partners"><span>Partners</span><span class="review-section-state" aria-hidden="true"></span></button>
+    <button type="button" class="review-map-btn" data-review-section="agenda" aria-controls="review-section-agenda"><span>Agenda</span><span class="review-section-state" aria-hidden="true"></span></button>
+    <button type="button" class="review-map-btn" data-review-section="registration" aria-controls="review-section-registration"><span>Registration &amp; Pricing</span><span class="review-section-state" aria-hidden="true"></span></button>
+    <button type="button" class="review-map-btn" data-review-section="venue" aria-controls="review-section-venue"><span>Venue</span><span class="review-section-state" aria-hidden="true"></span></button>
+  </nav>
 
+  <section class="review-section active" id="review-section-basic" aria-label="Basic">
   <!-- 基本資訊 -->
-  <div class="card">
+  <div class="card" id="basic-card">
     <div class="card-title">📋 基本場次資訊</div>
     <div class="grid2">
       <div class="field" id="field-name-en">
         <label class="lbl">場次英文名稱</label>
-        <input class="inp" id="name-en" placeholder="Forum name in English" oninput="checkDraft()">
+        <input class="inp" id="name-en" placeholder="Forum name in English">
       </div>
       <div class="field" id="field-name-zh">
         <label class="lbl">場次中文名稱</label>
         <input class="inp" id="name-zh" placeholder="論壇中文名稱">
       </div>
-      <div class="field" id="field-venue-en">
-        <label class="lbl">場地（英文）</label>
-        <input class="inp" id="venue-en" placeholder="e.g. TICC 201A">
-      </div>
-      <div class="field" id="field-venue-zh">
-        <label class="lbl">場地（中文）</label>
-        <input class="inp" id="venue-zh" placeholder="例：台北國際會議中心 201A">
-      </div>
     </div>
   </div>
+  </section>
 
   <!-- 合作論壇模式狀態：由 Step 1 的模式選擇（setMode）與草稿還原（applyForumDraftState）驅動，
        不提供手動 UI 切換，欄位僅作為狀態存放用 -->
   <input type="checkbox" id="opt-partner" style="display:none">
 
+  <section class="review-section" id="review-section-theme" aria-label="Theme" hidden>
   <!-- 主題與大綱 -->
   <div class="card" id="theme-card">
     <div class="card-title">💡 主題與大綱</div>
@@ -484,28 +530,26 @@ textarea.inp{resize:vertical}
       </div>
     </div>
   </div>
-
-  <!-- 合作單位文字連結 -->
-  <div class="card" id="partner-orgs-card">
-    <div class="card-title">🤝 合作單位文字連結</div>
-    <div class="hint-box" style="margin-bottom:12px;font-size:12px">
-      適合 Logo 尚未收到的合作論壇。每行格式：角色 ｜ 單位名稱 ｜ URL；相同角色會自動合併成同一區，例如多個「協辦單位」會列在同一個標題下。
-    </div>
-    <div class="grid2">
-      <div class="field">
-        <label class="lbl">中文合作單位（選填）</label>
-        <textarea class="inp" id="partner-orgs-zh" rows="4" placeholder="主辦單位 ｜ 台灣高科技廠房設施協會 ｜ https://...&#10;協辦單位 ｜ 臺大土木系高科技廠房設施研究中心 ｜ https://...&#10;協辦單位 ｜ 臺大氣候天氣災害研究中心 ｜ https://..."></textarea>
-      </div>
-      <div class="field">
-        <label class="lbl">英文合作單位（選填）</label>
-        <textarea class="inp" id="partner-orgs-en" rows="4" placeholder="Organizer | Taiwan High-Tech Facility Association | https://...&#10;Co-Organizer | High-Tech Facility Research Center, NTU | https://...&#10;Co-Organizer | Center for Weather and Climate Disaster Research, NTU | https://..."></textarea>
-      </div>
+  <div class="card" id="theme-output-options">
+    <div class="card-title">顯示選項</div>
+    <div style="display:flex;flex-wrap:wrap;gap:12px">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:600;color:#333;white-space:nowrap">
+        <input type="checkbox" id="opt-theme" checked style="width:15px;height:15px;accent-color:var(--brand);cursor:pointer">
+        顯示主題
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:600;color:#333;white-space:nowrap">
+        <input type="checkbox" id="opt-outline" checked style="width:15px;height:15px;accent-color:var(--brand);cursor:pointer">
+        顯示大綱
+      </label>
     </div>
   </div>
+  </section>
 
+  <section class="review-section" id="review-section-people" aria-label="People" hidden>
   <!-- 人員 -->
   <div class="card" id="people-card">
     <div class="card-title">👥 人員資訊</div>
+    <div class="hint-box" style="margin-bottom:12px;font-size:12px">此區資訊為中英文頁共用。</div>
     <div class="grid2" style="margin-bottom:16px">
       <div class="field">
         <label class="lbl">指導單位名稱</label>
@@ -537,6 +581,26 @@ textarea.inp{resize:vertical}
       <button class="btn btn-ghost btn-sm" style="margin-top:6px" onclick="addPerson('mods-wrap')">＋ 新增主持人</button>
     </div>
   </div>
+  </section>
+
+  <section class="review-section" id="review-section-partners" aria-label="Partners" hidden>
+  <!-- 合作單位文字連結 -->
+  <div class="card" id="partner-orgs-card">
+    <div class="card-title">🤝 合作單位文字連結</div>
+    <div class="hint-box" style="margin-bottom:12px;font-size:12px">
+      適合 Logo 尚未收到的合作論壇。每行格式：角色 ｜ 單位名稱 ｜ URL；相同角色會自動合併成同一區，例如多個「協辦單位」會列在同一個標題下。
+    </div>
+    <div class="grid2">
+      <div class="field">
+        <label class="lbl">中文合作單位（選填）</label>
+        <textarea class="inp" id="partner-orgs-zh" rows="4" placeholder="主辦單位 ｜ 台灣高科技廠房設施協會 ｜ https://...&#10;協辦單位 ｜ 臺大土木系高科技廠房設施研究中心 ｜ https://...&#10;協辦單位 ｜ 臺大氣候天氣災害研究中心 ｜ https://..."></textarea>
+      </div>
+      <div class="field">
+        <label class="lbl">英文合作單位（選填）</label>
+        <textarea class="inp" id="partner-orgs-en" rows="4" placeholder="Organizer | Taiwan High-Tech Facility Association | https://...&#10;Co-Organizer | High-Tech Facility Research Center, NTU | https://...&#10;Co-Organizer | Center for Weather and Climate Disaster Research, NTU | https://..."></textarea>
+      </div>
+    </div>
+  </div>
 
   <!-- Logo -->
   <div class="card" id="logo-card">
@@ -561,7 +625,9 @@ textarea.inp{resize:vertical}
     <div class="logo-grid" id="logo-sponsor"></div>
     <button class="btn btn-ghost btn-sm" onclick="addLogoCard('logo-sponsor')">＋ 新增 Logo</button>
   </div>
+  </section>
 
+  <section class="review-section" id="review-section-agenda" aria-label="Agenda" hidden>
   <!-- 議程 Agenda（選填，顯示於 Logo 與票價之間） -->
   <div class="card" id="agenda-card">
     <div class="card-title">📅 議程 Agenda（選填）</div>
@@ -579,10 +645,12 @@ textarea.inp{resize:vertical}
       </div>
     </div>
   </div>
+  </section>
 
-  <!-- 報名與地點 -->
+  <section class="review-section" id="review-section-registration" aria-label="Registration and Pricing" hidden>
+  <!-- 報名與票價 -->
   <div class="card" id="registration-card">
-    <div class="card-title">🔗 報名與地點</div>
+    <div class="card-title">🔗 報名與票價</div>
     <div class="grid2">
       <div class="field" id="field-reg-zh">
         <label class="lbl">報名連結（中文版）</label>
@@ -593,7 +661,7 @@ textarea.inp{resize:vertical}
         <input class="inp" id="reg-url-en" placeholder="https://...">
       </div>
     </div>
-    <div class="grid2" id="related-links-wrap" style="margin-top:12px">
+    <div class="grid2" id="remarks-wrap" style="margin-top:12px">
       <div class="field">
         <label class="lbl">中文備註（選填）</label>
         <textarea class="inp" id="remark-zh" rows="2" placeholder="例：委員會成員享會員價..."></textarea>
@@ -601,16 +669,6 @@ textarea.inp{resize:vertical}
       <div class="field">
         <label class="lbl">英文備註（選填）</label>
         <textarea class="inp" id="remark-en" rows="2"></textarea>
-      </div>
-    </div>
-    <div class="grid2" style="margin-top:12px">
-      <div class="field">
-        <label class="lbl">地點/會場資訊連結（中文）</label>
-        <input class="inp" id="map-url-zh" value="https://semicontaiwan.org/zh/Forum_Information">
-      </div>
-      <div class="field">
-        <label class="lbl">地點/會場資訊連結（英文）</label>
-        <input class="inp" id="map-url-en" value="https://semicontaiwan.org/en/Forum_Information">
       </div>
     </div>
     <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:700;color:#333;margin-top:12px">
@@ -621,7 +679,7 @@ textarea.inp{resize:vertical}
       <input type="checkbox" id="opt-pricing" checked style="width:15px;height:15px;accent-color:var(--brand);cursor:pointer">
       顯示票價表
     </label>
-    <div class="grid2" style="margin-top:12px">
+    <div class="grid2" id="related-links-wrap" style="display:none;margin-top:12px">
       <div class="field">
         <label class="lbl">中文相關連結（選填）</label>
         <textarea class="inp" id="related-links-zh" rows="3" placeholder="晚宴報名 ｜ https://...&#10;協會官方網站 ｜ https://..."></textarea>
@@ -632,18 +690,10 @@ textarea.inp{resize:vertical}
       </div>
     </div>
 
-    <div id="output-options-wrap">
-    <div style="height:1px;background:var(--border);margin:16px 0"></div>
-    <div style="font-size:11px;font-weight:700;color:var(--brand);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">輸出內容選項</div>
-    <div style="display:flex;flex-wrap:wrap;gap:12px">
-      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:600;color:#333;white-space:nowrap">
-        <input type="checkbox" id="opt-theme" checked style="width:15px;height:15px;accent-color:var(--brand);cursor:pointer">
-        顯示主題
-      </label>
-      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:600;color:#333;white-space:nowrap">
-        <input type="checkbox" id="opt-outline" checked style="width:15px;height:15px;accent-color:var(--brand);cursor:pointer">
-        顯示大綱
-      </label>
+    <div id="pricing-output-options">
+      <div style="height:1px;background:var(--border);margin:16px 0"></div>
+      <div style="font-size:11px;font-weight:700;color:var(--brand);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">票價輸出選項</div>
+      <div style="display:flex;flex-wrap:wrap;gap:12px">
       <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:600;color:#333;white-space:nowrap">
         <input type="checkbox" id="opt-daypass" checked style="width:15px;height:15px;accent-color:var(--brand);cursor:pointer">
         顯示單日通行證
@@ -656,16 +706,43 @@ textarea.inp{resize:vertical}
         <input type="checkbox" id="opt-footnote" checked style="width:15px;height:15px;accent-color:var(--brand);cursor:pointer">
         顯示免責聲明
       </label>
-    </div>
+      </div>
     </div>
   </div>
+  </section>
+
+  <section class="review-section" id="review-section-venue" aria-label="Venue" hidden>
+  <div class="card" id="venue-card">
+    <div class="card-title">📍 場地與地圖</div>
+    <div class="grid2">
+      <div class="field" id="field-venue-zh">
+        <label class="lbl">場地（中文）</label>
+        <input class="inp" id="venue-zh" placeholder="例：台北國際會議中心 201A">
+      </div>
+      <div class="field" id="field-venue-en">
+        <label class="lbl">場地（英文）</label>
+        <input class="inp" id="venue-en" placeholder="e.g. TICC 201A">
+      </div>
+    </div>
+    <div class="grid2" style="margin-top:12px">
+      <div class="field">
+        <label class="lbl">地點/會場資訊連結（中文）</label>
+        <input class="inp" id="map-url-zh" value="https://semicontaiwan.org/zh/Forum_Information">
+      </div>
+      <div class="field">
+        <label class="lbl">地點/會場資訊連結（英文）</label>
+        <input class="inp" id="map-url-en" value="https://semicontaiwan.org/en/Forum_Information">
+      </div>
+    </div>
+  </div>
+  </section>
 
   <details class="card card-collapsible draft-json-card">
-    <summary class="card-title">進階：匯入 / 匯出論壇草稿 JSON</summary>
-    <div class="draft-json-sub">更新同一頁論壇時，建議先匯入上次保存的草稿，再編輯變動欄位並重新產生 HTML。</div>
+    <summary class="card-title">工作檔（備份 / 交接）</summary>
+    <div class="draft-json-sub">工作檔用於備份、跨裝置或交接；日常編輯會安靜地儲存於目前瀏覽器。</div>
     <div class="draft-json-actions" style="margin-top:10px">
-      <button class="btn btn-secondary" onclick="document.getElementById('forum-draft-json-input').click()">匯入論壇草稿 JSON</button>
-      <button class="btn btn-ok" onclick="exportForumDraftJson()">匯出論壇草稿 JSON</button>
+      <button class="btn btn-secondary" onclick="document.getElementById('forum-draft-json-input').click()">載入工作檔</button>
+      <button class="btn btn-ok" onclick="exportForumDraftJson()">儲存工作檔</button>
       <input type="file" id="forum-draft-json-input" accept="application/json,.json" style="display:none" onchange="handleImportDraftJson(event)">
     </div>
     <div class="draft-json-msg" id="draft-json-msg"></div>
@@ -674,8 +751,8 @@ textarea.inp{resize:vertical}
   <div class="nav">
     <button class="btn btn-secondary" onclick="goStep(1)">← 回到輸入</button>
     <div class="nav-right">
-      <button class="btn btn-ok" onclick="saveDraft()">💾 儲存草稿</button>
-      <button class="btn btn-primary" onclick="handleGenerate()">產生 HTML →</button>
+      <button class="btn btn-ok" onclick="exportForumDraftJson()">⇩ 儲存工作檔</button>
+      <button class="btn btn-primary" onclick="openPublish()">發布 →</button>
     </div>
   </div>
 </div>
@@ -684,7 +761,7 @@ textarea.inp{resize:vertical}
 <div class="panel" id="panel-3">
   <div class="preview-wrap">
     <div class="preview-bar">
-      <div class="preview-lbl">即時預覽</div>
+        <div class="preview-lbl">發布預覽</div>
       <div class="preview-tools">
         <div class="tgl-grp">
           <button class="tgl-btn active" onclick="switchView('desktop',this)">電腦</button>
@@ -701,42 +778,44 @@ textarea.inp{resize:vertical}
     </div>
   </div>
 
+  <div class="err-box" id="publish-error" role="alert"></div>
+
   <div class="readiness-panel" id="readiness-panel">
     <div class="readiness-head">
       <div>
         <div class="readiness-title">發布前檢查 Drupal Readiness Check</div>
-        <div class="readiness-sub">此區只提示上架風險，不會阻擋複製，也不會改變輸出的 HTML。</div>
+        <div class="readiness-sub">依目前預覽語言檢查上架風險；BLOCKED 會停用該語言的複製，但不改變輸出的 HTML。</div>
       </div>
-      <div class="readiness-pill" id="readiness-summary">Not checked</div>
+      <div class="readiness-states">
+        <div class="readiness-pill" id="readiness-summary">Not checked</div>
+      </div>
     </div>
     <div class="readiness-list" id="readiness-list"></div>
   </div>
 
   <div class="copy-row">
     <button class="copy-big copy-zh" id="copy-zh" onclick="copyCode('zh')">
-      <span class="main">複製中文版代碼</span>
+      <span class="main">複製中文版</span>
       <span class="sub">貼入 Drupal（ZH）</span>
     </button>
     <button class="copy-big copy-en" id="copy-en" onclick="copyCode('en')">
-      <span class="main">複製英文版代碼</span>
+      <span class="main">複製英文版</span>
       <span class="sub">貼入 Drupal（EN）</span>
     </button>
   </div>
 
   <details class="code-details">
-    <summary>▼ 查看中文版 HTML 代碼</summary>
+    <summary>Advanced · 查看產生的 HTML</summary>
+    <label class="lbl" for="code-zh">中文版 HTML</label>
     <textarea class="code-ta" id="code-zh" rows="10" readonly></textarea>
-  </details>
-  <details class="code-details">
-    <summary>▼ 查看英文版 HTML 代碼</summary>
+    <label class="lbl" for="code-en" style="margin-top:10px">英文版 HTML</label>
     <textarea class="code-ta" id="code-en" rows="10" readonly></textarea>
   </details>
 
   <div class="nav">
     <button class="btn btn-secondary" onclick="goStep(2)">← 返回編輯</button>
     <div class="nav-right">
-      <button class="btn btn-ok" onclick="saveDraft()">💾 儲存草稿</button>
-      <button class="btn btn-primary" onclick="handleGenerate()">🔄 重新產生</button>
+      <button class="btn btn-ok" onclick="exportForumDraftJson()">⇩ 儲存工作檔</button>
     </div>
   </div>
 </div>
@@ -761,13 +840,121 @@ let selectedForum = null;
 let zhHTML = '', enHTML = '';
 let currentLang = 'zh', currentView = 'desktop';
 let lid = 0;
+let editRevision = 0;
+let generatedRevision = -1;
+let readinessRefreshTimer = null;
+let activeReviewSection = 'basic';
+let autosaveTimer = null;
+let autosaveWriteInFlight = false;
+let autosaveQueued = false;
+let isApplyingForumDraft = false;
+let forumInitializationComplete = false;
+let canonicalPersistenceRevision = 0;
+let continuationWriteChain = Promise.resolve();
 const FORUM_DRAFT_PREFIX = 'st26v9_';
 const FORUM_DRAFT_MARKER_SCHEMA = 'st26-forum-draft-ref-v1';
 const FORUM_DRAFT_DB = 'semicon-tool-hub-forum-drafts';
 const FORUM_DRAFT_STORE = 'drafts';
+const FORUM_AUTOSAVE_KEY = FORUM_DRAFT_PREFIX + 'current';
+const FORUM_CONTINUE_POINTER = FORUM_DRAFT_PREFIX + 'continue';
+
+// ─────────────────────────── Review workspace ───────────────────────────
+// Fixed Forum-local structure. These IDs are developer-defined authoring DOM
+// destinations, never derived from imported, restored, or AI-provided text.
+const REVIEW_SECTIONS = [
+  { id:'basic', label:'Basic' },
+  { id:'theme', label:'Theme' },
+  { id:'people', label:'People' },
+  { id:'partners', label:'Partners' },
+  { id:'agenda', label:'Agenda' },
+  { id:'registration', label:'Registration & Pricing' },
+  { id:'venue', label:'Venue' }
+];
+const REVIEW_DESTINATION_SECTIONS = {
+  'basic-card':'basic',
+  'theme-card':'theme',
+  'people-card':'people',
+  'partner-orgs-card':'partners',
+  'logo-card':'partners',
+  'logo-org':'partners',
+  'logo-coorg':'partners',
+  'logo-sponsor':'partners',
+  'agenda-card':'agenda',
+  'registration-card':'registration',
+  'venue-card':'venue',
+  'field-theme-zh':'theme',
+  'field-theme-en':'theme',
+  'field-reg-zh':'registration',
+  'field-reg-en':'registration',
+  'field-venue-zh':'venue',
+  'field-venue-en':'venue',
+  'map-url-zh':'venue',
+  'map-url-en':'venue'
+};
+
+function getReviewSectionForDestination(sectionId, fieldId) {
+  return REVIEW_DESTINATION_SECTIONS[fieldId] || REVIEW_DESTINATION_SECTIONS[sectionId] || null;
+}
+
+function activateReviewSection(sectionId) {
+  if(!REVIEW_SECTIONS.some(section => section.id === sectionId)) return;
+  const requestedButton = document.querySelector('.review-map-btn[data-review-section="'+sectionId+'"]');
+  if(requestedButton?.hidden) return;
+  activeReviewSection = sectionId;
+  REVIEW_SECTIONS.forEach(section => {
+    const active = section.id === sectionId;
+    const panel = document.getElementById('review-section-'+section.id);
+    const button = document.querySelector('.review-map-btn[data-review-section="'+section.id+'"]');
+    if(panel) {
+      panel.classList.toggle('active', active);
+      panel.hidden = !active;
+    }
+    if(button) {
+      button.classList.toggle('active', active);
+      if(active) button.setAttribute('aria-current', 'page');
+      else button.removeAttribute('aria-current');
+    }
+  });
+}
+
+function getReviewSectionStates() {
+  const states = Object.fromEntries(REVIEW_SECTIONS.map(section => [section.id, 'no-issue']));
+  ['zh','en'].forEach(target => {
+    getPublishIssues(target).forEach(issue => {
+      const sectionId = getReviewSectionForDestination(issue.sectionId, issue.fieldId);
+      if(!sectionId) return;
+      if(issue.severity === 'BLOCKED') states[sectionId] = 'blocked';
+      else if(issue.severity === 'WARNING' && states[sectionId] !== 'blocked') states[sectionId] = 'warning';
+    });
+  });
+  return states;
+}
+
+function updateReviewSectionStates() {
+  const states = getReviewSectionStates();
+  REVIEW_SECTIONS.forEach(section => {
+    const button = document.querySelector('.review-map-btn[data-review-section="'+section.id+'"]');
+    if(!button) return;
+    const state = states[section.id];
+    button.classList.toggle('warning', state === 'warning');
+    button.classList.toggle('blocked', state === 'blocked');
+    button.setAttribute('aria-label', section.label+' · '+(state === 'blocked' ? 'Blocked issue' : state === 'warning' ? 'Warning issue' : 'No readiness issue'));
+  });
+}
+
+function wireReviewMap() {
+  const map = document.getElementById('review-map');
+  if(!map) return;
+  map.addEventListener('click', event => {
+    const button = event.target.closest?.('.review-map-btn');
+    const sectionId = button?.dataset.reviewSection;
+    if(sectionId) activateReviewSection(sectionId);
+  });
+}
 
 // ─────────────────────────── Navigation ───────────────────────────
 function goStep(n) {
+  const enteringReviewFromInput = n === 2 && document.getElementById('panel-1')?.classList.contains('active');
   [1,2,3].forEach(i => {
     document.getElementById('panel-'+i).classList.toggle('active', i===n);
     const tab = document.getElementById('step-tab-'+i);
@@ -775,8 +962,56 @@ function goStep(n) {
     if(i===n) tab.classList.add('active');
     else if(i<n) tab.classList.add('done');
   });
-  if(n===2) updateWorkflowView();
+  if(n===2) {
+    updateWorkflowView();
+    activateReviewSection(enteringReviewFromInput ? 'basic' : activeReviewSection);
+    updateReviewSectionStates();
+  }
   window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function getOutputFreshnessState() {
+  if(generatedRevision < 0) return 'none';
+  return editRevision === generatedRevision ? 'current' : 'stale';
+}
+
+function updateOutputFreshness() {
+  const indicator = document.getElementById('output-freshness');
+  if(!indicator) return;
+  const state = getOutputFreshnessState();
+  const labels = {
+    none: 'No output generated',
+    current: 'Output current',
+    stale: 'Changes not generated yet'
+  };
+  indicator.textContent = labels[state];
+  indicator.classList.toggle('current', state === 'current');
+  indicator.classList.toggle('stale', state === 'stale');
+}
+
+function refreshReadinessNow() {
+  if(readinessRefreshTimer) {
+    clearTimeout(readinessRefreshTimer);
+    readinessRefreshTimer = null;
+  }
+  updateReadinessCheck();
+}
+
+function markForumChanged(immediate = false) {
+  editRevision += 1;
+  if(forumInitializationComplete) canonicalPersistenceRevision += 1;
+  updateOutputFreshness();
+  updateWorkflowView();
+  scheduleForumAutosave();
+  if(immediate) {
+    refreshReadinessNow();
+    return;
+  }
+  clearTimeout(readinessRefreshTimer);
+  readinessRefreshTimer = setTimeout(() => {
+    readinessRefreshTimer = null;
+    updateReadinessCheck();
+  }, 300);
 }
 
 // ─────────────────────────── Mode toggle ───────────────────────────
@@ -793,14 +1028,11 @@ function setMode(mode, btn) {
   const nearParseBtn = document.getElementById('near-parse-btn');
   if(nearParseBtn) nearParseBtn.textContent = mode === 'excel' ? '解析 Excel 資料 →' : '解析文字內容 →';
   document.getElementById('forum-select-wrap').style.display = 'none';
-  document.getElementById('draft-banner').classList.remove('show');
-
   setChecked('opt-partner', mode === 'partner');
   onPartnerModeChange(mode === 'partner');
   updateWorkflowView();
 
-  const apiKey = sessionStorage.getItem('st26_api_key');
-  if(apiKey) document.getElementById('api-key-inp').value = apiKey;
+  markForumChanged(true);
 }
 
 function setProvider(provider, btn) {
@@ -820,19 +1052,13 @@ function setProvider(provider, btn) {
   const placeholders = { claude: 'sk-ant-...', openai: 'sk-...', gemini: 'AIza...' };
   document.getElementById('api-key-inp').placeholder = placeholders[provider] || 'API Key...';
 
-  // Clear stored key when switching provider
-  const storedProvider = sessionStorage.getItem('st26_api_provider');
-  if(storedProvider && storedProvider !== provider) {
-    document.getElementById('api-key-inp').value = sessionStorage.getItem('st26_api_key_'+provider) || '';
-  }
 }
 
 function saveApiKey() {
   const k = document.getElementById('api-key-inp').value.trim();
   if(!k) return;
-  sessionStorage.setItem('st26_api_key_'+aiProvider, k);
-  sessionStorage.setItem('st26_api_provider', aiProvider);
-  alert('✅ API Key 已儲存（本次瀏覽期間有效）');
+  const status = document.getElementById('api-key-status');
+  if(status) status.textContent = 'API Key 只會在目前頁面使用；重新整理後需再次輸入。';
 }
 
 // ─────────────────────────── Excel Parser ───────────────────────────
@@ -850,9 +1076,19 @@ function parseCSVLine(text, delim) {
 }
 
 function parsePrice(s){
-  if(!s||s==='-'||/tbc|tbd/i.test(s)) return null;
-  const n=parseFloat(s.replace(/[^\d.]/g,''));
-  return isNaN(n)?null:n;
+  if(s===null||s===undefined) return null;
+  const text=String(s).trim();
+  if(!text||text==='-'||/^(tbc|tbd)$/i.test(text)) return null;
+  // Strip only a recognized currency prefix, then validate comma grouping
+  // BEFORE removing commas: either plain ungrouped digits, or correctly
+  // grouped thousands (1-3 leading digits, then one or more ",ddd" groups),
+  // each with an optional single decimal portion. This rejects malformed
+  // grouping like "1,,200", "12,34", or "1,234.5,6" outright instead of
+  // silently reinterpreting them once the separators are gone.
+  const stripped=text.replace(/^(NT\$|NTD|TWD|\$)\s*/i,'').trim();
+  if(!/^(\d+(\.\d+)?|\d{1,3}(,\d{3})+(\.\d+)?)$/.test(stripped)) return null;
+  const n=parseFloat(stripped.replace(/,/g,''));
+  return Number.isFinite(n)?n:null;
 }
 
 function normalizeHeader(s) {
@@ -1014,7 +1250,7 @@ function parseExcel(raw) {
   if(headerMap) checkExcelFormat(headerMap, parsed.length);
 }
 
-function onForumSelect() {
+function onForumSelect(commit = false) {
   const idx = document.getElementById('forum-select').value;
   if(!idx) { document.getElementById('forum-preview').style.display='none'; return; }
   selectedForum = forums[idx];
@@ -1024,20 +1260,24 @@ function onForumSelect() {
   document.getElementById('prev-venue-zh').textContent = f.venueZh || '';
 
   const pd = document.getElementById('prev-price');
-  if(!f.hasPrices) {
+  if(!hasAnyValidPrice(f)) {
     pd.innerHTML = '<span style="font-size:12px;color:#92400e;font-weight:600;display:block;margin-top:6px">此為無票價場次（免費 / Partner Program）</span>';
   } else if(hasOnlyZeroPrices(f)) {
     pd.innerHTML = '<span class="free-price-note">免費場次，不顯示票價表</span>';
   } else {
+    // Use the same canonical normalized view as final output, not raw
+    // f.prices: AI/draft-restored prices may be unnormalized strings
+    // (e.g. "NT$ 1,200") that fmtP()'s own Number(v) cannot parse alone.
+    const p = getNormalizedPrices(f);
     const rows = [
-      ['Super Early-Bird (5/20–6/17)',f.prices.seb_mem,f.prices.seb_non],
-      ['Early-Bird (6/18–8/5)',f.prices.eb_mem,f.prices.eb_non],
-      ['Regular (8/6–8/30)',f.prices.reg_mem,f.prices.reg_non],
-      ['On-Site (8/31–9/4)',f.prices.os_mem,f.prices.os_non],
+      ['Super Early-Bird (5/20–6/17)',p.seb_mem,p.seb_non],
+      ['Early-Bird (6/18–8/5)',p.eb_mem,p.eb_non],
+      ['Regular (8/6–8/30)',p.reg_mem,p.reg_non],
+      ['On-Site (8/31–9/4)',p.os_mem,p.os_non],
     ];
     pd.innerHTML = '<table class="price-tbl"><tr><th style="text-align:left">時段</th><th>SEMI 會員</th><th>非會員</th></tr>' +
       rows.map(([l,m,n])=>`<tr><td>${l}</td><td style="color:var(--brand);font-weight:700">${fmtP(m)||'—'}</td><td>${fmtP(n)||'—'}</td></tr>`).join('') +
-      `<tr><td>學生票</td><td colspan="2" style="font-weight:700">${fmtP(f.prices.student)||'—'}</td></tr></table>`;
+      `<tr><td>學生票</td><td colspan="2" style="font-weight:700">${fmtP(p.student)||'—'}</td></tr></table>`;
   }
 
   document.getElementById('forum-preview').style.display = 'block';
@@ -1053,13 +1293,45 @@ function onForumSelect() {
   setChecked('opt-free', hasOnlyZeroPrices(f));
 
   checkDraft();
+  if(commit) markForumChanged(true);
+  else {
+    // Choosing an Excel row only previews/prefills the pending selection.
+    // Do not replace an existing continuation until the operator confirms it.
+    isApplyingForumDraft = true;
+    try { markForumChanged(true); }
+    finally { isApplyingForumDraft = false; }
+  }
 }
 
-function fmtP(p){ if(p===null)return null; return 'NT$ '+Number(p).toLocaleString(); }
+function fmtP(p){ const n=Number(p); if(p===null||p===undefined||p===''||!Number.isFinite(n))return null; return 'NT$ '+n.toLocaleString(); }
+
+const PRICE_TIER_KEYS = ['seb_mem','seb_non','eb_mem','eb_non','reg_mem','reg_non','os_mem','os_non','student'];
+
+// Canonical, source-agnostic pricing view. Excel-parsed prices already went
+// through parsePrice(), but AI import and restored drafts may carry raw,
+// unnormalized, or stale values that were never validated (and a stored
+// `hasPrices` flag from either source may disagree with the actual price
+// values). Re-running every field through parsePrice() here is a safe no-op
+// for already-valid numbers/null and a safe rejection for anything else, so
+// every commercial-output decision below reads the same trustworthy facts
+// instead of the caller-supplied `hasPrices` flag.
+function getNormalizedPrices(f) {
+  const out = {};
+  PRICE_TIER_KEYS.forEach(k => { out[k] = parsePrice(f?.prices?.[k]); });
+  return out;
+}
+
+function hasAnyValidPrice(f) {
+  return Object.values(getNormalizedPrices(f)).some(v => v !== null);
+}
+
+function hasPaidPricing(f) {
+  return Object.values(getNormalizedPrices(f)).some(v => v !== null && v > 0);
+}
 
 function hasOnlyZeroPrices(f) {
-  const values = Object.values(f?.prices || {});
-  return !!(f?.hasPrices && values.some(v => v !== null) && values.every(v => v === null || Number(v) === 0));
+  const values = Object.values(getNormalizedPrices(f));
+  return values.some(v => v !== null) && values.every(v => v === null || v === 0);
 }
 
 function isFreeAdmission() {
@@ -1072,12 +1344,11 @@ function shouldShowPricingTable() {
 
 // ─────────────────────────── AI Parser ───────────────────────────
 async function parseWithAI(raw) {
-  const apiKey = sessionStorage.getItem('st26_api_key_'+aiProvider) || document.getElementById('api-key-inp').value.trim();
+  const apiKey = document.getElementById('api-key-inp').value.trim();
   if(!apiKey) {
-    showErr('parse-err','❌ 請先輸入 API Key 並按儲存');
+    showErr('parse-err','❌ 請先輸入 API Key（僅供目前頁面使用）');
     return;
   }
-  sessionStorage.setItem('st26_api_key_'+aiProvider, apiKey);
 
   showLoading('AI 正在分析資料...', '請稍候，通常需要 5–15 秒');
 
@@ -1199,8 +1470,12 @@ Rules:
 }
 
 function applyAIData(d) {
-  selectedForum = d.hasPrices ? { ...d } : null;
-  if(d.hasPrices) selectedForum = d;
+  // Keep whatever pricing data the AI actually returned regardless of its
+  // own self-reported `hasPrices` flag: that flag is not trustworthy on its
+  // own (it may be false alongside genuinely valid prices, or true alongside
+  // garbage). The canonical getNormalizedPrices()/hasAnyValidPrice()/
+  // hasPaidPricing() functions independently re-validate the real values.
+  selectedForum = { ...d };
   if(inputMode === 'partner') {
     setChecked('opt-partner', true);
     onPartnerModeChange(true);
@@ -1247,6 +1522,7 @@ function applyAIData(d) {
       urlZh: d.regUrlZh, urlEn: d.regUrlEn
     };
   }
+  markForumChanged(true);
 }
 
 function mergeRelatedLinksIntoRemarks(d) {
@@ -1487,6 +1763,7 @@ function handleLegacyRestoreApply() {
   }
 
   document.querySelectorAll('.legacy-continue-step2').forEach(btn => btn.classList.add('show'));
+  markForumChanged(true);
 }
 
 function continueLegacyRestoreToStep2() {
@@ -1635,7 +1912,7 @@ function handleParse() {
 function proceedFromExcel() {
   const idx = document.getElementById('forum-select').value;
   if(!idx) { showErr('parse-err','請先選擇場次'); return; }
-  onForumSelect();
+  onForumSelect(true);
   goStep(2);
 }
 
@@ -1648,6 +1925,7 @@ function startManualEntry() {
   hideErr('parse-err');
   goStep(2);
   checkDraft();
+  markForumChanged(true);
 }
 
 function onPartnerModeChange(checked) {
@@ -1663,52 +1941,255 @@ function onPartnerModeChange(checked) {
   updateWorkflowView();
 }
 
+function hasReviewPeopleContent() {
+  return !!getVal('advised-name') ||
+    getPeople('chairs-wrap').length > 0 || getPeople('mods-wrap').length > 0;
+}
+
+function hasReviewPartnerOrgContent() {
+  return !!getVal('partner-orgs-zh') || !!getVal('partner-orgs-en');
+}
+
+function setReviewSectionAvailable(sectionId, available) {
+  const button = document.querySelector('.review-map-btn[data-review-section="'+sectionId+'"]');
+  if(button) {
+    button.hidden = !available;
+    button.setAttribute('aria-hidden', available ? 'false' : 'true');
+  }
+  if(!available && activeReviewSection === sectionId) activateReviewSection('partners');
+}
+
 function updateWorkflowView() {
   const partnerMode = document.getElementById('opt-partner')?.checked || inputMode === 'partner';
+  const showPeople = !partnerMode || hasReviewPeopleContent();
+  const showPartnerOrgs = partnerMode || hasReviewPartnerOrgContent();
   const show = (id, visible) => {
     const el = document.getElementById(id);
     if(el) el.style.display = visible ? '' : 'none';
   };
 
-  show('partner-orgs-card', partnerMode);
-  show('people-card', !partnerMode);
+  show('partner-orgs-card', showPartnerOrgs);
+  show('people-card', showPeople);
+  show('remarks-wrap', true);
   show('related-links-wrap', false);
-  show('output-options-wrap', !partnerMode);
+  show('theme-output-options', !partnerMode);
+  show('pricing-output-options', !partnerMode);
+  setReviewSectionAvailable('people', showPeople);
 
   const note = document.getElementById('workflow-note');
   if(note) {
     note.textContent = partnerMode
-      ? '目前為合作論壇流程，只保留外部論壇上架需要的欄位；CP Excel、主席主持人與一般論壇輸出細項已收起。'
-      : '目前為一般論壇流程，只保留 CP Team 上架常用欄位；合作論壇欄位已收起，避免一般論壇編輯時被不相關內容干擾。';
+      ? '目前為合作論壇流程；已有內容的主席、主持人與單位資訊仍會保留在 Review 供發布前確認。'
+      : '目前為一般論壇流程；合作論壇單位欄位只會在已有可發布內容時顯示，避免隱藏內容未經確認就上架。';
   }
 }
 
-// ─────────────────────────── Generate ───────────────────────────
-function handleGenerate() {
-  zhHTML = buildFullHTML('zh');
-  enHTML = buildFullHTML('en');
-  document.getElementById('code-zh').value = zhHTML;
-  document.getElementById('code-en').value = enHTML;
-  updateReadinessCheck();
+// ─────────────────────────── Publish output ───────────────────────────
+function setPublishError(message) {
+  const box = document.getElementById('publish-error');
+  if(!box) return;
+  box.textContent = message || '';
+  box.style.display = message ? 'block' : 'none';
+}
 
-  const alreadyOnStep3 = document.getElementById('panel-3').classList.contains('active');
-  if(alreadyOnStep3) {
-    // Just refresh preview in place, no navigation
-    updatePreview(currentLang);
-    // Reset copy buttons in case they were in "copied" state
-    ['zh','en'].forEach(l => {
-      const b = document.getElementById('copy-'+l);
-      if(b) b.classList.remove('copied');
-    });
-  } else {
-    // Reset lang toggle to ZH and navigate
-    document.querySelectorAll('.tgl-grp:last-child .tgl-btn').forEach((b,i) => {
-      b.classList.toggle('active', i===0);
-    });
-    currentLang = 'zh';
-    goStep(3);
-    updatePreview('zh');
+function ensureGeneratedOutputCurrent() {
+  if(generatedRevision === editRevision && zhHTML && enHTML) return true;
+  try {
+    // Build into local values first so a failure cannot partially replace one
+    // language or mark stale output as current.
+    const nextZhHTML = buildFullHTML('zh');
+    const nextEnHTML = buildFullHTML('en');
+    zhHTML = nextZhHTML;
+    enHTML = nextEnHTML;
+    document.getElementById('code-zh').value = zhHTML;
+    document.getElementById('code-en').value = enHTML;
+    generatedRevision = editRevision;
+    setPublishError('');
+    updateOutputFreshness();
+    updateReadinessCheck();
+    ['zh','en'].forEach(lang => document.getElementById('copy-'+lang)?.classList.remove('copied'));
+    if(document.getElementById('panel-3')?.classList.contains('active')) updatePreview(currentLang);
+    return true;
+  } catch(e) {
+    setPublishError('無法更新發布預覽，請返回檢查內容後再試一次。');
+    return false;
   }
+}
+
+function openPublish() {
+  const outputCurrent = ensureGeneratedOutputCurrent();
+  goStep(3);
+  updateReadinessCheck();
+  if(outputCurrent) {
+    updatePreview(currentLang);
+  } else {
+    const frame = document.getElementById('preview-frame');
+    if(frame) frame.srcdoc = '';
+  }
+}
+
+function getEffectiveRegistrationUrl(target) {
+  const raw = target === 'zh'
+    ? (getVal('reg-url-zh') || getVal('reg-url-en'))
+    : (getVal('reg-url-en') || getVal('reg-url-zh'));
+  return { raw, url: safeUrl(raw) };
+}
+
+function getTargetVenue(target) {
+  return target === 'zh'
+    ? (getVal('venue-zh') || getVal('venue-en'))
+    : getVal('venue-en');
+}
+
+function hasRawPaidPricingIntent(f) {
+  if(!shouldShowPricingTable() || isFreeAdmission() || !f?.prices) return false;
+  return PRICE_TIER_KEYS.some(key => {
+    const value = f.prices[key];
+    const text = value === null || value === undefined ? '' : String(value).trim();
+    return !!text && !/^(?:-|tbc|tbd)$/i.test(text);
+  });
+}
+
+function hasMeaningfulFragmentContent(target) {
+  const theme = getVal('theme-'+target);
+  const outline = getVal('outline-'+target);
+  const agenda = getVal('agenda-'+target);
+  const partnerOrgs = getVal('partner-orgs-'+target);
+  const venue = getTargetVenue(target);
+  const cta = getEffectiveRegistrationUrl(target).url;
+  const f = selectedForum;
+  // The renderer already emits its localized "to be announced" treatment
+  // when the theme section is enabled. A theme in either language therefore
+  // establishes fragment intent for both targets; the target-specific missing
+  // theme remains a WARNING below, never an empty-fragment blocker by itself.
+  const hasVisibleTheme = document.getElementById('opt-theme')?.checked !== false &&
+    !!(theme || getVal('theme-zh') || getVal('theme-en'));
+  const hasVisibleOutline = document.getElementById('opt-outline')?.checked !== false && !!outline;
+  const hasVisiblePricing = isFreeAdmission() ||
+    (shouldShowPricingTable() && hasAnyValidPrice(f));
+  const hasVisibleLogos = ['logo-org','logo-coorg','logo-sponsor']
+    .flatMap(getLogos)
+    .some(logo => !!safeUrl(logo.src || logo.origSrc, true));
+  const hasVisiblePeople = !!getVal('advised-name') ||
+    getPeople('chairs-wrap').length > 0 || getPeople('mods-wrap').length > 0;
+
+  return hasVisibleTheme || hasVisibleOutline || !!venue || !!cta || hasVisiblePricing ||
+    hasVisibleLogos || hasVisiblePeople || !!buildPartnerOrgsBlock(partnerOrgs) ||
+    !!buildAgendaBlock(agenda, target) || !!getVal('remark-'+target);
+}
+
+function getPublishIssues(target) {
+  const lang = target === 'en' ? 'en' : 'zh';
+  const issues = [];
+  // sectionId/fieldId are fixed, developer-defined DOM ids only (never derived
+  // from parsed/AI/imported content) — they tell the Publish-panel "go to fix"
+  // action where to navigate. They carry no validation meaning of their own.
+  const add = (code, severity, message, sectionId, fieldId) =>
+    issues.push({ code, severity, target: lang, message, sectionId: sectionId || null, fieldId: fieldId || null });
+  const f = selectedForum;
+  const meaningful = hasMeaningfulFragmentContent(lang);
+  const theme = getVal('theme-'+lang);
+  const cta = getEffectiveRegistrationUrl(lang);
+  const venue = getTargetVenue(lang);
+  const rawMapUrl = getVal('map-url-'+lang);
+  const normalized = getNormalizedPrices(f);
+  const hasAnyPrice = Object.values(normalized).some(value => value !== null);
+  const hasPaidPrice = Object.values(normalized).some(value => value !== null && value > 0);
+  const allZeroPrices = hasAnyPrice && Object.values(normalized).every(value => value === null || value === 0);
+  const pricingEnabled = shouldShowPricingTable();
+  const explicitlyFree = document.getElementById('opt-free')?.checked || false;
+  const unresolvedPrice = PRICE_TIER_KEYS.some(key => normalized[key] === null);
+
+  if(!meaningful) {
+    // No single field caused this — route to the top of Step 2 (Basic info)
+    // as the most useful starting point, not a fabricated "wrong field".
+    add('empty_fragment', 'BLOCKED', '此語言沒有可發布的 Forum 內容片段；請至少提供一項由工具產生的實際內容。', 'basic-card', null);
+  }
+
+  if(meaningful && !theme) {
+    add('theme_missing', 'WARNING', lang === 'zh' ? '中文主題尚未填寫。' : 'English theme is missing.',
+      'theme-card', 'field-theme-'+lang);
+  }
+
+  if(!pricingEnabled || explicitlyFree || allZeroPrices) {
+    // The existing output intentionally omits commercial pricing or presents
+    // this forum as free, so no pricing issue is required.
+  } else if(hasPaidPrice) {
+    if(unresolvedPrice) {
+      // Price values come from parsed/AI/imported selectedForum state, not an
+      // editable per-tier input — route to the pricing review area itself
+      // rather than inventing a field that doesn't exist.
+      add('pricing_partial', 'WARNING', '部分票價欄位未能確認，輸出會保留「—」提示。', 'registration-card', null);
+    }
+  } else if(hasRawPaidPricingIntent(f)) {
+    add('pricing_unverified', 'BLOCKED', '票價已啟用且有付費資料意圖，但沒有可驗證的有效票價。', 'registration-card', null);
+  }
+
+  if(!cta.url) {
+    add(cta.raw ? 'cta_invalid' : 'cta_missing', 'WARNING',
+      cta.raw ? '報名連結格式無效，輸出會安全地省略 CTA。' : '尚無可用的報名連結。',
+      'registration-card', 'field-reg-'+lang);
+  }
+
+  if(!venue) {
+    add('venue_missing', 'WARNING', lang === 'zh' ? '中文場地尚未填寫。' : 'English venue is missing.',
+      'venue-card', 'field-venue-'+lang);
+  } else if(rawMapUrl && !safeUrl(rawMapUrl)) {
+    add('map_invalid', 'WARNING', '場地連結格式無效，輸出會保留不可點擊的場地文字。',
+      'venue-card', 'map-url-'+lang);
+  }
+
+  // Iterate per logo section (instead of flattening all three together) so
+  // each issue can carry which section it actually came from. Same sections,
+  // same order, same per-logo conditions as before — this only adds
+  // provenance, it does not change which logos trigger which severity.
+  ['logo-org','logo-coorg','logo-sponsor'].forEach(logoSectionId => {
+    getLogos(logoSectionId).forEach(logo => {
+      const source = logo.src || logo.origSrc || '';
+      if(!source) return;
+      if(/^data:image\//i.test(source) && safeUrl(source, true)) {
+        add('logo_data_image', 'WARNING', '偵測到 data:image Logo；可發布，但建議改用 Drupal 圖片網址以利長期維護。',
+          logoSectionId, null);
+      } else if(!safeUrl(source, true)) {
+        add('logo_invalid', 'WARNING', '有 Logo 來源無效，輸出會安全地省略該圖片。', logoSectionId, null);
+      }
+    });
+  });
+
+  return issues;
+}
+
+function getPublishState(target) {
+  const issues = getPublishIssues(target);
+  if(issues.some(issue => issue.severity === 'BLOCKED')) return 'BLOCKED';
+  if(issues.some(issue => issue.severity === 'WARNING')) return 'WARNING';
+  return 'READY';
+}
+
+function updateCopyControls() {
+  ['zh','en'].forEach(lang => {
+    const btn = document.getElementById('copy-'+lang);
+    if(!btn) return;
+    const issues = getPublishIssues(lang);
+    const state = getPublishState(lang);
+    const blockedCount = issues.filter(issue => issue.severity === 'BLOCKED').length;
+    const warningCount = issues.filter(issue => issue.severity === 'WARNING').length;
+    const main = btn.querySelector('.main');
+    const sub = btn.querySelector('.sub');
+    const label = lang === 'zh' ? '複製中文版' : '複製英文版';
+    const targetLabel = lang === 'zh' ? 'ZH' : 'EN';
+
+    btn.disabled = state === 'BLOCKED';
+    btn.classList.toggle('is-blocked', state === 'BLOCKED');
+    if(main) main.textContent = label;
+    if(sub) {
+      sub.textContent = state === 'BLOCKED'
+        ? 'BLOCKED · '+blockedCount+' blocker'+(blockedCount === 1 ? '' : 's')
+        : state === 'WARNING'
+          ? '貼入 Drupal（'+targetLabel+'） · '+warningCount+' warning'+(warningCount === 1 ? '' : 's')
+          : '貼入 Drupal（'+targetLabel+'）';
+    }
+  });
 }
 
 function updateReadinessCheck() {
@@ -1716,94 +2197,119 @@ function updateReadinessCheck() {
   const summary = document.getElementById('readiness-summary');
   if(!list || !summary) return;
 
-  const allLogos = ['logo-org','logo-coorg','logo-sponsor'].flatMap(getLogos);
-  const hasDataLogo = allLogos.some(l => /^data:image\//i.test(l.src || l.origSrc || '')) ||
-    /data:image\//i.test(zhHTML + enHTML);
-  const zhTitle = getVal('name-zh');
-  const enTitle = getVal('name-en');
-  const zhTheme = getVal('theme-zh');
-  const enTheme = getVal('theme-en');
-  const zhVenue = getVal('venue-zh');
-  const enVenue = getVal('venue-en');
-  const zhReg = safeUrl(getVal('reg-url-zh'));
-  const enReg = safeUrl(getVal('reg-url-en'));
-  const pricingEnabled = shouldShowPricingTable() && !isFreeAdmission();
-  const priceValues = selectedForum?.prices ? Object.values(selectedForum.prices) : [];
-  const hasPricingData = !!(selectedForum?.hasPrices && priceValues.some(v => v !== null));
-  const hasMissingPrice = pricingEnabled && (!hasPricingData || priceValues.some(v => v === null));
-  const hasDetailsTheme = /<details class="st26-details">/.test(zhHTML + enHTML);
+  const issues = getPublishIssues(currentLang);
+  const state = getPublishState(currentLang);
+  const blockers = issues.filter(issue => issue.severity === 'BLOCKED').length;
+  const warnings = issues.filter(issue => issue.severity === 'WARNING').length;
+  const displayIssues = issues.length ? issues : [{ severity:'READY', message:'目前語言的 Forum 內容可直接複製發布。' }];
+  const labels = { READY:'READY', WARNING:'WARNING', BLOCKED:'BLOCKED' };
 
-  const checks = [
-    {
-      title: 'Logo 圖片來源',
-      state: hasDataLogo ? 'review' : 'ok',
-      text: hasDataLogo
-        ? '偵測到 base64 / data:image Logo。貼入 Drupal 前請確認後台允許並可正常儲存。'
-        : '未偵測到 base64 Logo，圖片來源較適合長期維護。'
-    },
-    {
-      title: '中文報名連結',
-      state: zhReg ? 'ok' : 'warning',
-      text: zhReg ? '中文版 CTA 有有效連結。' : '中文版報名連結尚未填寫或格式無效。'
-    },
-    {
-      title: '英文報名連結',
-      state: enReg ? 'ok' : 'warning',
-      text: enReg ? '英文版 CTA 有有效連結。' : '英文版報名連結尚未填寫或格式無效。'
-    },
-    {
-      title: '中文標題 / 主題',
-      state: zhTitle && zhTheme ? 'ok' : 'warning',
-      text: zhTitle && zhTheme ? '中文場次名稱與主題皆已填寫。' : '中文場次名稱或中文主題缺少內容。'
-    },
-    {
-      title: '英文標題 / 主題',
-      state: enTitle && enTheme ? 'ok' : 'warning',
-      text: enTitle && enTheme ? '英文場次名稱與主題皆已填寫。' : '英文場次名稱或英文主題缺少內容。'
-    },
-    {
-      title: '中文場地',
-      state: zhVenue ? 'ok' : 'warning',
-      text: zhVenue ? '中文場地已填寫。' : '中文場地尚未填寫，前台地點顯示可能不完整。'
-    },
-    {
-      title: '英文場地',
-      state: enVenue ? 'ok' : 'warning',
-      text: enVenue ? '英文場地已填寫。' : '英文場地尚未填寫，英文頁地點可能缺漏。'
-    },
-    {
-      title: '票價資料',
-      state: !pricingEnabled || !hasMissingPrice ? 'ok' : 'review',
-      text: !pricingEnabled
-        ? '票價表未啟用或免費參加，不需檢查票價表。'
-        : hasMissingPrice
-          ? '票價表已啟用，但部分價格資料缺漏，發布前請人工確認。'
-          : '票價表已啟用且有可輸出的票價資料。'
-    },
-    {
-      title: '主題展開區塊',
-      state: hasDetailsTheme ? 'review' : 'ok',
-      text: hasDetailsTheme
-        ? '輸出包含 details / summary 互動區塊，請在 Drupal 前台測試展開行為。'
-        : '未偵測到 details / summary 主題互動區塊。'
+  list.innerHTML = displayIssues.map(issue => {
+    // sectionId/fieldId are fixed developer-defined ids from getPublishIssues,
+    // never user/AI/import content — safe to place in data-* attributes as-is,
+    // esc() here is defense-in-depth only, not a trust boundary.
+    const goto = (issue.sectionId || issue.fieldId)
+      ? '<button type="button" class="readiness-goto" data-section-id="'+esc(issue.sectionId||'')+'" data-field-id="'+esc(issue.fieldId||'')+'">前往修正 →</button>'
+      : '';
+    return '<div class="readiness-item">' +
+      '<div class="readiness-status '+issue.severity.toLowerCase()+'">'+labels[issue.severity]+'</div>' +
+      '<div class="readiness-msg">'+esc(issue.message)+goto+'</div>' +
+    '</div>';
+  }).join('');
+
+  summary.textContent = state === 'BLOCKED'
+    ? 'BLOCKED · '+blockers+' blocker'+(blockers === 1 ? '' : 's')
+    : state === 'WARNING'
+      ? 'WARNING · '+warnings+' warning'+(warnings === 1 ? '' : 's')
+      : 'READY · ready to copy';
+  updateCopyControls();
+  updateReviewSectionStates();
+}
+
+function isReviewTextControl(target) {
+  return target?.matches?.('input.inp:not([readonly]):not([type="file"]), textarea.inp:not([readonly])');
+}
+
+function wireLiveReadiness() {
+  const reviewPanel = document.getElementById('panel-2');
+  if(!reviewPanel) return;
+
+  reviewPanel.addEventListener('input', event => {
+    if(isReviewTextControl(event.target)) markForumChanged();
+  });
+
+  reviewPanel.addEventListener('change', event => {
+    if(isReviewTextControl(event.target)) {
+      refreshReadinessNow();
+      return;
     }
-  ];
+    if(event.target.matches?.('#opt-free, #opt-pricing, #opt-theme, #opt-outline, #opt-daypass, #opt-discount, #opt-footnote')) {
+      markForumChanged(true);
+    }
+  });
+}
 
-  const stateLabel = { ok:'OK', warning:'Warning', review:'Needs review' };
-  list.innerHTML = checks.map(c =>
-    '<div class="readiness-item">' +
-      '<div class="readiness-status '+c.state+'">'+stateLabel[c.state]+'</div>' +
-      '<div class="readiness-msg"><strong>'+esc(c.title)+'</strong>'+esc(c.text)+'</div>' +
-    '</div>'
-  ).join('');
+// ─────────────────────── Issue → Field Navigation ───────────────────────
+// Pure UI navigation: scrolls/focuses an existing Review field so an operator
+// can act on a readiness issue without hunting through the form. Never reads
+// or duplicates evaluator policy, never mutates canonical state, and must not
+// be able to trigger markForumChanged/regeneration/clipboard on its own.
+let reviewFlashTimer = null;
+let reviewFlashEl = null;
 
-  const reviewCount = checks.filter(c => c.state === 'review').length;
-  const warningCount = checks.filter(c => c.state === 'warning').length;
-  summary.textContent = reviewCount
-    ? 'Needs review · '+reviewCount+' item'+(reviewCount > 1 ? 's' : '')
-    : warningCount
-      ? 'Warning · '+warningCount+' item'+(warningCount > 1 ? 's' : '')
-      : 'OK · ready to copy';
+function flashReviewTarget(el) {
+  if(reviewFlashTimer) { clearTimeout(reviewFlashTimer); reviewFlashTimer = null; }
+  if(reviewFlashEl && reviewFlashEl !== el) reviewFlashEl.classList.remove('review-target-flash');
+  reviewFlashEl = el;
+  el.classList.add('review-target-flash');
+  reviewFlashTimer = setTimeout(() => {
+    el.classList.remove('review-target-flash');
+    reviewFlashTimer = null;
+    reviewFlashEl = null;
+  }, 1800);
+}
+
+function highlightReviewTarget(sectionId, fieldId) {
+  // fieldTarget only resolves when a real fieldId was given and exists — a
+  // section-only issue (fieldId null, e.g. empty_fragment/pricing_partial/
+  // pricing_unverified) has no single truthful field, so it must never fall
+  // through into focusing whatever input happens to appear first inside the
+  // section.
+  const fieldTarget = fieldId ? document.getElementById(fieldId) : null;
+  const target = fieldTarget || (sectionId && document.getElementById(sectionId));
+  if(!target) return;
+  target.scrollIntoView({ behavior:'smooth', block:'center' });
+  flashReviewTarget(target);
+  if(!fieldTarget) return;
+  // Only focus real, currently-focusable form controls (never a .card/.field
+  // wrapper div itself) — and only within the specific resolved field.
+  const focusable = fieldTarget.matches?.('input, textarea, select, button')
+    ? fieldTarget
+    : fieldTarget.querySelector?.('input:not([type="hidden"]):not([type="file"]), textarea, select');
+  if(focusable && typeof focusable.focus === 'function') focusable.focus({ preventScroll:true });
+}
+
+function goToPublishIssue(sectionId, fieldId) {
+  if(!sectionId && !fieldId) return;
+  updateWorkflowView();
+  const reviewSection = getReviewSectionForDestination(sectionId, fieldId);
+  if(reviewSection) activateReviewSection(reviewSection);
+  goStep(2);
+  // scrollIntoView/getBoundingClientRect force a synchronous layout pass on
+  // demand, so this does not need to wait for a paint/animation frame — and
+  // must not, since rAF callbacks can be starved on a backgrounded/throttled
+  // tab, silently dropping the navigation the operator just asked for.
+  highlightReviewTarget(sectionId, fieldId);
+}
+
+function wireReadinessNavigation() {
+  const list = document.getElementById('readiness-list');
+  if(!list) return;
+  list.addEventListener('click', event => {
+    const btn = event.target.closest?.('.readiness-goto');
+    if(!btn) return;
+    goToPublishIssue(btn.dataset.sectionId || '', btn.dataset.fieldId || '');
+  });
 }
 
 function switchLang(lang, btn) {
@@ -1812,6 +2318,7 @@ function switchLang(lang, btn) {
     if(b && btn) b.classList.remove('active');
   });
   if(btn) btn.classList.add('active');
+  updateReadinessCheck();
   updatePreview(lang);
 }
 
@@ -1840,6 +2347,13 @@ function updatePreview(lang) {
 }
 
 function copyCode(lang) {
+  // Button disabled state is only an affordance; repeat the same evaluator
+  // check here so programmatic or stale UI calls cannot write blocked output.
+  if(getPublishState(lang) === 'BLOCKED') {
+    updateReadinessCheck();
+    return;
+  }
+  if(!ensureGeneratedOutputCurrent()) return;
   const text = lang==='zh' ? zhHTML : enHTML;
   const btn = document.getElementById('copy-'+lang);
   navigator.clipboard?.writeText(text).then(() => copyDone(btn)).catch(() => fallbackCopy(text, btn));
@@ -1871,8 +2385,14 @@ function addPerson(wrapId, nameVal='', urlVal='') {
   row.className = 'person-row';
   row.innerHTML = `<input class="inp" data-r="name" placeholder="姓名 | 職稱 | 公司" value="${esc(nameVal)}" style="flex:1.5">` +
     `<input class="inp" data-r="url" placeholder="https://..." value="${esc(urlVal)}" style="flex:1">` +
-    `<button class="btn btn-danger btn-sm" onclick="this.parentElement.remove()" style="flex-shrink:0;padding:9px 10px">✕</button>`;
+    `<button class="btn btn-danger btn-sm" onclick="removePerson(this)" style="flex-shrink:0;padding:9px 10px">✕</button>`;
   document.getElementById(wrapId).appendChild(row);
+  markForumChanged(true);
+}
+
+function removePerson(button) {
+  button.parentElement?.remove();
+  markForumChanged(true);
 }
 
 function getPeople(wrapId) {
@@ -1980,7 +2500,10 @@ async function loadAndTrimImage(src) {
   });
 }
 
-function addLogoCard(sectionId) { renderLogoCard(sectionId, '', false, LOGO_FIXED_SCALE); }
+function addLogoCard(sectionId) {
+  renderLogoCard(sectionId, '', false, LOGO_FIXED_SCALE);
+  markForumChanged(true);
+}
 
 function renderLogoCard(sectionId, srcVal, isCo, scaleVal, isUrlVal) {
   const id = 'lc-' + lid++;
@@ -2018,7 +2541,7 @@ function renderLogoCard(sectionId, srcVal, isCo, scaleVal, isUrlVal) {
       <div class="logo-acts">
         <button class="btn-mv" onclick="moveLogo('${id}',-1)">↑</button>
         <button class="btn-mv" onclick="moveLogo('${id}',1)">↓</button>
-        <button class="btn-dl" onclick="document.getElementById('${id}').remove();updateOrdNums('${sectionId}')">✕</button>
+        <button class="btn-dl" onclick="removeLogo('${id}','${sectionId}')">✕</button>
       </div>
     </div>
     <input type="file" accept="image/*" id="file-${id}" style="display:none"
@@ -2069,6 +2592,7 @@ async function applyLogoSrc(cardId, src, isUrl, sectionId) {
     card.dataset.trimmedSrc = src;
     updateCardPreview(cardId);
     if(sectionId) updateOrdNums(sectionId);
+    markForumChanged(true);
     return;
   }
 
@@ -2088,6 +2612,7 @@ async function applyLogoSrc(cardId, src, isUrl, sectionId) {
   }
 
   if(sectionId) updateOrdNums(sectionId);
+  markForumChanged(true);
 }
 
 function toggleCoBrand(cardId, sectionId, isCo) {
@@ -2101,14 +2626,28 @@ function toggleCoBrand(cardId, sectionId, isCo) {
   if(wrap) { wrap.style.width = contW+'px'; wrap.style.height = CONTAINER_H+'px'; }
 
   updateCardPreview(cardId);
+  markForumChanged(true);
 }
 
 function moveLogo(cardId, dir) {
   const card = document.getElementById(cardId);
   const grid = card.parentElement;
-  if(dir===-1 && card.previousElementSibling) grid.insertBefore(card, card.previousElementSibling);
-  else if(dir===1 && card.nextElementSibling) grid.insertBefore(card.nextElementSibling, card);
+  let moved = false;
+  if(dir===-1 && card.previousElementSibling) {
+    grid.insertBefore(card, card.previousElementSibling);
+    moved = true;
+  } else if(dir===1 && card.nextElementSibling) {
+    grid.insertBefore(card.nextElementSibling, card);
+    moved = true;
+  }
   updateOrdNums(grid.id);
+  if(moved) markForumChanged(true);
+}
+
+function removeLogo(cardId, sectionId) {
+  document.getElementById(cardId)?.remove();
+  updateOrdNums(sectionId);
+  markForumChanged(true);
 }
 
 function updateOrdNums(sectionId) {
@@ -2129,6 +2668,12 @@ function getLogos(sectionId) {
 }
 
 // ─────────────────────────── Draft System ───────────────────────────
+function serializeContinuationWrite(operation) {
+  const next = continuationWriteChain.then(operation, operation);
+  continuationWriteChain = next.catch(() => {});
+  return next;
+}
+
 function openForumDraftDb() {
   return new Promise((resolve, reject) => {
     if(!window.indexedDB) {
@@ -2186,7 +2731,9 @@ async function withForumDraftStore(mode, run) {
 async function saveForumDraftPayload(key, draft) {
   await withForumDraftStore('readwrite', (store, resolve, reject) => {
     const req = store.put(draft, key);
-    req.onsuccess = () => resolve();
+    // A successful request is not a committed write. withForumDraftStore()
+    // resolves this operation only from the transaction's oncomplete event.
+    req.onsuccess = () => {};
     req.onerror = () => reject(req.error || new Error('IndexedDB put failed'));
   });
 }
@@ -2202,7 +2749,7 @@ async function loadForumDraftPayload(key) {
 async function deleteForumDraftPayload(key) {
   await withForumDraftStore('readwrite', (store, resolve, reject) => {
     const req = store.delete(key);
-    req.onsuccess = () => resolve();
+    req.onsuccess = () => {};
     req.onerror = () => reject(req.error || new Error('IndexedDB delete failed'));
   });
 }
@@ -2259,6 +2806,244 @@ function getDraftKey() {
   // prefixes ("SEMICON Taiwan 2026 ... Forum"), and truncating to a short
   // prefix collapsed different forums onto the same draft key.
   return FORUM_DRAFT_PREFIX + btoa(unescape(encodeURIComponent(name)));
+}
+
+function setAutosaveStatus(text, state) {
+  const status = document.getElementById('autosave-status');
+  if(!status) return;
+  status.textContent = text || '';
+  status.className = 'autosave-status' + (state ? ' '+state : '');
+}
+
+function formatAutosaveTime(iso) {
+  const date = new Date(iso || '');
+  if(Number.isNaN(date.getTime())) return '';
+  return date.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+}
+
+function getContinuationKey() {
+  try {
+    return localStorage.getItem(FORUM_CONTINUE_POINTER) === FORUM_AUTOSAVE_KEY
+      ? FORUM_AUTOSAVE_KEY
+      : null;
+  } catch(e) {
+    return null;
+  }
+}
+
+function isRecoverableForumDraft(draft) {
+  if(!draft || typeof draft !== 'object' || Array.isArray(draft)) return false;
+  // These are the canonical keys written by the pre-Pilot-4 Forum draft
+  // collector. Require at least one rather than accepting arbitrary JSON
+  // found under the shared historical prefix.
+  return [
+    'nameZh','nameEn','venueZh','venueEn','themeZh','themeEn','outlineZh','outlineEn',
+    'agendaZh','agendaEn','partnerOrgsZh','partnerOrgsEn','advisedName','advisedUrl',
+    'chairs','mods','logos','regUrlZh','regUrlEn','mapUrlZh','mapUrlEn','forumPrices'
+  ].some(key => Object.prototype.hasOwnProperty.call(draft, key));
+}
+
+function stripLegacyDraftCredentials(draft) {
+  const copy = { ...draft };
+  ['apiKey','api_key','api-key','credential','credentials','apiProvider'].forEach(key => delete copy[key]);
+  return copy;
+}
+
+function parseLegacySavedAt(value) {
+  const timestamp = Date.parse(value || '');
+  return Number.isFinite(timestamp) ? timestamp : null;
+}
+
+async function findLegacyContinuationCandidate() {
+  const candidates = [];
+  try {
+    for(let i=0; i<localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if(!key || !key.startsWith(FORUM_DRAFT_PREFIX) || key === FORUM_AUTOSAVE_KEY || key === FORUM_CONTINUE_POINTER) continue;
+      const raw = localStorage.getItem(key);
+      if(!raw) continue;
+      let stored;
+      try { stored = JSON.parse(raw); } catch(e) { continue; }
+
+      const marker = stored?.schema === FORUM_DRAFT_MARKER_SCHEMA ? stored : null;
+      const draft = marker ? await loadForumDraftPayload(key) : stored;
+      if(!isRecoverableForumDraft(draft)) continue;
+      candidates.push({ key, draft:stripLegacyDraftCredentials(draft), savedAt:parseLegacySavedAt(marker?.savedAt || stored?.savedAt) });
+    }
+  } catch(e) {
+    return null;
+  }
+
+  if(!candidates.length) return null;
+  const dated = candidates.filter(candidate => candidate.savedAt !== null)
+    .sort((a, b) => b.savedAt - a.savedAt);
+  if(dated.length) {
+    // A real savedAt is the only trustworthy cross-draft ordering. A tie is
+    // intentionally left unresolved rather than relying on storage order.
+    if(dated.length > 1 && dated[0].savedAt === dated[1].savedAt) return null;
+    return dated[0];
+  }
+  // Older raw localStorage drafts had no savedAt. One is safe to adopt; more
+  // than one has no truthful ordering and must remain untouched.
+  return candidates.length === 1 ? candidates[0] : null;
+}
+
+async function adoptLegacyContinuation() {
+  const adoptionRevision = canonicalPersistenceRevision;
+  const candidate = await findLegacyContinuationCandidate();
+  if(!candidate || canonicalPersistenceRevision !== adoptionRevision) return null;
+  try {
+    return await serializeContinuationWrite(async () => {
+      // Discovery may have started before the operator edited or autosaved.
+      // Revalidate inside the shared fixed-slot write queue so a delayed
+      // legacy candidate can never become authoritative after newer work.
+      if(canonicalPersistenceRevision !== adoptionRevision || autosaveWriteInFlight || autosaveQueued || autosaveTimer) return null;
+      const current = await getValidCurrentContinuation();
+      if(current) return current;
+      if(canonicalPersistenceRevision !== adoptionRevision || autosaveWriteInFlight || autosaveQueued || autosaveTimer) return null;
+
+      // Keep the old source key intact. Publish continuation metadata only
+      // after the fixed-slot payload transaction has actually committed and
+      // only if no canonical edit appeared while that transaction was open.
+      await saveForumDraftPayload(FORUM_AUTOSAVE_KEY, candidate.draft);
+      if(canonicalPersistenceRevision !== adoptionRevision || autosaveWriteInFlight || autosaveQueued || autosaveTimer) return null;
+      const marker = buildDraftMarker(candidate.draft);
+      localStorage.setItem(FORUM_AUTOSAVE_KEY, JSON.stringify(marker));
+      localStorage.setItem(FORUM_CONTINUE_POINTER, FORUM_AUTOSAVE_KEY);
+      return { key:FORUM_AUTOSAVE_KEY, marker, draft:candidate.draft };
+    });
+  } catch(e) {
+    return null;
+  }
+}
+
+async function getValidCurrentContinuation() {
+  const key = getContinuationKey();
+  if(!key) return null;
+  try {
+    const marker = readDraftMarker(key);
+    const draft = marker?.schema === FORUM_DRAFT_MARKER_SCHEMA
+      ? await loadForumDraftPayload(key)
+      : null;
+    return isRecoverableForumDraft(draft) ? { key, marker, draft } : null;
+  } catch(e) {
+    return null;
+  }
+}
+
+async function updateContinueWorkUI() {
+  const wrap = document.getElementById('continue-work-wrap');
+  const context = document.getElementById('continue-work-context');
+  if(!wrap || !context) return;
+  try {
+    const continuation = await getValidCurrentContinuation() || await adoptLegacyContinuation();
+    if(!continuation) {
+      wrap.classList.remove('show');
+      return;
+    }
+    const title = continuation.marker.nameEn || continuation.draft.nameEn || continuation.draft.nameZh || 'Forum';
+    const time = formatAutosaveTime(continuation.marker.savedAt);
+    context.textContent = time ? title+' · Autosaved '+time : title;
+    wrap.classList.add('show');
+  } catch(e) {
+    wrap.classList.remove('show');
+  }
+}
+
+function scheduleForumAutosave() {
+  if(isApplyingForumDraft || !formHasContentForDraftImport()) return;
+  clearTimeout(autosaveTimer);
+  setAutosaveStatus('Saving…', 'saving');
+  autosaveTimer = setTimeout(() => {
+    autosaveTimer = null;
+    runForumAutosave();
+  }, 900);
+}
+
+async function runForumAutosave() {
+  if(isApplyingForumDraft || !formHasContentForDraftImport()) return;
+  if(autosaveWriteInFlight) {
+    autosaveQueued = true;
+    return;
+  }
+  autosaveWriteInFlight = true;
+  const draft = collectForumDraftState();
+  try {
+    const marker = await serializeContinuationWrite(async () => {
+      await saveForumDraftPayload(FORUM_AUTOSAVE_KEY, draft);
+      const committedMarker = buildDraftMarker(draft);
+      localStorage.setItem(FORUM_AUTOSAVE_KEY, JSON.stringify(committedMarker));
+      localStorage.setItem(FORUM_CONTINUE_POINTER, FORUM_AUTOSAVE_KEY);
+      return committedMarker;
+    });
+    const time = formatAutosaveTime(marker.savedAt);
+    setAutosaveStatus(time ? 'Autosaved · '+time : 'Autosaved', 'saved');
+    updateContinueWorkUI();
+  } catch(e) {
+    setAutosaveStatus('Autosave unavailable · use Save work file', 'unavailable');
+  } finally {
+    autosaveWriteInFlight = false;
+    if(autosaveQueued) {
+      autosaveQueued = false;
+      scheduleForumAutosave();
+    }
+  }
+}
+
+async function continueWork() {
+  const key = getContinuationKey();
+  if(!key) return;
+  setAutosaveStatus('Loading saved work…', 'saving');
+  try {
+    const marker = readDraftMarker(key);
+    const draft = marker?.schema === FORUM_DRAFT_MARKER_SCHEMA
+      ? await loadForumDraftPayload(key)
+      : null;
+    if(!draft) throw new Error('missing continuation draft');
+    applyForumDraftState(draft);
+    const time = formatAutosaveTime(marker.savedAt);
+    setAutosaveStatus(time ? 'Autosaved · '+time : 'Autosaved', 'saved');
+  } catch(e) {
+    setAutosaveStatus('Autosave unavailable · use Load work file', 'unavailable');
+  }
+}
+
+function beginNewForum() {
+  clearTimeout(autosaveTimer);
+  autosaveTimer = null;
+  autosaveQueued = false;
+  isApplyingForumDraft = true;
+  try {
+    [
+      'name-zh','name-en','venue-zh','venue-en','theme-zh','theme-en','outline-zh','outline-en',
+      'agenda-zh','agenda-en','partner-orgs-zh','partner-orgs-en','advised-name','advised-url',
+      'remark-zh','remark-en','related-links-zh','related-links-en','reg-url-zh','reg-url-en'
+    ].forEach(id => setVal(id, ''));
+    setVal('raw-input', '');
+    selectedForum = null;
+    forums = [];
+    setChecked('opt-partner', false);
+    setChecked('opt-free', false);
+    setChecked('opt-pricing', true);
+    setChecked('opt-theme', true);
+    setChecked('opt-outline', true);
+    setChecked('opt-daypass', true);
+    setChecked('opt-discount', true);
+    setChecked('opt-footnote', true);
+    ['chairs-wrap','mods-wrap'].forEach(id => { document.getElementById(id).innerHTML = ''; });
+    addPerson('chairs-wrap');
+    addPerson('mods-wrap');
+    ['org','coorg','sponsor'].forEach(type => {
+      document.getElementById('logo-'+type).innerHTML = '';
+      addLogoCard('logo-'+type);
+    });
+    document.getElementById('forum-select-wrap').style.display = 'none';
+    setMode('excel', document.querySelector('.mode-btn'));
+  } finally {
+    isApplyingForumDraft = false;
+  }
+  setAutosaveStatus('');
+  markForumChanged(true);
 }
 
 function serializeDraftLogos(sectionId) {
@@ -2319,6 +3104,8 @@ function collectForumDraftState() {
 }
 
 function applyForumDraftState(d) {
+  isApplyingForumDraft = true;
+  try {
   const fieldMap = {
     nameZh:'name-zh', nameEn:'name-en', venueZh:'venue-zh', venueEn:'venue-en',
     themeZh:'theme-zh', themeEn:'theme-en', outlineZh:'outline-zh', outlineEn:'outline-en',
@@ -2368,62 +3155,23 @@ function applyForumDraftState(d) {
       if(l.origSrc) renderLogoCard('logo-'+type, l.origSrc, l.isCo || false, l.scale || 80, l.isUrl || false);
     });
   });
-
-  document.getElementById('draft-banner').classList.remove('show');
+  } finally {
+    isApplyingForumDraft = false;
+  }
   goStep(2);
+  markForumChanged(true);
 }
 
 function checkDraft() {
-  const key = getDraftKey();
-  const banner = document.getElementById('draft-banner');
-  if(key && localStorage.getItem(key)) {
-    banner.classList.add('show');
-  } else {
-    banner.classList.remove('show');
-  }
+  updateContinueWorkUI();
 }
 
 async function saveDraft() {
-  const key = getDraftKey();
-  if(!key) { alert('請先填入場次名稱再儲存草稿'); return; }
-
-  const draft = collectForumDraftState();
-
-  try {
-    await migrateLegacyDrafts();
-    await saveForumDraftPayload(key, draft);
-    localStorage.setItem(key, JSON.stringify(buildDraftMarker(draft)));
-    const marker = buildDraftMarker(draft);
-    const hasFileLogo = marker.hasFileLogo;
-    if(hasFileLogo) {
-      alert('✅ 草稿已儲存！\n提示：本機上傳的 Logo 會改存於瀏覽器較大的草稿儲存空間，不再直接塞進 localStorage。');
-    } else {
-      alert('✅ 草稿已儲存！');
-    }
-  } catch(e) {
-    alert('儲存失敗：瀏覽器儲存空間不足或不可用。請先清除舊草稿，或改用圖片 URL 取代本機上傳。');
-  }
+  await runForumAutosave();
 }
 
 async function loadDraft() {
-  const key = getDraftKey();
-  if(!key) return;
-  if(!localStorage.getItem(key)) return;
-
-  try {
-    await migrateLegacyDrafts();
-    const marker = readDraftMarker(key);
-    const d = marker?.schema === FORUM_DRAFT_MARKER_SCHEMA
-      ? await loadForumDraftPayload(key)
-      : marker;
-    if(!d) {
-      alert('載入失敗：找不到草稿內容，可能已被清除。');
-      return;
-    }
-    applyForumDraftState(d);
-  } catch(e) {
-    alert('載入失敗：草稿資料損毀，請重新輸入。');
-  }
+  await continueWork();
 }
 
 function getForumDraftTitle(draft) {
@@ -2523,7 +3271,7 @@ function handleImportDraftJson(event) {
       applyForumDraftState(normalized.draft);
       const msg = normalized.warning
         ? '草稿版本較舊或未知，已嘗試匯入相容欄位，請檢查內容。'
-        : '已匯入草稿，可繼續編輯並重新產生 HTML。';
+        : '已載入工作檔，可繼續編輯並前往發布。';
       showDraftJsonMessage(msg, normalized.warning ? 'warn' : 'ok');
     } catch(e) {
       showDraftJsonMessage('草稿內容無法套用，請確認檔案是否來自論壇 HTML 產生器。', 'err');
@@ -2538,7 +3286,7 @@ async function clearDrafts() {
   const keys = [];
   for(let i=0; i<localStorage.length; i++) {
     const k = localStorage.key(i);
-    if(k && k.startsWith(FORUM_DRAFT_PREFIX)) keys.push(k);
+    if(k && k.startsWith(FORUM_DRAFT_PREFIX) && k !== FORUM_CONTINUE_POINTER) keys.push(k);
   }
   for(const key of keys) {
     localStorage.removeItem(key);
@@ -2548,7 +3296,8 @@ async function clearDrafts() {
       // If IndexedDB cleanup fails, still remove the visible marker so users can continue.
     }
   }
-  document.getElementById('draft-banner').classList.remove('show');
+  try { localStorage.removeItem(FORUM_CONTINUE_POINTER); } catch(e) {}
+  updateContinueWorkUI();
   alert('已清除 '+keys.length+' 筆草稿。');
 }
 
@@ -2567,11 +3316,14 @@ function safeUrl(s, allowDataImage) {
   if(allowDataImage && /^data:image\//i.test(raw)) return raw;
   if(/^www\./i.test(raw)) raw = 'https://' + raw;
   if(!/^[a-z][a-z0-9+.-]*:/i.test(raw) && /^[a-z0-9.-]+\.[a-z]{2,}(\/|$)/i.test(raw)) raw = 'https://' + raw;
-  if(raw.startsWith('/')) return raw;
+  // A single leading slash is a Drupal-relative path; two ("//example.com")
+  // is a protocol-relative URL and must not be treated the same way.
+  if(/^\/(?!\/)/.test(raw)) return raw;
   if(!/^(https?:|mailto:|tel:)/i.test(raw)) return '';
   try {
     const u = new URL(raw);
-    if(['http:', 'https:', 'mailto:', 'tel:'].includes(u.protocol)) return raw;
+    if(u.protocol === 'mailto:' || u.protocol === 'tel:') return raw;
+    if((u.protocol === 'http:' || u.protocol === 'https:') && u.hostname) return raw;
   } catch(e) {
     return '';
   }
@@ -3002,8 +3754,9 @@ function buildLogoSection(label, logos) {
 }
 
 function pCell(v) {
-  if(v===null) return '<span class="st26-tbc">—</span>';
-  return '<span class="st26-price">NT$ '+Number(v).toLocaleString()+'</span>';
+  const n = Number(v);
+  if(v===null||v===undefined||v===''||!Number.isFinite(n)) return '<span class="st26-tbc">—</span>';
+  return '<span class="st26-price">NT$ '+n.toLocaleString()+'</span>';
 }
 
 // Agenda input is meant to be pasted almost as-is from a source doc, not
@@ -3079,8 +3832,15 @@ function buildPricingBlock(f, regUrlZh, regUrlEn, remarkZh, remarkEn, lang) {
   const partnerMode = isPartnerMode();
   const freePricing = isFreeAdmission();
   const showPricing = shouldShowPricingTable();
-  const showDayPass  = showPricing && !partnerMode && !freePricing && document.getElementById('opt-daypass')?.checked !== false;
-  const showDiscount = showPricing && !partnerMode && !freePricing && document.getElementById('opt-discount')?.checked !== false;
+  // Day Pass / group-discount are fixed, whole-event commercial claims, not
+  // derived from this forum's own price rows — they must never appear for a
+  // forum that has no actual valid PAID pricing data behind it (no forum
+  // selected, every parsed price field failed validation, or all valid
+  // values are zero). Derived from normalized prices, not the caller-
+  // supplied `hasPrices` flag, which AI import / restored drafts may not
+  // have kept in sync with the actual price values.
+  const showDayPass  = showPricing && !partnerMode && !freePricing && hasPaidPricing(f) && document.getElementById('opt-daypass')?.checked !== false;
+  const showDiscount = showPricing && !partnerMode && !freePricing && hasPaidPricing(f) && document.getElementById('opt-discount')?.checked !== false;
   const showFootnote = document.getElementById('opt-footnote')?.checked !== false;
 
   const activeUrl = safeUrl(lang==='zh' ? (regUrlZh||regUrlEn||'') : (regUrlEn||regUrlZh||''));
@@ -3109,8 +3869,11 @@ function buildPricingBlock(f, regUrlZh, regUrlEn, remarkZh, remarkEn, lang) {
     ? '\n<div class="st26-free-note">'+(lang==='zh'?'免費參加':'Free Admission')+'</div>\n'
     : '';
 
-  const priceTableHTML = (!showPricing||!f||!f.hasPrices||freePricing) ? '' : (() => {
-    const p = f.prices;
+  const priceTableHTML = (!showPricing||!f||!hasAnyValidPrice(f)||freePricing) ? '' : (() => {
+    // Render from the normalized view, not raw f.prices: AI import / restored
+    // drafts can carry unnormalized strings (e.g. "NT$ 1,200") that pCell()'s
+    // own Number(v) cannot parse on its own.
+    const p = getNormalizedPrices(f);
     const r1 = lang==='zh'?'超早鳥優惠':'Super Early-Bird';
     const r2 = lang==='zh'?'早鳥優惠':'Early-Bird';
     const r3 = lang==='zh'?'原價':'Regular';
@@ -3124,7 +3887,7 @@ function buildPricingBlock(f, regUrlZh, regUrlEn, remarkZh, remarkEn, lang) {
     const tblRows = rows.map(([n,d,m,nm]) =>
       '  <div class="st26-pr-row">\n    <div class="st26-pr-col1"><div class="st26-pname">'+n+'</div><div class="st26-pdate">'+d+'</div></div>\n    <div class="st26-pr-col2"><span class="st26-pr-label">'+colMem+'</span><div>'+pCell(m)+'</div></div>\n    <div class="st26-pr-col3"><span class="st26-pr-label">'+colNon+'</span><div>'+pCell(nm)+'</div></div>\n  </div>'
     ).join('\n');
-    const stuCell = p.student !== null ? '<span class="st26-price">NT$ '+Number(p.student).toLocaleString()+'</span>' : '<span class="st26-tbc">—</span>';
+    const stuCell = pCell(p.student);
     return '<div class="st26-pr-wrap">\n  <div class="st26-pr-head">\n    <div>'+colPeriod+'</div>\n    <div>'+colMem+'</div>\n    <div>'+colNon+'</div>\n  </div>\n'+tblRows+'\n  <div class="st26-pr-row">\n    <div class="st26-pr-col1"><div class="st26-pname">'+stuRowName+'</div><div class="st26-pdate" style="color:#1d1d1f">'+stuRowDate+'</div></div>\n    <div class="st26-pr-col2" style="width:100%;grid-column:2/4;justify-content:flex-end;gap:12px;border:none">\n      <div style="font-size:12px;font-weight:700;color:#86868b">'+stuNote+'</div>\n      <div>'+stuCell+'</div>\n    </div>\n  </div>\n</div>';
   })();
 
@@ -3137,7 +3900,7 @@ function buildPricingBlock(f, regUrlZh, regUrlEn, remarkZh, remarkEn, lang) {
   // Skip the "Registration Fees" header entirely when there is nothing to
   // show under it (no CTA link, no price data, not marked free) — forums
   // with no ticket price should not render a dangling, empty-looking title.
-  const hasPricingContent = !!(activeUrl || (showPricing && f?.hasPrices) || freePricing);
+  const hasPricingContent = !!(activeUrl || (showPricing && hasAnyValidPrice(f)) || freePricing);
   const headerHTML = hasPricingContent
     ? '\n<div class="st26-ph">  <div class="st26-ph-title">'+phTitle+'</div>  '+btnHTML+'</div>\n'
     : '';
@@ -3197,15 +3960,20 @@ addPerson('mods-wrap');
 addLogoCard('logo-org');
 addLogoCard('logo-coorg');
 addLogoCard('logo-sponsor');
+forumInitializationComplete = true;
+wireLiveReadiness();
+wireReadinessNavigation();
+wireReviewMap();
+activateReviewSection(activeReviewSection);
+updateReviewSectionStates();
+updateOutputFreshness();
+updateContinueWorkUI();
 
-// Restore saved provider & key
-const savedProvider = sessionStorage.getItem('st26_api_provider') || 'claude';
-if(savedProvider !== 'claude') {
-  const provBtn = document.getElementById('prov-'+savedProvider);
-  if(provBtn) setProvider(savedProvider, provBtn);
-}
-const savedKey = sessionStorage.getItem('st26_api_key_'+savedProvider);
-if(savedKey) document.getElementById('api-key-inp').value = savedKey;
+// vNext API keys are memory-only. Clear legacy session values without reading
+// or restoring them so a reload always requires a fresh operator entry.
+try {
+  ['st26_api_provider','st26_api_key_claude','st26_api_key_openai','st26_api_key_gemini'].forEach(key => sessionStorage.removeItem(key));
+} catch(e) {}
 </script>
 </body>
 </html>

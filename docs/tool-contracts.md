@@ -56,9 +56,9 @@ Every tool inside `tools/` must:
 | Primary input | Pavilion name, introduction, technical/application bullets, theme color, output language, vendor rows, booth numbers, URLs. |
 | Primary output | Vendor booth/card HTML for Drupal source. |
 | CSS scope | Output uses inline/CMS-safe styles and must not require external CSS from the tool UI. |
-| Storage | Work file should preserve pavilion settings, language, color, raw rows, parsed rows, validation state, and output mode. |
+| Storage | Work file should preserve pavilion settings, language, color, raw rows, parsed rows, validation state, output mode, and vendor order. Browser autosave supports same-browser recovery. Limited generated-HTML restore is a fallback only for this tool's own card structure. |
 | Drupal QA requirement | Paste output into Drupal source, confirm booth cards, vendor names, links, desktop two-column behavior, and mobile wrapping. |
-| Integration risks | Current local working copy has compact CMS source output that must be tested before publish. Messy vendor data can still require manual review. |
+| Integration risks | Current local working copy has compact CMS source output and v1.2 incremental workflow changes that must be tested before publish. Messy vendor data, duplicate warnings, and restored HTML can still require manual review. |
 
 ## Logo Prep Tool
 

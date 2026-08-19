@@ -36,7 +36,7 @@ Each sponsor should stay simple.
 
 | Field | Required | Main Screen | Notes |
 |---|---:|---:|---|
-| Tier | Yes | Yes | Strategic Partner, Platinum, Gold, Silver, Bronze. Render order is separate from tier identity. |
+| Tier | Yes | Yes | Strategic Partners, Platinum Sponsors, Gold Sponsors, Silver Sponsors, Bronze Sponsors. Render order is separate from tier identity. |
 | Name | Recommended | Yes | Used for identification and title attribute. |
 | Drupal image URL | Recommended | Yes | Primary source for published HTML; accepts a full URL or `/sites/default/files/...`. |
 | Temporary logo image | Optional | Yes | Base64 is for preview and legacy work files only; it is used in output only when no Drupal image URL exists. |

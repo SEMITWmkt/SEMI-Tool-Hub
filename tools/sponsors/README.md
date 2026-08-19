@@ -20,7 +20,7 @@
 
 ## 3. 使用流程
 
-1. 新增贊助商：選擇分級（Strategic Partner / Platinum / Gold / Silver / Bronze）、輸入名稱，優先貼入 Drupal 圖片網址；貼上或上傳的 Base64 圖片只作臨時預覽與舊資料相容。連結可留白，狀態會顯示 Check。
+1. 新增贊助商：選擇分級（Strategic Partners / Platinum Sponsors / Gold Sponsors / Silver Sponsors / Bronze Sponsors）、輸入名稱，優先貼入 Drupal 圖片網址；貼上或上傳的 Base64 圖片只作臨時預覽與舊資料相容。連結可留白，狀態會顯示 Check。
 2. 清單會自動標示狀態：
    - **Ready**：有 Logo、名稱不為空，可發布
    - **Missing**：缺 Logo 圖檔，無法正確發布

@@ -20,22 +20,23 @@
             <div class="flex justify-between items-end border-b pb-3">
                 <div>
                     <h2 class="text-xl font-bold text-slate-900">資料輸入設定 (編輯專用)</h2>
-                    <p id="draftStatus" class="text-xs text-slate-500 mt-1">v1.1 confidence workflow · Autosaved draft ready</p>
+                    <p id="draftStatus" class="text-xs text-slate-500 mt-1">尚未存檔</p>
                 </div>
-                <div class="flex flex-wrap justify-end gap-2">
-                    <button type="button" id="saveWorkFileBtn" class="text-xs font-semibold px-3 py-1.5 rounded border border-slate-300 hover:bg-slate-50">Save work file</button>
-                    <button type="button" id="loadWorkFileBtn" class="text-xs font-semibold px-3 py-1.5 rounded border border-slate-300 hover:bg-slate-50">Load work file</button>
+                <div class="flex flex-wrap items-center justify-end gap-2">
+                    <button type="button" id="saveWorkFileBtn" class="text-xs font-semibold px-3 py-1.5 rounded border border-slate-300 hover:bg-slate-50">儲存工作檔</button>
+                    <button type="button" id="loadWorkFileBtn" class="text-xs font-semibold px-3 py-1.5 rounded border border-slate-300 hover:bg-slate-50">讀取工作檔</button>
+                    <button type="button" id="restoreHtmlBtn" class="text-xs font-medium px-1 py-1.5 text-slate-500 underline decoration-slate-300 hover:text-slate-700">從 HTML 還原</button>
                     <input type="file" id="workFileInput" accept=".json" class="hidden">
                 </div>
             </div>
             
             <div class="grid grid-cols-2 gap-4">
                 <div class="col-span-2 sm:col-span-1">
-                    <label class="block text-sm font-semibold mb-1">1. 專區名稱</label>
+                    <label class="block text-sm font-semibold mb-1">專區名稱</label>
                     <input type="text" id="pavName" placeholder="例如：半導體封裝專區 / Packaging Pavilion" class="w-full p-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
                 </div>
                 <div class="col-span-2 sm:col-span-1">
-                    <label class="block text-sm font-semibold mb-1">輸出語系 (切換框架語言)</label>
+                    <label class="block text-sm font-semibold mb-1">輸出語系</label>
                     <select id="outputLang" class="w-full p-2 border border-slate-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
                         <option value="zh">中文 (自動使用中文名)</option>
                         <option value="en">English (自動使用英文名)</option>
@@ -44,18 +45,18 @@
             </div>
 
             <div>
-                <label class="block text-sm font-semibold mb-1">2. 專區簡介 (純文字貼上，無則留白)</label>
+                <label class="block text-sm font-semibold mb-1">專區簡介 <span class="font-normal text-xs text-slate-500">純文字貼上，無則留白</span></label>
                 <textarea id="introText" class="w-full h-20 p-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="輸入專區介紹... (系統會自動處理段落與加粗 SEMICON Taiwan 2026)"></textarea>
             </div>
 
             <div>
-                <label class="block text-sm font-semibold mb-1">3. 鎖定技術與應用 (一行一項，無則留白)</label>
+                <label class="block text-sm font-semibold mb-1">鎖定技術與應用 <span class="font-normal text-xs text-slate-500">一行一項，無則留白</span></label>
                 <textarea id="bulletPoints" class="w-full h-20 p-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="智慧工廠&#10;自動化控制系統..."></textarea>
             </div>
 
             <div class="grid grid-cols-2 gap-4 border-t pt-4">
                 <div>
-                    <label class="block text-sm font-semibold mb-1">4. 專區主題色碼 (HEX)</label>
+                    <label class="block text-sm font-semibold mb-1">專區主題色碼 <span class="font-normal text-xs text-slate-500">HEX</span></label>
                     <div class="flex items-center gap-3">
                         <input type="color" id="colorPicker" value="#673BB8" class="w-10 h-10 rounded cursor-pointer border-0 p-0">
                         <input type="text" id="colorHex" value="#673BB8" class="flex-1 p-2 border border-slate-300 rounded-lg font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none uppercase">
@@ -69,7 +70,7 @@
                     </div>
                 </div>
                 <div class="relative">
-                    <label class="block text-sm font-semibold mb-1">5. Excel 資料格式切換</label>
+                    <label class="block text-sm font-semibold mb-1">Excel 資料格式</label>
                     <select id="dataFormat" class="w-full p-2.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white">
                         <option value="standard">標準格式 (含中英文、攤位)</option>
                         <option value="country">國家館表單 (自動共用攤位)</option>
@@ -85,7 +86,7 @@
             <div class="flex-1 flex flex-col min-h-[150px]">
                 <div class="flex items-start justify-between gap-3 mb-1">
                     <div>
-                        <label class="block text-sm font-semibold">6. Excel 原始名單 (不需標題列)</label>
+                        <label class="block text-sm font-semibold">Excel 原始名單 <span class="font-normal text-xs text-slate-500">不需標題列</span></label>
                         <p id="formatHint" class="text-xs text-slate-500">預期順序：中文名 / 英文名 / 專區名 / 攤位號碼 / 網址</p>
                     </div>
                     <div class="flex flex-wrap justify-end gap-2">
@@ -111,7 +112,7 @@
                     </div>
                     <div class="flex items-center gap-2">
                         <button type="button" id="addVendorRowBtn" class="text-xs font-semibold px-3 py-1.5 rounded border border-slate-300 hover:bg-slate-50">新增單筆</button>
-                        <span id="readinessBadge" class="text-xs font-bold px-2.5 py-1 rounded-full bg-slate-200 text-slate-600">Not checked</span>
+                        <span id="readinessBadge" class="text-xs font-bold px-2.5 py-1 rounded-full bg-slate-200 text-slate-600">尚未檢查</span>
                     </div>
                 </div>
                 <div id="reviewTable" class="mt-3 max-h-44 overflow-auto hidden"></div>
@@ -185,6 +186,8 @@
         const WORKFILE_SCHEMA = 'semicon-pavilions-workfile-v1';
         const STORAGE_KEY = 'semicon_pavilions_state_v1';
         let parsedVendorItems = [];
+        let lastParsedRawData = '';
+        let rawInputChangedAfterParse = false;
 
         const sampleStandardData = [
             '先進封裝科技股份有限公司\tAdvanced Packaging Technology Co., Ltd.\tPackaging Pavilion\tN1001\thttps://www.example.com/advanced-packaging',
@@ -202,7 +205,7 @@
             return {
                 schema: WORKFILE_SCHEMA,
                 tool: 'Pavilions Vendor HTML Creator',
-                version: 'v1.1',
+                version: 'v1.2',
                 projectName: document.getElementById('pavName').value.trim() || 'SEMICON Taiwan Pavilion Vendors',
                 exportedAt: new Date().toISOString(),
                 data: {
@@ -229,9 +232,11 @@
             dataFormat.value = data.dataFormat || 'standard';
             document.getElementById('sharedBoothInput').value = data.sharedBooth || '';
             document.getElementById('rawData').value = data.rawData || '';
+            lastParsedRawData = data.rawData || '';
+            rawInputChangedAfterParse = false;
             parsedVendorItems = Array.isArray(data.parsedVendorItems) ? data.parsedVendorItems : [];
             syncFormatUi();
-            saveDraft('Loaded work file');
+            saveDraft('已讀取工作檔');
             if (parsedVendorItems.length) {
                 refreshVendorOutputFromParsed();
             } else if (data.rawData) {
@@ -239,7 +244,7 @@
             }
         }
 
-        function saveDraft(label = 'Autosaved draft') {
+        function saveDraft(label = '已自動存檔') {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(getWorkState()));
             draftStatus.textContent = `${label} · ${new Date().toLocaleString('zh-TW', { hour12: false })}`;
         }
@@ -249,14 +254,14 @@
             if (!raw) return;
             try {
                 applyWorkState(JSON.parse(raw));
-                draftStatus.textContent = 'Loaded autosaved draft';
+                draftStatus.textContent = '已載入自動存檔';
             } catch (error) {
                 console.warn('Unable to load pavilion draft', error);
             }
         }
 
         function exportWorkFile() {
-            saveDraft('Saved draft');
+            saveDraft('已儲存工作檔');
             const dataStr = JSON.stringify(getWorkState(), null, 2);
             const blob = new Blob([dataStr], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
@@ -305,8 +310,14 @@
                 .replace(/'/g, '&#39;');
         }
 
+        function decodeHtmlEntities(value) {
+            const textarea = document.createElement('textarea');
+            textarea.innerHTML = String(value || '');
+            return textarea.value;
+        }
+
         function cleanCell(value) {
-            return String(value || '')
+            return decodeHtmlEntities(String(value || ''))
                 .replace(/\u00A0/g, ' ')
                 .replace(/[，、]+$/g, '')
                 .trim();
@@ -343,7 +354,7 @@
             return text.split(/\s{2,}/).map(cleanCell);
         }
 
-        function normalizeKnownUrlTypo(url) {
+        function normalizeUrlInput(url) {
             let value = cleanCell(url)
                 .replace('http://http:www.cotec.com.tw', 'http://www.cotec.com.tw')
                 .replace(/[。；;，,]+$/g, '');
@@ -353,7 +364,10 @@
         }
 
         function isValidUrl(url) {
-            return /^https?:\/\/\S+/i.test(url);
+            const value = cleanCell(url);
+            if (/^https?:\/\/[^\s<>"']+$/i.test(value)) return true;
+            if (/^\/[A-Za-z0-9/_\-%.~:?#[\]@!$&()*+,;=]+$/.test(value)) return true;
+            return false;
         }
 
         function looksLikeUrl(value) {
@@ -364,6 +378,15 @@
         function looksLikeBooth(value) {
             const text = cleanCell(value);
             return /^[A-Z]?\d{2,}[A-Z0-9-]*$/i.test(text) || /^[A-Z]{1,4}-?\d{2,}$/i.test(text);
+        }
+
+        function normalizeDuplicateKey(value) {
+            return cleanCell(value)
+                .toLowerCase()
+                .replace(/&amp;/g, '&')
+                .replace(/\s+/g, ' ')
+                .replace(/[.,，。'’"“”()（）\-–—/／]/g, '')
+                .trim();
         }
 
         function isHeaderRow(line) {
@@ -497,15 +520,15 @@
                     }
                 }
 
-                url = normalizeKnownUrlTypo(url);
+                url = normalizeUrlInput(url);
                 const displayName = getDisplayName({ localName, engName }, outputLang);
 
                 if (!displayName) issues.push({ type: 'missing', text: '缺少可顯示的公司名稱' });
                 if (!booth) issues.push({ type: 'missing', text: '缺少攤位號碼' });
                 if (!url) {
-                    issues.push({ type: 'check', text: '缺少網址，輸出將使用 #' });
+                    issues.push({ type: 'check', text: '缺少網址，輸出將改為不可點擊文字' });
                 } else if (!isValidUrl(url)) {
-                    issues.push({ type: 'check', text: '網址格式需以 http:// 或 https:// 開頭，輸出將使用 #' });
+                    issues.push({ type: 'check', text: '網址格式需為 https/http 或 Drupal 相對路徑，輸出將改為不可點擊文字' });
                 }
 
                 parsedItems.push({
@@ -514,20 +537,50 @@
                     engName,
                     booth,
                     url,
-                    safeUrl: isValidUrl(url) ? url : '#',
+                    safeUrl: isValidUrl(url) ? url : '',
                     displayName,
                     issues,
                     canOutput: Boolean(displayName && booth)
                 });
             });
 
-            parsedItems.sort((a, b) => {
-                const aName = (a.engName || a.localName || '').toLowerCase();
-                const bName = (b.engName || b.localName || '').toLowerCase();
-                return aName.localeCompare(bName);
+            return applyDuplicateWarnings(parsedItems);
+        }
+
+        function applyDuplicateWarnings(items) {
+            const nameMap = new Map();
+            const urlMap = new Map();
+
+            items.forEach((item, index) => {
+                const nameKey = normalizeDuplicateKey(item.displayName || item.localName || item.engName);
+                const urlKey = normalizeDuplicateKey(item.url);
+                if (nameKey) {
+                    const bucket = nameMap.get(nameKey) || [];
+                    bucket.push(index);
+                    nameMap.set(nameKey, bucket);
+                }
+                if (urlKey) {
+                    const bucket = urlMap.get(urlKey) || [];
+                    bucket.push(index);
+                    urlMap.set(urlKey, bucket);
+                }
             });
 
-            return parsedItems;
+            const duplicateNames = new Set();
+            const duplicateUrls = new Set();
+            nameMap.forEach(indexes => {
+                if (indexes.length > 1) indexes.forEach(index => duplicateNames.add(index));
+            });
+            urlMap.forEach(indexes => {
+                if (indexes.length > 1) indexes.forEach(index => duplicateUrls.add(index));
+            });
+
+            return items.map((item, index) => {
+                const issues = (item.issues || []).filter(issue => issue.type !== 'duplicate');
+                if (duplicateNames.has(index)) issues.push({ type: 'duplicate', text: '可能重複公司名稱，請確認是否為不同廠商或雙語資料' });
+                if (duplicateUrls.has(index)) issues.push({ type: 'duplicate', text: '可能重複網址，請確認是否為同一廠商' });
+                return { ...item, issues };
+            });
         }
 
         function renderReadiness(parsedItems) {
@@ -535,26 +588,27 @@
             const outputCount = parsedItems.filter(item => item.canOutput).length;
             const missingCount = parsedItems.filter(item => item.issues.some(issue => issue.type === 'missing')).length;
             const checkCount = parsedItems.filter(item => item.issues.some(issue => issue.type === 'check')).length;
+            const duplicateCount = parsedItems.filter(item => item.issues.some(issue => issue.type === 'duplicate')).length;
 
             if (!total) {
                 readinessSummary.textContent = '未解析到資料列。請確認 Excel 內容是否已貼上。';
-                readinessBadge.textContent = 'Missing data';
+                readinessBadge.textContent = '缺少資料';
                 readinessBadge.className = 'text-xs font-bold px-2.5 py-1 rounded-full bg-red-100 text-red-700';
                 reviewTable.classList.add('hidden');
                 reviewTable.innerHTML = '';
                 return;
             }
 
-            readinessSummary.textContent = `${total} 列資料 · ${outputCount} 列可輸出 · ${missingCount} 列需修正 · ${checkCount} 列需確認`;
+            readinessSummary.textContent = `${total} 列資料 · ${outputCount} 列可輸出 · ${missingCount} 列需修正 · ${checkCount} 列需確認 · ${duplicateCount} 列疑似重複`;
 
             if (missingCount > 0) {
-                readinessBadge.textContent = 'Fix required';
+                readinessBadge.textContent = '需修正';
                 readinessBadge.className = 'text-xs font-bold px-2.5 py-1 rounded-full bg-red-100 text-red-700';
-            } else if (checkCount > 0) {
-                readinessBadge.textContent = 'Check links';
+            } else if (checkCount > 0 || duplicateCount > 0) {
+                readinessBadge.textContent = '待確認';
                 readinessBadge.className = 'text-xs font-bold px-2.5 py-1 rounded-full bg-amber-100 text-amber-700';
             } else {
-                readinessBadge.textContent = 'Ready';
+                readinessBadge.textContent = '可發布';
                 readinessBadge.className = 'text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700';
             }
         }
@@ -565,23 +619,29 @@
             const rows = parsedItems.map((item, index) => {
                 const hasMissing = item.issues.some(issue => issue.type === 'missing');
                 const hasCheck = item.issues.some(issue => issue.type === 'check');
-                const statusLabel = hasMissing ? 'Fix' : hasCheck ? 'Check' : 'Ready';
-                const statusClass = hasMissing ? 'text-red-700 bg-red-50' : hasCheck ? 'text-amber-700 bg-amber-50' : 'text-emerald-700 bg-emerald-50';
+                const hasDuplicate = item.issues.some(issue => issue.type === 'duplicate');
+                const statusLabel = hasMissing ? 'Fix' : (hasCheck || hasDuplicate) ? 'Check' : 'Ready';
+                const statusClass = hasMissing ? 'text-red-700 bg-red-50' : (hasCheck || hasDuplicate) ? 'text-amber-700 bg-amber-50' : 'text-emerald-700 bg-emerald-50';
                 const issueText = item.issues.length ? item.issues.map(issue => issue.text).join('；') : '可發布';
 
                 return `<tr class="border-t border-slate-200">
                     <td class="py-2 pr-3 text-xs text-slate-500 whitespace-nowrap">#${item.lineNumber}</td>
                     <td class="py-2 pr-3 text-xs font-semibold text-slate-800">
-                        <input class="w-full min-w-[160px] border border-slate-200 rounded px-2 py-1 text-xs" value="${escapeHtml(item.displayName || '')}" placeholder="公司名稱" onchange="updateParsedVendor(${index}, 'displayName', this.value)">
+                        <input class="w-full min-w-[160px] border border-slate-200 rounded px-2 py-1 text-xs" value="${escapeHtml(item.displayName || '')}" placeholder="公司名稱" data-index="${index}" data-field="displayName" onchange="updateParsedVendor(${index}, 'displayName', this.value)">
                     </td>
                     <td class="py-2 pr-3 text-xs font-mono text-slate-700 whitespace-nowrap">
-                        <input class="w-24 border border-slate-200 rounded px-2 py-1 text-xs font-mono" value="${escapeHtml(item.booth || '')}" placeholder="Booth" onchange="updateParsedVendor(${index}, 'booth', this.value)">
+                        <input class="w-24 border border-slate-200 rounded px-2 py-1 text-xs font-mono" value="${escapeHtml(item.booth || '')}" placeholder="Booth" data-index="${index}" data-field="booth" onchange="updateParsedVendor(${index}, 'booth', this.value)">
                     </td>
                     <td class="py-2 pr-3 text-xs">
-                        <input class="w-44 border border-slate-200 rounded px-2 py-1 text-xs" value="${escapeHtml(item.url || '')}" placeholder="https://..." onchange="updateParsedVendor(${index}, 'url', this.value)">
+                        <input class="w-44 border border-slate-200 rounded px-2 py-1 text-xs" value="${escapeHtml(item.url || '')}" placeholder="https://... 或 /zh/..." data-index="${index}" data-field="url" onchange="updateParsedVendor(${index}, 'url', this.value)">
                     </td>
                     <td class="py-2 pr-3 text-xs"><span class="px-2 py-0.5 rounded-full font-bold ${statusClass}">${statusLabel}</span></td>
-                    <td class="py-2 text-xs text-slate-600">${escapeHtml(issueText)}</td>
+                    <td class="py-2 pr-3 text-xs text-slate-600">${escapeHtml(issueText)}</td>
+                    <td class="py-2 text-xs whitespace-nowrap">
+                        <button type="button" class="px-2 py-1 border border-slate-200 rounded hover:bg-slate-50 disabled:opacity-40" ${index === 0 ? 'disabled' : ''} onclick="moveParsedVendor(${index}, -1)" title="上移">↑</button>
+                        <button type="button" class="px-2 py-1 border border-slate-200 rounded hover:bg-slate-50 disabled:opacity-40" ${index === parsedItems.length - 1 ? 'disabled' : ''} onclick="moveParsedVendor(${index}, 1)" title="下移">↓</button>
+                        <button type="button" class="px-2 py-1 border border-red-200 text-red-700 rounded hover:bg-red-50" onclick="deleteParsedVendor(${index})" title="刪除">刪除</button>
+                    </td>
                 </tr>`;
             }).join('');
 
@@ -593,7 +653,8 @@
                         <th class="pb-1 pr-3 font-semibold">攤位</th>
                         <th class="pb-1 pr-3 font-semibold">網址</th>
                         <th class="pb-1 pr-3 font-semibold">狀態</th>
-                        <th class="pb-1 font-semibold">檢查</th>
+                        <th class="pb-1 pr-3 font-semibold">檢查</th>
+                        <th class="pb-1 font-semibold">操作</th>
                     </tr>
                 </thead>
                 <tbody>${rows}</tbody>
@@ -643,13 +704,23 @@
                 const booth = escapeHtml(item.booth);
                 const href = escapeHtml(item.safeUrl);
                 const dynamicBoothPadding = outputLang === 'en' ? '0 10px' : '0 12px';
-
-                return `        <a style="align-items:stretch;border-radius:6px;border:2px solid ${hexColor};box-sizing:border-box;color:#333;display:flex;min-width:260px;overflow:hidden;text-decoration:none;width:calc(50% - 5px);" href="${href}" target="_blank" rel="noopener noreferrer">
-            <span style="align-items:center;background-color:${hexColor};color:#fff;display:flex;justify-content:center;min-width:68px;padding:${dynamicBoothPadding};white-space:nowrap;flex-shrink:0;">
+                const itemStyle = `align-items:stretch;border-radius:6px;border:2px solid ${hexColor};box-sizing:border-box;color:#333;display:flex;min-width:260px;overflow:hidden;text-decoration:none;width:calc(50% - 5px);`;
+                const boothHtml = `<span style="align-items:center;background-color:${hexColor};color:#fff;display:flex;justify-content:center;min-width:68px;padding:${dynamicBoothPadding};white-space:nowrap;flex-shrink:0;">
                 <span style="font-weight:700;font-size:16px;font-family:monospace;line-height:1.2;">${booth}</span>
-            </span>
-            <span style="align-items:center;display:flex;font-size:15px;font-weight:600;padding:12px 16px;">${displayCompanyName}</span>
+            </span>`;
+                const nameHtml = `<span style="align-items:center;display:flex;font-size:15px;font-weight:600;padding:12px 16px;">${displayCompanyName}</span>`;
+
+                if (href) {
+                    return `        <a style="${itemStyle}" href="${href}" target="_blank" rel="noopener noreferrer">
+            ${boothHtml}
+            ${nameHtml}
         </a>`;
+                }
+
+                return `        <span style="${itemStyle}" data-url-status="missing-or-invalid">
+            ${boothHtml}
+            ${nameHtml}
+        </span>`;
             });
 
             const blocksHtml = itemBlocks.join('\n\n');
@@ -664,14 +735,14 @@
             const issues = [];
             const displayName = cleanCell(item.displayName || getDisplayName(item, document.getElementById('outputLang').value));
             const booth = cleanCell(item.booth);
-            const url = normalizeKnownUrlTypo(item.url);
+            const url = normalizeUrlInput(item.url);
 
             if (!displayName) issues.push({ type: 'missing', text: '缺少可顯示的公司名稱' });
             if (!booth) issues.push({ type: 'missing', text: '缺少攤位號碼' });
             if (!url) {
-                issues.push({ type: 'check', text: '缺少網址，輸出將使用 #' });
+                issues.push({ type: 'check', text: '缺少網址，輸出將改為不可點擊文字' });
             } else if (!isValidUrl(url)) {
-                issues.push({ type: 'check', text: '網址格式需以 http:// 或 https:// 開頭，輸出將使用 #' });
+                issues.push({ type: 'check', text: '網址格式需為 https/http 或 Drupal 相對路徑，輸出將改為不可點擊文字' });
             }
 
             return {
@@ -679,14 +750,14 @@
                 displayName,
                 booth,
                 url,
-                safeUrl: isValidUrl(url) ? url : '#',
+                safeUrl: isValidUrl(url) ? url : '',
                 issues,
                 canOutput: Boolean(displayName && booth)
             };
         }
 
         function refreshVendorOutputFromParsed() {
-            parsedVendorItems = parsedVendorItems.map(normalizeParsedVendorItem);
+            parsedVendorItems = applyDuplicateWarnings(parsedVendorItems.map(normalizeParsedVendorItem));
             renderReadiness(parsedVendorItems);
             renderReviewTable(parsedVendorItems);
 
@@ -714,11 +785,33 @@
 
         function updateParsedVendor(index, field, value) {
             if (!parsedVendorItems[index]) return;
+            updateParsedVendorDraft(index, field, value);
+            refreshVendorOutputFromParsed();
+        }
+
+        function updateParsedVendorDraft(index, field, value) {
+            if (!parsedVendorItems[index]) return;
             parsedVendorItems[index][field] = value;
             if (field === 'displayName') {
                 parsedVendorItems[index].localName = value;
                 parsedVendorItems[index].engName = value;
             }
+        }
+
+        function moveParsedVendor(index, direction) {
+            const target = index + direction;
+            if (target < 0 || target >= parsedVendorItems.length) return;
+            const nextItems = [...parsedVendorItems];
+            const [item] = nextItems.splice(index, 1);
+            nextItems.splice(target, 0, item);
+            parsedVendorItems = nextItems;
+            refreshVendorOutputFromParsed();
+        }
+
+        function deleteParsedVendor(index) {
+            if (!parsedVendorItems[index]) return;
+            if (!window.confirm('確定要刪除這筆展商資料？')) return;
+            parsedVendorItems.splice(index, 1);
             refreshVendorOutputFromParsed();
         }
 
@@ -730,11 +823,75 @@
                 displayName: '',
                 booth: '',
                 url: '',
-                safeUrl: '#',
+                safeUrl: '',
                 issues: [],
                 canOutput: false
             }));
             refreshVendorOutputFromParsed();
+        }
+
+        function hasCurrentWork() {
+            return parsedVendorItems.length > 0
+                || Boolean(document.getElementById('rawData').value.trim())
+                || Boolean(outputHtml.value.trim())
+                || Boolean(document.getElementById('pavName').value.trim());
+        }
+
+        function confirmReplaceCurrentWork(actionLabel) {
+            if (!hasCurrentWork()) return true;
+            return window.confirm(`「${actionLabel}」會取代目前畫面上的工作資料。建議先按「儲存工作檔」備份；確定要繼續？`);
+        }
+
+        function restoreGeneratedHtml() {
+            if (!confirmReplaceCurrentWork('從 HTML 還原')) return;
+            const html = window.prompt('貼上由 Pavilions Vendor Creator 產生的 Drupal HTML。此功能只還原展商名稱、攤位、網址與順序。');
+            if (!html || !html.trim()) return;
+
+            const doc = new DOMParser().parseFromString(html, 'text/html');
+            const cards = Array.from(doc.querySelectorAll('a, span[data-url-status="missing-or-invalid"]'))
+                .filter(node => node.querySelectorAll('span').length >= 2);
+            const restored = [];
+            const skipped = [];
+
+            cards.forEach((node, index) => {
+                const spans = Array.from(node.querySelectorAll('span'));
+                const booth = cleanCell(spans[1]?.textContent || spans[0]?.textContent || '');
+                const displayName = cleanCell(spans[spans.length - 1]?.textContent || '');
+                const url = node.tagName.toLowerCase() === 'a' ? cleanCell(node.getAttribute('href') || '') : '';
+
+                if (!displayName || !booth) {
+                    skipped.push(index + 1);
+                    return;
+                }
+
+                restored.push({
+                    lineNumber: restored.length + 1,
+                    localName: displayName,
+                    engName: displayName,
+                    displayName,
+                    booth,
+                    url,
+                    safeUrl: isValidUrl(url) ? url : '',
+                    issues: [],
+                    canOutput: true
+                });
+            });
+
+            if (!restored.length) {
+                alert('還原失敗：沒有找到可還原的展商卡片。請改用「儲存工作檔 / 讀取工作檔」。');
+                return;
+            }
+
+            parsedVendorItems = restored;
+            document.getElementById('rawData').value = restored
+                .map(item => `${item.displayName}\t${item.displayName}\t\t${item.booth}\t${item.url}`)
+                .join('\n');
+            lastParsedRawData = document.getElementById('rawData').value.trim();
+            rawInputChangedAfterParse = false;
+            refreshVendorOutputFromParsed();
+            alert(skipped.length
+                ? `Partial restore: 已還原 ${restored.length} 筆，略過 ${skipped.length} 筆無法辨識的項目。`
+                : `Restore complete: 已還原 ${restored.length} 筆展商資料。`);
         }
 
         function generateHtml() {
@@ -752,14 +909,31 @@
                 outputHtml.value = '錯誤：請提供原始資料名單。';
                 previewContainer.innerHTML = `<div class="text-red-500 text-sm text-center mt-10">錯誤：請提供原始資料名單。</div>`;
                 readinessSummary.textContent = '缺少原始資料。請貼上 Excel 名單或載入範例資料。';
-                readinessBadge.textContent = 'Missing data';
+                readinessBadge.textContent = '缺少資料';
                 readinessBadge.className = 'text-xs font-bold px-2.5 py-1 rounded-full bg-red-100 text-red-700';
                 reviewTable.classList.add('hidden');
                 reviewTable.innerHTML = '';
                 return;
             }
 
+            if (parsedVendorItems.length && rawData !== lastParsedRawData) {
+                const shouldReparse = window.confirm('原始 Excel 名單已變更。重新解析會取代目前已編輯的展商清單；按「取消」會保留目前右側清單並只重新產生 HTML。');
+                if (!shouldReparse) {
+                    rawInputChangedAfterParse = true;
+                    refreshVendorOutputFromParsed();
+                    readinessSummary.textContent += ' · 原始名單已變更但尚未重新解析，目前使用右側編輯清單輸出';
+                    return;
+                }
+            }
+
+            if (parsedVendorItems.length && rawData === lastParsedRawData) {
+                refreshVendorOutputFromParsed();
+                return;
+            }
+
             parsedVendorItems = parseVendorRows(rawData, format, sharedBooth, outputLang).map(normalizeParsedVendorItem);
+            lastParsedRawData = rawData;
+            rawInputChangedAfterParse = false;
             renderReadiness(parsedVendorItems);
             renderReviewTable(parsedVendorItems);
 
@@ -778,6 +952,7 @@
         }
 
         sampleStandardBtn.addEventListener('click', () => {
+            if (!confirmReplaceCurrentWork('載入標準範例')) return;
             dataFormat.value = 'standard';
             syncFormatUi();
             document.getElementById('pavName').value = '半導體封裝專區';
@@ -789,6 +964,7 @@
         });
 
         sampleCountryBtn.addEventListener('click', () => {
+            if (!confirmReplaceCurrentWork('載入國家館範例')) return;
             dataFormat.value = 'country';
             syncFormatUi();
             document.getElementById('pavName').value = 'Japan Pavilion';
@@ -802,12 +978,22 @@
 
         document.getElementById('generateBtn').addEventListener('click', generateHtml);
         document.getElementById('addVendorRowBtn').addEventListener('click', addParsedVendorRow);
+        document.getElementById('restoreHtmlBtn').addEventListener('click', restoreGeneratedHtml);
+        reviewTable.addEventListener('input', (event) => {
+            const target = event.target;
+            if (!target.matches('input[data-index][data-field]')) return;
+            updateParsedVendorDraft(Number(target.dataset.index), target.dataset.field, target.value);
+        });
 
         document.getElementById('saveWorkFileBtn').addEventListener('click', exportWorkFile);
         document.getElementById('loadWorkFileBtn').addEventListener('click', () => document.getElementById('workFileInput').click());
         document.getElementById('workFileInput').addEventListener('change', (event) => {
             const file = event.target.files[0];
             if (!file) return;
+            if (!confirmReplaceCurrentWork('讀取工作檔')) {
+                event.target.value = '';
+                return;
+            }
             const reader = new FileReader();
             reader.onload = (readerEvent) => {
                 try {
@@ -823,7 +1009,14 @@
 
         ['pavName', 'outputLang', 'introText', 'bulletPoints', 'colorHex', 'dataFormat', 'sharedBoothInput', 'rawData'].forEach(id => {
             document.getElementById(id).addEventListener('change', () => {
-                if (parsedVendorItems.length && id !== 'rawData' && id !== 'dataFormat') {
+                if (id === 'rawData' && parsedVendorItems.length) {
+                    rawInputChangedAfterParse = document.getElementById('rawData').value.trim() !== lastParsedRawData;
+                    if (rawInputChangedAfterParse) {
+                        readinessSummary.textContent = '原始名單已變更但尚未重新解析。目前右側編輯清單仍是輸出來源；按「檢查並產生」時會詢問是否重新解析。';
+                        readinessBadge.textContent = '原始資料已變更';
+                        readinessBadge.className = 'text-xs font-bold px-2.5 py-1 rounded-full bg-amber-100 text-amber-700';
+                    }
+                } else if (parsedVendorItems.length && id !== 'dataFormat') {
                     refreshVendorOutputFromParsed();
                 } else {
                     saveDraft();

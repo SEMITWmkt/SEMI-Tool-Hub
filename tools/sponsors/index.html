@@ -133,6 +133,7 @@
   }
   .publish-state.ready { color: var(--ok); background: #ecfdf5; border-color: #bbf7d0; }
   .publish-state.attention { color: var(--warn); background: #fffbeb; border-color: #fde68a; }
+  .publish-state.blocked { color: var(--bad); background: #fef2f2; border-color: #fecaca; }
 
   .empty-state {
     display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -338,10 +339,6 @@
   }
   .mgmt-tier-select:focus { border-color: var(--primary); }
   
-  .mgmt-scale-ctrl { display: flex; align-items: center; gap: 5px; width: 100px; flex-shrink: 0;}
-  .mgmt-scale-ctrl input[type="range"] { flex-grow: 1; height: 4px; cursor: pointer; padding: 0; }
-  .mgmt-scale-ctrl span { font-size: 0.65rem; color: var(--primary); font-weight: bold; width: 30px; text-align: right;}
-
   .mgmt-actions { display: flex; flex-direction: column; gap: 5px; margin-left: 10px; flex-shrink: 0; justify-content: center; width: 60px;}
   .mgmt-actions-btn-group { display: flex; gap: 5px; width: 100%;}
   .btn-icon { flex: 1; background: #fff; color: #374151; padding: 4px 0; font-size: 0.8rem; border: 1px solid var(--border); cursor: pointer; font-weight: bold; text-align: center;}
@@ -440,7 +437,7 @@
           <div class="form-group" style="margin:0;"><label>銅級 (中文)</label><input type="text" id="t_bronze_zh" value="銅級贊助"></div>
           <div class="form-group" style="margin:0;"><label>Bronze (英文)</label><input type="text" id="t_bronze_en" value="Bronze Sponsors"></div>
           <div class="form-group" style="margin:0;"><label>策略合作夥伴 (中文)</label><input type="text" id="t_strategic_zh" value="策略合作夥伴"></div>
-          <div class="form-group" style="margin:0;"><label>Strategic Partner (英文)</label><input type="text" id="t_strategic_en" value="Strategic Partner"></div>
+          <div class="form-group" style="margin:0;"><label>Strategic Partners (英文)</label><input type="text" id="t_strategic_en" value="Strategic Partners"></div>
         </div>
       </div>
 
@@ -448,7 +445,7 @@
       <div class="form-group">
         <label>選擇級別 (Tier)</label>
         <select id="inputTier">
-          <option value="strategicPartner">Strategic Partner / 策略合作夥伴</option>
+          <option value="strategicPartner">Strategic Partners / 策略合作夥伴</option>
           <option value="platinum">Platinum / 白金級</option>
           <option value="gold">Gold / 黃金級</option>
           <option value="silver">Silver / 銀級</option>
@@ -596,7 +593,7 @@
         <div class="code-body">
           <div class="box-header" style="margin-bottom:8px;">
             <div class="toolbar-copy">預設收合，避免日常編修時被 raw HTML 佔滿畫面。</div>
-            <button class="btn-copy" onclick="copyCode('outputCodeZh')">複製中文 HTML</button>
+            <button class="btn-copy" id="copyZhBtn" onclick="copyCode('outputCodeZh')">複製中文 HTML</button>
           </div>
           <textarea id="outputCodeZh" readonly placeholder="請先新增資料..."></textarea>
         </div>
@@ -610,7 +607,7 @@
         <div class="code-body">
           <div class="box-header" style="margin-bottom:8px;">
             <div class="toolbar-copy">需要貼 Drupal 時再打開；平常先用預覽做最後確認。</div>
-            <button class="btn-copy" onclick="copyCode('outputCodeEn')">複製英文 HTML</button>
+            <button class="btn-copy" id="copyEnBtn" onclick="copyCode('outputCodeEn')">複製英文 HTML</button>
           </div>
           <textarea id="outputCodeEn" readonly placeholder="請先新增資料..."></textarea>
         </div>
@@ -677,8 +674,34 @@
     return /^https?:\/\/\S+/i.test(value) || /^\/sites\/default\/files\//i.test(value);
   }
 
+  // Percent-encoded data URI matching what makeSampleLogo() produces via
+  // `data:image/svg+xml;charset=UTF-8,` + encodeURIComponent(svg). Requires the
+  // payload to consist only of encodeURIComponent's unreserved characters or
+  // well-formed %HH escapes (rejecting `%ZZ`, `%`, `%2`, and raw unencoded text),
+  // and to contain at least one encoded `<`/`>` pair so arbitrary safe-character
+  // text like "not-a-percent-encoded-svg" (no escapes at all) is not mistaken
+  // for real encoded markup. No XML parsing or MIME sniffing is performed.
+  function isUsablePercentEncodedSvgDataUrl(value) {
+    const match = /^data:image\/svg\+xml(;charset=[a-z0-9-]+)?,(.+)$/i.exec(value);
+    if (!match) return false;
+    const payload = match[2];
+    if (!/^([a-z0-9\-_.!~*'()]|%[0-9a-f]{2})+$/i.test(payload)) return false;
+    return /%3c/i.test(payload) && /%3e/i.test(payload);
+  }
+
+  function isUsableImageDataUrl(value) {
+    const text = cleanText(value);
+    // Base64 image data URI (uploaded/pasted/cropped logos).
+    if (/^data:image\/[a-z0-9.+-]+;base64,[a-z0-9+/=]+$/i.test(text)) return true;
+    return isUsablePercentEncodedSvgDataUrl(text);
+  }
+
+  // Single canonical "usable logo source" used by publish-state evaluation,
+  // output filtering, and the actual <img src> emission, so they can never disagree.
   function getImageSrc(sponsor) {
-    return isImageUrl(sponsor.imageUrl || '') ? sponsor.imageUrl : sponsor.imageDataUrl || sponsor.image || '';
+    if (isImageUrl(sponsor.imageUrl || '')) return sponsor.imageUrl;
+    const legacy = sponsor.imageDataUrl || sponsor.image || '';
+    return isUsableImageDataUrl(legacy) ? legacy : '';
   }
 
   function hasLegacyImageOnly(sponsor) {
@@ -691,7 +714,14 @@
   }
 
   function isUsableUrl(value) {
-    return /^https?:\/\/\S+/i.test(cleanText(value));
+    const text = cleanText(value);
+    if (!/^https?:\/\/\S+/i.test(text)) return false;
+    try {
+      const parsed = new URL(text);
+      return (parsed.protocol === 'http:' || parsed.protocol === 'https:') && Boolean(parsed.hostname);
+    } catch (e) {
+      return false;
+    }
   }
 
   function looksLikeUrl(value) {
@@ -803,6 +833,7 @@
     document.getElementById('btnPreviewEn').classList.toggle('active', lang === 'en');
     document.getElementById('previewLangBadge').innerText = lang === 'zh' ? '中文版' : 'English';
     updatePreviewIframe();
+    updateStatusSummary();
   }
 
   function getSponsorDisplayName(sponsor) {
@@ -818,6 +849,18 @@
   // --- 本地存儲與匯出匯入 ---
   const STORAGE_KEY = 'semicon_sponsor_state_v5';
 
+  function serializeSponsors() {
+    return Object.fromEntries(getTierOrder().map(tier => [tier, (sponsors[tier] || []).map(s => ({
+      id: s.id,
+      companyName: s.companyName || '',
+      altText: s.altText || '',
+      imageUrl: s.imageUrl || '',
+      imageDataUrl: s.imageDataUrl || s.image || '',
+      linkUrl: s.linkUrl || s.link || '',
+      scale: s.scale
+    }))]));
+  }
+
   function getSaveDataObject() {
     return {
       schema: BACKUP_SCHEMA,
@@ -825,7 +868,7 @@
       version: TOOL_VERSION,
       projectName: document.getElementById('projectName').value.trim() || 'SEMICON Taiwan Sponsors',
       exportedAt: new Date().toISOString(),
-      sponsors: sponsors,
+      sponsors: serializeSponsors(),
       tierOrder: getTierOrder(),
       titles: {
         plat_zh: document.getElementById('t_plat_zh').value, plat_en: document.getElementById('t_plat_en').value,
@@ -863,7 +906,7 @@
           })(),
           imageDataUrl: s.imageDataUrl || s.image || '',
           linkUrl: normalizeUrl(s.linkUrl || s.link || ''),
-          scale: s.scale === undefined ? 100 : s.scale
+          scale: s.scale
         }));
       }
       sponsors = normalizedSponsors;
@@ -879,7 +922,10 @@
       document.getElementById('t_bronze_zh').value = parsed.titles.bronze_zh || '銅級贊助';
       document.getElementById('t_bronze_en').value = parsed.titles.bronze_en || 'Bronze Sponsors';
       document.getElementById('t_strategic_zh').value = parsed.titles.strategic_zh || parsed.titles.spec_zh || '策略合作夥伴';
-      document.getElementById('t_strategic_en').value = parsed.titles.strategic_en || parsed.titles.spec_en || 'Strategic Partner';
+      const importedStrategicEn = parsed.titles.strategic_en || parsed.titles.spec_en || '';
+      document.getElementById('t_strategic_en').value = /^(official\s+)?strategic\s+partner(s)?$/i.test(importedStrategicEn)
+        ? 'Strategic Partners'
+        : importedStrategicEn || 'Strategic Partners';
     }
     setRestoreImportSummary('');
     updateSystem();
@@ -958,16 +1004,120 @@
     return counts;
   }
 
+  function targetName(target) { return target === 'en' ? '英文' : '中文'; }
+
+  // Same tier-title lookup used by both the readiness evaluator and the output
+  // builder, so they can never read different values for the same tier/language.
+  function getTierTitles() {
+    return {
+      platinum: { zh: document.getElementById('t_plat_zh').value, en: document.getElementById('t_plat_en').value },
+      gold: { zh: document.getElementById('t_gold_zh').value, en: document.getElementById('t_gold_en').value },
+      silver: { zh: document.getElementById('t_silv_zh').value, en: document.getElementById('t_silv_en').value },
+      bronze: { zh: document.getElementById('t_bronze_zh').value, en: document.getElementById('t_bronze_en').value },
+      strategicPartner: { zh: document.getElementById('t_strategic_zh').value, en: document.getElementById('t_strategic_en').value }
+    };
+  }
+
+  // Publish readiness: a row without a usable logo produces no card at all
+  // (generateBilingualHTML already filters on getImageSrc), so it is a WARNING,
+  // never a blocker on its own. The only per-sponsor BLOCKED-worthy case doesn't
+  // exist; blocking only happens at the aggregate level (see getPublishIssues).
+  // Link/base64/logo checks reuse the exact predicates generateBilingualHTML
+  // already uses to decide clickable vs static output and image src.
+  function getSponsorPublishIssues(tier, index, sponsor) {
+    const issues = [];
+    const name = getSponsorDisplayName(sponsor);
+    const addIssue = (code, message) => issues.push({ severity: 'warning', tier, index, sponsorId: sponsor.id, code, message });
+    if (!getImageSrc(sponsor)) {
+      addIssue('missing-logo', `${name}：缺 Logo 圖片，此筆不會出現在輸出結果中`);
+      return issues;
+    }
+    if (hasLegacyImageOnly(sponsor)) {
+      addIssue('legacy-base64-image', `${name}：目前使用暫存圖片（Base64），建議改填 Drupal 圖片網址`);
+    }
+    const hasName = sponsor.companyName && sponsor.companyName.trim() && sponsor.companyName.trim() !== '未命名廠商';
+    if (!hasName) {
+      addIssue('missing-name', `${name}：尚未填公司名稱，輸出時將使用預設標示`);
+    }
+    const rawLink = cleanText(sponsor.linkUrl);
+    if (!rawLink) {
+      addIssue('missing-link', `${name}：尚未填連結，將輸出為不可點擊項目`);
+    } else if (!isUsableUrl(normalizeUrl(rawLink))) {
+      addIssue('invalid-link', `${name}：網址格式無效，將輸出為不可點擊項目`);
+    }
+    return issues;
+  }
+
+  // Row-level (logo/link/name) issues are language-independent and always
+  // included. Tier-title issues are the only target-specific layer: a tier is
+  // only required to have a non-empty title in `target` if it actually has at
+  // least one publishable sponsor in it (an unused empty tier never blocks).
+  function getPublishIssues(target) {
+    target = target === 'en' ? 'en' : 'zh';
+    const issues = [];
+    let publishableCount = 0;
+    const titles = getTierTitles();
+    getTierOrder().forEach(tier => {
+      const list = sponsors[tier] || [];
+      let tierPublishable = false;
+      list.forEach((s, index) => {
+        if (getImageSrc(s)) { publishableCount += 1; tierPublishable = true; }
+        issues.push(...getSponsorPublishIssues(tier, index, s));
+      });
+      if (tierPublishable) {
+        const titleText = cleanText(titles[tier] && titles[tier][target]);
+        if (!titleText) {
+          issues.push({ severity: 'blocked', tier, index: null, sponsorId: null, code: 'missing-tier-title', message: `此級距已有可輸出的贊助商，但缺少${targetName(target)}標題文字` });
+        }
+      }
+    });
+    if (!publishableCount) {
+      issues.push({ severity: 'blocked', tier: null, index: null, sponsorId: null, code: 'no-publishable-sponsor', message: '目前沒有可輸出的贊助商（至少需要一筆已補上 Logo 的項目）' });
+    }
+    return issues;
+  }
+
+  function getPublishState(target) {
+    target = target === 'en' ? 'en' : 'zh';
+    const issues = getPublishIssues(target);
+    const blockers = issues.filter(issue => issue.severity === 'blocked');
+    const warnings = issues.filter(issue => issue.severity === 'warning');
+    return { target, issues, blockers, warnings, state: blockers.length ? 'blocked' : warnings.length ? 'warning' : 'ready' };
+  }
+
+  function updateCopyButtons(zhState, enState) {
+    const buttons = [
+      { el: document.getElementById('copyZhBtn'), state: zhState, readyLabel: '複製中文 HTML', warningLabel: n => `複製中文 HTML（${n} 項提醒）`, blockedLabel: '尚無法複製', blockedTitle: '發布阻擋尚未修正，無法複製。' },
+      { el: document.getElementById('copyEnBtn'), state: enState, readyLabel: '複製英文 HTML', warningLabel: n => `複製英文 HTML（${n} 項提醒）`, blockedLabel: '尚無法複製', blockedTitle: '發布阻擋尚未修正，無法複製。' }
+    ];
+    buttons.forEach(({ el, state, readyLabel, warningLabel, blockedLabel, blockedTitle }) => {
+      if (!el) return;
+      el.disabled = state.state === 'blocked';
+      el.title = state.state === 'blocked' ? blockedTitle : '';
+      el.textContent = state.state === 'blocked' ? blockedLabel
+        : state.state === 'warning' ? warningLabel(state.warnings.length)
+        : readyLabel;
+    });
+  }
+
   function updateStatusSummary() {
     const counts = getSponsorCounts();
     const summary = document.querySelector('#statusSummary .summary-main');
     const sub = document.querySelector('#statusSummary .summary-sub');
-    const publishState = document.getElementById('publishState');
+    const publishStateEl = document.getElementById('publishState');
     summary.innerText = `${counts.total} logos · ${counts.ready} ready · ${counts.missing} missing · ${counts.check} check`;
     sub.innerText = counts.total ? '目前輸出清單狀態' : '先加入第一個 Logo，或載入示範資料了解輸出效果';
-    const needsAttention = counts.total === 0 || counts.missing > 0 || counts.check > 0;
-    publishState.className = `publish-state ${needsAttention ? 'attention' : 'ready'}`;
-    publishState.innerText = needsAttention ? 'Needs attention' : 'Ready to publish';
+    const zhState = getPublishState('zh');
+    const enState = getPublishState('en');
+    // The single top-of-page badge reflects whichever language is currently
+    // previewed; each copy button independently reflects its own language,
+    // since a tier-title issue can legitimately differ between ZH and EN.
+    const activeState = currentPreviewLang === 'en' ? enState : zhState;
+    publishStateEl.className = `publish-state ${activeState.state === 'ready' ? 'ready' : activeState.state === 'blocked' ? 'blocked' : 'attention'}`;
+    publishStateEl.innerText = activeState.state === 'ready' ? 'Ready to publish'
+      : activeState.state === 'blocked' ? `Blocked · ${activeState.blockers.length} issue${activeState.blockers.length === 1 ? '' : 's'}`
+      : `Needs attention · ${activeState.warnings.length} warning${activeState.warnings.length === 1 ? '' : 's'}`;
+    updateCopyButtons(zhState, enState);
     updateFilterLabels(counts);
   }
 
@@ -1021,16 +1171,16 @@
     tierOrder = [...DEFAULT_TIER_ORDER];
     sponsors = {
       platinum: [
-        { id: 'sample-platinum-1', companyName: 'Aurora Semi', altText: 'Aurora Semi', imageUrl: '', imageDataUrl: makeSampleLogo('AURORA', '#800080'), linkUrl: 'https://example.com/aurora', scale: 100 }
+        { id: 'sample-platinum-1', companyName: 'Aurora Semi', altText: 'Aurora Semi', imageUrl: '', imageDataUrl: makeSampleLogo('AURORA', '#800080'), linkUrl: 'https://example.com/aurora' }
       ],
       gold: [
-        { id: 'sample-gold-1', companyName: 'Nova Systems', altText: 'Nova Systems', imageUrl: '', imageDataUrl: makeSampleLogo('NOVA', '#b7791f'), linkUrl: '', scale: 95 },
-        { id: 'sample-gold-2', companyName: 'Vector Fab', altText: 'Vector Fab', imageUrl: '', imageDataUrl: makeSampleLogo('VECTOR', '#2563eb'), linkUrl: 'https://example.com/vector', scale: 100 }
+        { id: 'sample-gold-1', companyName: 'Nova Systems', altText: 'Nova Systems', imageUrl: '', imageDataUrl: makeSampleLogo('NOVA', '#b7791f'), linkUrl: '' },
+        { id: 'sample-gold-2', companyName: 'Vector Fab', altText: 'Vector Fab', imageUrl: '', imageDataUrl: makeSampleLogo('VECTOR', '#2563eb'), linkUrl: 'https://example.com/vector' }
       ],
       silver: [],
       bronze: [],
       strategicPartner: [
-        { id: 'sample-strategic-partner-1', companyName: 'Strategic Partner', altText: 'Strategic Partner', imageUrl: '', imageDataUrl: makeSampleLogo('PARTNER', '#047857'), linkUrl: 'https://example.com/partner', scale: 90 }
+        { id: 'sample-strategic-partner-1', companyName: 'Strategic Partners', altText: 'Strategic Partners', imageUrl: '', imageDataUrl: makeSampleLogo('PARTNER', '#047857'), linkUrl: 'https://example.com/partner' }
       ]
     };
     document.getElementById('sampleNote').classList.add('show');
@@ -1183,7 +1333,7 @@
     if (imageUrl && !isImageUrl(imageUrl)) { alert("Drupal 圖片網址格式需為完整 https:// URL 或 /sites/default/files/... 路徑。"); return; }
 
     const id = Date.now().toString();
-    sponsors[tier].push({ id, companyName: name, altText, imageUrl, imageDataUrl, linkUrl: link, scale: 100 });
+    sponsors[tier].push({ id, companyName: name, altText, imageUrl, imageDataUrl, linkUrl: link });
     document.getElementById('sampleNote').classList.remove('show');
 
     document.getElementById('inputName').value = '';
@@ -1227,8 +1377,7 @@
         altText: '',
         imageUrl: '',
         imageDataUrl: '',
-        linkUrl: link,
-        scale: 100
+        linkUrl: link
       });
       added += 1;
     });
@@ -1254,14 +1403,6 @@
     return text;
   }
 
-  function parseScalePercent(styleText) {
-    const match = String(styleText || '').match(/scale\(([\d.]+)\)/i);
-    if (!match) return 100;
-    const value = Math.round(parseFloat(match[1]) * 100);
-    if (!Number.isFinite(value)) return 100;
-    return Math.min(150, Math.max(50, value));
-  }
-
   function collectImportedSponsorsFromElements(elements, fallbackTier, bucket) {
     elements.forEach((element, idx) => {
       const img = element.matches('img') ? element : element.querySelector('img');
@@ -1277,15 +1418,13 @@
         || `Imported sponsor ${idx + 1}`
       );
       const linkUrl = normalizeUrl(closestLink ? closestLink.getAttribute('href') : '');
-      const scale = parseScalePercent(img.getAttribute('style'));
       bucket[tier].push({
         id: `imported-${Date.now()}-${Math.random().toString(36).slice(2)}`,
         companyName: name,
         altText: name,
         imageUrl: imageSrc.startsWith('data:image/') ? '' : imageSrc,
         imageDataUrl: imageSrc.startsWith('data:image/') ? imageSrc : '',
-        linkUrl,
-        scale
+        linkUrl
       });
     });
   }
@@ -1475,14 +1614,6 @@
     }
   }
 
-  // --- 核心：行內更新網址與比例 ---
-  function updateSponsorScale(tier, index, val) {
-    sponsors[tier][index].scale = parseInt(val);
-    document.getElementById(`scale-val-${tier}-${index}`).innerText = val + '%';
-    generateBilingualHTML();
-    saveData();
-  }
-
   function updateSponsorLink(tier, index, val) {
     sponsors[tier][index].linkUrl = normalizeUrl(val);
     updateSystem();
@@ -1598,7 +1729,7 @@
           : `<div class="mgmt-thumb" style="display:flex;align-items:center;justify-content:center;color:#b91c1c;font-size:.65rem;font-weight:900;">No logo</div>`;
         const tierSelect = `
           <select class="mgmt-tier-select" onchange="updateSponsorTier('${tier}', ${index}, this.value)" title="更改贊助級別">
-            <option value="strategicPartner" ${tier === 'strategicPartner' ? 'selected' : ''}>Strategic Partner</option>
+            <option value="strategicPartner" ${tier === 'strategicPartner' ? 'selected' : ''}>Strategic Partners</option>
             <option value="platinum" ${tier === 'platinum' ? 'selected' : ''}>Platinum Sponsors</option>
             <option value="gold" ${tier === 'gold' ? 'selected' : ''}>Gold Sponsors</option>
             <option value="silver" ${tier === 'silver' ? 'selected' : ''}>Silver Sponsors</option>
@@ -1620,10 +1751,6 @@
               
               <div class="mgmt-inline-ctrl">
                 <input type="text" value="${escapeAttr(safeLink)}" placeholder="未填連結(點此補上)" onchange="updateSponsorLink('${tier}', ${index}, this.value)" title="隨時更新網址，離開輸入框即自動存檔">
-                <div class="mgmt-scale-ctrl">
-                  <input type="range" min="50" max="150" value="${s.scale}" oninput="updateSponsorScale('${tier}', ${index}, this.value)" title="即時視覺校準">
-                  <span id="scale-val-${tier}-${index}">${s.scale}%</span>
-                </div>
               </div>
 
             </div>
@@ -1658,13 +1785,7 @@
   }
 
   function generateBilingualHTML() {
-    const titles = {
-      platinum: { zh: document.getElementById('t_plat_zh').value, en: document.getElementById('t_plat_en').value },
-      gold: { zh: document.getElementById('t_gold_zh').value, en: document.getElementById('t_gold_en').value },
-      silver: { zh: document.getElementById('t_silv_zh').value, en: document.getElementById('t_silv_en').value },
-      bronze: { zh: document.getElementById('t_bronze_zh').value, en: document.getElementById('t_bronze_en').value },
-      strategicPartner: { zh: document.getElementById('t_strategic_zh').value, en: document.getElementById('t_strategic_en').value }
-    };
+    const titles = getTierTitles();
 
     let hasData = false;
     for (let t in sponsors) { if (sponsors[t].some(s => getImageSrc(s))) hasData = true; }
@@ -1689,7 +1810,7 @@
   
   .sp-card {
     display: flex; align-items: center; justify-content: center; background: transparent; 
-    min-height: 100px; padding: 12px; position: relative;
+    min-width: 0; height: 110px; padding: 12px 16px; position: relative;
     overflow: hidden; 
   }
   
@@ -1699,11 +1820,25 @@
     transform: translateY(-2px); 
   }
   
-  .sp-card img { max-width: 100%; max-height: 90px; width: auto; height: auto; object-fit: contain; }
+  .sp-card img { display: block; width: auto; height: auto; max-width: 100%; max-height: 86px; object-fit: contain; }
 
   @media (max-width: 1100px) { .sp-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
   @media (max-width: 900px) { .sp-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-  @media (max-width: 600px) { .sp-grid { grid-template-columns: 1fr; gap: 18px; } .sp-card { min-height: 100px; } }
+  @media (max-width: 600px) {
+    .sp-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 14px; }
+    .sp-tier[data-tier-key="strategic_partner"] .sp-grid,
+    .sp-tier[data-tier-key="platinum"] .sp-grid { grid-template-columns: 1fr; }
+    .sp-tier[data-tier-key="strategic_partner"] .sp-card,
+    .sp-tier[data-tier-key="platinum"] .sp-card { height: 130px; padding: 16px 24px; }
+    .sp-tier[data-tier-key="strategic_partner"] .sp-card img,
+    .sp-tier[data-tier-key="platinum"] .sp-card img { max-width: min(100%, 460px); max-height: 100px; }
+    .sp-tier[data-tier-key="gold"] .sp-card,
+    .sp-tier[data-tier-key="silver"] .sp-card,
+    .sp-tier[data-tier-key="bronze"] .sp-card { height: 105px; padding: 10px; }
+    .sp-tier[data-tier-key="gold"] .sp-card img,
+    .sp-tier[data-tier-key="silver"] .sp-card img,
+    .sp-tier[data-tier-key="bronze"] .sp-card img { max-width: 100%; max-height: 76px; }
+  }
 </style>
 `;
 
@@ -1725,8 +1860,6 @@
           publishableSponsors.forEach(s => {
             const normalizedLink = normalizeUrl(s.linkUrl);
             const hasLink = normalizedLink && isUsableUrl(normalizedLink);
-            const scaleFactor = (s.scale || 100) / 100; 
-            const scaleStyle = scaleFactor !== 1 ? ` style="transform: scale(${scaleFactor});"` : '';
             const sponsorName = escapeAttr(s.altText || s.companyName || 'Sponsor');
             const imageSrc = getImageSrc(s);
 
@@ -1736,7 +1869,7 @@
               html += `      <div class="sp-card" title="${sponsorName}">\n`;
             }
             
-            html += `        <img src="${escapeAttr(imageSrc)}" alt="${sponsorName}"${scaleStyle}>\n`;
+            html += `        <img src="${escapeAttr(imageSrc)}" alt="${sponsorName}">\n`;
             
             if (hasLink) html += `      </a>\n`; else html += `      </div>\n`;
           });
@@ -1775,7 +1908,9 @@
   function copyCode(elementId) {
     const code = document.getElementById(elementId).value;
     if (!code) { alert("請先新增贊助商！"); return; }
-    
+    const target = elementId === 'outputCodeEn' ? 'en' : 'zh';
+    if (getPublishState(target).state === 'blocked') { updateStatusSummary(); return; }
+
     const textArea = document.getElementById(elementId);
     textArea.select();
     document.execCommand('copy');

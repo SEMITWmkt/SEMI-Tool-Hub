@@ -1,3 +1,27 @@
 .DS_Store
 **/.DS_Store
 
+# 論壇 logo 抓取／審核的工作產物（約 63MB，非交付內容，勿進版控）
+forums-raw/
+forums-updated/
+forums-assets/
+
+# 一次性稽核與抽取腳本的輸出
+audit-report.txt
+audit-report-updated.txt
+forum-raw-audit.csv
+forum-raw-audit.md
+audit-forums.js
+map-links.json
+*.inspect.ndjson
+
+# 從 Drupal 抓下來的中繼 HTML／純文字暫存
+st26-fixed.html
+st26-fixed-copy.txt
+st26-zh-fixed.html
+st26-zh-fixed-copy.txt
+
+# 來源名單與 logo 原檔（由承辦人各自保管，不隨 repo 散布）
+*.xlsx
+*.csv
+L1330_*.png

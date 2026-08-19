@@ -725,12 +725,16 @@ function themeSearchText(t,i){
   return `${themeLabel(i)} ${t.title_zh || ''} ${t.title_en || ''} ${t.sub_zh || ''} ${t.sub_en || ''} ${t.desc_zh || ''} ${t.desc_en || ''} ${groupLabels} ${rows}`.toLowerCase();
 }
 
-function itemUrl(item, lang){
+function rawItemUrl(item, lang){
   if(!item)return '';
-  return (lang === 'zh'
+  return String(lang === 'zh'
     ? (item.url_zh || item.url || '')
     : (item.url_en || item.url || '')
   ).trim();
+}
+
+function itemUrl(item, lang){
+  return normalizeUrl(rawItemUrl(item, lang));
 }
 
 function inferEnglishUrl(url){
@@ -834,35 +838,66 @@ function themeForums(theme){
   return themeGroups(theme).flatMap(group => group.forums || []);
 }
 
-function addIssue(issues, themeIndex, message, meta, severity='error'){
-  issues.push({themeIndex, message, meta, severity});
+function addIssue(issues, themeIndex, message, meta, severity, target, code){
+  issues.push({themeIndex, message, meta, severity, target, code});
 }
 
-function checkContentRows(issues, t, themeIndex, key, label){
-  const groups = themeGroups(t);
+function targetName(target){return target === 'en' ? '英文' : '中文';}
+
+// Publish checks deliberately read the current model without normalizing or
+// changing it. The output builder keeps its existing normalization path.
+function publishGroups(theme){
+  if(Array.isArray(theme.groups) && theme.groups.length)return theme.groups;
+  return [{
+    label_zh: theme.label_zh || '',
+    label_en: theme.label_en || '',
+    showZone: theme.showZone !== false,
+    showForum: theme.showForum !== false,
+    zones: theme.zones || [],
+    forums: theme.forums || []
+  }];
+}
+
+function hasMeaningfulThemeContent(theme){
+  const hasText = value => String(value || '').trim().length > 0;
+  if(hasText(theme.title_zh) || hasText(theme.title_en) || hasText(theme.sub_zh) || hasText(theme.sub_en) || hasText(theme.desc_zh) || hasText(theme.desc_en))return true;
+  return publishGroups(theme).some(group =>
+    hasText(group.label_zh) || hasText(group.label_en) ||
+    (group.zones || []).some(item => hasText(item.zh) || hasText(item.en) || hasText(rawItemUrl(item, 'zh')) || hasText(rawItemUrl(item, 'en'))) ||
+    (group.forums || []).some(item => hasText(item.zh) || hasText(item.en) || hasText(rawItemUrl(item, 'zh')) || hasText(rawItemUrl(item, 'en')))
+  );
+}
+
+function checkContentRows(issues, theme, themeIndex, key, label, target){
+  const groups = publishGroups(theme);
+  const language = targetName(target);
   groups.forEach((group, groupIndex)=>{
     const rows = group[key] || [];
+    const isVisible = group[key === 'zones' ? 'showZone' : 'showForum'] !== false;
     const groupName = group.label_zh || group.label_en || (groups.length > 1 ? `群組 ${groupIndex + 1}` : '');
     const rowPrefix = groupName ? `${groupName} - ${label}` : label;
-    if(group[key === 'zones' ? 'showZone' : 'showForum'] && rows.length === 0){
-      addIssue(issues, themeIndex, `${rowPrefix}已顯示，但沒有資料列`, rowPrefix, 'warn');
+    const usableRows = rows.filter(item => String((target === 'zh' ? item.zh : item.en) || '').trim());
+    if(isVisible && !usableRows.length){
+      addIssue(issues, themeIndex, `${rowPrefix}已顯示，但沒有可用的${language}資料列`, rowPrefix, 'warning', target, 'visible-section-empty');
     }
     rows.forEach((item,j)=>{
       const rowMeta = `${rowPrefix} ${j+1}`;
-      const zhUrl = itemUrl(item, 'zh');
-      const enUrl = itemUrl(item, 'en');
-      const hasAny = !!((item.zh || '').trim() || (item.en || '').trim() || zhUrl || enUrl);
+      const text = String((target === 'zh' ? item.zh : item.en) || '').trim();
+      const rawUrl = rawItemUrl(item, target);
+      const url = normalizeUrl(rawUrl);
+      const hasAny = !!(String(item.zh || '').trim() || String(item.en || '').trim() || rawItemUrl(item, 'zh') || rawItemUrl(item, 'en'));
       if(!hasAny){
-        addIssue(issues, themeIndex, `${rowMeta} 是空白列`, rowMeta);
+        addIssue(issues, themeIndex, `${rowMeta} 是空白列`, rowMeta, 'warning', target, 'empty-row');
         return;
       }
-      if(!(item.zh || '').trim())addIssue(issues, themeIndex, `${rowMeta} 缺中文名稱`, rowMeta);
-      if(!(item.en || '').trim())addIssue(issues, themeIndex, `${rowMeta} 缺英文名稱`, rowMeta);
-      if((item.zh || '').trim() && !zhUrl){
-        addIssue(issues, themeIndex, `${rowMeta} 缺中文 URL`, rowMeta);
+      if(!text){
+        addIssue(issues, themeIndex, `${rowMeta} 缺${language}名稱`, rowMeta, 'warning', target, 'missing-target-label');
+        return;
       }
-      if((item.en || '').trim() && !enUrl){
-        addIssue(issues, themeIndex, `${rowMeta} 缺英文 URL`, rowMeta);
+      if(rawUrl && !url){
+        addIssue(issues, themeIndex, `${rowMeta} ${language} URL 格式無效（僅支援 https/http、www. 或 Drupal / 相對路徑）`, rowMeta, 'warning', target, 'invalid-url');
+      }else if(!url){
+        addIssue(issues, themeIndex, `${rowMeta} 缺${language} URL`, rowMeta, 'warning', target, 'missing-url');
       }
     });
   });
@@ -910,17 +945,32 @@ function replaceThemeGroups(theme, groups){
   return true;
 }
 
-function getPublishIssues(){
+function getPublishIssues(target=prevLang){
+  target = target === 'en' ? 'en' : 'zh';
   const issues = [];
+  let publishableThemes = 0;
+  const language = targetName(target);
   themes.forEach((t,i)=>{
-    if(!(t.title_zh || '').trim())addIssue(issues, i, '缺中文主標題', '主題文字');
-    if(!(t.title_en || '').trim())addIssue(issues, i, '缺英文主標題', 'Title');
-    if(!(t.sub_zh || '').trim())addIssue(issues, i, '缺中文副標題', '主題文字');
-    if(!(t.sub_en || '').trim())addIssue(issues, i, '缺英文副標題', 'Subtitle');
-    checkContentRows(issues, t, i, 'zones', '展區');
-    checkContentRows(issues, t, i, 'forums', '論壇');
+    if(!hasMeaningfulThemeContent(t))return;
+    const title = String((target === 'zh' ? t.title_zh : t.title_en) || '').trim();
+    const subtitle = String((target === 'zh' ? t.sub_zh : t.sub_en) || '').trim();
+    if(!title)addIssue(issues, i, `缺${language}主標題`, '主題文字', 'blocked', target, 'missing-title');
+    if(!subtitle)addIssue(issues, i, `缺${language}副標題`, '主題文字', 'blocked', target, 'missing-subtitle');
+    if(title && subtitle)publishableThemes++;
+    checkContentRows(issues, t, i, 'zones', '展區', target);
+    checkContentRows(issues, t, i, 'forums', '論壇', target);
   });
+  if(!publishableThemes){
+    addIssue(issues, null, `沒有可發布的${language}主題（使用中的主題需要主標題與副標題）`, '發布範圍', 'blocked', target, 'no-publishable-theme');
+  }
   return issues;
+}
+
+function getPublishState(target=prevLang){
+  const issues = getPublishIssues(target);
+  const blockers = issues.filter(issue=>issue.severity === 'blocked');
+  const warnings = issues.filter(issue=>issue.severity === 'warning');
+  return {target: target === 'en' ? 'en' : 'zh', issues, blockers, warnings, state: blockers.length ? 'blocked' : warnings.length ? 'warning' : 'ready'};
 }
 
 function shouldRenderTheme(t,i,term,issues){
@@ -1004,32 +1054,33 @@ function jumpToIssue(i){
   renderDetailPanel();
 }
 
-function renderPublishIssues(issues){
+function renderPublishIssues(issues, target=prevLang){
   const panel = document.getElementById('publishIssues');
   if(!panel)return;
   panel.classList.add('show');
   if(!issues.length){
-    panel.innerHTML = '<div class="publish-ready">發布前檢查：目前沒有必修缺漏。</div>';
+    panel.innerHTML = `<div class="publish-ready">${esc(targetName(target))}發布前檢查：READY，沒有已知問題。</div>`;
     return;
   }
-  const errorCount = issues.filter(issue=>issue.severity !== 'warn').length;
-  const warnCount = issues.length - errorCount;
-  const firstIssues = issues.slice(0, 12).map(issue=>`
-    <button class="issue-item ${issue.severity==='warn'?'warn':''}" onclick="jumpToIssue(${issue.themeIndex})">
-      <span>${esc(themeLabel(issue.themeIndex))} - ${esc(issue.message)}</span>
-      <span class="issue-meta">${esc(issue.meta)}</span>
-    </button>`).join('');
+  const blockerCount = issues.filter(issue=>issue.severity === 'blocked').length;
+  const warnCount = issues.filter(issue=>issue.severity === 'warning').length;
+  const firstIssues = issues.slice(0, 12).map(issue=>{
+    const content = `<span>${issue.themeIndex === null ? '' : `${esc(themeLabel(issue.themeIndex))} - `}${esc(issue.message)}</span><span class="issue-meta">${esc(issue.meta)}</span>`;
+    return issue.themeIndex === null
+      ? `<div class="issue-item">${content}</div>`
+      : `<button class="issue-item ${issue.severity==='warning'?'warn':''}" onclick="jumpToIssue(${issue.themeIndex})">${content}</button>`;
+  }).join('');
   const more = issues.length > 12 ? `<div class="publish-summary">另外還有 ${issues.length - 12} 個項目，請先處理上方項目。</div>` : '';
   panel.innerHTML = `
     <details class="publish-check-details" ${showOnlyIssues ? 'open' : ''}>
       <summary>
-        <span class="publish-check-title">發布前檢查</span>
+        <span class="publish-check-title">${esc(targetName(target))}發布前檢查</span>
         <span class="publish-check-meta">
-          <span class="issue-count-pill danger">${errorCount} 必修</span>
+          ${blockerCount ? `<span class="issue-count-pill danger">${blockerCount} 阻擋</span>` : ''}
           ${warnCount ? `<span class="issue-count-pill warn">${warnCount} 提醒</span>` : ''}
         </span>
       </summary>
-      <div class="publish-summary">點擊項目可跳到對應主題。Icon URL 為選填，不列入缺漏。</div>
+      <div class="publish-summary">點擊項目可跳到對應主題。Icon URL 為選填；提醒不會阻止複製。</div>
       <div class="issue-list">${firstIssues}</div>
       ${more}
     </details>`;
@@ -1038,26 +1089,26 @@ function renderPublishIssues(issues){
 function renderStatusStrip(issues){
   const strip = document.getElementById('statusStrip');
   if(!strip)return;
-  const errors = issues.filter(issue=>issue.severity!=='warn');
-  const warnings = issues.filter(issue=>issue.severity==='warn');
-  const missingUrl = errors.filter(issue=>/缺 URL/.test(issue.message)).length;
-  const missingEnglish = errors.filter(issue=>/缺英文/.test(issue.message)).length;
+  const blockers = issues.filter(issue=>issue.severity === 'blocked');
+  const warnings = issues.filter(issue=>issue.severity === 'warning');
+  const urlWarnings = warnings.filter(issue=>issue.code === 'missing-url' || issue.code === 'invalid-url').length;
+  const missingLabels = warnings.filter(issue=>issue.code === 'missing-target-label').length;
   strip.innerHTML = `
     <div class="status-card">
       <strong>${themes.length}</strong>
       <span>目前主題</span>
     </div>
-    <div class="status-card ${errors.length?'danger':''}">
-      <strong>${errors.length}</strong>
-      <span>必修缺漏</span>
+    <div class="status-card ${blockers.length?'danger':''}">
+      <strong>${blockers.length}</strong>
+      <span>發布阻擋</span>
     </div>
-    <div class="status-card ${missingUrl?'warn':''}">
-      <strong>${missingUrl}</strong>
-      <span>缺連結 URL</span>
+    <div class="status-card ${urlWarnings?'warn':''}">
+      <strong>${urlWarnings}</strong>
+      <span>URL 提醒</span>
     </div>
-    <div class="status-card ${missingEnglish?'warn':''}">
-      <strong>${missingEnglish}</strong>
-      <span>缺英文名稱</span>
+    <div class="status-card ${missingLabels?'warn':''}">
+      <strong>${missingLabels}</strong>
+      <span>目標語言缺名稱</span>
     </div>`;
 }
 
@@ -1194,8 +1245,8 @@ function renderListEditorText(arr){
   return (arr || []).map(item => {
     const zh = (item.zh || '').trim();
     const en = (item.en || '').trim();
-    const urlZh = itemUrl(item, 'zh');
-    const urlEn = itemUrl(item, 'en');
+    const urlZh = rawItemUrl(item, 'zh');
+    const urlEn = rawItemUrl(item, 'en');
     return [zh, en, urlZh, urlEn].join(' | ').replace(/(?:\s+\|\s*)+$/, '');
   }).join('\n');
 }
@@ -1301,8 +1352,8 @@ function renderLinkedItemTable(i,g,key,label){
     <div class="link-row">
       <input value="${esc(item.zh || '')}" placeholder="中文名稱" oninput="listItemValue(${i},${g},'${key}',${j},'zh',this.value)">
       <input value="${esc(item.en || '')}" placeholder="English Name" oninput="listItemValue(${i},${g},'${key}',${j},'en',this.value)">
-      <input class="url-input" value="${esc(itemUrl(item,'zh'))}" placeholder="中文 URL" oninput="listItemValue(${i},${g},'${key}',${j},'url_zh',this.value)">
-      <input class="url-input" value="${esc(itemUrl(item,'en'))}" placeholder="English URL" oninput="listItemValue(${i},${g},'${key}',${j},'url_en',this.value)">
+      <input class="url-input" value="${esc(rawItemUrl(item,'zh'))}" placeholder="中文 URL" oninput="listItemValue(${i},${g},'${key}',${j},'url_zh',this.value)">
+      <input class="url-input" value="${esc(rawItemUrl(item,'en'))}" placeholder="English URL" oninput="listItemValue(${i},${g},'${key}',${j},'url_en',this.value)">
       <button class="link-row-remove" onclick="removeListItem(${i},${g},'${key}',${j})" title="刪除">×</button>
     </div>`).join('');
   return `
@@ -1581,19 +1632,43 @@ function updatePreview(){
 }
 
 function updatePublishCheck(){
-  const issues = getPublishIssues();
-  const errors = issues.filter(issue=>issue.severity!=='warn').length;
-  const warnings = issues.length - errors;
+  const state = getPublishState(prevLang);
   const el=document.getElementById('publishCheck');
   if(!el)return;
-  renderStatusStrip(issues);
-  renderPublishIssues(issues);
-  if(!issues.length){
+  renderStatusStrip(state.issues);
+  renderPublishIssues(state.issues, state.target);
+  updateCopyButton('zh', getPublishState('zh'));
+  updateCopyButton('en', getPublishState('en'));
+  if(state.state === 'ready'){
     el.textContent='Ready';
     el.style.color='var(--success)';
+  }else if(state.state === 'warning'){
+    el.textContent=`Warning · ${state.warnings.length} reminder${state.warnings.length===1?'':'s'}`;
+    el.style.color='#7a6000';
   }else{
-    el.textContent=`Needs check · ${errors} issue${errors===1?'':'s'}${warnings?` · ${warnings} warn`:''}`;
-    el.style.color=errors?'var(--danger)':'#7a6000';
+    el.textContent=`Blocked · ${state.blockers.length} issue${state.blockers.length===1?'':'s'}`;
+    el.style.color='var(--danger)';
+  }
+}
+
+function updateCopyButton(target, publishState){
+  const button = document.getElementById(target === 'zh' ? 'copyZhBtn' : 'copyEnBtn');
+  if(!button)return;
+  const readyLabel = target === 'zh' ? '複製中文代碼' : 'Copy English Code';
+  button.disabled = publishState.state === 'blocked';
+  button.title = '';
+  if(publishState.state === 'blocked'){
+    button.textContent = target === 'zh'
+      ? `修正 ${publishState.blockers.length} 項阻擋後複製`
+      : `Fix ${publishState.blockers.length} blockers to copy`;
+    button.title = target === 'zh' ? '發布阻擋尚未修正，無法複製。' : 'Copy is unavailable until publish blockers are fixed.';
+  }else if(publishState.state === 'warning'){
+    button.textContent = target === 'zh'
+      ? `複製中文代碼（${publishState.warnings.length} 項提醒）`
+      : `Copy English Code (${publishState.warnings.length} warnings)`;
+    button.title = target === 'zh' ? '提醒不會阻止複製。' : 'Warnings do not prevent copying.';
+  }else{
+    button.textContent = readyLabel;
   }
 }
 
@@ -1609,9 +1684,11 @@ function setLang(l){
 // ════════════════════════════════════════════
 function buildOutputCSS(scale, sc, mobileCols) {
   const s = b => (b * scale).toFixed(1) + 'px';
-  return `<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
-<style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&display=swap');
+  // No external stylesheet/font import: the Tabler Icons link was unused by any
+  // generated markup, and 'DM Sans' below already falls back to system CJK/Arial
+  // fonts, so dropping the @import loses no rendered icon and only changes the
+  // Latin typeface when a visitor happens to have DM Sans installed locally.
+  return `<style>
 ${sc}{--fd:'DM Sans','PingFang TC','Heiti TC','Microsoft JhengHei',Arial,sans-serif;--fb:'DM Sans','PingFang TC','Heiti TC','Microsoft JhengHei',Arial,sans-serif;--bk:#1d1d1f;--gr:#6e6e73;--li:#fff;--bd:rgba(0,0,0,0.1);--pu:#800080;}
 ${sc} *{box-sizing:border-box;margin:0;padding:0;}
 ${sc}{font-family:var(--fb);background:var(--li);padding:16px 0;max-width:1400px;margin:0 auto;}
@@ -1662,7 +1739,7 @@ ${sc} .st-cs{font-size:${s(12)};color:var(--gr);font-style:italic;padding:4px 0;
 ${sc} .st-close{position:absolute;top:20px;right:20px;width:28px;height:28px;background:rgba(0,0,0,.05);border:none;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s;}
 ${sc} .st-close:hover{background:rgba(0,0,0,.1);}
 ${sc} .st-close svg{width:10px;height:10px;stroke:var(--bk);fill:none;stroke-width:2;stroke-linecap:round;display:block;}
-${sc} .st-data{display:none;}
+${sc} .st-grid.st-js-on .st-data{display:none;}
 @media(max-width:1180px){${sc} .st-card-title,${sc} .st-card-sub{max-width:78%;}${sc} .st-card-icon-wrap{width:84px;height:84px;opacity:.075;}}
 @media(max-width:768px){${sc} .st-card{min-height:222px;padding:20px 18px 46px;}${sc} .st-card-title,${sc} .st-card-sub{max-width:76%;}${sc} .st-card-icon-wrap{right:12px;bottom:18px;width:74px;height:74px;opacity:.07;}}
 @media(max-width:480px){${sc} .st-card{min-height:214px;}${sc} .st-card-title,${sc} .st-card-sub{max-width:100%;padding-right:64px;}${sc} .st-card-icon-wrap{width:62px;height:62px;opacity:.065;}}
@@ -1760,11 +1837,17 @@ function buildCards(lang, uid, forPreview) {
 function buildOutputJS(uid) {
   return `<script>
 (function(){
+  // Fallback content (.st-data) is visible by default in the generated CSS so
+  // essential text/links work with no JS. Only once every element this script
+  // needs is confirmed present and every listener below is wired do we add
+  // st-js-on, which is what switches the fallback off in favor of the drawer.
   var g=document.getElementById('${uid}-g');
-  if(!g)return;
-  var cards=Array.prototype.slice.call(g.querySelectorAll('.st-card'));
   var drw=document.getElementById('${uid}-d');
   var dc=document.getElementById('${uid}-c');
+  if(!g||!drw||!dc)return;
+  var cards=Array.prototype.slice.call(g.querySelectorAll('.st-card'));
+  var closeBtn=drw.querySelector('.st-close');
+  if(!cards.length||!closeBtn)return;
   var ac=null;
   function closeAll(){drw.classList.remove('open');if(ac)ac.classList.remove('active');ac=null;}
   function toggle(card){
@@ -1785,7 +1868,8 @@ function buildOutputJS(uid) {
     c.addEventListener('click',function(){toggle(c);});
     c.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle(c);}});
   });
-  drw.querySelector('.st-close').addEventListener('click',closeAll);
+  closeBtn.addEventListener('click',closeAll);
+  g.classList.add('st-js-on');
 })();
 <\/script>`;
 }
@@ -1815,6 +1899,11 @@ function buildHTML(lang, forPreview=false) {
 // ════════════════════════════════════════════
 function copyBoth(lang){
   lang = lang||'zh';
+  const publishState = getPublishState(lang);
+  if(publishState.state === 'blocked'){
+    updatePublishCheck();
+    return;
+  }
   const html = buildHTML(lang);
   const tmp = document.createElement('textarea');
   tmp.value = html;
@@ -1823,10 +1912,9 @@ function copyBoth(lang){
   document.execCommand('copy');
   document.body.removeChild(tmp);
   const btn = lang==='zh'?document.getElementById('copyZhBtn'):document.getElementById('copyEnBtn');
-  const orig = btn.textContent;
   btn.textContent = '✓ 已複製';
   btn.classList.add('copied');
-  setTimeout(()=>{btn.textContent=orig;btn.classList.remove('copied');},2200);
+  setTimeout(()=>{btn.classList.remove('copied');updateCopyButton(lang, getPublishState(lang));},2200);
 }
 
 // ════════════════════════════════════════════
@@ -2062,9 +2150,23 @@ function cellAt(cols, index){
 function normalizeUrl(value){
   const text = String(value || '').trim();
   if(!text)return '';
-  if(/^https?:\/\//i.test(text))return text;
-  if(/^www\./i.test(text))return `https://${text}`;
-  return text;
+  const candidate = /^www\./i.test(text) ? `https://${text}` : text;
+
+  // Trends output is pasted into Drupal. Keep root-relative Drupal routes, but do
+  // not allow protocol-relative, whitespace-containing, or backslash paths.
+  if(/^\/(?!\/)/.test(candidate)){
+    return /[\s\\<>"']/.test(candidate) ? '' : candidate;
+  }
+
+  // This tool's zone/forum links are page destinations, not contact actions.
+  // Require an explicit HTTP(S) URL so unsafe or ambiguous schemes never reach href.
+  if(!/^https?:\/\//i.test(candidate) || /[\s\\<>"']/.test(candidate))return '';
+  try{
+    const parsed = new URL(candidate);
+    return (parsed.protocol === 'https:' || parsed.protocol === 'http:') && parsed.hostname ? candidate : '';
+  }catch(e){
+    return '';
+  }
 }
 
 function splitNameAndUrl(value){
@@ -2073,7 +2175,7 @@ function splitNameAndUrl(value){
   const parts = text.split('|').map(part => part.trim()).filter(Boolean);
   const urlIndex = parts.findIndex(part => /^(https?:\/\/|www\.)/i.test(part));
   if(urlIndex >= 0){
-    const url = normalizeUrl(parts[urlIndex]);
+    const url = parts[urlIndex];
     const name = parts.filter((_, index) => index !== urlIndex).join(' | ');
     return {name: cleanListName(name), url};
   }
@@ -2085,19 +2187,19 @@ function parseNamedLinkCell(value, fallbackEn='', fallbackUrlZh='', fallbackUrlE
   if(!text && !fallbackEn && !fallbackUrlZh && !fallbackUrlEn)return null;
   const parts = text.split('|').map(part => part.trim()).filter(Boolean);
   const enParsed = splitNameAndUrl(fallbackEn);
-  if(parts.length >= 4)return {zh:cleanListName(parts[0]), en:cleanListName(parts[1]), url_zh:normalizeUrl(parts[2]), url_en:normalizeUrl(parts.slice(3).join(' | '))};
+  if(parts.length >= 4)return {zh:cleanListName(parts[0]), en:cleanListName(parts[1]), url_zh:parts[2], url_en:parts.slice(3).join(' | ')};
   if(parts.length >= 3){
-    const sharedUrl = normalizeUrl(parts.slice(2).join(' | '));
+    const sharedUrl = parts.slice(2).join(' | ');
     return {zh:cleanListName(parts[0]), en:cleanListName(parts[1]), url_zh:sharedUrl, url_en:sharedUrl};
   }
   if(parts.length === 2){
     if(/^(https?:\/\/|www\.)/i.test(parts[1])){
-      const sharedUrl = normalizeUrl(parts[1]);
+      const sharedUrl = parts[1];
       return {zh:cleanListName(parts[0]), en:enParsed.name, url_zh:sharedUrl, url_en:enParsed.url || sharedUrl};
     }
-    return {zh:cleanListName(parts[0]), en:cleanListName(parts[1]), url_zh:normalizeUrl(fallbackUrlZh), url_en:normalizeUrl(fallbackUrlEn || fallbackUrlZh)};
+    return {zh:cleanListName(parts[0]), en:cleanListName(parts[1]), url_zh:String(fallbackUrlZh || '').trim(), url_en:String(fallbackUrlEn || fallbackUrlZh || '').trim()};
   }
-  return {zh:cleanListName(text), en:enParsed.name, url_zh:normalizeUrl(fallbackUrlZh), url_en:normalizeUrl(fallbackUrlEn || enParsed.url || fallbackUrlZh)};
+  return {zh:cleanListName(text), en:enParsed.name, url_zh:String(fallbackUrlZh || '').trim(), url_en:String(fallbackUrlEn || enParsed.url || fallbackUrlZh || '').trim()};
 }
 
 function parseLinkedItems(zhValue, enValue='', urlZhValue='', urlEnValue=''){
@@ -2116,12 +2218,12 @@ function parseLinkedItems(zhValue, enValue='', urlZhValue='', urlEnValue=''){
 
 function pushUniqueItem(arr, item){
   const normalized = normalizeLinkItem(item);
-  if(!((normalized.zh || '').trim() || (normalized.en || '').trim() || itemUrl(normalized,'zh') || itemUrl(normalized,'en')))return;
+  if(!((normalized.zh || '').trim() || (normalized.en || '').trim() || rawItemUrl(normalized,'zh') || rawItemUrl(normalized,'en')))return;
   const exists = arr.some(row =>
     (row.zh || '').trim() === (normalized.zh || '').trim() &&
     (row.en || '').trim() === (normalized.en || '').trim() &&
-    itemUrl(row,'zh') === itemUrl(normalized,'zh') &&
-    itemUrl(row,'en') === itemUrl(normalized,'en')
+    rawItemUrl(row,'zh') === rawItemUrl(normalized,'zh') &&
+    rawItemUrl(row,'en') === rawItemUrl(normalized,'en')
   );
   if(!exists)arr.push(normalized);
 }
@@ -2159,11 +2261,11 @@ function exportSheetBatch(){
       ];
       for(let i=0;i<zoneSlots;i++){
         const item = (group.zones || [])[i] || {};
-        row.push(tsvCell(item.zh), tsvCell(item.en), tsvCell(itemUrl(item,'zh')), tsvCell(itemUrl(item,'en')));
+        row.push(tsvCell(item.zh), tsvCell(item.en), tsvCell(rawItemUrl(item,'zh')), tsvCell(rawItemUrl(item,'en')));
       }
       for(let i=0;i<forumSlots;i++){
         const item = (group.forums || [])[i] || {};
-        row.push(tsvCell(item.zh), tsvCell(item.en), tsvCell(itemUrl(item,'zh')), tsvCell(itemUrl(item,'en')));
+        row.push(tsvCell(item.zh), tsvCell(item.en), tsvCell(rawItemUrl(item,'zh')), tsvCell(rawItemUrl(item,'en')));
       }
       rows.push(row);
     });

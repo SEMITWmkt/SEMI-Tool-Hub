@@ -12,7 +12,7 @@ The current product direction is intentionally narrow: help website editors prep
 | Theme / Trend Generator | 主題卡片、展區與論壇議題互動 HTML 產生器 | Integrated |
 | Logo Prep Tool | PDF-compatible AI、PDF、SVG 與圖片去白邊轉 PNG 工具 | Integrated v0.1 |
 | Sponsors Logo Generator | 贊助商 Logo 分級、排序、備份與中英文輸出 | Integrated v5.2.1 |
-| Pavilions Vendor Generator | 專區展商名單與攤位資料 HTML 產生器 | Integrated v1.1 confidence slice |
+| Pavilions Vendor Generator | 專區展商名單與攤位資料 HTML 產生器 | Integrated v1.2 continuity slice |
 
 ## Current Architecture
 
@@ -49,7 +49,7 @@ The desktop tool folders are treated as source material during migration. The Hu
 | [Workflow](docs/workflow.md) | Repeatable test, integrate, document, and release process. |
 | [Functional Map](docs/functional-map.md) | Product functions organized by workflow and role. |
 | [Forum v9.14 Work Log](docs/forum-v914-worklog.md) | Maintainer-facing summary of the Forum continuity workflow, decisions, limits, and next improvements. |
-| [Pavilions v1.1 Spec](docs/pavilions-v1.1-spec.md) | Scope and acceptance criteria for the next tool slice. |
+| [Pavilions Spec](docs/pavilions-v1.1-spec.md) | Scope and acceptance criteria for the Pavilions confidence and continuity slice. |
 | [Trial Runs 2026-06-03](docs/trial-runs-2026-06-03.md) | Baseline results from editor, visitor, and developer perspectives. |
 | [Trial Runs 2026-06-08](docs/trial-runs-2026-06-08-data-resilience.md) | Data resilience tests for messy vendor and sponsor source data. |
 
@@ -77,10 +77,13 @@ Step 2 also has an optional Agenda block (between Logos and Registration/Pricing
 
 ## Current Focus
 
-Pavilions Vendor HTML Creator v1.1 is now integrated into Hub as the current confidence upgrade:
+Pavilions Vendor HTML Creator v1.2 is now integrated into Hub as the current continuity upgrade:
 
 - Parsed-data review before HTML output.
 - Row-level validation for company name, booth, and URL.
+- Incremental add/edit/reorder/delete workflow.
+- Missing or invalid URLs render as non-clickable cards instead of fake `#` links.
+- Duplicate vendor warnings and limited generated-HTML restore.
 - Sample data for first-time use.
 - SEMICON preset color swatches.
 - README and Chinese user guide.
