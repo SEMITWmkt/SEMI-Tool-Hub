@@ -9,10 +9,10 @@
 
 | 工具 | Hub 路徑 | Hub 內版本 | Source Repo | Source 版本 | 同步狀態 | 備註 |
 |---|---|---|---|---|---|---|
-| Forum HTML Compiler | `tools/forum/index.html` | v9.16 | `Forum HTML Creator` | v9.14 | Hub branch ahead | Forum continuity release: Legacy Restore, Step 1 workflow cleanup, quieter Theme / Outline output, mobile fixes, Draft JSON import/export. v9.15 adds map-url-zh/map-url-en default URLs and skips base64 re-encoding for pasted logo URLs. v9.16 adds a Manual mode (no Excel/Word source needed), decouples the Theme and Outline toggles, hides the Registration Fees header when there is nothing to show under it, and adds an optional Agenda block with section headers and highlighted rows. Source repo back-sync / Drupal QA evidence still pending. |
-| Sponsors Logo Creator | `tools/sponsors/index.html` | v5.2.1 | `Sponsors Logo HTML Creator` | v5.2.0 | Hub ahead | 強化貼上線上 HTML 還原流程，source repo 待回同步 |
-| Pavilions Vendor Creator | `tools/pavilions/index.html` | v1.2 | `Pavilions Vendor HTML Creator` | v1.1 | Working copy ahead | 本機工作區已加入增量維護、缺/壞 URL 非連結輸出、重複警告、有限 HTML restore 與 README；待 Drupal QA 與 source repo 回同步 |
-| Trend Table Creator | `tools/trends/index.html` | v4.11 | `Trend_Table Creator` | v4.11 | Metadata aligned; QA pending | 2026-06-30 confirmed tool file title, UI badge, workfile metadata, Hub card, workspace metadata, and version-map all use `v4.11`. Remaining risk is Drupal QA / output rendering / template QA, not version drift. |
+| Forum HTML Compiler | `tools/forum/index.html` | v9.16 | `Forum HTML Creator` | v9.14 | Frozen ToolHub release; source behind | v9.16 frozen vNext reliability release: structured Review sections, browser autosave / Continue, Work File JSON, target-specific readiness and copy guards, and automatic Publish regeneration. Legacy Restore remains a fallback. Source repo back-sync and live Drupal publication evidence are separate follow-ups. |
+| Sponsors Logo Creator | `tools/sponsors/index.html` | v5.3.0 | `Sponsors Logo HTML Creator` | v5.2.0 | ToolHub release; source behind | v5.3.0 aligns canonical Logo/URL handling, READY/WARNING/BLOCKED readiness, and language-specific copy guards. Source repo back-sync and Drupal QA remain separate. |
+| Pavilions Vendor Creator | `tools/pavilions/index.html` | v1.1 | `Pavilions Vendor HTML Creator` | v1.1 | Released main aligned | v1.2 continuity work is held/unreleased on `preserve/toolhub-2026-precloseout` and is not part of current main. |
+| Trend Table Creator | `tools/trends/index.html` | v4.11 | `Trend_Table Creator` | v4.11 | Released main aligned; QA pending | Current main remains v4.11. Later reliability work is held on the preservation branch and is not part of this release. |
 | Logo Prep Tool | `tools/logo-prep/index.html` | v0.1 | —（無獨立 repo） | v0.1 | ✅ | 輔助工具，不與四大工具同層管理 |
 
 ---
@@ -39,9 +39,11 @@
 | 2026-06-29 | Pavilions Vendor Creator | v1.1 → v1.1 | 本機工作區調整輸出為更適合 CMS source 的壓縮 HTML；待測試與 commit |
 | 2026-06-30 | Trend Table Creator | v4.9 → v4.11 | Metadata-only version drift resolution. `tools/trends/index.html` is the source of truth; README, Hub card, workspace metadata, and version-map now all show `v4.11`. |
 | 2026-07-02 | Forum HTML Compiler | v9.13 → v9.14 | Documented Forum continuity workflow: Legacy Restore helper, Step 1 action placement, quieter collapsible Theme / Outline block, mobile fixes, and Draft JSON import/export for future maintenance. |
-| 2026-07-13 | Pavilions Vendor Creator | v1.1 → v1.2 | Hardened incremental publishing workflow: stable order, add/edit/reorder/delete controls, missing/invalid URL warnings with non-clickable output, duplicate warnings, import confirmation, limited generated-HTML restore, README, and QA evidence. |
+| 2026-07-13 | Pavilions Vendor Creator | v1.1 → v1.2 (held/unreleased) | Prepared incremental publishing workflow work, later retained only on the preservation branch; released main remains v1.1. |
 | 2026-07-13 | Forum HTML Compiler | v9.14 → v9.15 | Split map-url into map-url-zh/map-url-en with semicontaiwan.org default URLs; logo URL input now skips canvas/base64 re-encoding and keeps the pasted URL as-is to avoid HTML bloat. |
 | 2026-07-15 | Forum HTML Compiler | v9.15 → v9.16 | Added Manual mode for forums with no Excel/Word source (skips parsing, defaults Theme and Pricing off). Decoupled Theme and Outline toggles so an outline-only forum no longer forces a "To be announced" theme line. Registration Fees header now only renders when there is a real CTA link or price data. Added an optional Agenda block (between Logos and Registration/Pricing): time-line-anchored parsing so pasted agendas need little to no manual reformatting, `##` for standalone section headers, `**...**` to highlight a row, and full Name/Title/Company per speaker. |
+| 2026-08-19 | Forum HTML Compiler | v9.16 → v9.16 | Froze the ToolHub vNext reliability release under v9.16: structured Review, browser autosave / Continue, Work File JSON, target-specific readiness/copy guards, and automatic Publish regeneration. No v9.17 was created. |
+| 2026-08-19 | Sponsors Logo Creator | v5.2.1 → v5.3.0 | Released canonical Logo/URL handling, READY/WARNING/BLOCKED readiness, and independent Chinese/English copy guards; legacy scale remains import-compatible only. |
 
 ---
 

@@ -1,6 +1,6 @@
 # SEMI Tool Hub — Tool Integration Contracts
 
-Last updated: 2026-07-02
+Last updated: 2026-08-19
 
 This document defines the minimum contract each integrated tool must keep when it is copied into or updated inside the Hub. It is intentionally product-facing and handoff-oriented: if a future change breaks one of these contracts, it needs a deliberate version update and QA pass.
 
@@ -20,12 +20,13 @@ Every tool inside `tools/` must:
 
 | Contract item | Definition |
 |---|---|
-| Primary input | Forum Excel/CSV rows for first creation, Forum Draft JSON for later maintenance, selected forum content, bilingual labels, speakers/moderators/chairs, pricing, registration/map links, partner/logo data, and optional existing Drupal body HTML for recovery preview. |
-| Primary output | Bilingual forum-page HTML that can be pasted into Drupal source. |
+| Primary input | Forum Excel/CSV rows or Manual mode for first creation, Work File JSON for durable continuation, selected forum content, bilingual labels, speakers/moderators/chairs, pricing, registration/map links, partner/logo data, and optional existing Drupal body HTML for fallback recovery preview. |
+| Primary output | Bilingual forum-page HTML regenerated automatically from current canonical fields when Publish or Copy requires fresh output, ready to paste into Drupal source. |
 | CSS scope | Generated output must stay scoped to the forum section and avoid leaking resets into the Drupal page. |
-| Storage | Uses browser-side work/draft storage for same-browser continuity and Forum Draft JSON import/export for handoff and future maintenance. Draft JSON is local structured state, not CMS storage. |
+| Storage | Browser autosave and Continue provide same-browser continuity. Work File JSON import/export is the durable backup and handoff mechanism; neither is CMS storage. |
+| Review and publish | Structured Review sections expose canonical fields and target-specific issues. READY and WARNING remain copyable; BLOCKED disables Copy for that language. Readiness navigation must not mutate form state or generated output. |
 | Drupal QA requirement | Paste generated HTML into Drupal source, save/preview, confirm desktop and mobile layout, Theme / Outline collapse behavior, speaker/pricing sections, buttons, links, and logo image sources. |
-| Integration risks | Forum is already in active team use; large workflow changes create retraining risk. v9.14 keeps Excel as the initial import path, uses Draft JSON for maintenance, and treats Legacy Restore as a helper rather than a full CMS migration. |
+| Integration risks | Forum is already in active team use; large workflow changes create retraining risk. Frozen v9.16 keeps Legacy Restore as a fallback rather than a full CMS migration. Repository release and live Drupal publication are separate states. |
 
 ## Trend Table Creator
 
@@ -45,9 +46,10 @@ Every tool inside `tools/` must:
 | Primary input | Sponsor tier labels, sponsor names, logo images/URLs, target links, ordering, existing published HTML for restore/continuation. |
 | Primary output | Tiered sponsor logo HTML for Drupal, usually bilingual or label-customized by page need. |
 | CSS scope | Output layout styles must stay contained to the sponsor section and avoid affecting unrelated Drupal content. |
-| Storage | Work file must preserve tier labels, sponsor rows, images/URLs, missing-logo work items, ordering, and scale settings. |
+| Storage | Work file must preserve tier labels, sponsor rows, images/URLs, missing-logo work items, and ordering. Legacy `scale` values may remain import-compatible but are not current UI or output behavior. |
+| Readiness and copy | v5.3.0 evaluates Chinese and English independently. READY and WARNING remain copyable; BLOCKED disables Copy for the affected language, and the guard is rechecked when Copy is invoked. |
 | Drupal QA requirement | Paste output into Drupal source, verify tier headings, logo image rendering, link targets, desktop grid, and mobile wrapping. |
-| Integration risks | Hub is ahead of source repo at `v5.2.1`; source back-sync is required before treating source and Hub as aligned. Logo asset quality may depend on Logo Prep Tool. |
+| Integration risks | ToolHub releases v5.3.0 while the independent source repo remains recorded behind; source back-sync and Drupal publication must be verified separately. Logo asset quality may depend on Logo Prep Tool. |
 
 ## Pavilions Vendor Creator
 

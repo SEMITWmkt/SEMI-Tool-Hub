@@ -9,9 +9,9 @@ The current product direction is intentionally narrow: help website editors prep
 | Tool | Purpose | Hub integration status |
 |---|---|---|
 | Forum Generator | 論壇頁資料、Logo、價格、還原與草稿維護的中英文 HTML 產生器 | Integrated v9.16 |
-| Theme / Trend Generator | 主題卡片、展區與論壇議題互動 HTML 產生器 | Integrated |
+| Theme / Trend Generator | 主題卡片、展區與論壇議題互動 HTML 產生器 | Integrated v4.11 |
 | Logo Prep Tool | PDF-compatible AI、PDF、SVG 與圖片去白邊轉 PNG 工具 | Integrated v0.1 |
-| Sponsors Logo Generator | 贊助商 Logo 分級、排序、備份與中英文輸出 | Integrated v5.2.1 |
+| Sponsors Logo Generator | 贊助商 Logo 分級、排序、備份與中英文輸出 | Integrated v5.3.0 |
 | Pavilions Vendor Generator | 專區展商名單與攤位資料 HTML 產生器 | Integrated v1.1 confidence slice |
 
 ## Current Architecture
@@ -59,17 +59,18 @@ The current integrated Hub keeps the existing generators usable. The next design
 
 ## Forum v9.16 Workflow
 
-Forum v9.16 uses three source layers:
+Forum v9.16 uses four continuity layers:
 
-- Excel/text is for first-time import.
-- Forum Draft JSON is the recommended maintenance source after first creation.
+- Excel/text or Manual mode is for first-time creation.
+- Browser autosave and Continue support same-browser return visits.
+- Work File JSON is the durable backup and handoff source.
 - Drupal HTML is the publishing output, not the ideal source of truth.
 
-For a new page, paste Excel/text, parse, select the forum/session if needed, edit fields in Step 2, generate HTML, paste to Drupal, then export the Forum Draft JSON with the project files.
+For a new page, import Excel/text or choose Manual mode, confirm the selected forum/session, and work through the structured Review sections. Opening Publish automatically regenerates the bilingual preview from the current canonical fields. Review the target language's READY / WARNING / BLOCKED result, copy only when allowed, paste to Drupal, and save the Work File JSON with the project files.
 
-For later updates, import the Forum Draft JSON, edit only changed fields, regenerate HTML, paste to Drupal, then export the updated draft JSON.
+For later updates, use Continue in the same browser or load the Work File JSON, edit only changed fields in Review, then open Publish. Output freshness is handled automatically; save an updated Work File after publishing changes.
 
-Legacy HTML Restore is a recovery helper for existing Drupal body HTML. It can preview and apply Theme, Outline, Venue, and Registration URL, but it does not restore page title, pricing, logo sections, chair/moderator/advised-by fields, or full CMS state.
+Legacy HTML Restore remains a fallback recovery helper for existing Drupal body HTML. It can preview and apply Theme, Outline, Venue, and Registration URL, but it does not restore page title, pricing, logo sections, chair/moderator/advised-by fields, or full CMS state.
 
 Step 1 also offers a Manual mode for forums with no Excel or Word source at all: it skips parsing and goes straight to a blank Step 2, with the standard SEMI pricing table left off by default since there is no parsed price data to show. Theme and Outline are independent toggles, and the Registration Fees block only renders when there is an actual CTA link or price data to show.
 

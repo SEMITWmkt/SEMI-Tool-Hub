@@ -660,8 +660,8 @@
         path: "tools/forum/index.html",
         summary: "將 ST26 論壇資料、主題、講者、價格、合作單位、報名連結與 Logo 編譯成可貼入 Drupal 的中英文 HTML。",
         inputs: ["Excel / CSV 論壇資料", "論壇主題與大綱", "主席、主持人、指導單位", "合作單位文字連結", "Logo 圖片或圖片 URL", "報名與地圖連結"],
-        outputs: ["中文版 HTML", "英文版 HTML", "桌機 / 手機預覽", "同瀏覽器草稿保存"],
-        improvements: ["同步獨立版 v9.13 Excel 標題列彈性解析", "新增 JSON 專案匯出 / 匯入", "新增 Drupal 貼上前檢查清單", "v9.15 地圖連結預設值、logo 網址免 base64 轉檔", "v9.16 新增手動建立模式（免 Excel/Word 來源）、修正主題與大綱耦合、報名費用空白區塊，並新增議程 Agenda 區塊（支援分節標題與重點標記）"],
+        outputs: ["中文版 HTML", "英文版 HTML", "桌機 / 手機預覽", "瀏覽器 autosave / Continue", "Work File JSON"],
+        improvements: ["以 Basic、Theme、People、Partners、Agenda、Registration、Venue 組成結構化 Review", "瀏覽器 autosave / Continue 與 Work File JSON 接續", "依中英文目標分開顯示 READY / WARNING / BLOCKED", "進入 Publish 時自動用目前欄位更新輸出與預覽"],
         keywords: ["forum", "論壇", "compiler", "complier", "html", "pricing", "logo", "ai", "drupal", "registration", "英文", "中文"]
       },
       {
@@ -705,14 +705,14 @@
         name: "贊助商 Logo HTML 產生器",
         category: "Sponsor",
         group: "品牌露出",
-        version: "v5.2.1",
+        version: "v5.3.0",
         status: "Stable",
         statusClass: "stable",
         path: "tools/sponsors/index.html",
-        summary: "建立贊助商 Logo 分級、排序、連結與雙語輸出，支援工作檔與線上 HTML 還原。",
+        summary: "建立贊助商 Logo 分級、排序、連結與雙語輸出，優先使用 Drupal 圖片網址並支援工作檔與線上 HTML 還原。",
         inputs: ["Logo 圖片貼上或上傳", "贊助商名稱", "贊助級別", "網站連結", "級別中英文名稱"],
-        outputs: ["中文版贊助商 HTML", "英文版贊助商 HTML", "JSON 備份檔", "視覺預覽"],
-        improvements: ["強化貼上線上 HTML 還原流程", "保留網址抓取作為下一版方向", "顯示匯入級別摘要，方便接續補新贊助商"],
+        outputs: ["中文版贊助商 HTML", "英文版贊助商 HTML", "JSON 工作檔", "視覺預覽", "語系獨立發布檢查與複製保護"],
+        improvements: ["v5.3.0 使用一致的 Logo / URL 判斷產生預覽與輸出", "READY / WARNING 可複製、BLOCKED 停用對應語言複製", "中文與英文級距標題分開檢查，避免跨語言繞過阻擋"],
         keywords: ["sponsor", "贊助", "logo", "白金", "金級", "silver", "backup", "json"]
       },
       {
