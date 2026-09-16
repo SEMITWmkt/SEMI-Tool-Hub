@@ -1,80 +1,57 @@
 # Forum HTML Compiler（ST26 論壇 HTML 產生器）
 
-版本：v9.14　｜　狀態：Hub branch ahead，QA pending（詳見 [tool-status.md](../../docs/tool-status.md)）
+版本：**v9.16**　｜　狀態：**ToolHub released main / frozen**。這是工具的發布基準；不等於每個 Drupal 論壇頁都已由此版本產生，或已完成各頁的上線驗證。狀態邊界見 [Tool Status](../../docs/tool-status.md)。
 
-## 1. 工具目的
+## 工具目的
 
-把 SEMICON Taiwan 論壇（Forum）頁面的資料——主題、大綱、講者/主席/顧問、報名連結、地點、贊助 Logo、票價——整理成可以直接貼進 Drupal 的中英文雙語固定 HTML。
+將論壇的主題、大綱、人物、合作夥伴、議程、報名與場地等資料，整理成可逐段檢查的雙語發布流程，產生供 Drupal 使用的 HTML。工具支援編輯者維護長頁面與多區塊內容；HTML 是發布輸出，不是後續編輯的理想來源。
 
-核心目標不是管理論壇資料本身，而是讓 CP（網站內容維運）人員每次小幅更新論壇頁面時，不需要每次都從 Excel 重建整頁，也不需要手動修 HTML。
+## 開始與接續
 
-## 2. 三層資料來源
+- **新論壇**：從 Excel／文字來源開始，或選擇 Manual mode 建立空白論壇；有多場次時先確認選取的場次。
+- **同一瀏覽器接續**：瀏覽器會自動保存目前工作；重新載入後可使用 Continue。這是同瀏覽器的工作接續，不應當成永久備份。
+- **備份、交接或跨裝置**：儲存並保存 Work File JSON；接手時載入工作檔，再繼續編輯。更新並發布後，應保存新版工作檔。
+- **舊 HTML 救援**：Legacy Restore 僅為沒有工作檔時的 fallback，不能完整還原 CMS 或所有編輯欄位。
 
-v9.14 之後，工具區分三種資料來源，各自用途不同：
+此 repo 既有的檔案保存與命名約定見 [Forum Drafts](../../docs/forum-drafts/README.md)；該文件沿用「草稿 JSON」名稱，v9.16 介面則稱「工作檔」。
 
-| 來源 | 用途 |
+## Review：逐段確認內容
+
+七個結構化區段為 Basic、Theme、People、Partners、Agenda、Registration & Pricing、Venue。Review Map 顯示各區狀態；問題可導向相關區段或欄位，讓編輯者在長頁面中定位與逐段檢查。People 資料由中英文輸出共用，不是兩套獨立欄位。
+
+## Publish：依語言檢核與複製
+
+進入 Publish 會依目前欄位產生最新中英文輸出；編輯後若輸出過期，Publish／Copy 會重新產生目前版本。正常流程不需要另外記住手動 Generate 步驟。
+
+中文和英文各自顯示發布檢核狀態：
+
+| 狀態 | 操作意義 |
 |---|---|
-| Excel / 文字貼上 | 第一次建立論壇頁面時使用 |
-| 論壇草稿 JSON（Forum Draft JSON） | 後續維護的建議來源，可完整還原編輯狀態 |
-| Drupal HTML（已發布內容） | 只是輸出結果，不是理想的編輯來源；只在沒有草稿 JSON 時，透過 Legacy Restore 做救援用途 |
+| READY | 沒有阻擋該語言 Copy 的問題；仍需依正式發布流程人工確認。 |
+| WARNING | 可 Preview、可 Copy，但有內容需要人工判斷；**不代表內容完整、翻譯完成或可免審查直接發布**。 |
+| BLOCKED | 可 Preview 以查找問題，但該語言 Copy 會停用。 |
 
-**請優先用 Forum Draft JSON 做後續維護**，不要每次都重新貼 Excel 或直接改 Drupal HTML。
+Copy 會再次檢查目標語言狀態。兩種語言的檢核不能互相代替。
 
-## 3. 使用流程
+### 建立或更新頁面
 
-### 新頁面
+1. 匯入 Excel／文字或選擇 Manual mode；確認論壇／場次。
+2. 在七個 Review 區段編輯並逐段確認內容。
+3. 進入 Publish，檢查中文與英文各自的 READY／WARNING／BLOCKED，以及實際預覽。
+4. 僅對允許 Copy、且已完成必要人工審查的語言複製 HTML，並依 Drupal 發布流程處理。
+5. 儲存 Work File JSON，與該論壇的工作資料一起保留，供下次更新或交接。
 
-1. 貼上 Excel / 文字內容並解析
-2. 若該場次有多個子場，選擇對應的論壇/場次
-3. 進入 Step 2，逐欄位編輯
-4. 產生 HTML
-5. 貼到 Drupal
-6. **匯出論壇草稿 JSON**，跟專案檔案一起保存（這一步很重要，之後維護要靠它）
+下次在同一瀏覽器可用 Continue；換瀏覽器或交接則載入 Work File JSON。修改後重新進入 Publish 取得最新輸出。
 
-### 更新既有頁面
+## 已知邊界
 
-1. 匯入先前匯出的論壇草稿 JSON
-2. 只修改有變動的欄位
-3. 重新產生 HTML
-4. 貼到 Drupal
-5. 匯出更新後的草稿 JSON
-
-### 沒有草稿 JSON 時的救援流程（Legacy Restore）
-
-1. 貼上目前 Drupal 上既有的 body HTML
-2. 工具會解析並預覽可還原的欄位（主題、大綱、地點、報名連結）
-3. 確認無誤後套用，進入 Step 2
-4. **手動檢查**：Logo、票價、講者/主席/顧問欄位、頁面標題——這些欄位 Legacy Restore *不會*自動還原
-5. 視情況決定是否重新產生 HTML
-
-## 3.1 論壇草稿 JSON 存放規則
-
-草稿 JSON 是後續維護的核心資產，**沒有固定存放位置的話，換人接手或事隔幾個月就會找不到，等於白做**。目前規則：
-
-- **存放位置**：`docs/forum-drafts/`（跟這個 repo 一起版控，任何人 clone repo 就拿得到，不會因為某個人的電腦不見而遺失）
-- **檔名規則**：`{論壇代號或關鍵字}-{年份}.json`，例如 `ai-packaging-2026.json`、`ai-chips-2026.json`
-- **更新時機**：每次用產生器改完一場論壇、貼回 Drupal 之後，**立刻**匯出草稿 JSON 覆蓋掉舊檔案，不要等到「有空再存」
-- **合作論壇**：如果該論壇不是我們主導設計、不套用我們的樣式標準，草稿 JSON 可以不用建立（因為這類論壇不會透過這套工具維護）
-
-沒有固定存放規則之前產生的草稿 JSON（如果散落在個人電腦），有空時陸續搬進 `docs/forum-drafts/`，之後只認這個位置。
-
-## 4. 已知限制（刻意不解決的部分）
-
-- 無法從舊 HTML 自動還原完整票價資訊
-- 無法自動上傳 Logo 到 Drupal
-- 不是完整的 CMS 遷移工具
-- 不會自動同步中英文兩個語言版本
-- Legacy Restore 不會還原：頁面標題、票價、Logo 區塊、講者/主席/顧問欄位
-
-詳細設計脈絡見 [Forum v9.14 Work Log](../../docs/forum-v914-worklog.md)。
-
-## 5. 尚未完成的 QA
-
-在標記為 publish-ready 之前，還需要完成：Drupal 後台貼上測試、桌機/手機前台檢查、Legacy Restore 煙霧測試、草稿 JSON 匯入匯出煙霧測試，並在 [docs/qa/](../../docs/qa/) 下留存證據。
+- Legacy Restore 可作部分欄位救援，但不還原完整頁面標題、票價、Logo、chair／moderator／advised-by 等人物角色或完整 CMS 狀態；套用後必須人工檢查。
+- 工具不會自動上傳 Logo 到 Drupal，也不是 CMS 遷移或網站治理系統。
+- Released main 與正式 Drupal 頁面發布是不同證據層級；本 README 不聲稱所有 production 論壇頁都由 v9.16 產生。
 
 ## 相關文件
 
-- [Tool Status](../../docs/tool-status.md) — 目前整合狀態與待辦
-- [Tool Contracts](../../docs/tool-contracts.md) — 輸入輸出、CSS 隔離、儲存規範
-- [Forum v9.14 Work Log](../../docs/forum-v914-worklog.md) — 設計決策與完整脈絡
-- [Forum Continuity Standard](../../docs/forum-continuity-standard.md)
+- [ToolHub 2026 closeout](../../docs/2026-toolhub-closeout-zh.md) — v9.16 決策、驗證與 frozen release 邊界。
+- [Tool Status](../../docs/tool-status.md) — current release 與 Drupal QA 狀態。
+- [ToolHub README](../../README.md) — Hub 入口及 Forum v9.16 工作流程。
+- [Forum v9.14 Work Log](../../docs/forum-v914-worklog.md) — 歷史設計紀錄，**不是 v9.16 的現行使用指南**。
